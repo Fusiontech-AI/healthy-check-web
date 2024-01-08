@@ -1,0 +1,50 @@
+{
+  "_from": "vue3-pro-table",
+  "_id": "vue3-pro-table@1.1.1",
+  "_inBundle": false,
+  "_integrity": "sha512-thnsdD7fB3M2Xp8YQz6RmZUP3tngdVAdvP4EvC940HEpJsN628H1W1KDlHYnwObxRR1q1dHCcUK7gCKdYA5zxQ==",
+  "_location": "/vue3-pro-table",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "tag",
+    "registry": true,
+    "raw": "vue3-pro-table",
+    "name": "vue3-pro-table",
+    "escapedName": "vue3-pro-table",
+    "rawSpec": "",
+    "saveSpec": null,
+    "fetchSpec": "latest"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "https://registry.npmmirror.com/vue3-pro-table/-/vue3-pro-table-1.1.1.tgz",
+  "_shasum": "76375b1e68d33043d284fc585c96ffc6e3a22b15",
+  "_spec": "vue3-pro-table",
+  "_where": "C:\\Users\\yujin\\Desktop\\TJNEW\\新体检\\healthy-check-web",
+  "author": {
+    "name": "huzhushan@126.com"
+  },
+  "bugs": {
+    "url": "https://github.com/huzhushan/vue3-pro-table/issues"
+  },
+  "bundleDependencies": false,
+  "deprecated": false,
+  "description": "一个基于ElementPlus封装的table列表页组件，将包含搜索、列表、分页等功能的页面封装成一个组件",
+  "homepage": "https://github.com/huzhushan/vue3-pro-table#readme",
+  "keywords": [
+    "vue3-pro-table"
+  ],
+  "license": "MIT",
+  "main": "index.js",
+  "name": "vue3-pro-table",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/huzhushan/vue3-pro-table.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "version": "1.1.1"
+}

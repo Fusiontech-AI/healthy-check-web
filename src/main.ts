@@ -23,6 +23,8 @@ import animate from './animate';
 import 'virtual:svg-icons-register';
 import ElementIcons from '@/plugins/svgicon';
 
+//引入vue3-pro-table
+import Vue3ProTable from '@/components/TableSearchComponent/vue3-pro-table';
 // permission control
 import './permission';
 
@@ -51,6 +53,7 @@ app.use(router);
 app.use(store);
 app.use(i18n);
 app.use(plugins);
+app.use(Vue3ProTable);
 // 自定义指令
 directive(app);
 
