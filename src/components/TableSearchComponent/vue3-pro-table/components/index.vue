@@ -11,153 +11,120 @@
       :label-width="search.labelWidth"
       ref="searchForm"
     >
-      <el-form-item
-        v-for="item in search.fields"
-        :key="item.name"
-        :label="item.label"
-        :prop="item.name"
-      >
-        <slot v-if="item.type === 'custom'" :name="item.slot" />
-        <el-select
-          v-else-if="item.type === 'select'"
-          v-model="searchModel[item.name]"
-          :filterable="!!item.filterable"
-          :multiple="!!item.multiple"
-          clearable
-          :placeholder="`请选择${item.label}`"
-          :style="{ width: search.inputWidth, ...item.style }"
-        >
-          <el-option
-            v-for="option of item.options"
-            :key="option.value"
-            :label="option.name"
-            :value="option.value"
-          ></el-option>
-        </el-select>
-        <el-radio-group
-          v-model="searchModel[item.name]"
-          v-else-if="item.type === 'radio'"
-          :style="{ width: search.inputWidth, ...item.style }"
-        >
-          <el-radio
-            v-for="option of item.options"
-            :key="option.value"
-            :label="option.value"
-            >{{ option.name }}</el-radio
-          >
-        </el-radio-group>
-        <el-radio-group
-          v-model="searchModel[item.name]"
-          v-else-if="item.type === 'radio-button'"
-          :style="{ width: search.inputWidth, ...item.style }"
-        >
-          <el-radio-button
-            v-for="option of item.options"
-            :key="option.value"
-            :label="option.value"
-            >{{ option.name }}</el-radio-button
-          >
-        </el-radio-group>
-        <el-checkbox-group
-          v-model="searchModel[item.name]"
-          v-else-if="item.type === 'checkbox'"
-          :style="{ width: search.inputWidth, ...item.style }"
-        >
-          <el-checkbox
-            v-for="option of item.options"
-            :key="option.value"
-            :label="option.value"
-            >{{ option.name }}</el-checkbox
-          >
-        </el-checkbox-group>
-        <el-checkbox-group
-          v-model="searchModel[item.name]"
-          v-else-if="item.type === 'checkbox-button'"
-          :style="{ width: search.inputWidth, ...item.style }"
-        >
-          <el-checkbox-button
-            v-for="option of item.options"
-            :key="option.value"
-            :label="option.value"
-            >{{ option.name }}</el-checkbox-button
-          >
-        </el-checkbox-group>
-        <el-date-picker
-          v-else-if="item.type === 'date'"
-          v-model="searchModel[item.name]"
-          type="date"
-          format="YYYY-MM-DD"
-          clearable
-          @change="handleDateChange($event, item, 'YYYY-MM-DD')"
-          :placeholder="`请选择${item.label}`"
-          :style="{ width: search.inputWidth, ...item.style }"
-        ></el-date-picker>
-        <el-date-picker
-          v-else-if="item.type === 'datetime'"
-          v-model="searchModel[item.name]"
-          type="datetime"
-          clearable
-          @change="handleDateChange($event, item, 'YYYY-MM-DD HH:mm:ss')"
-          format="YYYY-MM-DD HH:mm:ss"
-          :placeholder="`请选择${item.label}`"
-          :style="{ width: search.inputWidth, ...item.style }"
-        ></el-date-picker>
-        <el-date-picker
-          v-else-if="item.type === 'daterange'"
-          v-model="searchModel[item.name]"
-          type="daterange"
-          format="YYYY-MM-DD"
-          range-separator="-"
-          start-placeholder="开始日期"
-          end-placeholder="结束日期"
-          clearable
-          @change="handleRangeChange($event, item, 'YYYY-MM-DD')"
-          :style="{ width: search.inputWidth, ...item.style }"
-        ></el-date-picker>
-        <el-date-picker
-          v-else-if="item.type === 'datetimerange'"
-          v-model="searchModel[item.name]"
-          type="datetimerange"
-          format="YYYY-MM-DD HH:mm:ss"
-          range-separator="-"
-          start-placeholder="开始时间"
-          end-placeholder="结束时间"
-          clearable
-          @change="handleRangeChange($event, item, 'YYYY-MM-DD HH:mm:ss')"
-          :style="{ width: search.inputWidth, ...item.style }"
-        ></el-date-picker>
-        <el-input-number
-          v-else-if="item.type === 'number'"
-          v-model="searchModel[item.name]"
-          :placeholder="`请输入${item.label}`"
-          controls-position="right"
-          :min="item.min"
-          :max="item.max"
-          :style="{ width: search.inputWidth, ...item.style }"
-        />
-        <el-input
-          v-else-if="item.type === 'textarea'"
-          type="textarea"
-          clearable
-          v-model="searchModel[item.name]"
-          :placeholder="`请输入${item.label}`"
-          :style="{ width: search.inputWidth, ...item.style }"
-        ></el-input>
-        <el-input
-          v-else
-          v-model="searchModel[item.name]"
-          clearable
-          :placeholder="`请输入${item.label}`"
-          :style="{ width: search.inputWidth, ...item.style }"
-        ></el-input>
-      </el-form-item>
+      <el-row :gutter="40">
+        <el-col :span="24 / (item.colCount || 4)" v-for="item in search.fields" :key="item.name">
+          <el-form-item :label="item.label" :prop="item.name" style="width: 100%">
+            <slot v-if="item.type === 'custom'" :name="item.slot" />
+            <el-select
+              v-else-if="item.type === 'select'"
+              v-model="searchModel[item.name]"
+              :filterable="!!item.filterable"
+              :multiple="!!item.multiple"
+              clearable
+              :placeholder="`请选择${item.label}`"
+              :style="{ width: search.inputWidth, ...item.style }"
+            >
+              <el-option v-for="option of item.options" :key="option.value" :label="option.name" :value="option.value"></el-option>
+            </el-select>
+            <el-radio-group v-model="searchModel[item.name]" v-else-if="item.type === 'radio'" :style="{ width: search.inputWidth, ...item.style }">
+              <el-radio v-for="option of item.options" :key="option.value" :label="option.value">{{ option.name }}</el-radio>
+            </el-radio-group>
+            <el-radio-group
+              v-model="searchModel[item.name]"
+              v-else-if="item.type === 'radio-button'"
+              :style="{ width: search.inputWidth, ...item.style }"
+            >
+              <el-radio-button v-for="option of item.options" :key="option.value" :label="option.value">{{ option.name }}</el-radio-button>
+            </el-radio-group>
+            <el-checkbox-group
+              v-model="searchModel[item.name]"
+              v-else-if="item.type === 'checkbox'"
+              :style="{ width: search.inputWidth, ...item.style }"
+            >
+              <el-checkbox v-for="option of item.options" :key="option.value" :label="option.value">{{ option.name }}</el-checkbox>
+            </el-checkbox-group>
+            <el-checkbox-group
+              v-model="searchModel[item.name]"
+              v-else-if="item.type === 'checkbox-button'"
+              :style="{ width: search.inputWidth, ...item.style }"
+            >
+              <el-checkbox-button v-for="option of item.options" :key="option.value" :label="option.value">{{ option.name }}</el-checkbox-button>
+            </el-checkbox-group>
+            <el-date-picker
+              v-else-if="item.type === 'date'"
+              v-model="searchModel[item.name]"
+              type="date"
+              format="YYYY-MM-DD"
+              clearable
+              @change="handleDateChange($event, item, 'YYYY-MM-DD')"
+              :placeholder="`请选择${item.label}`"
+              :style="{ width: search.inputWidth, ...item.style }"
+            ></el-date-picker>
+            <el-date-picker
+              v-else-if="item.type === 'datetime'"
+              v-model="searchModel[item.name]"
+              type="datetime"
+              clearable
+              @change="handleDateChange($event, item, 'YYYY-MM-DD HH:mm:ss')"
+              format="YYYY-MM-DD HH:mm:ss"
+              :placeholder="`请选择${item.label}`"
+              :style="{ width: search.inputWidth, ...item.style }"
+            ></el-date-picker>
+            <el-date-picker
+              v-else-if="item.type === 'daterange'"
+              v-model="searchModel[item.name]"
+              type="daterange"
+              format="YYYY-MM-DD"
+              range-separator="-"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+              clearable
+              @change="handleRangeChange($event, item, 'YYYY-MM-DD')"
+              :style="{ width: search.inputWidth, ...item.style }"
+            ></el-date-picker>
+            <el-date-picker
+              v-else-if="item.type === 'datetimerange'"
+              v-model="searchModel[item.name]"
+              type="datetimerange"
+              format="YYYY-MM-DD HH:mm:ss"
+              range-separator="-"
+              start-placeholder="开始时间"
+              end-placeholder="结束时间"
+              clearable
+              @change="handleRangeChange($event, item, 'YYYY-MM-DD HH:mm:ss')"
+              :style="{ width: search.inputWidth, ...item.style }"
+            ></el-date-picker>
+            <el-input-number
+              v-else-if="item.type === 'number'"
+              v-model="searchModel[item.name]"
+              :placeholder="`请输入${item.label}`"
+              controls-position="right"
+              :min="item.min"
+              :max="item.max"
+              :style="{ width: search.inputWidth, ...item.style }"
+            />
+            <el-input
+              v-else-if="item.type === 'textarea'"
+              type="textarea"
+              clearable
+              v-model="searchModel[item.name]"
+              :placeholder="`请输入${item.label}`"
+              :style="{ width: search.inputWidth, ...item.style }"
+            ></el-input>
+            <el-input
+              v-else
+              v-model="searchModel[item.name]"
+              clearable
+              :placeholder="`请输入${item.label}`"
+              :style="{ width: search.inputWidth, ...item.style }"
+            ></el-input>
+          </el-form-item>
+        </el-col>
+      </el-row>
+
       <el-form-item class="search-btn">
-        <el-button type="primary" icon="el-icon-search" @click="handleSearch"
-          >查询</el-button
-        >
-        <el-button @click="handleReset" icon="el-icon-refresh-right"
-          >重置</el-button
-        >
+        <el-button type="primary" icon="el-icon-search" @click="handleSearch">查询</el-button>
+        <el-button @click="handleReset" icon="el-icon-refresh-right">重置</el-button>
       </el-form-item>
     </el-form>
 
@@ -467,6 +434,7 @@ export default defineComponent({
     }
     .search-btn {
       margin-left: auto;
+      margin-right: 0px;
     }
     ::v-deep(.el-input-number .el-input__inner) {
       text-align: left;
@@ -483,6 +451,7 @@ export default defineComponent({
     }
   }
   .table {
+    width: 100%;
     padding: 20px;
     background: #fff;
     ::v-deep(th) {

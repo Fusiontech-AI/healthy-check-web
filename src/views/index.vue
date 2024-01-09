@@ -54,7 +54,7 @@ export default defineComponent({
         { label: "全选", type: "selection" },
         { label: "序号", type: "index" },
         { label: "账户名称", prop: "nickName", sortable: true },
-        { label: "账号", prop: "userEmail", width: 80 },
+        { label: "账号", prop: "userEmail", },
         {
           label: "状态",
           prop: "status",
@@ -78,14 +78,14 @@ export default defineComponent({
       // 搜索配置
       searchConfig: {
         labelWidth: "90px",
-        inputWidth: "360px",
+        inputWidth: "100%",
         fields: [
-          {
-            type: "text",
-            label: "账户名称",
-            name: "nickName",
-            defaultValue: "abc",
-          },
+          // {
+          //   type: "text",
+          //   label: "账户名称",
+          //   name: "nickName",
+          //   defaultValue: "abc",
+          // },
           {
             type: "textarea",
             label: "描述",
