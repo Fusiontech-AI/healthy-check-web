@@ -31,6 +31,7 @@ import './permission';
 import { useDict } from '@/utils/dict';
 import { getConfigKey, updateConfigByKey } from '@/api/system/config';
 import { parseTime, addDateRange, handleTree, selectDictLabel, selectDictLabels } from '@/utils/ruoyi';
+import ElementPlus from "element-plus";
 
 // 国际化
 import i18n from '@/lang/index';
@@ -48,6 +49,7 @@ app.config.globalProperties.selectDictLabel = selectDictLabel;
 app.config.globalProperties.selectDictLabels = selectDictLabels;
 app.config.globalProperties.animate = animate;
 
+app.use(ElementPlus)
 app.use(ElementIcons);
 app.use(router);
 app.use(store);
