@@ -24,14 +24,17 @@ import 'virtual:svg-icons-register';
 import ElementIcons from '@/plugins/svgicon';
 
 //引入vue3-pro-table
-import Vue3ProTable from '@/components/TableSearchComponent/vue3-pro-table';
+import TableForm from '@/components/TableSearchComponent';
 // permission control
 import './permission';
+
+//没有添加被动事件监听器来阻止'touchstart'事件，请考虑添加事件管理者'passive'，以使页面更加流畅。原因是 Chrome51 版本以后，Chrome 增加了新的事件捕获机制－Passive Event Listeners；
+import 'default-passive-events';
 
 import { useDict } from '@/utils/dict';
 import { getConfigKey, updateConfigByKey } from '@/api/system/config';
 import { parseTime, addDateRange, handleTree, selectDictLabel, selectDictLabels } from '@/utils/ruoyi';
-import ElementPlus from "element-plus";
+import ElementPlus from 'element-plus';
 
 // 国际化
 import i18n from '@/lang/index';
@@ -49,13 +52,13 @@ app.config.globalProperties.selectDictLabel = selectDictLabel;
 app.config.globalProperties.selectDictLabels = selectDictLabels;
 app.config.globalProperties.animate = animate;
 
-app.use(ElementPlus)
+app.use(ElementPlus);
 app.use(ElementIcons);
 app.use(router);
 app.use(store);
 app.use(i18n);
 app.use(plugins);
-app.use(Vue3ProTable);
+app.use(TableForm);
 // 自定义指令
 directive(app);
 
