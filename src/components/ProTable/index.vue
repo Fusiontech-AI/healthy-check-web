@@ -70,7 +70,7 @@
     </el-table>
     <!-- 分页组件 -->
     <slot name="pagination">
-      <Pagination v-if="pagination" :pageable="pageable" :handle-size-change="handleSizeChange" :handle-current-change="handleCurrentChange" />
+      <TablePagination v-if="pagination" :pageable="pageable" :handle-size-change="handleSizeChange" :handle-current-change="handleCurrentChange" />
     </slot>
   </div>
   <!-- 列设置 -->
@@ -87,7 +87,7 @@ import { ColumnProps, TypeProps } from "@/components/ProTable/interface";
 import { Refresh, Operation, Search } from "@element-plus/icons-vue";
 import { handleProp } from "@/utils";
 import SearchForm from "@/components/SearchForm/index.vue";
-import Pagination from "./components/Pagination.vue";
+import TablePagination from "./components/TablePagination.vue";
 import ColSetting from "./components/ColSetting.vue";
 import TableColumn from "./components/TableColumn.vue";
 import Sortable from "sortablejs";
