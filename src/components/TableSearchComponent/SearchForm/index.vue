@@ -16,7 +16,7 @@
             <SearchFormItem :column="item" :search-param="searchParam" />
           </el-form-item>
         </GridItem>
-        <GridItem suffix>
+        <!-- <GridItem suffix>
           <div class="operation">
             <el-button type="primary" :icon="Search" @click="search"> 搜索 </el-button>
             <el-button :icon="Delete" @click="reset"> 重置 </el-button>
@@ -27,7 +27,7 @@
               </el-icon>
             </el-button>
           </div>
-        </GridItem>
+        </GridItem> -->
       </Grid>
     </el-form>
   </div>

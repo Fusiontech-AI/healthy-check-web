@@ -1,40 +1,38 @@
 <template>
-  <div class="container">
-    <div class="left">
-      <el-card shadow="hover">
-        <template #header>
-          <div class="card-header">
-            <span>任务列表</span>
-            <el-button class="button" type="primary">新增任务</el-button>
-          </div>
-        </template>
-        <el-select v-model="form.value" placeholder="请选择单位" class="left-select">
-          <el-option v-for="item in form.options" :key="item.value" :label="item.label" :value="item.value" />
-        </el-select>
-        <el-date-picker v-model="form.value1" type="daterange" range-separator="至" start-placeholder="开始时间"
-          end-placeholder="结束时间" style="width: 100%;margin-top: 10px;" />
-        <div class="left-input">
-          <el-input v-model="form.value" placeholder="请输入任务名称" suffix-icon="Search" />
-          <el-button class="button">重置</el-button>
+  <div class="container-tj">
+    <el-card shadow="hover" class="left">
+      <template #header>
+        <div class="card-header">
+          <span>任务列表</span>
+          <el-button class="button" type="primary">新增任务</el-button>
         </div>
-        <div class="left-box">
-          <div class="box">
-            <span>体检任务:</span> 测试
-          </div>
-          <div class="box">
-            <span>单位:</span> 测试
-          </div>
-          <div class="box">
-            <span>签订日期:</span> 测试
-          </div>
-          <div class="group-type">
-            <span class="zhi">职</span>
-            <!-- <span class="jian" v-else-if="item.zyb === '0'">健</span>
+      </template>
+      <el-select v-model="form.value" placeholder="请选择单位" class="left-select">
+        <el-option v-for="item in form.options" :key="item.value" :label="item.label" :value="item.value" />
+      </el-select>
+      <el-date-picker v-model="form.value1" type="daterange" range-separator="至" start-placeholder="开始时间"
+        end-placeholder="结束时间" style="width: 100%;margin-top: 10px;" />
+      <div class="left-input">
+        <el-input v-model="form.value" placeholder="请输入任务名称" suffix-icon="Search" />
+        <el-button class="button">重置</el-button>
+      </div>
+      <div class="left-box">
+        <div class="box">
+          <span>体检任务:</span> 测试
+        </div>
+        <div class="box">
+          <span>单位:</span> 测试
+        </div>
+        <div class="box">
+          <span>签订日期:</span> 测试
+        </div>
+        <div class="group-type">
+          <span class="zhi">职</span>
+          <!-- <span class="jian" v-else-if="item.zyb === '0'">健</span>
                 <span class="fang" v-else>放</span> -->
-          </div>
         </div>
-      </el-card>
-    </div>
+      </div>
+    </el-card>
 
     <el-card shadow="hover" class="right">
       <div class="rwtitle"><span>任务详情</span>
@@ -43,7 +41,14 @@
         </div>
       </div>
       <div><span>基本信息</span></div>
-
+      <!-- 查询表单 -->
+      <SearchForm :search="_search" :reset="_reset" :columns="searchColumns" :search-param="searchParam" :search-col="3">
+        <template #username>
+          <el-select v-model="form.value" placeholder="请选择单位" class="left-select">
+            <el-option v-for="item in form.options" :key="item.value" :label="item.label" :value="item.value" />
+          </el-select>
+        </template>
+      </SearchForm>
     </el-card>
   </div>
 </template>
@@ -54,10 +59,19 @@ const form = reactive({
   options: [],
   value1: '',
 })
+const searchColumns = ref([{ prop: "username", label: "用户姓名", search: { el: 'input', props: { placeholder: "请输入性别查询", filterable: true, remote: true, reserveKeyword: true, } } }, { prop: "username", label: "用户姓名", search: { el: 'input', props: { placeholder: "请输入性别查询", filterable: true, remote: true, reserveKeyword: true, } } }, { prop: "username", label: "用户姓名", search: { el: 'input', props: { placeholder: "请输入性别查询", filterable: true, remote: true, reserveKeyword: true, } } }, { prop: "username", label: "用户姓名", search: { el: 'input', props: { placeholder: "请输入性别查询", filterable: true, remote: true, reserveKeyword: true, } } },])
+const searchParam = reactive({})
+const _search = () => {
+
+};
+
+const _reset = () => {
+
+};
 </script>
 
 <style scoped lang="scss">
-.container {
+.container-tj {
   margin: 16px;
   display: flex;
   justify-content: space-between;
