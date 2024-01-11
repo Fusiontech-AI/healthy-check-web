@@ -45,29 +45,21 @@
                 </GridItem>
               </Grid>
             </el-form>
-            <!-- <el-descriptions v-show="taskBasicInforShow" :column="3">
-              <el-descriptions-item label="任务名称：">1111111111111111111</el-descriptions-item>
-              <el-descriptions-item label="任务编号：">18100000000</el-descriptions-item>
-              <el-descriptions-item label="单位名称：">Suzhou</el-descriptions-item>
-              <el-descriptions-item label="体检类型：">健康体检 </el-descriptions-item>
-              <el-descriptions-item label="联系人姓名：">哈哈</el-descriptions-item>
-              <el-descriptions-item label="体检人联系电话：">哈哈</el-descriptions-item>
-              <el-descriptions-item label="销售负责人：">哈哈</el-descriptions-item>
-              <el-descriptions-item label="编制人：">哈哈</el-descriptions-item>
-              <el-descriptions-item label="审核状态：">哈哈</el-descriptions-item>
-            </el-descriptions> -->
+            <SearchForm :columns="formColumns" :search-param="formValue" :search-col="4" :showSearchBtn="false" />
           </div>
           <div>
             <div class="my-2">
               <div class="font-bold"><span></span>人员信息</div>
             </div>
             <div class="my-2"><span class="text-red">*</span> 请根据当前任务所选体检类型，下载对应模板后再上传</div>
-            <ProTable :columns="taskGroupColumns" :toolButton="false" :data="[{ name: 'aaaaaakaskhaskhahadhsa,d' }]">
-              <template #operation="scope">
-                <el-button type="primary" link>查看</el-button>
-                <el-button type="danger" link>删除</el-button>
-              </template>
-            </ProTable>
+            <div class="table-box">
+              <ProTable :columns="personInforColumns" :toolButton="false" :showSearchBtn="false" :data="[{ name: 'aaaaaakaskhaskhahadhsa,d' }]">
+                <template #operation="scope">
+                  <el-button type="primary" link>查看</el-button>
+                  <el-button type="danger" link>删除</el-button>
+                </template>
+              </ProTable>
+            </div>
           </div>
         </el-card>
       </el-col>
@@ -76,10 +68,9 @@
 </template>
 
 <script setup lang="tsx">
-import { ref, watch, provide, onMounted, unref, computed, reactive } from "vue";
-import ProTable from "@/components/ProTable/index.vue";
+import { ref, provide, reactive } from "vue";
 import Grid from "@/components/Grid/index.vue";
-import SearchFormItem from "@/components/SearchForm/components/SearchFormItem.vue";
+import SearchFormItem from "@/components/TableSearchComponent/SearchForm/components/SearchFormItem.vue";
 import GridItem from "@/components/Grid/components/GridItem.vue";
 // import { ArrowUpBold } from "@element-plus/icons-vue/dist/types";
 
@@ -91,22 +82,22 @@ const rules = reactive({
     { required: true, message: '请输入任务名称', trigger: 'blur' },
   ]
 })
-// 任务分组Columns
-const taskGroupColumns = ref<any>([
-  // {
-  //   prop: "gender",
-  //   label: "性别",
-  //   // 字典数据（本地数据）
-  //   // enum: genderType,
-  //   // 字典请求不带参数
-  //   // enum: getUserGender,
-  //   // 字典请求携带参数
-  //   enum: ()=> {
-  //     return {data: [{ label: '男', value: '1' }, { label: '女', value: '0' }]}
-  //   },
-  //   search: { el: "select", props: { filterable: true } },
-  //   // fieldNames: { label: "genderLabel", value: "genderValue" }
-  // },
+// 人员信息表格Columns
+const personInforColumns = ref<any>([
+  {
+    prop: "gender",
+    label: "性别",
+    // 字典数据（本地数据）
+    // enum: genderType,
+    // 字典请求不带参数
+    // enum: getUserGender,
+    // 字典请求携带参数
+    enum: ()=> {
+      return {data: [{ label: '男', value: '1' }, { label: '女', value: '0' }]}
+    },
+    search: { el: "select", props: { filterable: true } },
+    // fieldNames: { label: "genderLabel", value: "genderValue" }
+  },
   { type: 'index', label: "序号", fixed: 'left' },
   { prop: 'name', label: "姓名", fixed: 'left' },
   { prop: 'name', label: "性别" },
@@ -167,9 +158,9 @@ const formColumns = ref<any>([
   },
 ])
 // 定义 enumMap 存储 enum 值（避免异步请求无法格式化单元格内容 || 无法填充搜索下拉选择）
-const enumMap = ref(new Map<string, { [key: string]: any }[]>());
-enumMap.value.set('name', [{ label: '男', value: '1' }, { label: '女', value: '0' }])
-provide("enumMap", enumMap)
+// const enumMap = ref(new Map<string, { [key: string]: any }[]>());
+// enumMap.value.set('name', [{ label: '男', value: '1' }, { label: '女', value: '0' }])
+// provide("enumMap", enumMap)
 </script>
 
 <style scoped lang="scss">
