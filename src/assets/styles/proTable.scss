@@ -30,12 +30,12 @@
 /* custom card */
 .card {
   box-sizing: border-box;
-  padding: 20px;
+  // padding: 20px;
   overflow-x: hidden;
   background-color: var(--el-bg-color);
-  border: 1px solid var(--el-border-color-light);
-  border-radius: 6px;
-  box-shadow: 0 0 12px rgb(0 0 0 / 5%);
+  // border: 1px solid var(--el-border-color-light);
+  // border-radius: 6px;
+  // box-shadow: 0 0 12px rgb(0 0 0 / 5%);
 }
 
 /* ProTable 不需要 card 样式（在组件内使用 ProTable 会使用到） */
@@ -107,6 +107,7 @@
   .table-search {
     padding: 18px 18px 0;
     margin-bottom: 10px;
+    border-bottom: 1px solid #E8E8E8;
 
     .el-form {
       .el-form-item__content>* {
@@ -197,6 +198,7 @@
       height: 50px;
       border-radius: 50%;
     }
+
     .el-scrollbar {
       min-height: 300px;
     }
