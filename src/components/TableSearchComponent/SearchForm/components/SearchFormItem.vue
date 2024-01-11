@@ -25,7 +25,7 @@
 <script setup lang="ts" name="SearchFormItem">
 import { computed, inject, ref } from "vue";
 import { handleProp } from "@/utils";
-import { ColumnProps } from "@/components/ProTable/interface";
+import { ColumnProps } from "@/components/TableSearchComponent/ProTable/interface";
 
 interface SearchFormItem {
   column: ColumnProps;
@@ -48,7 +48,7 @@ const fieldNames = computed(() => {
 // 接收 enumMap (el 为 select-v2 需单独处理 enumData)
 const enumMap = inject("enumMap", ref(new Map()));
 const columnEnum = computed(() => {
-  let enumData = enumMap.value.get(props.column.prop);
+  let enumData = enumMap.value.get(props.column.prop) || props.column.enum;
   if (!enumData) return [];
   if (props.column.search?.el === "select-v2" && props.column.fieldNames) {
     enumData = enumData.map((item: { [key: string]: any }) => {
