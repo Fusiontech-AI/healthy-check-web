@@ -2,7 +2,19 @@
 
 <template>
   <!-- 查询表单 -->
-  <SearchForm v-show="isShowSearch" :search="_search" :reset="_reset" :columns="searchColumns" :search-param="searchParam" :search-col="searchCol" />
+  <SearchForm
+    v-show="isShowSearch"
+    :search="_search"
+    :reset="_reset"
+    :columns="searchColumns"
+    :search-param="searchParam"
+    :search-col="searchCol"
+    v-bind="$attrs"
+  >
+    <template #formAction>
+      <slot name="formAction"></slot>
+    </template>
+  </SearchForm>
 
   <!-- 表格主体 -->
   <div class="card table-main">
@@ -242,7 +254,7 @@ const openColSetting = () => colRef.value.openColSetting();
 
 // 定义 emit 事件
 const emit = defineEmits<{
-  search: any;
+  search: [];
   reset: [];
   dargSort: [{ newIndex?: number; oldIndex?: number }];
 }>();

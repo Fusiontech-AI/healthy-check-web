@@ -93,7 +93,32 @@
     width: calc(100% - 230px);
   }
 }
+.table-search {
+  padding: 18px 18px 0;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #E8E8E8;
 
+  .el-form {
+    .el-form-item__content>* {
+      width: 100%;
+      .el-input__wrapper {
+        width: 100%;
+      }
+    }
+
+    // 去除时间选择器上下 padding
+    .el-range-editor.el-input__wrapper {
+      padding: 0 10px;
+    }
+  }
+
+  .operation {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-bottom: 18px;
+  }
+}
 /* proTable */
 .table-box,
 .table-main {
@@ -112,6 +137,9 @@
     .el-form {
       .el-form-item__content>* {
         width: 100%;
+        .el-input__wrapper {
+          width: 100%;
+        }
       }
 
       // 去除时间选择器上下 padding
@@ -127,7 +155,6 @@
       margin-bottom: 18px;
     }
   }
-
   // 表格 header 样式
   .table-header {
     .header-button-lf {

@@ -45,7 +45,14 @@
                 </GridItem>
               </Grid>
             </el-form>
-            <SearchForm :columns="formColumns" :search-param="formValue" :search-col="4" :showSearchBtn="false" />
+            <SearchForm
+              :columns="formColumns"
+              :search-param="formValue"
+              :search-col="3"
+              :actionOption="{showSubmitButton: true, submitOption: {btnText: '11'}}"
+            >
+              <!-- <template #formAction> 11111 </template> -->
+            </SearchForm>
           </div>
           <div>
             <div class="my-2">
@@ -53,7 +60,15 @@
             </div>
             <div class="my-2"><span class="text-red">*</span> 请根据当前任务所选体检类型，下载对应模板后再上传</div>
             <div class="table-box">
-              <ProTable :columns="personInforColumns" :toolButton="false" :showSearchBtn="false" :data="[{ name: 'aaaaaakaskhaskhahadhsa,d' }]">
+              <!-- :tableFormActionOption="{showSubmitButton: true, submitOption: {btnText: '11'}}" -->
+              <ProTable
+                :columns="personInforColumns"
+                :toolButton="false"
+                :data="[{ name: 'aaaaaakaskhaskhahadhsa,d' }]"
+                :showActionGroup="true"
+                :actionOption="{showSubmitButton: true, submitOption: {btnText: '11'}}"
+              >
+                <!-- <template #formAction> 11111 </template> -->
                 <template #operation="scope">
                   <el-button type="primary" link>查看</el-button>
                   <el-button type="danger" link>删除</el-button>
@@ -95,7 +110,7 @@ const personInforColumns = ref<any>([
     enum: ()=> {
       return {data: [{ label: '男', value: '1' }, { label: '女', value: '0' }]}
     },
-    search: { el: "select", props: { filterable: true } },
+    search: { el: "select", props: { filterable: true} },
     // fieldNames: { label: "genderLabel", value: "genderValue" }
   },
   { type: 'index', label: "序号", fixed: 'left' },
