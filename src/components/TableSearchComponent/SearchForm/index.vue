@@ -1,6 +1,6 @@
 <template>
-  <div v-if="columns.length" class="card table-search">
-    <el-form ref="formRef" :model="searchParam">
+  <div v-if="columns.length" class="card table-search ">
+    <el-form ref="formRef" :model="searchParam" v-bind="$attrs">
       <Grid ref="gridRef" :collapsed="collapsed" :gap="[20, 0]" :cols="searchCol">
         <GridItem v-for="(item, index) in columns" :key="item.prop" v-bind="getResponsive(item)" :index="index">
           <el-form-item>
@@ -17,15 +17,22 @@
           </el-form-item>
         </GridItem>
         <GridItem suffix>
-          <div class="operation">
-            <el-button type="primary" :icon="Search" @click="search"> 搜索 </el-button>
-            <el-button :icon="Delete" @click="reset"> 重置 </el-button>
-            <el-button v-if="showCollapse" type="primary" link class="search-isOpen" @click="collapsed = !collapsed">
-              {{ collapsed ? "展开" : "合并" }}
-              <el-icon class="el-icon--right">
-                <component :is="collapsed ? ArrowDown : ArrowUp"></component>
-              </el-icon>
-            </el-button>
+          <div class="operation" v-if="showActionGroup">
+            <slot name="formAction">
+              <FormAction :actionOption="actionOption" @search="search" @reset="reset" class="mr-2"></FormAction>
+              <el-button
+                v-if="showCollapse"
+                type="primary"
+                link
+                class="search-isOpen"
+                @click="collapsed = !collapsed"
+              >
+                {{ collapsed ? "展开" : "合并" }}
+                <el-icon class="el-icon--right">
+                  <component :is="collapsed ? ArrowDown : ArrowUp"></component>
+                </el-icon>
+              </el-button>
+            </slot>
           </div>
         </GridItem>
       </Grid>
@@ -40,6 +47,7 @@ import { Delete, Search, ArrowDown, ArrowUp } from "@element-plus/icons-vue";
 import SearchFormItem from "./components/SearchFormItem.vue";
 import Grid from "@/components/Grid/index.vue";
 import GridItem from "@/components/Grid/components/GridItem.vue";
+import FormAction from '@/components/TableSearchComponent/SearchForm/components/FormAction.vue'
 
 interface ProTableProps {
   columns?: ColumnProps[]; // 搜索配置列
@@ -47,14 +55,17 @@ interface ProTableProps {
   searchCol?: number | Record<BreakPoint, number>;
   search?: (params: any) => void; // 搜索方法
   reset?: (params: any) => void; // 重置方法
-  searchProp: {},
+  showActionGroup?: boolean; //是否显示操作按钮
+  actionOption?: any
 }
 
 // 默认值
 const props = withDefaults(defineProps<ProTableProps>(), {
   columns: () => [],
   searchParam: () => ({}),
-  searchCol: 3
+  searchCol: 3,
+  showActionGroup: true,
+  actionOption:{}
 });
 
 // 获取响应式设置
