@@ -29,46 +29,31 @@
           <div class="flex justify-end">
             <el-button type="primary">下载模板</el-button>
             <el-button type="primary">批量导出</el-button>
-            <el-button type="primary">批量导入</el-button>
-            <el-button type="warning">新增</el-button>
+            <el-button type="primary" @click="batchImportDialog = true">批量导入</el-button>
+            <el-button type="warning" @click="handleAdd()">新增</el-button>
           </div>
           <div>
             <div class="my-2 ">
               <div class="font-bold"><span></span>基本信息</div>
             </div>
-            <el-form :model="formValue" :rules="rules" :disabled="false" :label-width="80">
-              <Grid ref="gridRef" :gap="12" :cols="4">
-                <GridItem v-for="(item, index) in formColumns" :key="item.prop" :index="index">
-                  <el-form-item :label="item.label" :prop="item.prop">
-                    <SearchFormItem :column="item" :search-param="formValue" />
-                  </el-form-item>
-                </GridItem>
-              </Grid>
-            </el-form>
             <SearchForm
+              ref="formRef"
               :columns="formColumns"
               :search-param="formValue"
               :search-col="3"
-              :actionOption="{showSubmitButton: true, submitOption: {btnText: '11'}}"
+              :rules="rules"
+              :disabled="true"
             >
-              <!-- <template #formAction> 11111 </template> -->
             </SearchForm>
           </div>
+          <div class="divider"></div>
           <div>
             <div class="my-2">
               <div class="font-bold"><span></span>人员信息</div>
             </div>
             <div class="my-2"><span class="text-red">*</span> 请根据当前任务所选体检类型，下载对应模板后再上传</div>
             <div class="table-box">
-              <!-- :tableFormActionOption="{showSubmitButton: true, submitOption: {btnText: '11'}}" -->
-              <ProTable
-                :columns="personInforColumns"
-                :toolButton="false"
-                :data="[{ name: 'aaaaaakaskhaskhahadhsa,d' }]"
-                :showActionGroup="true"
-                :actionOption="{showSubmitButton: true, submitOption: {btnText: '11'}}"
-              >
-                <!-- <template #formAction> 11111 </template> -->
+              <ProTable :columns="tableColumns" :toolButton="false" :data="[{ name: 'aaaaaakaskhaskhahadhsa,d' }]">
                 <template #operation="scope">
                   <el-button type="primary" link>查看</el-button>
                   <el-button type="danger" link>删除</el-button>
@@ -79,103 +64,38 @@
         </el-card>
       </el-col>
     </el-row>
+    <el-drawer v-model="addDrawer" title="新增团检人员" size="70%">
+      <add-drawer @closeDialog="addDrawer = false"></add-drawer>
+    </el-drawer>
+    <el-dialog title="批量导入" v-model="batchImportDialog">
+      <batch-import></batch-import>
+    </el-dialog>
   </div>
 </template>
 
 <script setup lang="tsx">
-import { ref, provide, reactive } from "vue";
-import Grid from "@/components/Grid/index.vue";
-import SearchFormItem from "@/components/TableSearchComponent/SearchForm/components/SearchFormItem.vue";
-import GridItem from "@/components/Grid/components/GridItem.vue";
-// import { ArrowUpBold } from "@element-plus/icons-vue/dist/types";
+import { formInfoColumns, personInforColumns, } from './rowColumns'
+import AddDrawer from './components/AddDrawer.vue'
+import BatchImport from './components/BatchImport.vue'
 
+const formColumns = ref<any>(formInfoColumns)
+const tableColumns = ref<any>(personInforColumns)
+const isActive = ref(1)
 const dateValue = ref('')
-const formValue = ref({
-})
+const formRef = ref<any>(null)
+const formValue = ref<any>({}) // 基本信息绑定的值
+const addDrawer = ref<boolean>(false) // 新增弹框显示隐藏
+const batchImportDialog = ref<boolean>(false) // 批量导入弹框显示隐藏
 const rules = reactive({
   name: [
     { required: true, message: '请输入任务名称', trigger: 'blur' },
   ]
 })
-// 人员信息表格Columns
-const personInforColumns = ref<any>([
-  {
-    prop: "gender",
-    label: "性别",
-    // 字典数据（本地数据）
-    // enum: genderType,
-    // 字典请求不带参数
-    // enum: getUserGender,
-    // 字典请求携带参数
-    enum: ()=> {
-      return {data: [{ label: '男', value: '1' }, { label: '女', value: '0' }]}
-    },
-    search: { el: "select", props: { filterable: true} },
-    // fieldNames: { label: "genderLabel", value: "genderValue" }
-  },
-  { type: 'index', label: "序号", fixed: 'left' },
-  { prop: 'name', label: "姓名", fixed: 'left' },
-  { prop: 'name', label: "性别" },
-  { prop: 'name', label: "年龄" },
-  { prop: 'name', label: "身份证号", width: 150 },
-  { prop: 'name', label: "项目分组", },
-  { prop: 'name', label: "在岗类型", },
-  { prop: 'name', label: "体检状态", },
-  { prop: 'operation', label: "操作", width: 120, fixed: "right" },
-])
-const formColumns = ref<any>([
-  {
-    prop: "name",
-    label: "任务名称",
-    search: { el: 'input' }
-  },
-  {
-    prop: "name",
-    label: "团检单位",
-    enum: [{ label: '单位1', value: '1' }],
-    search: { el: 'select', props: { filterable: true } },
-  },
-  {
-    prop: "name",
-    label: "体检类型",
-    enum: [{ label: '单位1', value: '1' }],
-    search: { el: 'select', props: { filterable: true } },
-  },
-  {
-    prop: "name",
-    label: "签订日期",
-    enum: [{ label: '单位1', value: '1' }],
-    search: { el: 'date-picker', props: { type: "date", valueFormat: "YYYY-MM-DD" } },
-  },
-  {
-    prop: "name",
-    label: "开始日期",
-    enum: [{ label: '单位1', value: '1' }],
-    search: { el: 'date-picker', props: { type: "date", valueFormat: "YYYY-MM-DD" } },
-  },
-  {
-    prop: "name",
-    label: "结束日期",
-    enum: [{ label: '单位1', value: '1' }],
-    search: { el: 'date-picker', props: { type: "date", valueFormat: "YYYY-MM-DD" } },
-  },
-  {
-    prop: "name",
-    label: "收费类型",
-    enum: [{ label: '单位1', value: '1' }],
-    search: { el: 'select', props: { type: "date", valueFormat: "YYYY-MM-DD" } },
-  },
-  {
-    prop: "name",
-    label: "是否审核",
-    enum: [{ label: '单位1', value: '1' }],
-    search: { el: 'select', props: { filterable: true } },
-  },
-])
-// 定义 enumMap 存储 enum 值（避免异步请求无法格式化单元格内容 || 无法填充搜索下拉选择）
-// const enumMap = ref(new Map<string, { [key: string]: any }[]>());
-// enumMap.value.set('name', [{ label: '男', value: '1' }, { label: '女', value: '0' }])
-// provide("enumMap", enumMap)
+
+// 新增打开抽屉弹框
+const handleAdd = ()=>{
+  addDrawer.value = true
+}
 </script>
 
 <style scoped lang="scss">
