@@ -60,37 +60,4 @@ async function handleSearch() {
 async function handleReset() {
   emit('reset');
 }
-
-// export default defineComponent({
-//   name:'FormAction',
-//   emits:['search','reset','collapse'],
-//   components:{ArrowDown, ArrowUp},
-//   props:{
-//     actionOption: {
-//     type:Object,
-//       default: {}
-//     }
-//   },
-//   setup(props,{emit}) {
-//     async function handleSearch() {
-//       emit('search');
-//     }
-//     async function handleReset() {
-//       emit('reset');
-//     }
-
-//     function handleCollapse(collapse:any){
-//       emit('collapse',collapse)
-//     }
-
-//     return {
-//       handleSearch,
-//       handleReset,
-//       handleCollapse,
-//       ArrowDown,
-//       ArrowUp,
-//     }
-//   }
-
-// })
 </script>

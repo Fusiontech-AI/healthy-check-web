@@ -1,9 +1,9 @@
 <template>
-  <div v-if="columns.length" class="card table-search ">
-    <el-form ref="formRef" :model="searchParam" v-bind="$attrs">
+  <div v-if="columns.length" class="card table-search">
+    <el-form ref="formRef" :model="searchParam" label-position="left" labelWidth="auto" v-bind="$attrs">
       <Grid ref="gridRef" :collapsed="collapsed" :gap="[20, 0]" :cols="searchCol">
         <GridItem v-for="(item, index) in columns" :key="item.prop" v-bind="getResponsive(item)" :index="index">
-          <el-form-item>
+          <el-form-item :prop="item.prop">
             <template #label>
               <el-space :size="4">
                 <span>{{ `${item.search?.label ?? item.label}` }}</span>
@@ -20,13 +20,7 @@
           <div class="operation" v-if="showActionGroup">
             <slot name="formAction">
               <FormAction :actionOption="actionOption" @search="search" @reset="reset" class="mr-2"></FormAction>
-              <el-button
-                v-if="showCollapse"
-                type="primary"
-                link
-                class="search-isOpen"
-                @click="collapsed = !collapsed"
-              >
+              <el-button v-if="showCollapse" type="primary" link class="search-isOpen" @click="collapsed = !collapsed">
                 {{ collapsed ? "展开" : "合并" }}
                 <el-icon class="el-icon--right">
                   <component :is="collapsed ? ArrowDown : ArrowUp"></component>
@@ -64,9 +58,33 @@ const props = withDefaults(defineProps<ProTableProps>(), {
   columns: () => [],
   searchParam: () => ({}),
   searchCol: 3,
-  showActionGroup: true,
+  showActionGroup: false,
   actionOption:{}
 });
+
+const formRef = ref<any>(null)
+// 表单校验
+const validate = async ()=>{
+  await unref(formRef)?.validate((valid: any)=>{
+    console.log(valid);
+ })
+}
+
+//清空校验
+async function clearValidate() {
+  await unref(formRef)?.clearValidate();
+}
+
+// 重置表单内容
+async function resetFields(){
+  await unref(formRef)?.resetFields();
+}
+// 输出组件的方法，让外部组件可以调用
+defineExpose({
+  validate,
+  clearValidate,
+  resetFields
+})
 
 // 获取响应式设置
 const getResponsive = (item: ColumnProps) => {
