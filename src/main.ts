@@ -39,6 +39,8 @@ import ElementPlus from 'element-plus';
 // 国际化
 import i18n from '@/lang/index';
 
+import moment from 'moment'
+
 const app = createApp(App);
 // 全局方法挂载
 app.config.globalProperties.useDict = useDict;
@@ -51,6 +53,7 @@ app.config.globalProperties.addDateRange = addDateRange;
 app.config.globalProperties.selectDictLabel = selectDictLabel;
 app.config.globalProperties.selectDictLabels = selectDictLabels;
 app.config.globalProperties.animate = animate;
+app.config.globalProperties.$moment = moment;
 
 app.use(ElementPlus);
 app.use(ElementIcons);
