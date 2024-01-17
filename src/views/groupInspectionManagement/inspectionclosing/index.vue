@@ -243,7 +243,7 @@ const remoteMethod = (query: any) => {
 const getDict = async () => {
   remoteMethod('')
 };
-const searchForm = async (formEl: any) => {
+const searchForm = async (formEl:any) => {
   if (!formEl) return
   await formEl.validate((valid: any, fields: any) => {
     if (valid) {
