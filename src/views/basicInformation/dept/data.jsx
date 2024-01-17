@@ -15,13 +15,11 @@ export const columnsBasic = [
     label: '科室简拼',
     search: { el: 'input' }
   },
-
   { prop: 'ksSort', label: '排序' },
-  { prop: 'peType', label: '体检类型' },
   {
     prop: 'status',
     label: '是否启用',
-    fieldNames: { label: 'userLabel', value: 'userStatus' },
+    // fieldNames: { label: 'userLabel', value: 'userStatus' },
     render: (scope) => {
       return (
         <el-tag round type={scope.row.status === '0' ? 'success' : 'info'}>
@@ -61,7 +59,7 @@ export const formColumnsBasic = [
   {
     prop: 'ksSort',
     label: '排序',
-    search: { el: 'input-number', props: { min: 0, max: 9999 } }
+    search: { el: 'input-number', props: { min: 0, max: 9999, precision: 0 } }
   },
   {
     prop: 'status',

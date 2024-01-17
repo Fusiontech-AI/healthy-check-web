@@ -1,43 +1,43 @@
 // 单位基础信息
 export const basicInfoColumnBasic = [
   {
-    prop: 'name1',
+    prop: 'teamLevel',
     label: '单位级别',
     search: { el: 'select' },
     enum: []
   },
   {
-    prop: 'name',
+    prop: 'parentId',
     label: '关联上级单位',
     search: { el: 'select' }
   },
   {
-    prop: 'name',
+    prop: 'teamNo',
     label: '单位编号',
     search: { el: 'input' }
   },
   {
-    prop: 'name',
+    prop: 'teamName',
     label: '单位名称',
     search: { el: 'input' }
   },
   {
-    prop: 'name',
+    prop: 'shortName',
     label: '单位简称',
     search: { el: 'input' }
   },
   {
-    prop: 'name',
+    prop: 'phoneticCode',
     label: '拼音简码',
     search: { el: 'input' }
   },
   {
-    prop: 'name',
+    prop: 'contactName',
     label: '联系人姓名',
     search: { el: 'input' }
   },
   {
-    prop: 'name',
+    prop: 'contactPhone',
     label: '联系人电话',
     search: { el: 'input' }
   }
@@ -45,18 +45,18 @@ export const basicInfoColumnBasic = [
 // 单位其他信息
 export const otherInfoColumnBasic = [
   {
-    prop: 'name',
+    prop: 'creditCode',
     label: '统一社会信用代码',
     enum: [],
     search: { el: 'select' }
   },
   {
-    prop: 'name',
+    prop: 'industryType',
     label: '行业类型',
     search: { el: 'select' }
   },
   {
-    prop: 'name',
+    prop: 'regionCode',
     label: '所属地区',
     search: { el: 'input' }
   },
@@ -66,17 +66,17 @@ export const otherInfoColumnBasic = [
     search: { el: 'input' }
   },
   {
-    prop: 'name',
+    prop: 'registerAddress',
     label: '单位注册地址',
     search: { el: 'input' }
   },
   {
-    prop: 'name',
+    prop: 'enterpriseSize',
     label: '企业规模',
     search: { el: 'input' }
   },
   {
-    prop: 'name',
+    prop: 'employeeTotalNum',
     label: '职工总人数',
     search: { el: 'input' }
   },

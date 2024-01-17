@@ -53,7 +53,7 @@ const initFormData = {
   deptName: '',
   deptShortName: '',
   sort: '',
-  isEnable: '0',
+  status:'0'
 };
 
 const showDrawer = ref<any>(false);
@@ -62,19 +62,22 @@ const searchParam = ref<any>(initFormData);
 const formColumns = ref<any>(formColumnsBasic);
 const columns = reactive<any>(columnsBasic);
 const formRules = formRulesBasic;
-const operateFlag = ref();
+const operateFlag = ref();//新增编辑操作标识
 
+// 获取表格数据
 const getTableList = async (params: any) => {
   const data = await listDept(params);
   return {
-    data: { list: data?.rows, total: data?.total, pageNum:data?.pageNum || 1, pageSize: data?.pageSize || 10 },
+    data: { list: data?.rows, total: data?.total },
   };
 };
 
+// 批量删除
 const batchDelete = (row: any) => {
   handleDelete(row);
 };
 
+// 表格删除
 const handleDelete = async (row: any) => {
   const _ids = Array.isArray(row) ? row : [row.id];
   await proxy?.$modal.confirm('是否确认删除该数据?');
@@ -83,20 +86,14 @@ const handleDelete = async (row: any) => {
   proTable.value?.getTableList();
 };
 
+// 打开弹框
 const openDrawer = async (flag: string, row: any) => {
   showDrawer.value = true;
   operateFlag.value = flag;
   switch (flag) {
     case '新增':
       drawerTitle.value = '新增科室';
-      Object.assign(searchParam.value, {
-        deptCode: '',
-        deptName: null,
-        deptShortName: null,
-        isPrint: null,
-        sort: 0,
-        isEnable: '',
-      });
+      Object.assign(searchParam.value, initFormData);
       break;
     case '查看':
       nextTick(() => {
@@ -113,6 +110,7 @@ const openDrawer = async (flag: string, row: any) => {
   }
 };
 
+// 表单提交
 const handleSubmit = () => {
   deptFormRef.value?.validate(async (valid: boolean) => {
     if (valid) {
@@ -126,6 +124,7 @@ const handleSubmit = () => {
   });
 };
 
+// 表单关闭
 const handleClose = () => {
   nextTick(() => {
     searchParam.value = initFormData;
