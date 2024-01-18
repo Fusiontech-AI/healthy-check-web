@@ -93,4 +93,87 @@ import request from '@/utils/request';
 };
 
 
+/**
+ * 查询体检科室列表
+ */
+ export const tjksList = (params:any) => {
+  return request({
+    url: '/peis/tjks/list',
+    method: 'GET',
+    params
+  });
+};
 
+/**
+ * 查询体检基础项目列表
+ */
+ export const basicProjectList = (params:any) => {
+  return request({
+    url: '/peis/basicProject/list',
+    method: 'GET',
+    params
+  });
+};
+
+/**
+ * 新增体检基础项目
+ */
+ export const addBasicProject = (params:any) => {
+  return request({
+    url: '/peis/basicProject',
+    method: 'POST',
+    data:params
+  });
+};
+
+/**
+ * 修改体检基础项目
+ */
+ export const updataBasicProject = (params:any) => {
+  return request({
+    url: '/peis/basicProject',
+    method: 'PUT',
+    data:params
+  });
+};
+
+/**
+ * 删除体检基础项目
+ */
+ export const deleteBasicProject = (params:any) => {
+  return request({
+    url: `/peis/basicProject/${params.ids}`,
+    method: 'DELETE',
+  });
+};
+
+/**
+ * 查询体检基础项目参考信息列表
+ */
+ export const basicProjectRefList = (params:any) => {
+  return request({
+    url: '/peis/basicProjectRef/list',
+    method: 'GET',
+    params
+  });
+};
+
+/**
+ * 新增体检基础项目参考信息
+ */
+ export const addBasicProjectRef = (params:any) => {
+  return request({
+    url: '/peis/basicProjectRef',
+    method: 'POST',
+    data:params
+  });
+};
+/**
+ * 删除体检基础项目参考信息
+ */
+ export const deleteBasicProjectRef = (params:any) => {
+  return request({
+    url: `/peis/basicProjectRef/${params.ids}`,
+    method: 'DELETE',
+  });
+};

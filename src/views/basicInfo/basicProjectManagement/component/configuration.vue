@@ -1,49 +1,120 @@
 <template>
   <div>
-    <el-row v-loading="loading" :gutter="10">
-      <el-col :span="12">
-        <div>
-          <div class="head_search">
-            <div class="head_title">项目检索</div>
-            <el-input v-model="inputValue" class="head_input">
-              <template #suffix>
-                <el-icon class="el-input__icon" @click="searchProject">
-                  <search />
-                </el-icon>
-              </template>
-            </el-input>
-          </div>
-          <ProTable ref="proTable" :columns="columns" :data="dataTableList" :height="670" :pagination="false" :toolButton="false">
-            <template #operation="{ row, $index }">
-              <el-button @click="handleChecked(row, $index)" text type="primary">选中</el-button>
-            </template>
-          </ProTable>
-        </div>
-      </el-col>
+    <div class="head_title">参考值</div>
+    <ProTable ref="proTable" :columns="columns" :data="dataTableList" :height="550" :pagination="false"
+      :toolButton="false" v-loading="loading">
+      <template #tableHeader="scope">
+        <el-button type="primary" @click="handleAdd(1)" round>新增</el-button>
+        <el-button type="danger" @click="batchDelete(scope.selectedListIds, 1)" :disabled="!scope.isSelected"
+          round>批量删除</el-button>
+      </template>
 
-      <el-col :span="12">
+      <template #healthRefer="{ row }">
+        {{ row.healthReferStart }}-{{ row.healthReferEnd }}
+      </template>
+
+      <template #careerRefer="{ row }">
+        {{ row.careerReferStart }}-{{ row.careerReferEnd }}
+      </template>
+
+      <template #operation="{ row }">
         <div>
-        <div class="head_search">已选项目 (共{{ checkedLength }}项)</div>
-        <ProTable ref="itemTable" :columns="itemColumns" :data="dataItemTable" :toolButton="false" :pagination="false" :height="670">
-          <template #operation="{ row, $index }">
-            <el-button @click="itemDelete(row, $index)" text type="primary">删除</el-button>
-          </template>
-        </ProTable>
+          <el-button type="primary" text @click="handleAdd(2, row)">详情</el-button>
+          <el-popover placement="bottom" :width="50" trigger="click">
+            <template #reference>
+              <el-button type="primary" text>更多操作</el-button>
+            </template>
+            <div class="more" @click="handleAdd(3, row)">编辑</div>
+            <div class="more" style="margin-bottom: 0;color:#F75252 ;" @click="batchDelete(row.id, 2)">删除</div>
+          </el-popover>
+
+        </div>
+      </template>
+    </ProTable>
+
+    <!-- 新增配置 -->
+    <el-drawer v-model="batchEditDialog" :title="addTitle" width="600px" class="sealAccountClass">
+      <div>
+        <el-form ref="batchEditRef" :model="batchEditForm" :rules="batchEditRules">
+          <el-form-item label="适用性别:" prop="sex">
+            <el-select v-model="batchEditForm.sex" v-if="!isPreview">
+              <el-option v-for="item in optionsSuitSex" :key="item.value" :label="item.label" :value="item.value" />
+            </el-select>
+            <span v-else> {{ optionsSuitSexName }}</span>
+          </el-form-item>
+
+          <el-form-item label="年龄最低值:" prop="ageStart">
+            <el-input v-model="batchEditForm.ageStart" v-if="!isPreview" />
+            <span v-else> {{ batchEditForm.ageStart }}</span>
+          </el-form-item>
+
+          <el-form-item label="年龄最高值:" prop="ageEnd">
+            <el-input v-model="batchEditForm.ageEnd" v-if="!isPreview" />
+            <span v-else> {{ batchEditForm.ageEnd }}</span>
+          </el-form-item>
+
+          <el-form-item label="健康参考值:" required>
+            <el-row v-if="!isPreview">
+              <el-col :span="11">
+                <el-form-item prop="healthReferStart">
+                  <el-input v-model="batchEditForm.healthReferStart" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="2">
+                ——
+              </el-col>
+              <el-col :span="11">
+                <el-form-item prop="healthReferEnd">
+                  <el-input v-model="batchEditForm.healthReferEnd" />
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <span v-else> {{ batchEditForm.healthReferStart }}-{{ batchEditForm.healthReferEnd }}</span>
+          </el-form-item>
+
+          <el-form-item label="职业参考区间:" required>
+            <el-row v-if="!isPreview">
+              <el-col :span="11">
+                <el-form-item prop="careerReferStart">
+                  <el-input v-model="batchEditForm.careerReferStart" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="2">
+                ——
+              </el-col>
+              <el-col :span="11">
+                <el-form-item prop="careerReferEnd">
+                  <el-input v-model="batchEditForm.careerReferEnd" />
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <span v-else> {{ batchEditForm.careerReferStart }}-{{ batchEditForm.careerReferEnd }}</span>
+          </el-form-item>
+
+        </el-form>
       </div>
-      </el-col>
-    </el-row>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="batchEditDialog = false" round>取消</el-button>
+          <el-button type="primary" @click="handleBatchEdit(batchEditRef)" round>
+            确定
+          </el-button>
+        </span>
+      </template>
+    </el-drawer>
+
   </div>
 </template>
 
 <script setup lang="ts">
 import ProTable from '@/components/TableSearchComponent/ProTable/index.vue'
 import { Search } from '@element-plus/icons-vue'
-import { combinationProjectList, getCombinProjectBySampleId } from '@/api/basicInfo/basicProjectManagement'
-import { itemType, getOption, getList } from "../hooks/useOptions";
+import { basicProjectRefList, addBasicProjectRef, deleteBasicProjectRef } from '@/api/basicInfo/basicProjectManagement'
+import { optionsKS, optionsSuitSex, optionsEnterSummary, optionsEnterReport, optionsUnit, optionsResultType, optionsResultGetWay, getOption, getList, getTypeList } from "../hooks/useOptions";
+// import { itemType, getOption, getList } from "../hooks/useOptions";
 
 onMounted(() => {
-  getList()
-  getItemList()
+  getTableList()
 })
 const props = defineProps({
   configurationInfo: {
@@ -52,133 +123,115 @@ const props = defineProps({
   }
 })
 
-//项目搜索
 const loading = ref(false)
-const inputValue = ref('')
-const searchProject = async () => {
-  await getTableList(inputValue.value)
-}
-
-const filterProject = (arr1, arr2) => {
-  var result = [];
-  for (var i = 0; i < arr2.length; i++) {
-    var obj = arr2[i];
-    var id = obj.id;
-    var isExist = false;
-    for (var j = 0; j < arr1.length; j++) {
-      var aj = arr1[j];
-      var n = aj.id;
-      if (n == id) {
-        isExist = true;
-        break;
-      }
-    }
-    if (!isExist) {
-      result.push(obj);
-    }
-  }
-  return result;
-}
-
 //项目检索
+const proTable = ref(null)
 const columns = ref([
+  { type: "selection", fixed: "left", width: 70 },
   {
-    prop: "combinProjectCode",
-    label: "项目编码",
+    prop: "sex",
+    label: "性别",
+    enum: optionsSuitSex
   },
   {
-    prop: "combinProjectName",
-    label: "项目名称",
+    prop: "ageStart",
+    label: "年龄低值",
+  },
+  {
+    prop: "ageEnd",
+    label: "年龄高值",
+  },
+  {
+    prop: "healthRefer",
+    label: "健康参考区间",
+  },
+  {
+    prop: "careerRefer",
+    label: "职业参考区间",
   },
   {
     prop: "operation",
     label: "操作",
+    width: 200
   },
 ])
 const dataTableList = ref([])
-const getTableList = async (params) => {
+const getTableList = async () => {
   loading.value = true
-  if (params) {
-    const { rows } = await combinationProjectList({ combinProjectName: params })
-    rows.forEach(item => {
-      item.combinProjectId = item.id
-    })
-    dataTableList.value = rows
-  } else {
-    const { rows } = await combinationProjectList()
-    rows.forEach(item => {
-      item.combinProjectId = item.id
-    })
-    dataTableList.value = rows
-  }
-  dataTableList.value=filterProject(dataItemTable.value,dataTableList.value)
+  const { rows } = await basicProjectRefList()
+  dataTableList.value = rows
   loading.value = false
 }
 
-const handleChecked = (row, $index) => {
-  dataTableList.value.splice($index, 1)
-  dataItemTable.value.push({ ...row })
-}
-
-//已选项目长度
-const checkedLength = computed(() => {
-  return dataItemTable.value.length
+//新增抽屉
+const batchEditRef = ref(null)
+const batchEditDialog = ref(false)
+const addTitle = ref('')
+const isPreview = ref(false)
+const batchEditForm = ref({})
+const batchEditRules = ref({
+  sex: [{ required: true, message: '请选择适用性别', trigger: 'blur' }],
+  ageStart: [{ required: true, message: '请选择年龄最低值', trigger: 'blur' }],
+  ageEnd: [{ required: true, message: '请选择年龄最高值', trigger: 'blur' }],
+  healthReferStart: [{ required: true, message: '请选择健康参考低值', trigger: 'blur' }],
+  healthReferEnd: [{ required: true, message: '请选择健康参考高值', trigger: 'blur' }],
+  careerReferStart: [{ required: true, message: '请选择职业参考高值', trigger: 'blur' }],
+  careerReferEnd: [{ required: true, message: '请选择职业参考低值', trigger: 'blur' }],
 })
 
-
-const itemColumns = ref([
-  {
-    prop: "combinProjectCode",
-    label: "项目编码",
-  },
-  {
-    prop: "combinProjectName",
-    label: "项目名称",
-  },
-  {
-    prop: "operation",
-    label: "操作",
-  },
-])
-const dataItemTable = ref([])
-
-const getItemList = async () => {
-  loading.value = true
-  const { data } = await getCombinProjectBySampleId({ id: props.configurationInfo.id })
-  data.forEach(item => {
-    item.id = item.combinProjectId
+//新增配置
+const handleAdd = (type, row) => {
+  batchEditDialog.value = true
+  isPreview.value = false
+  batchEditRef.value?.clearValidate()
+  if (type == 1) {
+    addTitle.value = '新增'
+    batchEditForm.value = {}
+  } else if (type == 2) {
+    addTitle.value = '详情'
+    isPreview.value = true
+    batchEditForm.value = { ...row }
+  } else {
+    addTitle.value = '编辑'
+    batchEditForm.value = { ...row }
+  }
+}
+const handleBatchEdit = async (formEl) => {
+  if (!formEl) return
+  await formEl.validate(async (valid, fields) => {
+    if (valid) {
+      await addBasicProjectRef({ ...batchEditForm.value, basicProjectId: props.configurationInfo.id })
+      ElMessage.success('新增成功')
+      batchEditDialog.value = false
+      getTableList();
+    } else {
+    }
   })
-  dataItemTable.value = data
-  getTableList()
-  loading.value = false
 }
-const itemDelete = (row, $index) => {
-  dataTableList.value.push({ ...row })
-  dataItemTable.value.splice($index, 1)
+//批量删除
+const batchDelete = async (ids, type) => { //type=1是批量,type=2是单项删除
+  let param = {}
+  if (type == 1) {
+    param.ids = [...ids]
+  } else {
+    param.ids = [ids]
+  }
+  await deleteBasicProjectRef(param)
+  ElMessage.success('删除成功')
+  getTableList();
 }
 
-defineExpose({ dataItemTable })
+//计算属性
+const optionsSuitSexName = computed(() => {
+  let TypeName = ''
+  optionsSuitSex.value.forEach(item => {
+    if (item.value == batchEditForm.value.sex) {
+      TypeName = item.label
+    }
+  })
+  return TypeName
+})
 
 </script>
 
-<style scoped lang="scss">
-.head_search {
-  display: flex;
-  height: 30px;
-  justify-content: space-between;
-  margin-bottom: 10px;
-  
-
-  .head_title {
-    width: 100px;
-  }
-
-  .head_input {
-    width: 200px;
-  }
-}
-
-
-
-
-</style>
+<style scoped lang="scss"></style>

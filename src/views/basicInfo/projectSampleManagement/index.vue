@@ -1,20 +1,20 @@
 <template>
   <div style="padding:10px">
-    <el-card>
+    <el-card >
       <el-row>
         <el-col :span="4">
           <div class="sample">
-            <div class="sample_title">项目科室分类</div>
+            <div class="sample_title">项目样本类别</div>
             <div class="sample_choice">
               <span style="margin-right: 10px;">当前选择:</span>
-              <span style="color:#2879FF;margin-right: 10px;">{{ currentType.ksName }}</span>
-              <el-icon v-if="currentType.ksName" color="#2879FF" class="no-inherit" @click="cancelKS">
+              <span style="color:#2879FF;margin-right: 10px;">{{ currentType.dictLabel }}</span>
+              <el-icon v-if="currentType.dictLabel" color="#2879FF" class="no-inherit" @click="cancelKS">
                 <CircleClose style="vertical-align: middle;" />
               </el-icon>
             </div>
             <el-input v-model="inputType" @input="searchType" style="margin-bottom:10px" />
             <div v-for="(item, index) in TypeList" :key="'type' + index" style="cursor:pointer;" class="sample_list"
-              @click="ksClick(item, index)" :class="{ 'active': index == activeKS }">{{ item.ksName }}</div>
+              @click="ksClick(item, index)" :class="{ 'active': index == activeKS }">{{ item.dictLabel }}</div>
           </div>
         </el-col>
 
@@ -24,12 +24,12 @@
               <el-row>
                 <el-col :span="8">
                   <el-form-item label="项目名称">
-                    <el-input v-model="searchForm.basicProjectName"></el-input>
+                    <el-input v-model="searchForm.combinProjectName"></el-input>
                   </el-form-item>
                 </el-col>
                 <el-col :span="8">
                   <el-form-item label="项目编码">
-                    <el-input v-model="searchForm.basicProjectCode"></el-input>
+                    <el-input v-model="searchForm.combinProjectCode"></el-input>
                   </el-form-item>
                 </el-col>
                 <el-col :span="8">
@@ -45,9 +45,10 @@
               <ProTable ref="proTable" :columns="columns" :request-api="getTableList" :data-callback="dataCallback"
                 :height="550" :toolButton="false">
                 <template #tableHeader="scope">
-                  <el-button type="danger" @click="batchDelete(scope.selectedListIds)" :disabled="!scope.isSelected"
-                    round>批量删除</el-button>
-                  <el-button type="primary" round>同步</el-button>
+                  <el-button type="danger" @click="batchDisable(scope.selectedListIds)" :disabled="!scope.isSelected"
+                    round>批量禁用</el-button>
+                  <el-button type="primary" @click="changeClassify(scope.selectedListIds)" :disabled="!scope.isSelected"
+                    round>批量修改分类</el-button>
                   <el-button type="primary" @click="handleAdd(1)" round>新增</el-button>
                 </template>
 
@@ -60,7 +61,7 @@
                       </template>
                       <div class="more" @click="handleAdd(3, row)">编辑</div>
                       <div class="more" @click="handleConfiguration(row)">配置</div>
-                      <div class="more" style="margin-bottom: 0;color:#F75252 ;" @click="handleDlete(row.id)">删除</div>
+                      <div class="more" style="margin-bottom: 0;color:#F75252 ;" @click="handleForbidden(row.id)">禁用</div>
                     </el-popover>
 
                   </div>
@@ -99,7 +100,7 @@
 
     <!-- 新增抽屉 -->
     <el-drawer v-model="addDrawer" :title="addTitle" direction="rtl" :size="738">
-      <div>项目基础信息</div>
+      <div>样本信息</div>
       <addForm :addInfo="addInfo" ref="formRef" :isPreview="isPreview"></addForm>
       <template #footer>
         <div style="flex: auto" v-if="!isPreview">
@@ -117,12 +118,41 @@
       <configuration ref="configurationRef" :configurationInfo="configurationInfo"></configuration>
       <template #footer>
         <div style="flex: auto">
-          <el-button @click="configurationDrawer = false" round>确定</el-button>
+          <el-button @click="configurationDrawer = false" round>取消</el-button>
+          <el-button type="primary" @click="saveClick" round>确定</el-button>
         </div>
       </template>
     </el-drawer>
 
-    
+    <!-- 批量修改分类 -->
+    <el-dialog v-model="batchEditDialog" title="修改分类" width="600px" class="sealAccountClass" style="height: 250px;">
+      <div>
+        <div class="my-header" style="margin-bottom: 10px;">
+          <el-icon color="#F75252" class="no-inherit" :size="20">
+            <WarningFilled></WarningFilled>
+          </el-icon>
+          <span>是否确认将选择的 {{ batchList.length }} 条数据改到下方所属分类</span>
+        </div>
+        <el-form ref="batchEditRef" :model="batchEditForm" :rules="batchEditRules">
+          <el-form-item prop="sampleCategory">
+            <el-select v-model="batchEditForm.sampleCategory">
+              <el-option v-for="item in optionsType" :key="item.value" :label="item.label" :value="item.value" />
+            </el-select>
+          </el-form-item>
+
+        </el-form>
+      </div>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="batchEditDialog = false" round>取消</el-button>
+          <el-button type="primary" @click="handleBatchEdit(batchEditRef)" round>
+            确定
+          </el-button>
+        </span>
+      </template>
+
+    </el-dialog>
+
   </div>
 </template>
 <script setup lang="ts">
@@ -130,11 +160,11 @@ import { ref, reactive } from 'vue'
 import ProTable from '@/components/TableSearchComponent/ProTable/index.vue'
 import addForm from './component/addForm.vue'
 import configuration from "./component/configuration.vue";
-import { batchUpdateCategory, batchDisableApi, getCombinProjectBySampleId, updateCombinProjectBySampleId, tjksList, basicProjectList, addBasicProject, updataBasicProject, deleteBasicProject } from '@/api/basicInfo/basicProjectManagement'
-import { optionsKS, optionsSuitSex, optionsEnterSummary, optionsEnterReport, optionsUnit, optionsResultType, optionsResultGetWay, getOption, getList, getTypeList } from "./hooks/useOptions";
+import { systemList, sampleList, addSample, updataSample, batchUpdateCategory, batchDisableApi, getCombinProjectBySampleId, updateCombinProjectBySampleId } from '@/api/basicInfo/basicProjectManagement'
+import { optionsType, optionsSample, optionsCode, optionsPrint, optionsApply, getOption, getList } from "./hooks/useOptions";
 
 onMounted(() => {
-  getSearchTypeList()
+  getTypeList('bus_sample_category')
   getList()
 })
 
@@ -143,16 +173,18 @@ const TypeList = ref([])
 const activeKS = ref(-1)
 const currentType = ref({})
 const searchType = () => {
-  getSearchTypeList(inputType.value)
+  getTypeList('bus_sample_category', inputType.value)
 }
-const getSearchTypeList = async (params) => {
+const getTypeList = async (ZDName, params) => {
   if (params) {
-    const { rows } = await tjksList({
-      ksName: params
+    const { rows } = await systemList({
+      dictType: ZDName, dictLabel: params
     })
     TypeList.value = rows
   } else {
-    const { rows } = await tjksList()
+    const { rows } = await systemList({
+      dictType: ZDName
+    })
     TypeList.value = rows
   }
 }
@@ -181,57 +213,66 @@ const proTable = ref();
 const columns = reactive([
   { type: "selection", fixed: "left", width: 70 },
   {
-    prop: "basicProjectCode",
-    label: "项目编码",
+    prop: "sampleCode",
+    label: "样本编码",
     width: 120,
   },
   {
-    prop: "basicProjectName",
-    label: "项目名称",
+    prop: "sampleName",
+    label: "样本名称",
     width: 120,
   },
   {
-    prop: "basicSimpleName",
-    label: "项目简称",
+    prop: "sampleType",
+    label: "标本类型",
+    enum: optionsSample,
     width: 120,
   },
   {
-    prop: "unit",
-    label: "项目单位",
-    enum: optionsUnit,
+    prop: "printSort",
+    label: "打印顺序",
     width: 120,
   },
   {
-    prop: "defaultValue",
-    label: "默认值",
+    prop: "printNumber",
+    label: "打印份数",
     width: 120,
   },
   {
-    prop: "resultType",
-    label: "结果类型",
-    enum: optionsResultType,
+    prop: "printFlag",
+    label: "是否打印",
+    width: 120,
+    enum: [{ label: '是', value: '0' }, { label: '否', value: '1' }],
+  },
+  {
+    prop: "barCodeType",
+    label: "条码类型",
+    enum: optionsCode,
     width: 120,
   },
   {
-    prop: "enterSummary",
-    label: "是否进入小结",
-    enum: optionsEnterSummary,
+    prop: "remark",
+    label: "备注",
     width: 120,
   },
   {
-    prop: "enterReport",
-    label: "是否进入报告",
-    enum: optionsEnterReport,
+    prop: "createBy",
+    label: "创建人",
     width: 120,
   },
   {
-    prop: "lisCode",
-    label: "LIS关联码",
+    prop: "createTime",
+    label: "创建时间",
     width: 120,
   },
   {
-    prop: "hisCode",
-    label: "HIS关联码",
+    prop: "updateBy",
+    label: "记录更新人",
+    width: 120,
+  },
+  {
+    prop: "updateTime",
+    label: "更新时间",
     width: 120,
   },
   {
@@ -250,19 +291,17 @@ const columns = reactive([
 ]);
 const getTableList = (params) => {
   let newParams = { ...params }
-  if (currentType.value.id) {
-    newParams.ksId = currentType.value.id
+  if (currentType.value.dictValue) {
+    newParams.sampleCategory = currentType.value.dictValue
   }
   if (searchForm.value != {}) {
     newParams = { ...newParams, ...searchForm.value }
   }
-  return basicProjectList(newParams)
+  return sampleList(newParams)
 }
 const dataCallback = (data: any) => {
-  console.log("🚀 ~ dataCallback ~ data:", data)
   return {
     list: data,
-    total: data.total
   };
 }
 
@@ -273,11 +312,11 @@ const operationType = ref(-1)   //批量禁用1,禁用2
 const batchDisableIds = ref([])  //批量禁用id
 const disableIds = ref([])  //禁用id
 
-//批量删除
-const batchDelete = (ids) => {
+//批量禁用
+const batchDisable = (ids) => {
   operationDeter.value = true
-  operationTitle.value = '是否确定批量删除对应的记录？'
-  operationInfo.value = '删除后，引用此基础项目的组合项目及套餐不可用'
+  operationTitle.value = '是否确定禁用对应的记录？'
+  operationInfo.value = '删除后，引用此样本的组合项目及套餐不可打印条码'
   operationType.value = 1
   batchDisableIds.value = [...ids]
 }
@@ -287,21 +326,52 @@ const operationSure = async () => { //批量禁用1,禁用2
   switch (operationType.value) {
     case 1: {
       //代码块; 
-      await deleteBasicProject({ ids: batchDisableIds.value })
-      ElMessage.success('批量删除成功')
+      await batchDisableApi({ ids: batchDisableIds.value })
+      ElMessage.success('批量禁用成功')
+      proTable.value?.clearSelection()
       proTable.value?.getTableList();
       break;
     }
     case 2: {
       //代码块;
-      await deleteBasicProject({ ids: disableIds.value })
-      ElMessage.success('删除成功')
+      await batchDisableApi({ ids: disableIds.value })
+      ElMessage.success('禁用成功')
       proTable.value?.getTableList();
       break;
     }
   }
   operationDeter.value = false
 }
+
+//批量修改类别
+const batchEditRef = ref(null)
+const batchEditDialog = ref(false)
+const batchEditForm = ref({})
+const batchList = ref([])  //选中的批量修改分类列表
+const batchEditRules = ref({
+  sampleCategory: [{ required: true, message: '请选择所属类别', trigger: 'blur' }]
+})
+const handleBatchEdit = async (formEl) => {
+  if (!formEl) return
+  await formEl.validate(async (valid, fields) => {
+    if (valid) {
+      await batchUpdateCategory({ ids: batchList.value, sampleCategory: batchEditForm.value.sampleCategory })
+      ElMessage.success('批量修改分类成功')
+      batchEditDialog.value = false
+      proTable.value?.clearSelection()
+      proTable.value?.getTableList();
+    } else {
+    }
+  })
+}
+const changeClassify = (ids) => {
+  batchList.value = [...ids]
+  batchEditDialog.value = true
+  batchEditRef.value?.clearValidate()
+  batchEditForm.value = {}
+
+}
+
 
 
 //新增抽屉
@@ -317,14 +387,14 @@ const handleAdd = (type, row) => { //type=1是新增,2是查看,3是编辑
   isPreview.value = false
   formRef.value?.addInfoRef.clearValidate()
   if (type == 1) {
-    addTitle.value = '新增'
-    addInfo.value = {}
+    addTitle.value = '新增样本'
+    addInfo.value = { printNumber: '1', printApplyFlag: '1' }
   } else if (type == 2) {
-    addTitle.value = '详情'
+    addTitle.value = '样本详情'
     isPreview.value = true
     addInfo.value = { ...row }
   } else {
-    addTitle.value = '编辑'
+    addTitle.value = '编辑样本'
     addInfo.value = { ...row }
   }
 }
@@ -333,10 +403,10 @@ const confirmClick = async (formEl) => {
   await formEl.validate(async (valid, fields) => {
     if (valid) {
       if (addInfo.value.id) { //编辑
-        await updataBasicProject({ ...addInfo.value })
+        await updataSample({ ...addInfo.value })
         ElMessage.success('编辑成功')
       } else {
-        await addBasicProject({ ...addInfo.value })
+        await addSample({ ...addInfo.value })
         ElMessage.success('新增成功')
       }
       addDrawer.value = false
@@ -357,12 +427,19 @@ const handleConfiguration = async (row) => {
   configurationDrawer.value = true
   configurationInfo.value = { ...row }
 }
+const saveClick = async () => {
+  console.log("🚀 ~ saveClick ~ saveClick:", saveClick)
 
-//删除
-const handleDlete = (id) => {
+  await updateCombinProjectBySampleId({ id: configurationInfo.value.id, sampleInfoListVos: configurationRef.value?.dataItemTable })
+  ElMessage.success('配置成功')
+  configurationDrawer.value = false
+}
+
+//禁用
+const handleForbidden = (id) => {
   operationDeter.value = true
-  operationTitle.value = '是否确定删除对应的记录？'
-  operationInfo.value = '删除后，引用此基础项目的组合项目及套餐不可用'
+  operationTitle.value = '是否确定禁用对应的记录？'
+  operationInfo.value = '删除后，引用此样本的组合项目及套餐不可打印条码'
   operationType.value = 2
   disableIds.value = [id]
 }

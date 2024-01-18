@@ -1,18 +1,42 @@
 import { ref } from 'vue'
-import { systemList } from '@/api/basicInfo/basicProjectManagement'
-//所属类别
-export const optionsType = ref([])
-//标本类型
-export const optionsSample = ref([])
-//条码类型
-export const optionsCode = ref([])
-//是否打印
-export const optionsPrint = ref([{ label: '是', value: '0' }, { label: '否', value: '1' }])
-//打印申请单
-export const optionsApply = ref([{ label: '打印 ', value: '0' }, { label: '不打印', value: '1' }])
+import { systemList,tjksList} from '@/api/basicInfo/basicProjectManagement'
+//计量单位
+export const optionsUnit = ref([])
+//结果类型
+export const optionsResultType = ref([])
+//结果获取
+export const optionsResultGetWay = ref([])
 
-//项目类型
-export const itemType = ref([])
+//科室
+export const optionsKS = ref([])
+
+export const getTypeList = async () => {
+  const { rows } = await tjksList()
+  rows.forEach(item => {
+    item.label = item.ksName
+    item.value = item.id
+  })
+  optionsKS.value = rows
+}
+//适用性别
+export const optionsSuitSex = ref([
+  { label: '男', value: '0' },
+  { label: '女', value: '1' },
+  { label: '不限', value: '2' },
+])
+
+//进入小结
+export const optionsEnterSummary = ref([
+  { label: '是', value: '0' },
+  { label: '否', value: '1' },
+])
+
+//进入报告
+export const optionsEnterReport = ref([
+  { label: '是', value: '0' },
+  { label: '否', value: '1' },
+])
+
 
 export const getOption = async (params) => {
   const { rows } = await systemList({ dictType: params })
@@ -25,10 +49,9 @@ export const getOption = async (params) => {
 }
 
 export const getList = async () => {
-  optionsType.value = await getOption('bus_sample_category')
-  optionsSample.value = await getOption('bus_sample_type')
-  optionsCode.value = await getOption('bus_bar_type')
-  itemType.value=await getOption('bus_project_type')
+  optionsUnit.value = await getOption('bus_unit')
+  optionsResultType.value = await getOption('bus_result_type')
+  optionsResultGetWay.value = await getOption('bus_result_gateway')
 }
 
 
