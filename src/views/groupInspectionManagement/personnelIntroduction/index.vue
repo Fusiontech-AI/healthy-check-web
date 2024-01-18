@@ -1,7 +1,7 @@
 <template>
-  <div>
-    <el-row :gutter="8">
-      <el-col :span="6">
+  <div class="text-[14px]">
+    <el-row>
+      <el-col :span="5">
         <el-card>
           <el-select class="w-full my-2" placeholder="请输入">
             <el-option label="全部" value=""></el-option>
@@ -28,7 +28,7 @@
           </div>
         </el-card>
       </el-col>
-      <el-col :span="18">
+      <el-col :span="19">
         <el-card class="content">
           <div class="flex justify-end">
             <el-button type="primary">下载模板</el-button>
@@ -38,7 +38,7 @@
           </div>
           <div>
             <div class="my-2 ">
-              <div class="font-bold"><span></span>基本信息</div>
+              <div class="font-bold card_title"><span></span>基本信息</div>
             </div>
             <SearchForm
               ref="formRef"
@@ -53,7 +53,7 @@
           <div class="divider"></div>
           <div>
             <div class="my-2">
-              <div class="font-bold"><span></span>人员信息</div>
+              <div class="font-bold card_title"><span></span>人员信息</div>
             </div>
             <div class="my-2"><span class="text-red">*</span> 请根据当前任务所选体检类型，下载对应模板后再上传</div>
             <div class="table-box">
@@ -121,13 +121,55 @@ const handleAdd = ()=>{
 </script>
 
 <style scoped lang="scss">
+.el-card {
+  // border-radius: 0px;
+  &.is-always-shadow {
+    box-shadow: none
+  }
+}
 .list_card {
-  height: calc(100vh - 255px);
+  height: calc(100vh - 240px);
   overflow: auto;
+  .card_item {
+    width: 100%;
+    margin-bottom: 8px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    border-style: solid;
+    border-color: #E6EAEF;
+    border-radius: 4px;
+    border-width: 0px 0px 1px 0px;
+    font-size: 14px;
+    cursor: pointer;
+    &:hover {
+      border-color: #F1F5FB;
+      background: #F1F5FB;
+    }
+    &.active {
+      border-color: #F1F5FB;
+      background: #F1F5FB;
+    }
+    .el-checkbox.el-checkbox--large {
+      height: auto;
+    }
+  }
 }
 
 .content {
   height: calc(100vh - 90px);
   overflow: auto;
 }
+.card_title {
+    display: flex;
+    align-items: center;
+    span {
+      width: 4px;
+      height: 16px;
+      margin-right: 4px;
+      border-radius: 2px;
+      font-weight: bold;
+      background: #FF8F33;
+    }
+  }
 </style>
