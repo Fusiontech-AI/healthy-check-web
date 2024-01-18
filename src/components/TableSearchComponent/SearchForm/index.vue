@@ -14,6 +14,7 @@
               <span>:</span>
             </template>
             <SearchFormItem :column="item" :search-param="searchParam" />
+            <!-- <RenderFormValue v-bind="item"></RenderFormValue> -->
           </el-form-item>
         </GridItem>
         <GridItem suffix>
@@ -33,7 +34,7 @@
     </el-form>
   </div>
 </template>
-<script setup lang="ts" name="SearchForm">
+<script setup lang="tsx" name="SearchForm">
 import { computed, ref } from "vue";
 import { ColumnProps } from "@/components/TableSearchComponent/ProTable/interface";
 import { BreakPoint } from "@/components/Grid/interface";
@@ -50,7 +51,8 @@ interface ProTableProps {
   search?: (params: any) => void; // 搜索方法
   reset?: (params: any) => void; // 重置方法
   showActionGroup?: boolean; //是否显示操作按钮
-  actionOption?: any
+  actionOption?: any; // 表单操作项目 ==> 重置查询按钮配置项
+  preview?: boolean; // 是否是预览模式 ==> true时显示字段 false时显示输入框等
 }
 
 // 默认值
@@ -59,15 +61,28 @@ const props = withDefaults(defineProps<ProTableProps>(), {
   searchParam: () => ({}),
   searchCol: 3,
   showActionGroup: false,
-  actionOption:{}
+  actionOption: {},
+  preview: false
 });
+
+// const RenderFormValue = (item: any) => {
+//   console.log(item);
+//   return <div>{{
+//     default: ()=>{
+//       if(item?.search?.el == 'select') {
+
+//       }
+//       return props.searchParam[item.prop]
+//     }
+//   }}</div>
+// }
 
 const formRef = ref<any>(null)
 // 表单校验
-const validate = async ()=>{
-  await unref(formRef)?.validate((valid: any)=>{
+const validate = async () => {
+  await unref(formRef)?.validate((valid: any) => {
     console.log(valid);
- })
+  })
 }
 
 //清空校验
@@ -76,7 +91,7 @@ async function clearValidate() {
 }
 
 // 重置表单内容
-async function resetFields(){
+async function resetFields() {
   await unref(formRef)?.resetFields();
 }
 // 输出组件的方法，让外部组件可以调用

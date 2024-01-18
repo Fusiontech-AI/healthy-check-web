@@ -3,13 +3,18 @@ export const formInfoColumns: any = [
   {
     prop: 'name',
     label: '任务名称',
-    search: { el: 'input' }
+    search: {
+      el: 'input',
+      // render: () => {
+      //   return <el-button>11</el-button>;
+      // }
+    },
   },
   {
     prop: 'name',
     label: '团检单位',
     enum: [{ label: '单位1', value: '1' }],
-    search: { el: 'select', props: { filterable: true } }
+    search: { el: 'select', props: { filterable: true, disabled: false } }
   },
   {
     prop: 'name',
@@ -50,14 +55,17 @@ export const formInfoColumns: any = [
 ];
 
 // 人员信息表格配置
-export const personInforColumns: any = [
+export const tableColumn: any = [
+  { type: 'index', label: '序号', fixed: 'left', width: 70 },
   {
     prop: 'name',
     label: '姓名',
-    search: { el: 'select' }
+    fixed: 'left',
+    enum: [
+      { label: 'aaa', value: '1' },
+      { label: 'bbb', value: '1' }
+    ]
   },
-  { type: 'index', label: '序号', fixed: 'left', width: 70 },
-  { prop: 'name', label: '姓名', fixed: 'left' },
   { prop: 'name', label: '性别' },
   { prop: 'name', label: '年龄' },
   { prop: 'name', label: '身份证号', width: 150 },
@@ -108,7 +116,7 @@ export const unitGroupColumn = [
     prop: 'name',
     label: '其他化学因素',
     search: { el: 'input' }
-  },
+  }
 ];
 
 // 基础信息
@@ -197,37 +205,153 @@ export const basicsInfoColumn = [
     prop: 'name',
     label: '检查类型',
     search: { el: 'input' }
-  },
+  }
 ];
 
 // 导入数据配置项
 export const importColumn = [
   {
     type: 'index',
-    label: '序号',
+    label: '序号'
   },
   {
     prop: 'name',
-    label: '流水号',
+    label: '流水号'
   },
   {
     prop: 'name',
-    label: '姓名',
+    label: '姓名'
   },
   {
     prop: 'name',
-    label: '年龄',
+    label: '年龄'
   },
   {
     prop: 'name',
-    label: '性别',
+    label: '性别'
   },
   {
     prop: 'name',
-    label: '证件号码',
+    label: '证件号码'
   },
   {
     prop: 'name',
-    label: '添加时间',
-  },
+    label: '添加时间'
+  }
 ];
+
+// 人员信息Columns
+export const personColumn: any = [
+  {
+    label: '体检号',
+    value: '18100000000'
+  },
+  {
+    label: '档案号',
+    value: '18100000000'
+  },
+  {
+    label: '证件号',
+    value: '18100000000'
+  },
+  {
+    label: '业务类别',
+    value: '团检'
+  },
+  {
+    label: '体检类型',
+    value: '职业病体检'
+  },
+  {
+    label: '姓名',
+    value: '11'
+  },
+  {
+    label: '婚否',
+    value: '未婚'
+  },
+  {
+    label: '年龄',
+    value: '18'
+  },
+  {
+    label: '电话',
+    value: '18100000000'
+  },
+  {
+    label: '体检日期',
+    value: '18100000000'
+  },
+  {
+    label: '体检状态',
+    value: '18100000000'
+  },
+  {
+    label: '需要总检',
+    value: '18100000000'
+  },
+  {
+    label: '人员费别',
+    value: '18100000000'
+  },
+  {
+    label: '总费用（元）',
+    value: '18100000000'
+  },
+  {
+    label: '团费（元）',
+    value: '18100000000'
+  },
+  {
+    label: '个费（元）',
+    value: '18100000000'
+  },
+  {
+    label: '单位',
+    value: '18100000000'
+  },
+  {
+    label: '分组',
+    value: '18100000000'
+  },
+  {
+    label: '部门',
+    value: '18100000000'
+  },
+  {
+    label: '介绍人',
+    value: '18100000000'
+  },
+  {
+    label: '创建人',
+    value: '18100000000'
+  },
+  {
+    label: '报到人',
+    value: '18100000000'
+  },
+  {
+    label: '总检医生',
+    value: '18100000000'
+  },
+  {
+    label: '总检时间',
+    value: '18100000000'
+  },
+  {
+    label: '审核医生',
+    value: '18100000000'
+  },
+  {
+    label: '审核时间',
+    value: '18100000000'
+  },
+  {
+    label: '预约日期',
+    value: '18100000000'
+  },
+  {
+    label: '完成时间',
+    value: '18100000000'
+  },
+]
