@@ -11,6 +11,9 @@ export const optionsPrint = ref([{ label: '是', value: '0' }, { label: '否', v
 //打印申请单
 export const optionsApply = ref([{ label: '打印 ', value: '0' }, { label: '不打印', value: '1' }])
 
+//项目类型
+export const itemType = ref([])
+
 export const getOption = async (params) => {
   const { rows } = await systemList({ dictType: params })
   // console.log("🚀 ~ getOption ~ data:", data)
@@ -25,7 +28,10 @@ export const getList = async () => {
   optionsType.value = await getOption('bus_sample_category')
   optionsSample.value = await getOption('bus_sample_type')
   optionsCode.value = await getOption('bus_bar_type')
+  itemType.value=await getOption('bus_project_type')
 }
+
+
 
 
 

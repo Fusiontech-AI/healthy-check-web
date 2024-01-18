@@ -9,15 +9,14 @@
           </el-form-item>
 
         </el-col>
+
         <el-col :span="12">
           <el-form-item label="样本名称:" prop="sampleName">
             <el-input v-model="addInfo.sampleName" v-if="!isPreview"/>
             <span v-else> {{ addInfo.sampleName }}</span>
           </el-form-item>
         </el-col>
-      </el-row>
 
-      <el-row>
         <el-col :span="12">
           <el-form-item label="所属类别:" prop="sampleCategory">
             <el-select v-model="addInfo.sampleCategory" v-if="!isPreview">
@@ -26,6 +25,7 @@
             <span v-else> {{ optionsTypeName }}</span>
           </el-form-item>
         </el-col>
+
         <el-col :span="12">
           <el-form-item label="标本类型:" prop="sampleType">
             <el-select v-model="addInfo.sampleType" v-if="!isPreview">
@@ -34,9 +34,7 @@
             <span v-else> {{ optionsSampleName }}</span>
           </el-form-item>
         </el-col>
-      </el-row>
 
-      <el-row>
         <el-col :span="12">
           <el-form-item label="条码类型:" prop="barCodeType">
             <el-select v-model="addInfo.barCodeType" v-if="!isPreview">
@@ -45,21 +43,21 @@
             <span v-else> {{ optionsCodeName }}</span>
           </el-form-item>
         </el-col>
+
         <el-col :span="12">
           <el-form-item label="打印顺序:" prop="printSort">
             <el-input v-model="addInfo.printSort" v-if="!isPreview"/>
             <span v-else> {{ addInfo.printSort }}</span>
           </el-form-item>
         </el-col>
-      </el-row>
 
-      <el-row>
         <el-col :span="12">
           <el-form-item label="打印份数:" prop="printNumber">
             <el-input v-model="addInfo.printNumber" v-if="!isPreview"/>
             <span v-else> {{ addInfo.printNumber }}</span>
           </el-form-item>
         </el-col>
+
         <el-col :span="12">
           <el-form-item label="是否打印:" prop="printFlag">
             <el-select v-model="addInfo.printFlag" v-if="!isPreview">
@@ -68,9 +66,7 @@
             <span v-else> {{optionsPrintName }}</span>
           </el-form-item>
         </el-col>
-      </el-row>
-
-      <el-row>
+        
         <el-col :span="12">
           <el-form-item label="打印申请单:" prop="printApplyFlag">
             <el-select v-model="addInfo.printApplyFlag" v-if="!isPreview">
@@ -79,15 +75,14 @@
             <span v-else> {{ optionsApplyName }}</span>
           </el-form-item>
         </el-col>
-        <el-col :span="12">
-          <el-form-item label="申请单份数:" prop="printApplyNumber">
+
+        <el-col :span="12" v-show="addInfo.printApplyFlag=='0'">
+          <el-form-item label="申请单份数:" prop="printApplyNumber" v-if="addInfo.printApplyFlag=='0'">
             <el-input v-model="addInfo.printApplyNumber" v-if="!isPreview"/>
             <span v-else> {{ addInfo.printApplyNumber }}</span>
           </el-form-item>
         </el-col>
-      </el-row>
-
-      <el-row>
+     
         <el-col :span="12">
           <el-form-item label="备注:" prop="remark">
             <el-input v-model="addInfo.remark" v-if="!isPreview"/>
@@ -127,6 +122,7 @@ const addRules = {
   sampleCategory: [{ required: true, message: '请输入所属类别', trigger: 'blur' }],
   sampleType: [{ required: true, message: '请输入标本类型', trigger: 'blur' }],
   barCodeType: [{ required: true, message: '请输入条码类型', trigger: 'blur' }],
+  printSort:[{pattern:/^[1-9]\d*$/,message: '请输入1-9999的正整数', trigger: 'blur' }]
 }
 
 //计算属性
