@@ -162,6 +162,20 @@ export const dynamicRoutes: RouteOption[] = [
         meta: { title: '修改生成配置', activeMenu: '/tool/gen', icon: '' }
       }
     ]
+  },
+  {
+    path: '/basicInfo/package-data',
+    component: Layout,
+    hidden: true,
+    permissions: ['peis:package:list'],
+    children: [
+      {
+        path: 'operation',
+        component: () => import('@/views/peis/package/operation.vue'),
+        name: 'PackageData',
+        meta: { title: '体检套餐操作', activeMenu: '/basicInfo/package', icon: '' }
+      }
+    ]
   }
 ];
 
