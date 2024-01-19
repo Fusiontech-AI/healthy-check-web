@@ -20,7 +20,7 @@
               <el-button>重置</el-button>
             </div>
           </div>
-          <el-scrollbar class="list_card" height="calc(100vh - 255px)">
+          <el-scrollbar class="list_card" height="calc(100vh - 238px)">
             <el-card shadow="hover" v-for="item in 20" :key="item" class="card_item" :class="isActive == item?'active':''">
               <div class="flex justify-between items-center">
                 <span class="tetx-[#141C28]">2023年职业病体检</span>
