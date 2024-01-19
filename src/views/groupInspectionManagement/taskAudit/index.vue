@@ -2,19 +2,21 @@
   <div>
     <el-row>
       <el-col :span="5">
-        <el-card>
-          <el-date-picker v-model="dateValue" type="daterange" start-placeholder="开始时间" end-placeholder="结束时间" style="width: 100%;" />
-          <el-input class="mt-2" placeholder="请输入关键字"></el-input>
-          <div class="tabs">
-            <span :class="activeName == '1' ? 'active' : ''" @click="activeName = '1'">待审批</span>
-            <span :class="activeName == '2' ? 'active' : ''" @click="activeName = '2'">已审批</span>
+        <div class="bg-[#fff]">
+          <div class="p-[10px] ">
+            <el-date-picker v-model="dateValue" type="daterange" start-placeholder="开始时间" end-placeholder="结束时间" style="width: 100%;" />
+            <el-input class="mt-2" placeholder="请输入关键字"></el-input>
+            <div class="tabs">
+              <span :class="activeName == '1' ? 'active' : ''" @click="activeName = '1'">待审批</span>
+              <span :class="activeName == '2' ? 'active' : ''" @click="activeName = '2'">已审批</span>
+            </div>
+            <div class="divider"></div>
+            <div class="flex justify-between items-center">
+              <el-checkbox v-model="checked" size="large">全选</el-checkbox>
+              <el-button type="primary" size="small" @click="handleBatchAudit">批量审核</el-button>
+            </div>
           </div>
-          <div class="divider"></div>
-          <div class="flex justify-between items-center mb-1">
-            <el-checkbox v-model="checked" size="large">全选</el-checkbox>
-            <el-button type="primary" size="small" @click="handleBatchAudit">批量审核</el-button>
-          </div>
-          <div class="left_list">
+          <el-scrollbar class="left_list" height="calc(100vh - 294px)">
             <el-card shadow="hover" v-for="item in 20" :key="item" class="list_card" :class="isActive == item ? 'active' : ''">
               <div class="flex items-center">
                 <el-checkbox v-model="checked" size="large" />
@@ -26,70 +28,72 @@
                 <span class="text-[#FF8400] ml-1">待审</span>
               </div>
             </el-card>
-          </div>
-        </el-card>
+          </el-scrollbar>
+        </div>
       </el-col>
       <el-col :span="19">
-        <el-card class="content">
-          <div class="flex justify-end">
-            <el-button>委托协议预览</el-button>
-            <el-button type="primary" @click="showDrawer = true">任务审核</el-button>
-          </div>
-          <div class="divider"></div>
-          <div>
-            <div class="my-2 flex justify-between items-center">
-              <div class="card_title"><span></span>任务基础信息</div>
-              <el-button
-                link
-                class="mr-2"
-                @click="basicTaskInforShow = !basicTaskInforShow"
-                :icon="basicTaskInforShow ? ArrowUpBold : ArrowDownBold"
-              />
+        <el-scrollbar height="calc(100vh - 105px)">
+          <div class="content">
+            <div class="flex justify-end">
+              <el-button>委托协议预览</el-button>
+              <el-button type="primary" @click="showDrawer = true">任务审核</el-button>
             </div>
-            <el-collapse-transition>
-              <Grid ref="gridRef" v-show="basicTaskInforShow" :gap="20" :cols="2">
-                <GridItem :span="1" v-for="item in basicInforList" :key="item.label">
-                  <div class="flex text-[14px] text-[#141C28]">
-                    <span class="w-[120px] text-[#89919F] ml-[30px]">{{ item.label }}</span>
-                    <span class="flex-1">{{ item.value }}</span>
-                  </div>
-                </GridItem>
-              </Grid>
-            </el-collapse-transition>
-          </div>
-          <div class="divider"></div>
-          <div>
-            <div class="my-2 flex justify-between items-center">
-              <div class="card_title"><span></span>任务分组</div>
-              <el-button link class="mr-2" @click="taskGroupShow = !taskGroupShow" :icon="taskGroupShow ? ArrowUpBold : ArrowDownBold" />
-            </div>
-            <el-collapse-transition>
-              <div v-show="taskGroupShow" class="no-card">
-                <ProTable :columns="taskGroupingColumns" :toolButton="false" :data="[{ name: 'aaaaaakaskhaskhahadhsa,d' }]">
-                  <template #operation="scope">
-                    <el-button type="primary" link @click="showGroupDialog = true">查看</el-button>
-                  </template>
-                </ProTable>
+            <div class="divider"></div>
+            <div>
+              <div class="my-2 flex justify-between items-center">
+                <div class="card_title"><span></span>任务基础信息</div>
+                <el-button
+                  link
+                  class="mr-2"
+                  @click="basicTaskInforShow = !basicTaskInforShow"
+                  :icon="basicTaskInforShow ? ArrowUpBold : ArrowDownBold"
+                />
               </div>
-            </el-collapse-transition>
-          </div>
-          <div class="divider"></div>
-          <div>
-            <div class="my-2 flex justify-between items-center">
-              <div class="card_title"><span></span>人员列表</div>
-              <el-button link class="mr-2" @click="personListShow = !personListShow" :icon="personListShow ? ArrowUpBold : ArrowDownBold" />
+              <el-collapse-transition>
+                <Grid ref="gridRef" v-show="basicTaskInforShow" :gap="20" :cols="2">
+                  <GridItem :span="1" v-for="item in basicInforList" :key="item.label">
+                    <div class="flex text-[14px] text-[#141C28]">
+                      <span class="w-[120px] text-[#89919F] ml-[30px]">{{ item.label }}</span>
+                      <span class="flex-1">{{ item.value }}</span>
+                    </div>
+                  </GridItem>
+                </Grid>
+              </el-collapse-transition>
             </div>
-            <el-collapse-transition>
-              <div v-show="personListShow" class="no-card">
-                <ProTable :columns="personnelListColumns" :toolButton="false" :data="[{ name: 11 }]">
-                  <template #operation="scope">
-                    <el-button type="primary" link @click="showPersonDialog = true">查看</el-button>
-                  </template>
-                </ProTable>
+            <div class="divider"></div>
+            <div>
+              <div class="my-2 flex justify-between items-center">
+                <div class="card_title"><span></span>任务分组</div>
+                <el-button link class="mr-2" @click="taskGroupShow = !taskGroupShow" :icon="taskGroupShow ? ArrowUpBold : ArrowDownBold" />
               </div>
-            </el-collapse-transition>
+              <el-collapse-transition>
+                <div v-show="taskGroupShow" class="no-card">
+                  <ProTable :columns="taskGroupingColumns" :toolButton="false" :data="[{ name: 'aaaaaakaskhaskhahadhsa,d' }]">
+                    <template #operation="scope">
+                      <el-button type="primary" link @click="showGroupDialog = true">查看</el-button>
+                    </template>
+                  </ProTable>
+                </div>
+              </el-collapse-transition>
+            </div>
+            <div class="divider"></div>
+            <div>
+              <div class="my-2 flex justify-between items-center">
+                <div class="card_title"><span></span>人员列表</div>
+                <el-button link class="mr-2" @click="personListShow = !personListShow" :icon="personListShow ? ArrowUpBold : ArrowDownBold" />
+              </div>
+              <el-collapse-transition>
+                <div v-show="personListShow" class="no-card">
+                  <ProTable :columns="personnelListColumns" :toolButton="false" :data="[{ name: 11 }]">
+                    <template #operation="scope">
+                      <el-button type="primary" link @click="showPersonDialog = true">查看</el-button>
+                    </template>
+                  </ProTable>
+                </div>
+              </el-collapse-transition>
+            </div>
           </div>
-        </el-card>
+        </el-scrollbar>
       </el-col>
     </el-row>
     <el-drawer v-model="showDrawer" title="任务审核" size="50%">
@@ -246,9 +250,9 @@ const handleBatchAudit = () => {
 }
 
 .left_list {
-  height: calc(100vh - 285px);
-  overflow: auto;
-
+  // height: calc(100vh - 300px);
+  // overflow: auto;
+  padding: 0 10px;
   .list_card {
     width: 100%;
     margin-bottom: 8px;
@@ -279,9 +283,12 @@ const handleBatchAudit = () => {
 }
 
 .content {
-  height: calc(100vh - 90px);
-  overflow: auto;
+  // height: calc(100vh - 105px);
+  // overflow: auto;
   font-size: 14px;
+  background: #fff;
+  padding: 10px;
+  border-left: 1px solid #E8E8E8;
 
   .card_title {
     display: flex;

@@ -130,7 +130,7 @@ const props = withDefaults(defineProps<ProTableProps>(), {
   requestAuto: true,
   pagination: true,
   initParam: {},
-  border: true,
+  border: false,
   toolButton: true,
   rowKey: "id",
   searchCol: () => ({ xs: 1, sm: 2, md: 2, lg: 3, xl: 4 }),
