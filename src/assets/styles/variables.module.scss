@@ -11,9 +11,10 @@
   --subMenuTitleHover: #293444;
 
   --fixedHeaderBg: #ffffff;
-  --tableHeaderBg: #f8f8f9;
+  --tableHeaderBg: #F2F7FC;
   --tableHeaderTextColor: #515a6e;
 }
+
 html.dark {
   --menuBg: #1d1e1f;
   --menuColor: #bfcbd9;
@@ -64,7 +65,7 @@ $fixed-header-bg: var(--fixedHeaderBg);
 $table-header-bg: var(--tableHeaderBg);
 $table-header-text-color: var(--tableHeaderTextColor);
 
-$--color-primary: #409eff;
+$--color-primary: #2879FF;
 $--color-success: #67c23a;
 $--color-warning: #e6a23c;
 $--color-danger: #f56c6c;
@@ -90,4 +91,49 @@ $base-sidebar-width: 200px;
   dangerColor: $--color-danger;
   infoColor: $--color-info;
   warningColor: $--color-warning;
+}
+
+.el-button {
+  border-radius: 27px !important;
+
+  &.is-plain {
+    background: #fff;
+  }
+}
+
+.el-drawer {
+  border-radius: 20px 0px 0px 20px;
+  background: linear-gradient(180deg, #CBDFFF 0%, #FFFFFF 12%);
+
+  .el-drawer__header {
+    border-bottom: 1px solid #E8E8E8 !important;
+  }
+
+  .el-drawer__title {
+    font-size: 18px;
+    font-weight: 500;
+    color: #141C28;
+  }
+}
+
+.el-message-box {
+  border-radius: 20px !important;
+  background: linear-gradient(180deg, #CBDFFF 0%, #FFFFFF 27%);
+
+  .el-message-box__title {
+    font-size: 18px;
+    font-weight: 500;
+    color: #141C28;
+  }
+}
+
+.el-dialog {
+  border-radius: 20px !important;
+  background: linear-gradient(180deg, #CBDFFF 0%, #FFFFFF 27%) !important;
+
+  .el-dialog__title {
+    font-size: 18px;
+    font-weight: 500;
+    color: #141C28;
+  }
 }
