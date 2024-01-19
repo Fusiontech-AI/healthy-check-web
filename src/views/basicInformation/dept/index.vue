@@ -83,6 +83,7 @@ const handleDelete = async (row: any) => {
   await proxy?.$modal.confirm('是否确认删除该数据?');
   await deleteDept(_ids);
   proxy?.$modal.msgSuccess('删除成功');
+  proTable.value!.clearSelection()
   proTable.value?.getTableList();
 };
 
@@ -114,7 +115,8 @@ const openDrawer = async (flag: string, row: any) => {
 const handleSubmit = () => {
   deptFormRef.value?.validate(async (valid: boolean) => {
     if (valid) {
-      (await searchParam.value?.id) ? editDept(searchParam.value) : addDept(searchParam.value);
+      const service = searchParam.value?.id ? editDept : addDept
+      await service(searchParam.value)
       deptFormRef.value?.resetFields();
       showDrawer.value = false;
       ElMessage.success(searchParam.value?.id ? '编辑成功' : '新增成功');

@@ -13,7 +13,10 @@
               </el-space>
               <span>:</span>
             </template>
-            <SearchFormItem :column="item" :search-param="searchParam" />
+            <template v-if="item.slot">
+              <slot :name="item.slot" :field="item.prop" :model="searchParam" :value="searchParam[item.prop]"> </slot>
+            </template>
+            <SearchFormItem v-else :column="item" :search-param="searchParam" />
             <!-- <RenderFormValue v-bind="item"></RenderFormValue> -->
           </el-form-item>
         </GridItem>
@@ -80,9 +83,7 @@ const props = withDefaults(defineProps<ProTableProps>(), {
 const formRef = ref<any>(null)
 // 表单校验
 const validate = async () => {
-  await unref(formRef)?.validate((valid: any) => {
-    console.log(valid);
-  })
+  return await unref(formRef)?.validate()
 }
 
 //清空校验
