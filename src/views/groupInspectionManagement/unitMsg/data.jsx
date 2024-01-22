@@ -3,11 +3,13 @@ export const basicInfoColumnBasic = [
   {
     prop: 'teamLevel',
     label: '单位级别',
+    slot: 'teamLevel',
     search: { el: 'select' },
     enum: []
   },
   {
     prop: 'parentId',
+    slot: 'parentId',
     label: '关联上级单位',
     search: { el: 'select' }
   },
@@ -47,13 +49,14 @@ export const otherInfoColumnBasic = [
   {
     prop: 'creditCode',
     label: '统一社会信用代码',
-    enum: [],
-    search: { el: 'select' }
+    search: { el: 'input' }
   },
   {
     prop: 'industryType',
     label: '行业类型',
-    search: { el: 'select' }
+    enum: [],
+    search: { el: 'select' },
+    fieldNames: { label: 'value', value: 'id' }
   },
   {
     prop: 'regionCode',
@@ -61,9 +64,10 @@ export const otherInfoColumnBasic = [
     search: { el: 'input' }
   },
   {
-    prop: 'name',
+    prop: 'economicType',
     label: '经济类型',
-    search: { el: 'input' }
+    search: { el: 'select' },
+    fieldNames: { label: 'value', value: 'id' }
   },
   {
     prop: 'registerAddress',
@@ -73,7 +77,8 @@ export const otherInfoColumnBasic = [
   {
     prop: 'enterpriseSize',
     label: '企业规模',
-    search: { el: 'input' }
+    search: { el: 'select' },
+    enum: []
   },
   {
     prop: 'employeeTotalNum',
@@ -81,32 +86,32 @@ export const otherInfoColumnBasic = [
     search: { el: 'input' }
   },
   {
-    prop: 'name',
+    prop: 'femaleEmployeeNum',
     label: '女职工总人数',
     search: { el: 'input' }
   },
   {
-    prop: 'name',
+    prop: 'productTotalNum',
     label: '生产工人数',
     search: { el: 'input' }
   },
   {
-    prop: 'name',
+    prop: 'femaleProductNum',
     label: '生产女职工人数',
     search: { el: 'input' }
   },
   {
-    prop: 'name',
+    prop: 'affectedTotalNum',
     label: '接害工人数',
     search: { el: 'input' }
   },
   {
-    prop: 'name',
+    prop: 'femaleAffectedNum',
     label: '接害女职工人数',
     search: { el: 'input' }
   },
   {
-    prop: 'name',
+    prop: 'remark',
     label: '备注',
     search: { el: 'input' }
   }
@@ -115,17 +120,21 @@ export const otherInfoColumnBasic = [
 // 单位部门信息维护
 export const departColumnsBasic = [
   { type: 'selection', fixed: 'left', width: 70 },
-  { prop: 'ksCode', label: '部门编码' },
-  { prop: 'ksName', label: '部门名称' },
-  { prop: 'ksSimplePy', label: '部门负责人' },
-  { prop: 'unit', label: '上级单位' },
-  { prop: 'peType', label: '更新时间' },
-  { prop: 'operation', label: '操作', fixed: 'right', width: 250 }
+  { prop: 'deptNo', label: '部门编码' },
+  { prop: 'deptName', label: '部门名称' },
+  { prop: 'deptManager', label: '部门负责人' },
+  { prop: 'teamId', label: '上级单位' },
+  { prop: 'updateTime', label: '更新时间' },
+  { prop: 'operation', label: '操作', fixed: 'right', width: 150 }
 ];
 
 export const departColumnBasic = [
-  { prop: 'f1', label: '上级单位', search: { el: 'input' } },
-  { prop: 'f2', label: '部门编码', search: { el: 'input' } },
-  { prop: 'f3', label: '部门名称', search: { el: 'input' } },
-  { prop: 'f4', label: '部门负责人', search: { el: 'input' } }
+  { prop: 'teamId', label: '上级单位', search: { el: 'select' }, enum: [], slot: 'teamId' },
+  { prop: 'deptNo', label: '部门编码', search: {}, slot: 'deptNo' },
+  { prop: 'deptName', label: '部门名称', search: { el: 'input' } },
+  { prop: 'deptManager', label: '部门负责人', search: { el: 'input' } }
 ];
+
+export const departRulesBasic = {
+  deptName: { required: true, message: '请输入部门名称', trigger: ['blur', 'change'] }
+};

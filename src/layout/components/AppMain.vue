@@ -36,9 +36,11 @@ watch(()=> useSettingsStore().animationEnable, (val) => {
 .app-main {
   /* 50= navbar  50  */
   min-height: calc(100vh - 50px);
+  padding: 10px;
   width: 100%;
   position: relative;
   overflow: hidden;
+  background: #f3f5fa;
 }
 
 .fixed-header+.app-main {
@@ -77,4 +79,5 @@ watch(()=> useSettingsStore().animationEnable, (val) => {
   background-color: #c0c0c0;
   border-radius: 3px;
 }
+
 </style>

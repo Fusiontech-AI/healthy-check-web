@@ -1,5 +1,5 @@
 <template>
-  <el-card class="m-1">
+  <el-card>
     <el-row :gutter="8">
       <el-col :span="5">
         <div class="flex justify-between mt-[10px]">
@@ -42,32 +42,26 @@
         </div>
       </el-col>
       <el-col :span="19">
-        <div class="flex">
-          <div>
-            <el-divider direction="vertical" style="height: 100%;" />
-          </div>
-          <div class="flex-1">
-            <div class="right-top h-[50px] flex justify-between items-center">
-              <div class="flex items-center">
-                <div
-                  v-for="(item,index) in tabList"
-                  :key="index"
-                  :class="[item.key===activeTab?'active-tab-btn':'','cursor-pointer py-[4px] px-[10px]']"
-                  @click="handleClickTab(item)"
-                >
-                  {{ item.label }}
-                </div>
-              </div>
-              <div class="pr-[20px]">
-                <el-button round @click="handleCancle">取消</el-button>
-                <el-button type="primary" round @click="handleSave">保存</el-button>
-              </div>
-            </div>
-            <div class="line2"></div>
-            <div class="mt-[10px] px-[10px]">
-              <component ref="basciInfoRef" :is="tabList[activeTab]?.component" :data="unitFormData" @getData="handleGetData" />
+        <div class="line" style="position: absolute;"></div>
+        <div class="right-top ml-[10px] h-[50px] flex justify-between items-center">
+          <div class="flex items-center">
+            <div
+              v-for="(item,index) in tabList"
+              :key="index"
+              :class="[item.key===activeTab?'active-tab-btn':'','cursor-pointer py-[4px] px-[10px]']"
+              @click="handleClickTab(item)"
+            >
+              {{ item.label }}
             </div>
           </div>
+          <div class="pr-[10px]">
+            <el-button round @click="handleCancle">取消</el-button>
+            <el-button type="primary" round @click="handleSave">保存</el-button>
+          </div>
+        </div>
+        <div class="line2"></div>
+        <div class="mt-[10px] px-[10px]">
+          <component ref="basciInfoRef" :is="tabList[activeTab]?.component" :data="unitFormData" @getData="handleGetData" :id="selectTreeNodeId" />
         </div>
       </el-col>
     </el-row>
@@ -78,7 +72,8 @@ import { ref, onMounted, markRaw} from 'vue';
 import { CircleClose,Plus} from "@element-plus/icons-vue";
 import UnitMsg from './components/UnitMsg.vue'
 import UnitDepartMsg from './components/UnitDepartMsg.vue'
-import { teamInfoList, queryTeamInfoById } from '@/api/groupInspectionManagement/unitMsg/index'
+import { teamInfoList, queryTeamInfoById, addTeamInfo, editTeamInfo } from '@/api/groupInspectionManagement/unitMsg/index'
+const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 
 interface Tree {
   [key: string]: any
@@ -87,11 +82,13 @@ const basciInfoRef = ref()
 
 const unitName = ref<any>() //单位搜索
 const selectTreeNodeName = ref()//选中单位名称
+const selectTreeNodeId = ref()//选中单位名称
 const treeData = ref<any>([]);//单位列表数据
 const treeRef = ref()
 
 const activeTab = ref<any>(0)
 const unitFormData = ref<any>()
+const unitBasicFormData = ref<any>()
 
 const tabList = markRaw<any>([
   { label: '单位列表', key: 0, component: UnitMsg, ref: basciInfoRef },
@@ -120,8 +117,9 @@ const handleClickTab = (tab:any)=>{
 // 单位树节点点击
 const handleNodeClick =async (data:any) => {
   selectTreeNodeName.value = data.teamName
+  selectTreeNodeId.value = data?.id
   const { data: response } = await queryTeamInfoById(data?.id)
-  unitFormData.value = response
+  unitFormData.value = {...response,teamLevel:String(response?.teamLevel),parentId:String(response?.parentId)}
 };
 
 // 新增单位
@@ -131,6 +129,7 @@ const handleAddUnit = ()=> {
 
 // 清空所选单位
 const handleClearSelectTreeNodeName = ()=>{
+  selectTreeNodeId.value = null
   selectTreeNodeName.value = null
   resetUnitForm()
 }
@@ -144,11 +143,16 @@ const handleClearSelectTreeNodeName = ()=>{
 
 // 获取单位列表数据
 const handleGetData = (data: any) => {
+  unitBasicFormData.value = data
 }
 
 // 保存
-const handleSave = () => {
-   basciInfoRef.value?.submitData()
+const handleSave =async () => {
+  const unitFormData = await basciInfoRef.value?.submitData()
+  const service = unitFormData?.id ? editTeamInfo : addTeamInfo
+  await service(unitFormData)
+  proxy?.$modal.msgSuccess(unitFormData?.id?'编辑单位成功':'新增单位成功');
+  getTeamInfoList()
 }
 
 // 取消
