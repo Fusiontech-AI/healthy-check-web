@@ -59,7 +59,6 @@
                         <el-button type="primary" text>更多</el-button>
                       </template>
                       <div class="more" @click="handleAdd(3, row)">编辑</div>
-                      <div class="more" @click="handleConfiguration(row)">配置</div>
                       <div class="more" style="margin-bottom: 0;color:#F75252 ;" @click="handleDlete(row.id)">删除</div>
                     </el-popover>
 
@@ -98,7 +97,7 @@
     </el-dialog>
 
     <!-- 新增抽屉 -->
-    <el-drawer v-model="addDrawer" :title="addTitle" direction="rtl" :size="738">
+    <el-drawer v-model="addDrawer" v-if="addDrawer" :title="addTitle" direction="rtl" :size="738">
       <div>项目基础信息</div>
       <addForm :addInfo="addInfo" ref="formRef" :isPreview="isPreview"></addForm>
       <template #footer>
@@ -112,17 +111,6 @@
       </template>
     </el-drawer>
 
-    <!-- 项目配置 -->
-    <el-drawer v-model="configurationDrawer" v-if="configurationDrawer" title="配置项目" direction="rtl" :size="858">
-      <configuration ref="configurationRef" :configurationInfo="configurationInfo"></configuration>
-      <template #footer>
-        <div style="flex: auto">
-          <el-button @click="configurationDrawer = false" round>确定</el-button>
-        </div>
-      </template>
-    </el-drawer>
-
-    
   </div>
 </template>
 <script setup lang="ts">
@@ -130,8 +118,8 @@ import { ref, reactive } from 'vue'
 import ProTable from '@/components/TableSearchComponent/ProTable/index.vue'
 import addForm from './component/addForm.vue'
 import configuration from "./component/configuration.vue";
-import {  tjksList, basicProjectList, addBasicProject, updataBasicProject, deleteBasicProject } from '@/api/basicInfo/basicProjectManagement'
-import { optionsKS, optionsSuitSex, optionsEnterSummary, optionsEnterReport, optionsUnit, optionsResultType, optionsResultGetWay, getOption, getList, getTypeList } from "./hooks/useOptions";
+import { tjksList, addBasicProject, updataBasicProject, deleteBasicProject, combinationProjectList, addCombinationProject, updataCombinationProject,deleteCombinationProject } from '@/api/basicInfo/basicProjectManagement'
+import { optionsKS, optionsSuitSex,optionsSampleType, getList, getTypeList } from "./hooks/useOptions";
 
 onMounted(() => {
   getSearchTypeList()
@@ -181,47 +169,51 @@ const proTable = ref();
 const columns = reactive([
   { type: "selection", fixed: "left", width: 70 },
   {
-    prop: "basicProjectCode",
+    prop: "combinProjectCode",
     label: "项目编码",
     width: 120,
   },
   {
-    prop: "basicProjectName",
+    prop: "combinProjectName",
     label: "项目名称",
     width: 120,
   },
   {
-    prop: "basicSimpleName",
-    label: "项目简称",
+    prop: "ksId",
+    label: "所属科室",
+    enum: optionsKS,
     width: 120,
   },
   {
-    prop: "unit",
-    label: "项目单位",
-    enum: optionsUnit,
+    prop: "suitSex",
+    label: "适用性别",
+    enum: optionsSuitSex,
+    width: 120,
+  },
+  // {
+  //   prop: "sampleType",
+  //   label: "样本分类",
+  //   width: 120,
+  // },
+  {
+    prop: "sampleType",
+    label: "样本类型",
+    enum: optionsSampleType,
     width: 120,
   },
   {
-    prop: "defaultValue",
-    label: "默认值",
+    prop: "standardAmount",
+    label: "金额",
     width: 120,
   },
+  // {
+  //   prop: "outAddress",
+  //   label: "检查地址",
+  //   width: 120,
+  // },
   {
-    prop: "resultType",
-    label: "结果类型",
-    enum: optionsResultType,
-    width: 120,
-  },
-  {
-    prop: "enterSummary",
-    label: "是否进入小结",
-    enum: optionsEnterSummary,
-    width: 120,
-  },
-  {
-    prop: "enterReport",
-    label: "是否进入报告",
-    enum: optionsEnterReport,
+    prop: "hisCode",
+    label: "HIS关联码",
     width: 120,
   },
   {
@@ -230,10 +222,20 @@ const columns = reactive([
     width: 120,
   },
   {
-    prop: "hisCode",
-    label: "HIS关联码",
+    prop: "pacsCode",
+    label: "影像关联码",
     width: 120,
   },
+  {
+    prop: "financialType",
+    label: "财务类别",
+    width: 120,
+  },
+  // {
+  //   prop: "体检中心",
+  //   label: "体检中心",
+  //   width: 120,
+  // },
   {
     prop: "status",
     label: "是否启用",
@@ -256,10 +258,9 @@ const getTableList = (params) => {
   if (searchForm.value != {}) {
     newParams = { ...newParams, ...searchForm.value }
   }
-  return basicProjectList(newParams)
+  return combinationProjectList(newParams)
 }
 const dataCallback = (data: any) => {
-  console.log("🚀 ~ dataCallback ~ data:", data)
   return {
     list: data,
     total: data.total
@@ -287,14 +288,14 @@ const operationSure = async () => { //批量禁用1,禁用2
   switch (operationType.value) {
     case 1: {
       //代码块; 
-      await deleteBasicProject({ ids: batchDisableIds.value })
+      await deleteCombinationProject({ ids: batchDisableIds.value })
       ElMessage.success('批量删除成功')
       proTable.value?.getTableList();
       break;
     }
     case 2: {
       //代码块;
-      await deleteBasicProject({ ids: disableIds.value })
+      await deleteCombinationProject({ ids: disableIds.value })
       ElMessage.success('删除成功')
       proTable.value?.getTableList();
       break;
@@ -330,33 +331,20 @@ const handleAdd = (type, row) => { //type=1是新增,2是查看,3是编辑
 }
 const confirmClick = async (formEl) => {
   if (!formEl) return
-  await formEl.validate(async (valid, fields) => {
-    if (valid) {
-      if (addInfo.value.id) { //编辑
-        await updataBasicProject({ ...addInfo.value })
-        ElMessage.success('编辑成功')
-      } else {
-        await addBasicProject({ ...addInfo.value })
-        ElMessage.success('新增成功')
-      }
-      addDrawer.value = false
-      proTable.value?.getTableList();
-    } else {
-    }
-  })
-
+  const flag = await formEl.validate()
+  if (!flag) return
+  addInfo.value.infoItemBos = formRef.value?.configurationRef.dataItemTable
+  if (addInfo.value.id) { //编辑
+    await updataCombinationProject({ ...addInfo.value })
+    ElMessage.success('编辑成功')
+  } else {
+    await addCombinationProject({ ...addInfo.value })
+    ElMessage.success('新增成功')
+  }
+  addDrawer.value = false
+  proTable.value?.getTableList();
 }
 
-
-//配置项目抽屉
-const configurationDrawer = ref(false)
-const configurationInfo = ref({})
-const configurationRef = ref(null)
-
-const handleConfiguration = async (row) => {
-  configurationDrawer.value = true
-  configurationInfo.value = { ...row }
-}
 
 //删除
 const handleDlete = (id) => {

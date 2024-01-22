@@ -234,4 +234,14 @@ const optionsSuitSexName = computed(() => {
 
 </script>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.more {
+  cursor: pointer;
+  margin-bottom: 10px;
+
+  &:hover {
+    background: #F3F6FB;
+    border-radius: 4px;
+  }
+}
+</style>

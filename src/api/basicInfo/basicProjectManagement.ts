@@ -177,3 +177,46 @@ import request from '@/utils/request';
     method: 'DELETE',
   });
 };
+
+/**
+ * 查询体检组合项目详细信息列表
+ */
+ export const combinationProjectInfoList = (params:any) => {
+  return request({
+    url: '/peis/combinationProjectInfo/list',
+    method: 'GET',
+    params
+  });
+};
+
+/**
+ * 新增体检组合项目
+ */
+ export const addCombinationProject = (params:any) => {
+  return request({
+    url: '/peis/combinationProject',
+    method: 'POST',
+    data:params
+  });
+};
+/**
+ * 修改体检组合项目
+ */
+ export const updataCombinationProject = (params:any) => {
+  return request({
+    url: '/peis/combinationProject',
+    method: 'PUT',
+    data:params
+  });
+};
+/**
+ * 删除体检组合项目
+ */
+ export const deleteCombinationProject = (params:any) => {
+  return request({
+    url: `/peis/combinationProject/${params.ids}`,
+    method: 'DELETE',
+  });
+};
+
+
