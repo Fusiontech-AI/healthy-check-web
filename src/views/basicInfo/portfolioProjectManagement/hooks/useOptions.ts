@@ -1,28 +1,27 @@
 import { ref } from 'vue'
-import { systemList,tjksList} from '@/api/basicInfo/basicProjectManagement'
+import { systemList, tjksList } from '@/api/basicInfo/basicProjectManagement'
 
 //科室
 export const optionsKS = ref([])
 
 //检查类型
-export const optionsCheckType=ref([])
+export const optionsCheckType = ref([])
 
 //是否需要标本
-export const optionsSpecimenNeedFlag=ref([{label:'是',value:'0'},{label:'否',value:'1'}])
-//标本类型
-export const optionsSpecimenType=ref([{label:'是',value:'0'},{label:'否',value:'1'}])
-
+export const optionsSpecimenNeedFlag = ref([{ label: '是', value: '0' }, { label: '否', value: '1' }])
+//所属标本
+export const optionsSpecimenType = ref([])
 //所属样本
-export const optionsSampleType=ref([])
+export const optionsSampleType = ref([])
 
 //项目类型
-export const optionsProjectType=ref([])
+export const optionsProjectType = ref([])
 
 //财务类别
-export const optionsFinancialType=ref([])
+export const optionsFinancialType = ref([{ label: '是', value: '0' }, { label: '否', value: '1' }])
 
 //是否外送
-export const optionsOutFlag=ref([{label:'是',value:'0'},{label:'否',value:'1'}])
+export const optionsOutFlag = ref([{ label: '是', value: '0' }, { label: '否', value: '1' }])
 
 
 
@@ -54,9 +53,10 @@ export const getOption = async (params) => {
 
 export const getList = async () => {
   getTypeList()
-  optionsCheckType.value=await getOption('bus_check_type')
-  optionsSampleType.value=await getOption('bus_sample_type')
-  optionsProjectType.value=await getOption('bus_project_type')
+  optionsCheckType.value = await getOption('bus_check_type')
+  optionsSampleType.value = await getOption('bus_sample_type')
+  optionsProjectType.value = await getOption('bus_project_type')
+  optionsSpecimenType.value = await getOption('bus_affiliation_specimen')
 }
 
 

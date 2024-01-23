@@ -9,7 +9,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { optionsKS, optionsSuitSex, getOption, getList, getTypeList, optionsCheckType, optionsSpecimenNeedFlag, optionsSampleType, optionsSpecimenType, optionsProjectType, optionsFinancialType, optionsOutFlag } from "../hooks/useOptions";
+import { optionsKS, optionsSuitSex, getOption, getList, getTypeList, optionsCheckType, optionsSpecimenNeedFlag, optionsSampleType, optionsProjectType, optionsFinancialType, optionsOutFlag, optionsSpecimenType } from "../hooks/useOptions";
 import configuration from "./configuration.vue";
 import ProForm from "./form.vue";
 const props = defineProps({
@@ -83,7 +83,7 @@ const addFileds = ref([
     label: '所属标本',
     name: 'specimenType',
     component: 'Select',
-    dict: optionsSampleType
+    dict: optionsSpecimenType
   },
   {
     label: '样本类型',

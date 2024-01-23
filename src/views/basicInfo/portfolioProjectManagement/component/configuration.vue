@@ -5,7 +5,7 @@
         <div>
           <div class="head_search">
             <div class="head_title">项目检索</div>
-            <el-input v-model="inputValue" class="head_input">
+            <el-input v-model="inputValue" class="head_input" :disabled="isPreview">
               <template #suffix>
                 <el-icon class="el-input__icon" @click="searchProject">
                   <search />
@@ -16,7 +16,7 @@
           <ProTable ref="proTable" :columns="columns" :data="dataTableList" :height="400" :pagination="false"
             :toolButton="false">
             <template #operation="{ row, $index }">
-              <el-button @click="handleChecked(row, $index)" text type="primary">选中</el-button>
+              <el-button @click="handleChecked(row, $index)" text type="primary" :disabled="isPreview">选中</el-button>
             </template>
           </ProTable>
         </div>
@@ -28,7 +28,7 @@
           <ProTable ref="itemTable" :columns="itemColumns" :data="dataItemTable" :toolButton="false" :pagination="false"
             :height="400">
             <template #operation="{ row, $index }">
-              <el-button @click="itemDelete(row, $index)" text type="primary">删除</el-button>
+              <el-button @click="itemDelete(row, $index)" text type="primary" :disabled="isPreview">删除</el-button>
             </template>
           </ProTable>
         </div>
@@ -73,13 +73,35 @@ const filterProject = (arr1, arr2) => {
     var isExist = false;
     for (var j = 0; j < arr1.length; j++) {
       var aj = arr1[j];
-      var n = aj.id;
+      var n = aj.basicProjectId;
       if (n == id) {
         isExist = true;
         break;
       }
     }
     if (!isExist) {
+      result.push(obj);
+    }
+  }
+  return result;
+}
+
+const findProject = (arr1, arr2) => {
+  var result = [];
+  for (var i = 0; i < arr2.length; i++) {
+    var obj = arr2[i];
+    var id = obj.id;
+    var isExist = false;
+
+    for (var j = 0; j < arr1.length; j++) {
+      var aj = arr1[j];
+      var n = aj.basicProjectId;
+      if (n == id) {
+        isExist = true;
+        break;
+      }
+    }
+    if (isExist) {
       result.push(obj);
     }
   }
@@ -102,6 +124,19 @@ const columns = ref([
   },
 ])
 const dataTableList = ref([])
+
+//查询所有的项目检索
+const tableListAll = async (params) => {
+  loading.value = true
+  const { rows } = await basicProjectList()
+  rows.forEach(item => {
+    item.basicProjectId = item.id
+  })
+  loading.value = false
+  return rows
+}
+
+
 const getTableList = async (params) => {
   loading.value = true
   if (params) {
@@ -149,7 +184,6 @@ const itemColumns = ref([
 const dataItemTable = ref([])
 
 const getItemList = async () => {
-
   loading.value = true
   if (!props.configurationInfo.id) {
     dataItemTable.value = []
@@ -157,9 +191,9 @@ const getItemList = async () => {
     loading.value = false
     return
   }
+  const list = await tableListAll()
   const { rows } = await combinationProjectInfoList({ id: props.configurationInfo.id })
-  
-  dataItemTable.value = rows
+  dataItemTable.value = findProject(rows, list)
   getTableList()
   loading.value = false
 }

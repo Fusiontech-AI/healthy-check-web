@@ -55,8 +55,8 @@
           </el-row>
         </div>
       </div>
-      <ProTable ref="proTableTask" :columns="columnsTask" :request-api="getTableList"
-        :data-callback="dataCallbackTask"  :toolButton="false">
+      <ProTable ref="proTableTask" :columns="columnsTask" :request-api="getTableList" :data-callback="dataCallbackTask"
+        :toolButton="false">
         <!-- :requestAuto="false" -->
         <!-- Expand -->
         <!-- 表格操作 -->
@@ -80,7 +80,7 @@
               <div>已结金额:{{}}</div>
             </el-col>
             <el-col :span="12">
-              <div>余额:{{  }}</div>
+              <div>余额:{{ }}</div>
             </el-col>
           </el-row>
         </div>
@@ -167,7 +167,6 @@ import { reactive, ref } from 'vue'
 // import type { FormInstance, FormRules } from 'element-plus'
 // import { ProTableInstance, ColumnProps, HeaderRenderScope } from "@/components/ProTable/interface";
 import ProTable from "@/components/TableSearchComponent/ProTable/index.vue";
-import { groupList, teamGroupTree } from "@/api/groupInspection/inspectionclosing";
 import { onMounted } from 'vue'
 import detailForm from './component/detailForm.vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
@@ -292,14 +291,12 @@ const dataCallbackTask = (data: any) => {
 };
 //获取任务信息列表
 const getTableList = async (params: any) => {
-  console.log(111);
-  
   let newParams = { ...params }
   ruleForm.teamId && (newParams.teamId = ruleForm.teamId);
   ruleForm.year && (newParams.year = ruleForm.year);
   // const { data } = await groupList(newParams)
-  const data={
-    list:[{groupName:'111'}]
+  const data = {
+    list: [{ groupName: '111' }]
   }
   return data
 };
@@ -446,13 +443,12 @@ const dataCallbackAccounts = (data: any) => {
 };
 //获取结账信息列表
 const getTableListAccounts = async (params: any) => {
-  console.log(22);
   let newParams = { ...params }
   ruleForm.teamId && (newParams.teamId = ruleForm.teamId);
   ruleForm.year && (newParams.year = ruleForm.year);
   // const { data } = await groupList(newParams)
-  const data={
-    list:[{}]
+  const data = {
+    list: [{}]
   }
   return data
 };
