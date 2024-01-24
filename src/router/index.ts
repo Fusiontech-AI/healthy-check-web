@@ -176,6 +176,34 @@ export const dynamicRoutes: RouteOption[] = [
         meta: { title: '体检套餐操作', activeMenu: '/basicInfo/package', icon: '' }
       }
     ]
+  },
+  {
+    path: '/deskRegistration/medicalRegistration-childPage',
+    component: Layout,
+    hidden: true,
+    permissions: ['deskRegistration:medicalRegistration:list'],
+    children: [
+      {
+        path: 'checkRegistration',
+        component: () => import('@/views/deskRegistration/medicalRegistration/checkRegistration/index.vue'),
+        name: 'CheckRegistration',
+        meta: { title: '个检登记', activeMenu: '/deskRegistration/medicalRegistration', icon: '' }
+      }
+    ]
+  },
+  {
+    path: '/deskRegistration/medicalRegistration-childPage',
+    component: Layout,
+    hidden: true,
+    permissions: ['deskRegistration:medicalRegistration:list'],
+    children: [
+      {
+        path: 'groupRegistration',
+        component: () => import('@/views/deskRegistration/medicalRegistration/groupRegistration/index.vue'),
+        name: 'GroupRegistration',
+        meta: { title: '团检登记', activeMenu: '/deskRegistration/medicalRegistration', icon: '' }
+      }
+    ]
   }
 ];
 

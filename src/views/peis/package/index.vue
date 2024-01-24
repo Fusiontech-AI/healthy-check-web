@@ -27,7 +27,7 @@ const tableColumns=ref([
     label: '姓名',
   },
   { prop: 'name', label: '编码', fixed: 'left' },
-  { prop: 'name', label: '套餐名称',search: { el: 'input' } },
+  { prop: 'name', label: '套餐名称',search: { el: 'input' },isShow:false },
   { prop: 'name', label: '体检类型', search: { el: 'select' }},
   { prop: 'name', label: '适用性别', search: { el: 'select' }},
   { prop: 'name', label: '标准金额' },
