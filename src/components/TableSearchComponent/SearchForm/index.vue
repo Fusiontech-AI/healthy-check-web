@@ -1,21 +1,25 @@
 <template>
-  <div v-if="columns.length" class="card table-search">
+  <div v-if="columns.length" class="card form-search">
     <el-form ref="formRef" :model="searchParam" label-position="left" labelWidth="auto" v-bind="$attrs">
       <Grid ref="gridRef" :collapsed="collapsed" :gap="[20, 0]" :cols="searchCol">
         <GridItem v-for="(item, index) in columns" :key="item.prop" v-bind="getResponsive(item)" :index="index">
-          <el-form-item :prop="item.prop">
-            <template #label>
-              <el-space :size="4">
-                <span>{{ `${item.search?.label ?? item.label}` }}</span>
-                <el-tooltip v-if="item.search?.tooltip" effect="dark" :content="item.search?.tooltip" placement="top">
-                  <i :class="'iconfont icon-yiwen'"></i>
-                </el-tooltip>
-              </el-space>
-              <span>:</span>
-            </template>
-            <SearchFormItem :column="item" :search-param="searchParam" />
-            <!-- <RenderFormValue v-bind="item"></RenderFormValue> -->
-          </el-form-item>
+          <slot :name="item.prop + 'Compontent'">
+            <el-form-item :prop="item.prop" v-if="(item.isShowSearch ?? true)">
+              <template #label>
+                <el-space :size="4">
+                  <span>{{ `${item.search?.label ?? item.label}` }}</span>
+                  <el-tooltip v-if="item.search?.tooltip" effect="dark" :content="item.search?.tooltip" placement="top">
+                    <i :class="'iconfont icon-yiwen'"></i>
+                  </el-tooltip>
+                </el-space>
+                <span>:</span>
+              </template>
+              <slot :name="item.prop">
+                <RenderFormValue v-if="preview" v-bind="item"></RenderFormValue>
+                <SearchFormItem v-else :column="item" :search-param="searchParam" />
+              </slot>
+            </el-form-item>
+          </slot>
         </GridItem>
         <GridItem suffix>
           <div class="operation" v-if="showActionGroup">
@@ -43,6 +47,7 @@ import SearchFormItem from "./components/SearchFormItem.vue";
 import Grid from "@/components/Grid/index.vue";
 import GridItem from "@/components/Grid/components/GridItem.vue";
 import FormAction from '@/components/TableSearchComponent/SearchForm/components/FormAction.vue'
+import { useTable } from "@/hooks/useTable";
 
 interface ProTableProps {
   columns?: ColumnProps[]; // 搜索配置列
@@ -65,29 +70,26 @@ const props = withDefaults(defineProps<ProTableProps>(), {
   preview: false
 });
 
-// const RenderFormValue = (item: any) => {
-//   console.log(item);
-//   return <div>{{
-//     default: ()=>{
-//       if(item?.search?.el == 'select') {
-
-//       }
-//       return props.searchParam[item.prop]
-//     }
-//   }}</div>
-// }
+const RenderFormValue = (item: any) => {
+  return <div>{{
+    default: () => {
+      if (props.searchParam[item.prop] && item.enum && item?.search?.el == 'select') {
+        return item.enum?.find((val: { value: any; }) => val?.value == props.searchParam[item.prop])?.label || props.searchParam[item.prop]
+      }
+      return props.searchParam[item.prop]
+    }
+  }}</div>
+}
 
 const formRef = ref<any>(null)
 // 表单校验
 const validate = async () => {
-  await unref(formRef)?.validate((valid: any) => {
-    console.log(valid);
-  })
+  return unref(formRef)?.validate()
 }
 
 //清空校验
 async function clearValidate() {
-  await unref(formRef)?.clearValidate();
+   await unref(formRef)?.clearValidate();
 }
 
 // 重置表单内容
@@ -98,7 +100,8 @@ async function resetFields() {
 defineExpose({
   validate,
   clearValidate,
-  resetFields
+  resetFields,
+  formRef
 })
 
 // 获取响应式设置

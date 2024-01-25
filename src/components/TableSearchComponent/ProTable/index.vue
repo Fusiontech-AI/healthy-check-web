@@ -2,16 +2,8 @@
 
 <template>
   <!-- 查询表单 -->
-  <SearchForm
-    v-show="isShowSearch"
-    :search="_search"
-    :reset="_reset"
-    :columns="searchColumns"
-    :search-param="searchParam"
-    :search-col="searchCol"
-    :showActionGroup="showActionGroup"
-    v-bind="$attrs"
-  >
+  <SearchForm v-show="isShowSearch" :search="_search" :reset="_reset" :columns="searchColumns" :search-param="searchParam"
+    :search-col="searchCol" :showActionGroup="showActionGroup" v-bind="$attrs">
     <template #formAction>
       <slot name="formAction"></slot>
     </template>
@@ -22,28 +14,28 @@
     <!-- 表格头部 操作按钮 -->
     <div class="table-header">
       <div class="header-button-lf">
-        <slot name="tableHeader" :selected-list="selectedList" :selected-list-ids="selectedListIds" :is-selected="isSelected" />
+        <slot name="tableHeader" :selected-list="selectedList" :selected-list-ids="selectedListIds"
+          :is-selected="isSelected" />
       </div>
       <div v-if="toolButton" class="header-button-ri">
         <slot name="toolButton">
           <el-button v-if="showToolButton('refresh')" :icon="Refresh" circle @click="getTableList" />
-          <el-button v-if="showToolButton('setting') && columns.length" :icon="Operation" circle @click="openColSetting" />
-          <el-button v-if="showToolButton('search') && searchColumns?.length" :icon="Search" circle @click="isShowSearch = !isShowSearch" />
+          <el-button v-if="showToolButton('setting') && columns.length" :icon="Operation" circle
+            @click="openColSetting" />
+          <el-button v-if="showToolButton('search') && searchColumns?.length" :icon="Search" circle
+            @click="isShowSearch = !isShowSearch" />
         </slot>
       </div>
     </div>
     <!-- 表格主体 -->
-    <el-table ref="tableRef" v-bind="$attrs" :data="processTableData" :border="border" :row-key="rowKey" @selection-change="selectionChange">
+    <el-table ref="tableRef" v-bind="$attrs" :data="processTableData" :border="border" :row-key="rowKey"
+      @selection-change="selectionChange">
       <!-- 默认插槽 -->
       <slot />
-      <template v-for="item in tableColumns" :key="item">
+      <template v-for="item in tableColumns" :key="item.prop">
         <!-- selection || radio || index || expand || sort -->
-        <el-table-column
-          v-if="item.type && columnTypes.includes(item.type)"
-          v-bind="item"
-          :align="item.align ?? 'center'"
-          :reserve-selection="item.type == 'selection'"
-        >
+        <el-table-column v-if="item.type && columnTypes.includes(item.type)" v-bind="item" :align="item.align ?? 'center'"
+          :reserve-selection="item.type == 'selection'">
           <template #default="scope">
             <!-- expand -->
             <template v-if="item.type == 'expand'">
@@ -85,7 +77,8 @@
     </el-table>
     <!-- 分页组件 -->
     <slot name="pagination">
-      <TablePagination v-if="pagination" :pageable="pageable" :handle-size-change="handleSizeChange" :handle-current-change="handleCurrentChange" />
+      <TablePagination v-if="pagination" :pageable="pageable" :handle-size-change="handleSizeChange"
+        :handle-current-change="handleCurrentChange" />
     </slot>
   </div>
   <!-- 列设置 -->
@@ -122,6 +115,7 @@ export interface ProTableProps {
   rowKey?: string; // 行数据的 Key，用来优化 Table 的渲染，当表格数据多选时，所指定的 id ==> 非必传（默认为 id）
   searchCol?: number | Record<BreakPoint, number>; // 表格搜索项 每列占比配置 ==> 非必传 { xs: 1, sm: 2, md: 2, lg: 3, xl: 4 }
   showActionGroup?: boolean;
+  isShowSearch?: boolean;
 }
 
 // 接受父组件参数，配置默认值
@@ -134,7 +128,8 @@ const props = withDefaults(defineProps<ProTableProps>(), {
   toolButton: true,
   rowKey: "id",
   searchCol: () => ({ xs: 1, sm: 2, md: 2, lg: 3, xl: 4 }),
-  showActionGroup: true
+  showActionGroup: true,
+  isShowSearch: true
 });
 
 // table 实例
@@ -144,7 +139,7 @@ const tableRef = ref<InstanceType<typeof ElTable>>();
 const columnTypes: TypeProps[] = ["selection", "radio", "index", "expand", "sort"];
 
 // 是否显示搜索模块
-const isShowSearch = ref(true);
+const isShowSearch = ref(props.isShowSearch);
 
 // 控制 ToolButton 显示
 const showToolButton = (key: "refresh" | "setting" | "search") => {
@@ -185,10 +180,12 @@ const processTableData = computed(() => {
 watch(() => props.initParam, getTableList, { deep: true });
 
 // 接收 columns 并设置为响应式
-const tableColumns = reactive<ColumnProps[]>(props.columns);
+// const tableColumns = reactive<ColumnProps[]>(props.columns);
+
+const tableColumns = computed(() => props.columns)
 
 // 扁平化 columns
-const flatColumns = computed(() => flatColumnsFunc(tableColumns));
+const flatColumns = computed(() => flatColumnsFunc(tableColumns.value));
 
 // 定义 enumMap 存储 enum 值（避免异步请求无法格式化单元格内容 || 无法填充搜索下拉选择）
 const enumMap = ref(new Map<string, { [key: string]: any }[]>());
@@ -249,7 +246,7 @@ searchColumns.value?.forEach((column, index) => {
 
 // 列设置 ==> 需要过滤掉不需要设置的列
 const colRef = ref();
-const colSetting = tableColumns!.filter(item => {
+const colSetting = tableColumns.value!.filter(item => {
   const { type, prop, isShow } = item;
   return !columnTypes.includes(type!) && prop !== "operation" && isShow;
 });

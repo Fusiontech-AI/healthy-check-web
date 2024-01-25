@@ -28,6 +28,7 @@
 /* custom card */
 .card {
   box-sizing: border-box;
+  padding-bottom: 20px;
   overflow-x: hidden;
   background-color: var(--el-bg-color);
 }
@@ -85,24 +86,28 @@
   width: calc(100% - 230px);
 }
 
-.table-search {
+.form-search {
   padding: 18px 0 0;
   margin-bottom: 10px;
 }
 
-.table-search .el-form .el-form-item__content > * {
+.form-search.search-table {
+  border-bottom: 1px solid #E8E8E8;
+}
+
+.form-search .el-form .el-form-item__content > * {
   width: 100%;
 }
 
-.table-search .el-form .el-form-item__content > * .el-input__wrapper {
+.form-search .el-form .el-form-item__content > * .el-input__wrapper {
   width: 100%;
 }
 
-.table-search .el-form .el-range-editor.el-input__wrapper {
+.form-search .el-form .el-range-editor.el-input__wrapper {
   padding: 0 10px;
 }
 
-.table-search .operation {
+.form-search .operation {
   display: flex;
   align-items: center;
   justify-content: flex-end;

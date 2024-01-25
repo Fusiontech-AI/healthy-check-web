@@ -1,6 +1,14 @@
 <template>
   <div>
     <el-button
+      v-if="!(actionOption.hasOwnProperty('showResetButton') && !actionOption.showResetButton)"
+      v-bind="actionOption?.resetOption"
+      @click="handleReset"
+      :icon="Search"
+    >
+      {{actionOption?.resetOption?.btnText || '重置'}}
+    </el-button>
+    <el-button
       v-if="!(actionOption.hasOwnProperty('showSubmitButton') && !actionOption.showSubmitButton)"
       :type="actionOption?.submitOption?.type || 'primary'"
       v-bind="actionOption?.submitOption"
@@ -8,14 +16,6 @@
       :icon="Search"
     >
       {{actionOption?.submitOption?.btnText || '搜索'}}
-    </el-button>
-    <el-button
-      v-if="!(actionOption.hasOwnProperty('showResetButton') && !actionOption.showResetButton)"
-      v-bind="actionOption?.resetOption"
-      @click="handleReset"
-      :icon="Search"
-    >
-      {{actionOption?.resetOption?.btnText || '重置'}}
     </el-button>
   </div>
 </template>
