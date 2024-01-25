@@ -7,21 +7,16 @@
             <el-select class="w-full" placeholder="请输入">
               <el-option label="全部" value=""></el-option>
             </el-select>
-            <el-date-picker
-              class="my-2"
-              v-model="dateValue"
-              type="daterange"
-              start-placeholder="开始时间"
-              end-placeholder="结束时间"
-              style="width: 100%;"
-            />
+            <el-date-picker class="my-2" v-model="dateValue" type="daterange" start-placeholder="开始时间"
+              end-placeholder="结束时间" style="width: 100%;" />
             <div class="flex items-center">
               <el-input placeholder="请输入关键字"></el-input>
               <el-button>重置</el-button>
             </div>
           </div>
           <el-scrollbar class="list_card" height="calc(100vh - 238px)">
-            <el-card shadow="hover" v-for="item in 20" :key="item" class="card_item" :class="isActive == item?'active':''">
+            <el-card shadow="hover" v-for="item in 20" :key="item" class="card_item"
+              :class="isActive == item ? 'active' : ''">
               <div class="flex justify-between items-center">
                 <span class="tetx-[#141C28]">2023年职业病体检</span>
                 <div class="flex">
@@ -40,16 +35,17 @@
       <el-col :span="19">
         <el-card class="content">
           <div class="flex justify-end">
-            <el-button type="primary" plain >下载模板</el-button>
-            <el-button type="primary" plain >批量导出</el-button>
+            <el-button type="primary" plain>下载模板</el-button>
+            <el-button type="primary" plain>批量导出</el-button>
             <el-button type="primary" plain @click="batchImportDialog = true">批量导入</el-button>
             <el-button type="primary" style="padding: 5px 40px; " @click="handleAdd()">新增</el-button>
           </div>
-          <div>
+          <div class="no-card">
             <div class="my-2 ">
               <div class="font-bold card_title"><span></span>基本信息</div>
             </div>
-            <SearchForm ref="formRef" :columns="formColumns" :search-param="formValue" :search-col="3" :rules="rules" :disabled="true"> </SearchForm>
+            <SearchForm ref="formRef" :columns="formColumns" :search-param="formValue" :search-col="3" :rules="rules"
+              :disabled="true"> </SearchForm>
           </div>
           <div class="divider"></div>
           <div>
@@ -57,7 +53,7 @@
               <div class="font-bold card_title"><span></span>人员信息</div>
             </div>
             <div class="my-2"><span class="text-red">*</span> 请根据当前任务所选体检类型，下载对应模板后再上传</div>
-            <div class="table-box">
+            <div class="no-card">
               <ProTable :columns="tableColumns" :toolButton="false" :data="[{ name: '1' }]">
                 <template #operation="scope">
                   <el-button type="primary" link @click="showPersonDialog = true">查看</el-button>
@@ -105,7 +101,7 @@ const personColumns = ref<any>(personColumn)
 const isActive = ref(1)
 const dateValue = ref('')
 const formRef = ref<any>(null)
-const formValue = ref<any>({name: '1'}) // 基本信息绑定的值
+const formValue = ref<any>({ name: '1' }) // 基本信息绑定的值
 const addDrawer = ref<boolean>(false) // 新增弹框显示隐藏
 const showPersonDialog = ref<boolean>(false) // 人员信息弹窗显示隐藏
 const batchImportDialog = ref<boolean>(false) // 批量导入弹框显示隐藏
@@ -116,22 +112,25 @@ const rules = reactive({
 })
 
 // 新增打开抽屉弹框
-const handleAdd = ()=>{
+const handleAdd = () => {
   addDrawer.value = true
 }
 </script>
 
 <style scoped lang="scss">
 .el-card {
+
   // border-radius: 0px;
   &.is-always-shadow {
     box-shadow: none
   }
 }
+
 .list_card {
   // height: calc(100vh - 255px);
   // overflow: auto;
   padding: 0 10px;
+
   .card_item {
     width: 100%;
     margin-bottom: 8px;
@@ -144,14 +143,17 @@ const handleAdd = ()=>{
     border-width: 0px 0px 1px 0px;
     font-size: 14px;
     cursor: pointer;
+
     &:hover {
       border-color: #F1F5FB;
       background: #F1F5FB;
     }
+
     &.active {
       border-color: #F1F5FB;
       background: #F1F5FB;
     }
+
     .el-checkbox.el-checkbox--large {
       height: auto;
     }
@@ -162,16 +164,17 @@ const handleAdd = ()=>{
   height: calc(100vh - 105px);
   overflow: auto;
 }
+
 .card_title {
-    display: flex;
-    align-items: center;
-    span {
-      width: 4px;
-      height: 16px;
-      margin-right: 4px;
-      border-radius: 2px;
-      font-weight: bold;
-      background: #FF8F33;
-    }
+  display: flex;
+  align-items: center;
+
+  span {
+    width: 4px;
+    height: 16px;
+    margin-right: 4px;
+    border-radius: 2px;
+    font-weight: bold;
+    background: #FF8F33;
   }
-</style>
+}</style>

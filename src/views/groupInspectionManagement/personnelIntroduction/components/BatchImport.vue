@@ -65,7 +65,7 @@
           </div> -->
         </div>
 
-        <div class="mt-4" v-if="steps == 2">
+        <div class="mt-4 no-card" v-if="steps == 2">
           <ProTable :columns="importColumns" :toolButton="false" :data="data"></ProTable>
         </div>
         <div class="mt-[130px] flex flex-col justify-center items-center" v-if="steps == 3">

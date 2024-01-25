@@ -125,7 +125,6 @@ const formColumns = ref<any>([
 .left_box {
   height: calc(100vh - 105px);
   padding: 10px;
-  margin-right: 10px;
   background: #fff;
   border-right: 1px solid #E8E8E8;
 
