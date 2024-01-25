@@ -3,22 +3,28 @@
     <el-form ref="formRef" :model="searchParam" label-position="left" labelWidth="auto" v-bind="$attrs">
       <Grid ref="gridRef" :collapsed="collapsed" :gap="[20, 0]" :cols="searchCol">
         <GridItem v-for="(item, index) in columns" :key="item.prop" v-bind="getResponsive(item)" :index="index">
-          <slot :name="item.prop + 'Compontent'">
-            <el-form-item :prop="item.prop" v-if="(item.isShowSearch ?? true)">
-              <template #label>
-                <el-space :size="4">
-                  <span>{{ `${item.search?.label ?? item.label}` }}</span>
-                  <el-tooltip v-if="item.search?.tooltip" effect="dark" :content="item.search?.tooltip" placement="top">
-                    <i :class="'iconfont icon-yiwen'"></i>
-                  </el-tooltip>
-                </el-space>
-                <span>:</span>
-              </template>
-              <slot :name="item.prop">
-                <RenderFormValue v-if="preview" v-bind="item"></RenderFormValue>
-                <SearchFormItem v-else :column="item" :search-param="searchParam" />
-              </slot>
-            </el-form-item>
+          <slot :name="item.prop + 'Component'">
+            <slot :name="'search' + item.slot">
+              <el-form-item :prop="item.prop" v-if="(item.isShowSearch ?? true)">
+                <template #label>
+                  <el-space :size="4">
+                    <span>{{ `${item.search?.label ?? item.label}` }}</span>
+                    <el-tooltip v-if="item.search?.tooltip" effect="dark" :content="item.search?.tooltip" placement="top">
+                      <i :class="'iconfont icon-yiwen'"></i>
+                    </el-tooltip>
+                  </el-space>
+                  <span>:</span>
+                </template>
+                <slot :name="item.prop + 'Slot'">
+                  <template v-if="item.slot">
+                    <slot :name="item.slot" :field="item.prop" :model="searchParam" :value="searchParam[item.prop]">
+                    </slot>
+                  </template>
+                  <RenderFormValue v-else-if="preview" v-bind="item"></RenderFormValue>
+                  <SearchFormItem v-else :column="item" :search-param="searchParam" />
+                </slot>
+              </el-form-item>
+            </slot>
           </slot>
         </GridItem>
         <GridItem suffix>

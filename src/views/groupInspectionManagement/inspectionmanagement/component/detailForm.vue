@@ -101,7 +101,6 @@
 </template>
 
 <script setup lang="ts">
-import { groupList, teamGroupTree } from "@/api/groupInspection/inspectionclosing";
 import ProTable from "@/components/TableSearchComponent/ProTable/index.vue";
 const props = defineProps({
   dialogVisible: {
@@ -266,8 +265,8 @@ const dataCallback = (data: any) => {
 }
 const getTableList = async (params: any) => {
   let newParams = JSON.parse(JSON.stringify(params));
-  const { data } = await groupList(newParams)
-  return data
+  // const { data } = await groupList(newParams)
+  return
 };
 const handleCancle = () => {
   emit('handleCancle')

@@ -89,7 +89,7 @@
 </template>
 <script setup lang="tsx" name="first">
 const tableData=ref([{}])
-const option=ref([])
+const options=ref([])
 //新增一行
 const handleAdd=()=>{
   tableData.value.push({})

@@ -1,116 +1,89 @@
 <template>
   <div>
-    <el-dialog v-if="dialogVisible" title="dialogTitle" width="30%" :show-close="false">
-      <template #header>
-        <div class="my-header">
-          <h4>{{ dialogTitle }}</h4>
-          <el-icon color="#F75252" class="no-inherit" :size="20" @click="handleCancle">
-            <Close></Close>
-          </el-icon>
-        </div>
-      </template>
-      <div v-if="dialogTitle == '团检收费详情'">
-        <span @click="index = 1">收费信息</span>
-        <span @click="handleTable">人员明细</span>
-      </div>
-
-      <div v-show="index == 1">
-        <el-row :gutter="20">
-          <el-col :span="6">
-            <div class="InfoItem">
-              <span class="team">单位名称:</span>
-              <span>{{ ruleFormDetail }}</span>
-            </div>
-          </el-col>
-          <el-col :span="6">
-            <div class="InfoItem">
-              <span class="team">任务:</span>
-              <span>{{ ruleFormDetail }}</span>
-            </div>
-          </el-col>
-        </el-row>
-        <el-row :gutter="20">
-          <el-col :span="6">
-            <div class="InfoItem">
-              <span class="team">批次号:</span>
-              <span>{{ ruleFormDetail }}</span>
-            </div>
-          </el-col>
-          <el-col :span="6">
-            <div class="InfoItem">
-              <span class="team">结算时间:</span>
-              <span>{{ ruleFormDetail }}</span>
-            </div>
-          </el-col>
-        </el-row>
-        <el-row :gutter="20">
-          <el-col :span="6">
-            <div class="InfoItem">
-              <span class="team">实收金额:</span>
-              <span>{{ ruleFormDetail }}</span>
-            </div>
-          </el-col>
-          <el-col :span="6">
-            <div class="InfoItem">
-              <span class="team">支付方式:</span>
-              <span>{{ ruleFormDetail }}</span>
-            </div>
-          </el-col>
-        </el-row>
-      </div>
-      <div v-show="index == 2">
-        <ProTable ref="proTable" :columns="columns" :request-api="getTableList" :data-callback="dataCallback"
-          :requestAuto="false" :toolButton="false">
-          <!-- Expand -->
-          <template #姓名="scope">
-            <div class="name_info">
-              <span>{{ scope.row.username }}</span>
-              <span class="fujian">复</span>
-            </div>
-          </template>
-          <template #体检状态="scope">
-            <span class="check_state">{{ scope.row.username }}</span>
-          </template>
-        </ProTable>
-      </div>
-
-      <template #footer>
-        <span class="dialog-footer">
-        <el-button @click="handleCancle">取消</el-button>
-        <el-button type="primary" @click="handleSure">
-          确定
-        </el-button>
-      </span>
-      </template>
-      
-    </el-dialog>
+    <div v-if="dialogIndex == 1" class="mb-10px pb-10px">
+      <span @click="active = 1" class="mr-10px pb-10px" :class="{ 'active': active == 1 }">收费信息</span>
+      <span @click="handleTable" class="pb-10px" :class="{ 'active': active == 2 }">人员明细</span>
+    </div>
+    <div v-show="active == 1">
+      <el-row :gutter="20">
+        <el-col :span="12">
+          <div class="InfoItem">
+            <span class="team">单位名称:</span>
+            <span>{{ optionsName(teamIdList, detailInfo.teamId) }}</span>
+          </div>
+        </el-col>
+        <el-col :span="12">
+          <div class="InfoItem">
+            <span class="team">任务:</span>
+            <span>{{ optionsName(taskList, detailInfo.teamTaskId) }}</span>
+          </div>
+        </el-col>
+        <el-col :span="12">
+          <div class="InfoItem">
+            <span class="team">批次号:</span>
+            <span>{{ detailInfo.chargeNumber }}</span>
+          </div>
+        </el-col>
+        <el-col :span="12">
+          <div class="InfoItem">
+            <span class="team">结算时间:</span>
+            <span>{{ detailInfo.settleTime }}</span>
+          </div>
+        </el-col>
+        <el-col :span="12">
+          <div class="InfoItem">
+            <span class="team">实收金额:</span>
+            <span>{{ detailInfo.receivedAmount }}</span>
+          </div>
+        </el-col>
+        <el-col :span="12">
+          <div class="InfoItem">
+            <span class="team">支付方式:</span>
+            <span>{{ optionsName(payTypeList, detailInfo.payType) }}</span>
+          </div>
+        </el-col>
+      </el-row>
+    </div>
+    <div v-show="active == 2 || dialogIndex == 2">
+      <ProTable ref="proTable" :columns="columns" :request-api="getTableList" :data-callback="dataCallback"
+        :requestAuto="false" :toolButton="false">
+        <!-- Expand -->
+        <template #姓名="scope">
+          <div class="name_info">
+            <span>{{ scope.row.username }}</span>
+            <span class="fujian">复</span>
+          </div>
+        </template>
+        <template #体检状态="scope">
+          <span class="check_state">{{ scope.row.username }}</span>
+        </template>
+      </ProTable>
+    </div>
 
   </div>
 </template>
 
 <script setup lang="ts">
-import { groupList, teamGroupTree } from "@/api/groupInspection/inspectionclosing";
 import ProTable from "@/components/TableSearchComponent/ProTable/index.vue";
+import useOption from "../hooks/useOptions";
 const props = defineProps({
-  dialogVisible: {
-    type: Boolean,
-    default: false
-  },
-  dialogTitle: {
-    type: String
-  },
-  detailInfo:{
+  detailInfo: {
     type: Object,
+  },
+  dialogIndex: {
+    type: Number
   }
 })
 
 const emit = defineEmits(['handleCancle', 'handleSure']);
-const index = ref(1)
+const active = ref(1)
+const { teamIdList, taskList, printInvoiceList, payTypeList, statusList, checkStatusList } = useOption()
+
 //获取收费信息数据
-const getFormDetail=()=>{
+const getFormDetail = () => {
 
 }
-onMounted(()=>{
+onMounted(() => {
   getFormDetail()
 })
 // 获取table实例
@@ -230,8 +203,8 @@ const columns = reactive([
   },
 ])
 //点击人员明细
-const handleTable=()=>{
-  index.value=2
+const handleTable = () => {
+  active.value = 2
   proTable.value.getTableList()
 }
 const dataCallback = (data: any) => {
@@ -242,17 +215,22 @@ const dataCallback = (data: any) => {
     pageSize: data.pageSize */
   };
 }
-const getTableList= async (params:any) => {
+const getTableList = async (params: any) => {
   let newParams = JSON.parse(JSON.stringify(params));
-  const { data } = await groupList(newParams)
-  return data
+  // const { data } = await groupList(newParams)
+  return
 };
-const handleCancle = () => {
-  emit('handleCancle')
+
+const optionsName = (arr, value) => {
+  let TypeName = ''
+  arr.forEach(item => {
+    if (item.value == value) {
+      TypeName = item.label
+    }
+  })
+  return TypeName
 }
-const handleSure = async () => {
-  emit('handleSure')
-}
+
 
 
 
@@ -278,5 +256,19 @@ const handleSure = async () => {
   background: #E2FFF1;
   padding: 0px 4px;
   color: #09C268;
+}
+
+.active {
+  color: #2879FF;
+  border-bottom: 1px solid #2879FF;
+}
+
+.InfoItem {
+  margin-bottom: 20px;
+}
+
+.team {
+  display: inline-block;
+  width: 100px;
 }
 </style>

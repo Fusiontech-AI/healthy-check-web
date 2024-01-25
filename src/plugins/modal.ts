@@ -51,8 +51,8 @@ export default {
     ElNotification.warning(content);
   },
   // 确认窗体
-  confirm(content: any): Promise<MessageBoxData> {
-    return ElMessageBox.confirm(content, '系统提示', {
+  confirm(content: any, title: any): Promise<MessageBoxData> {
+    return ElMessageBox.confirm(content, title, {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
       type: 'warning'

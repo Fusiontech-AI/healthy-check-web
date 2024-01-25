@@ -4,6 +4,9 @@
   <!-- 查询表单 -->
   <SearchForm v-show="isShowSearch" :search="_search" :reset="_reset" :columns="searchColumns" :search-param="searchParam"
     :search-col="searchCol" :showActionGroup="showActionGroup" v-bind="$attrs">
+    <template v-for="slot in Object.keys($slots)" #[slot]="scope">
+      <slot :name="slot" v-bind="scope" />
+    </template>
     <template #formAction>
       <slot name="formAction"></slot>
     </template>
