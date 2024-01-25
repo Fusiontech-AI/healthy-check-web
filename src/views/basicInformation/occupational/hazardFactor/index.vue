@@ -59,13 +59,13 @@
             </el-select>
           </template>
           <!-- 职业照射种类 -->
-          <template #shineType>
+          <template #shineTypeSlot>
             <el-select v-model="formValue.shineType" clearable filterable style="width: 70%">
               <el-option v-for="item in shineTypeOption" :key="item.value" :label="item.label"
                 :value="item.value"></el-option>
             </el-select>
           </template>
-          <template #selectItemList>
+          <template #selectItemListSlot>
             <div class="w-120% h-120px px-8px py-4px rounded-4px border border-solid border-#E6EAEF">
               <el-tag class="mr-8px" :closable="!isDetail" v-for="item in formValue.itemList" :key="item"
                 @close="handleCloseTag(item)">
