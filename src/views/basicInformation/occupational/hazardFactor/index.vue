@@ -20,7 +20,7 @@
             @click="updateTabs(item.name)">{{ item.label }}</span>
         </div>
         <div class="divider"></div>
-        <div class="px-10px">
+        <div>
           <pro-table v-if="activeTabValue !== '7'" ref="proTableRef" :columns="columns" :toolButton="false"
             :request-api="getTableList" :data-callback="dataCallback" :isShowSearch="true" rowKey="id">
             <template #tableHeader="{ selectedListIds }">
@@ -176,6 +176,7 @@ const updateColumns = (tab: string, sortCode: string) => {
 const updateTabs = async (val: string) => {
   activeTabValue.value = val
   updateColumns(val, treeNodeClickObj.value.sortCode) //columns变化
+  if (treeNodeClickObj.value.code === 'all') return formValue.value = {}
   if (activeTabValue.value === '7') {
     getPjbzData()
   } else {
@@ -265,7 +266,8 @@ const dataCallback = (data: any) => {
 
 // 评价标准数据
 const getPjbzData = async () => {
-  if (isEmpty(treeNodeClickObj.value)) return
+  pjbzFormRef.value?.formRef.resetFields()
+  if (treeNodeClickObj.value.code === 'all' || isEmpty(treeNodeClickObj.value)) return formValue.value = {}
   try {
     const { data } = await hazardFactorsQuery(
       {
@@ -286,9 +288,9 @@ const getPjbzData = async () => {
 }
 // 获取表格数据
 const getTableList: any = async (params: any) => {
-  if (isEmpty(treeNodeClickObj.value)) return
+  if (treeNodeClickObj.value.code === 'all' || isEmpty(treeNodeClickObj.value))  return   
   try {
-    return hazardFactorsQuery(
+    return await hazardFactorsQuery(
       {
         ...params,
         associationType: activeTabValue.value,
@@ -303,7 +305,6 @@ const getTableList: any = async (params: any) => {
 const handleNodeClick = (row: any) => {
   treeNodeClickObj.value = cloneDeep(row)
   // console.log(treeNodeClickObj.value, 'treeNodeClickObj.value');
-  if (row.code === 'all') return formValue.value = {}
   formValue.value = {
     hazardFactorsName: row.value,
     hazardFactorsCode: row.code
