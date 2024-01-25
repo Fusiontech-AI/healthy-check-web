@@ -94,3 +94,11 @@ export const getTeamNoById = (id: any) => {
     method: 'get'
   });
 };
+
+// 删除体检单位信息
+export const deleteTeamInfo = (ids: any) => {
+  return request({
+    url: `/peis/teamInfo/${ids}`,
+    method: 'delete'
+  });
+};
