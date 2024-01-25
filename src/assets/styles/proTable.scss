@@ -30,7 +30,7 @@
 /* custom card */
 .card {
   box-sizing: border-box;
-  // padding: 20px;
+  padding-bottom: 20px;
   overflow-x: hidden;
   background-color: var(--el-bg-color);
   // border: 1px solid var(--el-border-color-light);
@@ -93,10 +93,13 @@
     width: calc(100% - 230px);
   }
 }
-.table-search {
+.form-search {
   padding: 18px 0 0;
   margin-bottom: 10px;
-  // border-bottom: 1px solid #E8E8E8;
+
+  &.search-table {
+    border-bottom: 1px solid #E8E8E8;
+  }
 
   .el-form {
     .el-form-item__content>* {

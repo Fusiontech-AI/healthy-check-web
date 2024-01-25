@@ -72,6 +72,7 @@ export interface ColumnProps<T = any> extends Partial<Omit<TableColumnCtx<T>, 't
   type?: TypeProps; // 列类型
   tag?: boolean | Ref<boolean>; // 是否是标签展示
   isShow?: boolean | Ref<boolean>; // 是否显示在表格当中
+  isShowSearch?: boolean;
   search?: SearchProps | undefined; // 搜索项配置
   enum?: EnumProps[] | Ref<EnumProps[]> | ((params?: any) => Promise<any>); // 枚举字典
   slot?: string;
