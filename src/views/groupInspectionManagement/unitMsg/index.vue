@@ -95,6 +95,7 @@ const basciInfoRef = ref()
 const unitName = ref<any>() //单位搜索
 const selectTreeNodeName = ref()//选中单位名称
 const selectTreeNodeId = ref()//选中单位名称
+const selectTreeNodeRow = ref()//选中单位名称
 const treeData = ref<any>([]);//单位列表数据
 const treeRef = ref()
 
@@ -138,8 +139,16 @@ const handleNodeClick =async (data:any) => {
   editFlag.value = true
   selectTreeNodeName.value = data.teamName
   selectTreeNodeId.value = data?.id
+  selectTreeNodeRow.value = data
   const { data: response } = await queryTeamInfoById(data?.id)
-  unitFormData.value = {...response,teamLevel:String(response?.teamLevel),parentId:String(response?.parentId)}
+  unitFormData.value = {
+    ...response,teamLevel:String(response?.teamLevel),
+    parentId:String(response?.parentId),
+    industryType:response?.industryType? String(response?.industryType):'',
+    regionCode:response?.regionCode? String(response?.regionCode):'',
+    economicType:response?.economicType?String(response?.economicType):'',
+    enterpriseSize:response?.enterpriseSize?String(response?.enterpriseSize):'',
+  }
 };
 
 // 新增单位
@@ -199,8 +208,13 @@ const handleSave =async () => {
   proxy?.$modal.msgSuccess(unitFormData?.id?'编辑单位成功':'新增单位成功');
   await getTeamInfoList()
   editFlag.value = !editFlag.value
-  treeRef.value?.setCurrentKey(lastTreeData.value?.id)
-  handleNodeClick(lastTreeData.value)
+  if(!unitFormData.id){
+    treeRef.value?.setCurrentKey(lastTreeData.value?.id)
+    handleNodeClick(lastTreeData.value)
+  }else{
+    treeRef.value?.setCurrentKey(selectTreeNodeId.value)
+    handleNodeClick(selectTreeNodeRow.value)
+  }
 }
 
 // 取消

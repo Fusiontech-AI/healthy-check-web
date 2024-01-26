@@ -119,6 +119,7 @@ watch(()=>[props.id,props.data],async (val:any) =>{
     }
     formValue.value = data
   }else{
+    console.log('reset')
     formValue.value = {}
   }
 },{
