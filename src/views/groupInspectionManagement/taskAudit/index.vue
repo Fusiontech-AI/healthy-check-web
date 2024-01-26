@@ -3,7 +3,7 @@
     <el-row>
       <el-col :span="5">
         <div class="bg-[#fff]">
-          <div class="p-[10px] ">
+          <div class="p-[10px]">
             <el-date-picker v-model="dateValue" type="daterange" start-placeholder="开始时间" end-placeholder="结束时间" style="width: 100%;" />
             <el-input class="mt-2" placeholder="请输入关键字"></el-input>
             <div class="tabs">

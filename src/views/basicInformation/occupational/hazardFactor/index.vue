@@ -66,10 +66,12 @@
             </el-select>
           </template>
           <template #selectItemListSlot>
-            <div class="w-120% h-120px px-8px py-4px rounded-4px border border-solid border-#E6EAEF">
-              <el-tag class="mr-8px" :closable="!isDetail" v-for="item in formValue.itemList" :key="item"
-                @close="handleCloseTag(item)">
-                {{ item + ' ' + options?.find((val: any) => val.value === item)?.label }}</el-tag>
+            <div class="w-100% h-160px pl-8px py-4px rounded-4px border border-solid border-#E6EAEF">
+              <el-scrollbar height="150px" class="pr-2px">
+                <el-tag class="mr-8px" :closable="!isDetail" v-for="item in formValue.itemList" :key="item"
+                  @close="handleCloseTag(item)">
+                  {{ item + ' ' + options?.find((val: any) => val.value === item)?.label }}</el-tag>
+              </el-scrollbar>
             </div>
           </template>
         </SearchForm>
@@ -388,6 +390,48 @@ const defaultProps = {
   &:hover {
     background: #F1F5FB;
     color: #2879FF;
+  }
+}
+
+::v-deep {
+
+  .el-select__tags {
+    max-height: 100px;
+    overflow: auto;
+
+    .el-tag {
+      height: auto;
+
+      .el-select__tags-text {
+        white-space: normal;
+      }
+    }
+
+
+  }
+
+  .el-select {
+    ::-webkit-scrollbar {
+      width: 0px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background-color: transparent;
+    }
+
+    ::-webkit-scrollbar-track {
+      background-color: transparent;
+    }
+  }
+
+
+  .el-tag {
+    height: auto;
+    padding: 5px;
+    line-height: 1.2;
+
+    .el-tag__content {
+      white-space: normal;
+    }
   }
 }
 </style>
