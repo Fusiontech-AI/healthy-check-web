@@ -59,14 +59,16 @@ export const useTable = (
     try {
       // 先把初始化参数和分页参数放到总参数里面
       Object.assign(state.totalParam, initParam, isPageable ? pageParam.value : {});
-      let { rows,data,total } = await api({ ...state.searchInitParam, ...state.totalParam });
-      total && (rows.total=total)
-      rows&&(data=rows)
+      let { rows, data, total } = await api({ ...state.searchInitParam, ...state.totalParam });
+      rows && (data = rows)
+      rows && (data.list = rows)
+      total && (data.total = total)
       dataCallBack && (data = dataCallBack(data));
       state.tableData = isPageable ? data.list : data;
       // 解构后台返回的分页数据 (如果有分页更新分页信息)
       if (isPageable) {
         const { pageNum, pageSize, total } = data;
+        console.log("🚀 ~ getTableList ~ total:", total)
         updatePageable({ pageNum, pageSize, total });
       }
     } catch (error) {

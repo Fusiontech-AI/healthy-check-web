@@ -20,30 +20,9 @@
 
         <el-col :span="20">
           <div class="sample">
-            <el-form :model="searchForm" label-width="120px">
-              <el-row>
-                <el-col :span="8">
-                  <el-form-item label="项目名称">
-                    <el-input v-model="searchForm.basicProjectName"></el-input>
-                  </el-form-item>
-                </el-col>
-                <el-col :span="8">
-                  <el-form-item label="项目编码">
-                    <el-input v-model="searchForm.basicProjectCode"></el-input>
-                  </el-form-item>
-                </el-col>
-                <el-col :span="8">
-                  <el-form-item>
-                    <el-button @click="searchTable" round>搜索</el-button>
-                    <el-button @click="resetTable" round>重置</el-button>
-                  </el-form-item>
-                </el-col>
-              </el-row>
-            </el-form>
-
             <div>
-              <ProTable ref="proTable" :columns="columns" :request-api="getTableList" :data-callback="dataCallback"
-                :height="550" :toolButton="false">
+              <ProTable ref="proTable" :columns="columns" :request-api="basicProjectList" :init-param="initParam"
+                :searchCol="3" :height="500" :toolButton="false">
                 <template #tableHeader="scope">
                   <el-button type="danger" @click="batchDelete(scope.selectedListIds)" :disabled="!scope.isSelected"
                     round>批量删除</el-button>
@@ -98,7 +77,7 @@
     </el-dialog>
 
     <!-- 新增抽屉 -->
-    <el-drawer v-model="addDrawer" :title="addTitle" direction="rtl" :size="738">
+    <el-drawer v-model="addDrawer" :title="addTitle" direction="rtl" :size="738" :destroy-on-close="true">
       <div>项目基础信息</div>
       <addForm :addInfo="addInfo" ref="formRef" :isPreview="isPreview"></addForm>
       <template #footer>
@@ -122,7 +101,7 @@
       </template>
     </el-drawer>
 
-    
+
   </div>
 </template>
 <script setup lang="ts">
@@ -130,18 +109,24 @@ import { ref, reactive } from 'vue'
 import ProTable from '@/components/TableSearchComponent/ProTable/index.vue'
 import addForm from './component/addForm.vue'
 import configuration from "./component/configuration.vue";
-import {  tjksList, basicProjectList, addBasicProject, updataBasicProject, deleteBasicProject } from '@/api/basicInfo/basicProjectManagement'
-import { optionsKS, optionsSuitSex, optionsEnterSummary, optionsEnterReport, optionsUnit, optionsResultType, optionsResultGetWay, getOption, getList, getTypeList } from "./hooks/useOptions";
+import { tjksList, basicProjectList, addBasicProject, updataBasicProject, deleteBasicProject } from '@/api/basicInfo/basicProjectManagement'
+import useOptions from "./hooks/useOptions";
+const { optionsUnit,
+  optionsResultType,
+  optionsResultGetWay,
+  optionsKS,
+  optionsSuitSex,
+  optionsEnterSummary,
+  optionsEnterReport } = useOptions()
 
 onMounted(() => {
   getSearchTypeList()
-  getList()
 })
 
 const inputType = ref('')
 const TypeList = ref([])
 const activeKS = ref(-1)
-const currentType = ref({})
+let currentType = reactive({})
 const searchType = () => {
   getSearchTypeList(inputType.value)
 }
@@ -156,38 +141,38 @@ const getSearchTypeList = async (params) => {
     TypeList.value = rows
   }
 }
-const ksClick = (item, index) => {
+const ksClick = (item: any, index: any) => {
   activeKS.value = index
-  currentType.value = item
+  currentType = item
+  initParam.ksId = item.id
 }
 const cancelKS = () => {
   activeKS.value = -1
-  currentType.value = {}
+  currentType = {}
+  initParam.ksId = ''
 }
 
-// 表格搜索
-const searchForm = ref({})
-const searchTable = () => {
-  proTable.value?.getTableList();
-}
-const resetTable = () => {
-  searchForm.value = {}
-  proTable.value?.getTableList();
-}
 
 //任务信息ProTable 实例
 const proTable = ref();
+const initParam = reactive({ ksId: '' })
 // 表格配置项
-const columns = reactive([
+const columns = reactive<any>([
   { type: "selection", fixed: "left", width: 70 },
   {
     prop: "basicProjectCode",
     label: "项目编码",
+    search: {
+      el: 'input',
+    },
     width: 120,
   },
   {
     prop: "basicProjectName",
     label: "项目名称",
+    search: {
+      el: 'input',
+    },
     width: 120,
   },
   {
@@ -248,23 +233,6 @@ const columns = reactive([
   },
 
 ]);
-const getTableList = (params) => {
-  let newParams = { ...params }
-  if (currentType.value.id) {
-    newParams.ksId = currentType.value.id
-  }
-  if (searchForm.value != {}) {
-    newParams = { ...newParams, ...searchForm.value }
-  }
-  return basicProjectList(newParams)
-}
-const dataCallback = (data: any) => {
-  console.log("🚀 ~ dataCallback ~ data:", data)
-  return {
-    list: data,
-    total: data.total
-  };
-}
 
 const operationDeter = ref(false)
 const operationTitle = ref('')
@@ -314,10 +282,10 @@ const formRef = ref(null)
 
 const handleAdd = (type, row) => { //type=1是新增,2是查看,3是编辑
   addDrawer.value = true
-  isPreview.value = false
-  formRef.value?.addInfoRef.clearValidate()
   if (type == 1) {
     addTitle.value = '新增'
+    formRef.value?.addInfoRef.clearValidate()
+    isPreview.value = false
     addInfo.value = {}
   } else if (type == 2) {
     addTitle.value = '详情'
@@ -325,6 +293,8 @@ const handleAdd = (type, row) => { //type=1是新增,2是查看,3是编辑
     addInfo.value = { ...row }
   } else {
     addTitle.value = '编辑'
+    formRef.value?.addInfoRef.clearValidate()
+    isPreview.value = false
     addInfo.value = { ...row }
   }
 }
