@@ -82,6 +82,9 @@ const RenderFormValue = (item: any) => {
       if (props.searchParam[item.prop] && item.enum && item?.search?.el == 'select') {
         return item.enum?.find((val: { value: any; }) => val?.value == props.searchParam[item.prop])?.label || props.searchParam[item.prop]
       }
+      if (props.searchParam[item.prop] && item.enum && item?.search?.el == 'switch') {
+        return item.enum?.find((val: { value: any; }) => val?.value == props.searchParam[item.prop])?.label || props.searchParam[item.prop]
+      }
       return props.searchParam[item.prop]
     }
   }}</div>
@@ -89,8 +92,13 @@ const RenderFormValue = (item: any) => {
 
 const formRef = ref<any>(null)
 // 表单校验
-const validate = async () => {
-  return unref(formRef)?.validate()
+const validate = async (cb: any) => {
+  await unref(formRef)?.validate((valid: any, fields: any) => {
+    if (valid) {
+      cb(valid, fields)
+    } else {
+    }
+  })
 }
 
 //清空校验

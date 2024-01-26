@@ -1,8 +1,8 @@
 <template>
   <div>
     <div class="head_title">参考值</div>
-    <ProTable ref="proTable" :columns="columns" :data="dataTableList" :height="550" :pagination="false"
-      :toolButton="false" v-loading="loading">
+    <ProTable ref="proTable" :columns="columns" :requestApi="basicProjectRefList" :height="550" :toolButton="false"
+      v-loading="loading">
       <template #tableHeader="scope">
         <el-button type="primary" @click="handleAdd(1)" round>新增</el-button>
         <el-button type="danger" @click="batchDelete(scope.selectedListIds, 1)" :disabled="!scope.isSelected"
@@ -35,63 +35,50 @@
     <!-- 新增配置 -->
     <el-drawer v-model="batchEditDialog" :title="addTitle" width="600px" class="sealAccountClass">
       <div>
-        <el-form ref="batchEditRef" :model="batchEditForm" :rules="batchEditRules">
-          <el-form-item label="适用性别:" prop="sex">
-            <el-select v-model="batchEditForm.sex" v-if="!isPreview">
-              <el-option v-for="item in optionsSuitSex" :key="item.value" :label="item.label" :value="item.value" />
-            </el-select>
-            <span v-else> {{ optionsSuitSexName }}</span>
-          </el-form-item>
+        <SearchForm ref="batchEditRef" :columns="batchEditColumns" :search-param="batchEditForm" :search-col="1"
+          :rules="batchEditRules" :preview="isPreview">
+          <template #healthReferCompontent>
+            <el-form-item prop="healthRefer" label="健康参考值:">
+              <el-row v-if="!isPreview">
+                <el-col :span="11">
+                  <el-form-item prop="healthReferStart">
+                    <el-input v-model="batchEditForm.healthReferStart" />
+                  </el-form-item>
+                </el-col>
+                <el-col :span="2">
+                  ——
+                </el-col>
+                <el-col :span="11">
+                  <el-form-item prop="healthReferEnd">
+                    <el-input v-model="batchEditForm.healthReferEnd" />
+                  </el-form-item>
+                </el-col>
+              </el-row>
+              <span v-else> {{ batchEditForm.healthReferStart }}-{{ batchEditForm.healthReferEnd }}</span>
+            </el-form-item>
+          </template>
+          <template #careerReferCompontent>
+            <el-form-item prop="careerRefer" label="职业参考区间:">
+              <el-row v-if="!isPreview">
+                <el-col :span="11">
+                  <el-form-item prop="careerReferStart">
+                    <el-input v-model="batchEditForm.careerReferStart" />
+                  </el-form-item>
+                </el-col>
+                <el-col :span="2">
+                  ——
+                </el-col>
+                <el-col :span="11">
+                  <el-form-item prop="careerReferEnd">
+                    <el-input v-model="batchEditForm.careerReferEnd" />
+                  </el-form-item>
+                </el-col>
+              </el-row>
+              <span v-else> {{ batchEditForm.careerReferStart }}-{{ batchEditForm.careerReferEnd }}</span>
+            </el-form-item>
 
-          <el-form-item label="年龄最低值:" prop="ageStart">
-            <el-input v-model="batchEditForm.ageStart" v-if="!isPreview" />
-            <span v-else> {{ batchEditForm.ageStart }}</span>
-          </el-form-item>
-
-          <el-form-item label="年龄最高值:" prop="ageEnd">
-            <el-input v-model="batchEditForm.ageEnd" v-if="!isPreview" />
-            <span v-else> {{ batchEditForm.ageEnd }}</span>
-          </el-form-item>
-
-          <el-form-item label="健康参考值:" required>
-            <el-row v-if="!isPreview">
-              <el-col :span="11">
-                <el-form-item prop="healthReferStart">
-                  <el-input v-model="batchEditForm.healthReferStart" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="2">
-                ——
-              </el-col>
-              <el-col :span="11">
-                <el-form-item prop="healthReferEnd">
-                  <el-input v-model="batchEditForm.healthReferEnd" />
-                </el-form-item>
-              </el-col>
-            </el-row>
-            <span v-else> {{ batchEditForm.healthReferStart }}-{{ batchEditForm.healthReferEnd }}</span>
-          </el-form-item>
-
-          <el-form-item label="职业参考区间:" required>
-            <el-row v-if="!isPreview">
-              <el-col :span="11">
-                <el-form-item prop="careerReferStart">
-                  <el-input v-model="batchEditForm.careerReferStart" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="2">
-                ——
-              </el-col>
-              <el-col :span="11">
-                <el-form-item prop="careerReferEnd">
-                  <el-input v-model="batchEditForm.careerReferEnd" />
-                </el-form-item>
-              </el-col>
-            </el-row>
-            <span v-else> {{ batchEditForm.careerReferStart }}-{{ batchEditForm.careerReferEnd }}</span>
-          </el-form-item>
-
-        </el-form>
+          </template>
+        </SearchForm>
       </div>
       <template #footer>
         <span class="dialog-footer">
@@ -110,12 +97,16 @@
 import ProTable from '@/components/TableSearchComponent/ProTable/index.vue'
 import { Search } from '@element-plus/icons-vue'
 import { basicProjectRefList, addBasicProjectRef, deleteBasicProjectRef } from '@/api/basicInfo/basicProjectManagement'
-import { optionsKS, optionsSuitSex, optionsEnterSummary, optionsEnterReport, optionsUnit, optionsResultType, optionsResultGetWay, getOption, getList, getTypeList } from "../hooks/useOptions";
-// import { itemType, getOption, getList } from "../hooks/useOptions";
+import { batchEditColumn } from "../rowColumns";
+import useOptions from "../hooks/useOptions";
+const { optionsUnit,
+  optionsResultType,
+  optionsResultGetWay,
+  optionsKS,
+  optionsSuitSex,
+  optionsEnterSummary,
+  optionsEnterReport } = useOptions()
 
-onMounted(() => {
-  getTableList()
-})
 const props = defineProps({
   configurationInfo: {
     type: Object,
@@ -155,20 +146,13 @@ const columns = ref([
     width: 200
   },
 ])
-const dataTableList = ref([])
-const getTableList = async () => {
-  loading.value = true
-  const { rows } = await basicProjectRefList()
-  dataTableList.value = rows
-  loading.value = false
-}
-
 //新增抽屉
 const batchEditRef = ref(null)
 const batchEditDialog = ref(false)
 const addTitle = ref('')
 const isPreview = ref(false)
 const batchEditForm = ref({})
+const batchEditColumns = ref<any>(batchEditColumn)
 const batchEditRules = ref({
   sex: [{ required: true, message: '请选择适用性别', trigger: 'blur' }],
   ageStart: [{ required: true, message: '请选择年龄最低值', trigger: 'blur' }],
@@ -203,7 +187,7 @@ const handleBatchEdit = async (formEl) => {
       await addBasicProjectRef({ ...batchEditForm.value, basicProjectId: props.configurationInfo.id })
       ElMessage.success('新增成功')
       batchEditDialog.value = false
-      getTableList();
+      proTable.value?.getTableList();
     } else {
     }
   })
@@ -218,7 +202,7 @@ const batchDelete = async (ids, type) => { //type=1是批量,type=2是单项删�
   }
   await deleteBasicProjectRef(param)
   ElMessage.success('删除成功')
-  getTableList();
+  proTable.value?.getTableList();
 }
 
 //计算属性
