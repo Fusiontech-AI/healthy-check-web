@@ -37,7 +37,7 @@
       <div>
         <SearchForm ref="batchEditRef" :columns="batchEditColumns" :search-param="batchEditForm" :search-col="1"
           :rules="batchEditRules" :preview="isPreview">
-          <template #healthReferCompontent>
+          <template #healthReferComponent>
             <el-form-item prop="healthRefer" label="健康参考值:">
               <el-row v-if="!isPreview">
                 <el-col :span="11">
@@ -57,7 +57,7 @@
               <span v-else> {{ batchEditForm.healthReferStart }}-{{ batchEditForm.healthReferEnd }}</span>
             </el-form-item>
           </template>
-          <template #careerReferCompontent>
+          <template #careerReferComponent>
             <el-form-item prop="careerRefer" label="职业参考区间:">
               <el-row v-if="!isPreview">
                 <el-col :span="11">
