@@ -12,7 +12,7 @@ export const columnsBasic = [
   },
   {
     prop: 'ksSimplePy',
-    label: '科室简拼',
+    label: '科室简称',
     search: { el: 'input' }
   },
   { prop: 'ksSort', label: '排序' },
@@ -44,7 +44,7 @@ export const formColumnsBasic = [
   },
   {
     prop: 'ksSimplePy',
-    label: '科室简拼',
+    label: '科室简称',
     search: { el: 'input' }
   },
   {
@@ -70,6 +70,6 @@ export const formColumnsBasic = [
 
 export const formRulesBasic = {
   ksName: [{ required: true, message: '请输入科室名称', trigger: ['change', 'blur'] }],
-  ksSimplePy: [{ required: true, message: '请输入科室简拼', trigger: ['change', 'blur'] }],
+  ksSimplePy: [{ required: true, message: '请输入科室简称', trigger: ['change', 'blur'] }],
   ksSort: [{ required: true, message: '请输入排序', trigger: ['change', 'blur'] }]
 };

@@ -45,3 +45,18 @@
       top:3px
     }
   }
+  .basci-info-wrap{
+    max-height: 200px;
+    overflow: auto;
+  }
+  .unit-tree{
+    max-height: calc(100vh - 200px);
+    overflow: auto;
+  }
+  .unit-page-wrap{
+    height: calc(100vh - 135px);
+  }
+  .unit-list-wrap{
+    max-height: calc(100vh - 175px);
+    overflow: auto;
+  }

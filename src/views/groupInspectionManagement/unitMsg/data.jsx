@@ -11,16 +11,18 @@ export const basicInfoColumnBasic = [
     prop: 'parentId',
     slot: 'parentId',
     label: '关联上级单位',
-    search: { el: 'select' }
+    disabled: true,
+    search: { el: 'select', props: { disabled: true }, disabled: true }
   },
   {
     prop: 'teamNo',
     label: '单位编号',
-    search: { el: 'input' }
+    search: { el: 'input', props: { disabled: true } }
   },
   {
     prop: 'teamName',
     label: '单位名称',
+    slot: 'teamName',
     search: { el: 'input' }
   },
   {
@@ -55,19 +57,18 @@ export const otherInfoColumnBasic = [
     prop: 'industryType',
     label: '行业类型',
     enum: [],
-    search: { el: 'select' },
-    fieldNames: { label: 'value', value: 'id' }
+    search: { el: 'select' }
   },
   {
     prop: 'regionCode',
+    slot: 'regionCode',
     label: '所属地区',
     search: { el: 'input' }
   },
   {
     prop: 'economicType',
     label: '经济类型',
-    search: { el: 'select' },
-    fieldNames: { label: 'value', value: 'id' }
+    search: { el: 'select' }
   },
   {
     prop: 'registerAddress',
@@ -83,32 +84,32 @@ export const otherInfoColumnBasic = [
   {
     prop: 'employeeTotalNum',
     label: '职工总人数',
-    search: { el: 'input' }
+    search: { el: 'input-number', props: { min: 0, precision: 0 } }
   },
   {
     prop: 'femaleEmployeeNum',
     label: '女职工总人数',
-    search: { el: 'input' }
+    search: { el: 'input-number', props: { min: 0, precision: 0 } }
   },
   {
     prop: 'productTotalNum',
     label: '生产工人数',
-    search: { el: 'input' }
+    search: { el: 'input-number', props: { min: 0, precision: 0 } }
   },
   {
     prop: 'femaleProductNum',
     label: '生产女职工人数',
-    search: { el: 'input' }
+    search: { el: 'input-number', props: { min: 0, precision: 0 } }
   },
   {
     prop: 'affectedTotalNum',
     label: '接害工人数',
-    search: { el: 'input' }
+    search: { el: 'input-number', props: { min: 0, precision: 0 } }
   },
   {
     prop: 'femaleAffectedNum',
     label: '接害女职工人数',
-    search: { el: 'input' }
+    search: { el: 'input-number', props: { min: 0, precision: 0 } }
   },
   {
     prop: 'remark',

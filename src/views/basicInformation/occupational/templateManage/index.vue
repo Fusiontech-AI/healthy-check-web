@@ -11,7 +11,7 @@
         <div>
           <pro-table class="search-table" ref="proTable" :columns="columns" :toolButton="false" :data="[{ ksName: '11' }]">
             <template #tableHeader="scope">
-              <el-button type="primary" style="padding: 5px 30px;" @click="showDrawer = true">新增</el-button>
+              <el-button round type="primary" style="padding: 5px 30px;" @click="showDrawer = true">新增</el-button>
             </template>
             <template #operation>
               <el-button type="primary" link @click="showDrawer = true">查看</el-button>
@@ -125,7 +125,6 @@ const formColumns = ref<any>([
 .left_box {
   height: calc(100vh - 105px);
   padding: 10px;
-  margin-right: 10px;
   background: #fff;
   border-right: 1px solid #E8E8E8;
 

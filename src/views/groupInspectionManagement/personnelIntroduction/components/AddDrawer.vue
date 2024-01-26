@@ -1,5 +1,5 @@
 <template>
-  <div class="text-[14px] h-full flex flex-col justify-between">
+  <div class="text-[14px] h-full flex flex-col justify-between no-card">
     <div>
       <div class="font-bold card_title"><span></span>单位分组</div>
       <SearchForm ref="formRef" :columns="unitGroupColumns" :search-param="formValue" :rules="rules"></SearchForm>

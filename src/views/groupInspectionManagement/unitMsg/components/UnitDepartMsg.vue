@@ -3,7 +3,7 @@
     <ProTable ref="proTableRef" :columns="columns" :request-api="getTableList" :toolButton="false" rowKey="id">
       <!-- 表格 header 按钮 -->
       <template #tableHeader="scope">
-        <el-button round type="primary" @click="openDrawer('add', '')">新增部门</el-button>
+        <el-button :disabled="!isHaveId" round type="primary" @click="openDrawer('add', '')">新增部门</el-button>
         <el-button round plain :disabled="!scope.isSelected" @click="batchDelete(scope.selectedListIds)"> 批量删除 </el-button>
       </template>
       <!-- 表格操作 -->
@@ -15,7 +15,14 @@
 
     <!-- 添加或修改科室对话框 -->
     <el-drawer v-model="showDrawer" :title="drawerTitle" direction="rtl" :before-close="handleClose">
-      <SearchForm ref="departFormRef" :search-param="formValue" :columns="departColumn" :searchCol="1" :rules="departRules">
+      <SearchForm
+        ref="departFormRef"
+        :search-param="formValue"
+        :columns="departColumn"
+        :searchCol="1"
+        :rules="departRules"
+        style="background: transparent; padding: 18px 30px;"
+      >
         <template #teamId>
           <el-select v-model="formValue.teamId" placeholder="请选择" @change="handleChangeTeamId">
             <el-option v-for="item in teamIdOption" :key="item.value" :label="item.label" :value="item.value" />
@@ -57,6 +64,7 @@ const proTableRef = ref()
 const departColumn = ref<any>(departColumnBasic)
 const departFormRef = ref()
 const teamIdOption = ref()
+const isHaveId = ref<any>(false)
 
 const initFormData = {
   id: undefined,
@@ -67,11 +75,14 @@ const initFormData = {
 }
 
 watch(()=>props.id, (id)=> {
+  isHaveId.value = !!id
   if(id){
     nextTick(async () => {
     proTableRef.value?.getTableList()
     getDict()
   })
+  }else{
+    proTableRef.value?.getTableList()
   }
 },
 {
