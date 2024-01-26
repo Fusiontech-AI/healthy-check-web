@@ -48,14 +48,6 @@ html.dark .el-tree-node__content {
   warningColor: #e6a23c;
 }
 
-.el-button {
-  border-radius: 27px !important;
-}
-
-.el-button.is-plain {
-  background: #fff;
-}
-
 .el-drawer {
   border-radius: 20px 0px 0px 20px;
   background: linear-gradient(180deg, #CBDFFF 0%, #FFFFFF 12%);
