@@ -35,10 +35,10 @@
       <el-col :span="19">
         <el-card class="content">
           <div class="flex justify-end">
-            <el-button type="primary" plain>下载模板</el-button>
-            <el-button type="primary" plain>批量导出</el-button>
-            <el-button type="primary" plain @click="batchImportDialog = true">批量导入</el-button>
-            <el-button type="primary" style="padding: 5px 40px; " @click="handleAdd()">新增</el-button>
+            <el-button round type="primary" plain>下载模板</el-button>
+            <el-button round type="primary" plain>批量导出</el-button>
+            <el-button round type="primary" plain @click="batchImportDialog = true">批量导入</el-button>
+            <el-button round type="primary" style="padding: 5px 40px; " @click="handleAdd()">新增</el-button>
           </div>
           <div class="no-card">
             <div class="my-2 ">
@@ -83,8 +83,8 @@
         </Grid>
       </div>
       <div class="flex justify-end mt-4">
-        <el-button @click="showPersonDialog = false">取消</el-button>
-        <el-button type="primary" @click="showPersonDialog = false">确定</el-button>
+        <el-button round @click="showPersonDialog = false">取消</el-button>
+        <el-button round type="primary" @click="showPersonDialog = false">确定</el-button>
       </div>
     </el-dialog>
   </div>

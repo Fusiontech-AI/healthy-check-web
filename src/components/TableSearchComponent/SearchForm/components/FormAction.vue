@@ -5,6 +5,7 @@
       v-bind="actionOption?.resetOption"
       @click="handleReset"
       :icon="Search"
+      round
     >
       {{actionOption?.resetOption?.btnText || '重置'}}
     </el-button>
@@ -14,6 +15,7 @@
       v-bind="actionOption?.submitOption"
       @click="handleSearch"
       :icon="Search"
+      round
     >
       {{actionOption?.submitOption?.btnText || '搜索'}}
     </el-button>

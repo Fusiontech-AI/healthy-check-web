@@ -24,13 +24,13 @@
           <pro-table v-if="activeTabValue !== '7'" ref="proTableRef" :columns="columns" :toolButton="false"
             :request-api="getTableList" :data-callback="dataCallback" :isShowSearch="true" rowKey="id">
             <template #tableHeader="{ selectedListIds }">
-              <el-button type="primary" @click="onpenDrawer({})">新增</el-button>
-              <el-button @click="handleDel(selectedListIds)">批量删除</el-button>
+              <el-button round type="primary" @click="onpenDrawer({})">新增</el-button>
+              <el-button round @click="handleDel(selectedListIds)">批量删除</el-button>
             </template>
             <template #operation="{ row }">
-              <el-button type="primary" link @click="onpenDrawer(row, true)">详情</el-button>
-              <el-button type="primary" link @click="onpenDrawer(row)">编辑</el-button>
-              <el-button type="primary" link @click="handleDel([row.id])">删除</el-button>
+              <el-button round type="primary" link @click="onpenDrawer(row, true)">详情</el-button>
+              <el-button round type="primary" link @click="onpenDrawer(row)">编辑</el-button>
+              <el-button round type="primary" link @click="handleDel([row.id])">删除</el-button>
             </template>
           </pro-table>
           <div v-else class="pr-30%">
@@ -46,7 +46,7 @@
         </div>
       </GridItem>
     </Grid>
-    <el-drawer v-model="showDrawer" title="新增" size="40%">
+    <el-drawer v-model="showDrawer" :title="drawerTitle" size="40%">
       <div class="h-full flex flex-col justify-between">
         <SearchForm style="background: transparent; padding: 18px 30px;" ref="formRef" :columns="fields"
           :search-param="formValue" :rules="rules" :searchCol="1" :preview="false" :disabled="isDetail">
@@ -74,8 +74,8 @@
           </template>
         </SearchForm>
         <div class="flex justify-end mt-4">
-          <el-button @click="showDrawer = false">取消</el-button>
-          <el-button type="primary" @click="handleSubmit" :disabled="isDetail">确定</el-button>
+          <el-button round @click="showDrawer = false">取消</el-button>
+          <el-button round type="primary" @click="handleSubmit" :disabled="isDetail">确定</el-button>
         </div>
       </div>
     </el-drawer>
@@ -124,6 +124,7 @@ const occupationalDict = ref<any>([]) // 职业照射种类下拉框
 const shineTypeOption = ref<any>([]) // 根据照射源筛选后的数据
 const isDetail = ref<boolean>(false)
 const options = ref<any>([])
+const drawerTitle = ref('新增')
 
 const handleCloseTag = (tag: any) => {
   formValue.value.itemList?.splice(formValue.value.itemList.indexOf(tag), 1);
@@ -229,6 +230,8 @@ const onpenDrawer = async (row: any, type = false) => {
     })
   // type == 1 详情
   isDetail.value = type
+  drawerTitle.value = isDetail.value ? '详情' : row.id ? '编辑' : '新增'
+
   // row.id有值 详情或编辑回显 没值为新增
   const res = row.id && await hazardFactorsDetail({ id: row.id })
   formValue.value = {
@@ -288,7 +291,7 @@ const getPjbzData = async () => {
 }
 // 获取表格数据
 const getTableList: any = async (params: any) => {
-  if (treeNodeClickObj.value.code === 'all' || isEmpty(treeNodeClickObj.value))  return   
+  if (treeNodeClickObj.value.code === 'all' || isEmpty(treeNodeClickObj.value)) return
   try {
     return await hazardFactorsQuery(
       {

@@ -13,7 +13,7 @@
             <div class="divider"></div>
             <div class="flex justify-between items-center">
               <el-checkbox v-model="checked" size="large">全选</el-checkbox>
-              <el-button type="primary" size="small" @click="handleBatchAudit">批量审核</el-button>
+              <el-button type="primary" round size="small" @click="handleBatchAudit">批量审核</el-button>
             </div>
           </div>
           <el-scrollbar class="left_list" height="calc(100vh - 294px)">
@@ -35,8 +35,8 @@
         <el-scrollbar height="calc(100vh - 105px)">
           <div class="content">
             <div class="flex justify-end">
-              <el-button>委托协议预览</el-button>
-              <el-button type="primary" @click="showDrawer = true">任务审核</el-button>
+              <el-button round>委托协议预览</el-button>
+              <el-button round type="primary" @click="showDrawer = true">任务审核</el-button>
             </div>
             <div class="divider"></div>
             <div>
@@ -102,8 +102,8 @@
     <el-dialog title="分组详情" v-model="showGroupDialog" width="70%">
       <group-details></group-details>
       <div class="flex justify-end mt-4">
-        <el-button @click="showGroupDialog = false">取消</el-button>
-        <el-button type="primary" @click="showGroupDialog = false">确定</el-button>
+        <el-button round @click="showGroupDialog = false">取消</el-button>
+        <el-button round type="primary" @click="showGroupDialog = false">确定</el-button>
       </div>
     </el-dialog>
     <el-dialog title="人员信息详情" v-model="showPersonDialog" width="45%">
@@ -118,8 +118,8 @@
         </Grid>
       </div>
       <div class="flex justify-end mt-4">
-        <el-button @click="showPersonDialog = false">取消</el-button>
-        <el-button type="primary" @click="showPersonDialog = false">确定</el-button>
+        <el-button round @click="showPersonDialog = false">取消</el-button>
+        <el-button round type="primary" @click="showPersonDialog = false">确定</el-button>
       </div>
     </el-dialog>
   </div>
