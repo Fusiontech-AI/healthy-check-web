@@ -6,16 +6,16 @@
         <el-row :gutter="20">
           <el-col :span="6">
             <el-form-item label="单位名称" prop="teamId">
-              <el-select v-model="ruleForm.teamId" filterable clearable remote :remote-method="remoteMethod"
-                :loading="loading" placeholder="请选择单位名称" style="width: 240px">
-                <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" />
-              </el-select>
+              <el-tree-select v-model="ruleForm.teamId" :data="options" filterable clearable remote :loading="loading"
+                placeholder="请选择单位名称" :remote-method="remoteMethod"
+                :props="{ value: 'value', label: 'label', children: 'children' }" value-key="id" check-strictly
+                @change="teamIdChange" />
             </el-form-item>
           </el-col>
           <el-col :span="6">
             <el-form-item label="任务名称" prop="teamTaskId">
-              <el-select v-model="ruleForm.teamTaskId" placeholder="请选择任务名称">
-                <el-option v-for="item in taskList" :key="item.value" :label="item.label" :value="item.value" />
+              <el-select v-model="ruleForm.teamTaskId" placeholder="请选择任务名称" v-loading="taskLoading">
+                <el-option v-for="item in taskoptions" :key="item.value" :label="item.label" :value="item.value" />
               </el-select>
             </el-form-item>
           </el-col>
@@ -60,8 +60,6 @@
       <div class="title">
         <div style="width: 200px;">结账信息</div>
       </div>
-
-
       <ProTable ref="proTableAccounts" :columns="columnsAccounts" :request-api="getTableListAccounts"
         :data-callback="dataCallbackAccounts" :requestAuto="false" :toolButton="false">
         <!-- 表格操作 -->
@@ -108,7 +106,7 @@
     <!-- 详情 -->
     <el-dialog v-model="dialogVisible" :title="dialogTitle" style="width: 900px;
 height: 698px;">
-      <detailForm :detailInfo="detailInfo" :dialogIndex="dialogIndex"></detailForm>
+      <detailForm :detailInfo="detailInfo" :dialogIndex="dialogIndex" :taskoptions="taskoptions"></detailForm>
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="dialogVisible = false">取消</el-button>
@@ -139,7 +137,7 @@ height: 698px;">
                 <el-form-item label="任务" prop="teamTaskId">
                   <el-select v-model="addForm.teamTaskId" filterable clearable disabled placeholder="请选择单位名称"
                     style="width: 240px">
-                    <el-option v-for="item in taskList" :key="item.value" :label="item.label" :value="item.value" />
+                    <el-option v-for="item in taskoptions" :key="item.value" :label="item.label" :value="item.value" />
                   </el-select>
                 </el-form-item>
               </el-col>
@@ -150,8 +148,8 @@ height: 698px;">
               </el-col>
               <el-col :span="12">
                 <el-form-item label="结算时间" prop="settleTime">
-                  <el-date-picker v-model="addForm.settleTime" value-format="yyyy-MM-dd" type="date" placeholder="选择日期"
-                    style="width: 100%" />
+                  <el-date-picker v-model="addForm.settleTime" value-format="YYYY-MM-DD HH:mm:ss" type="date"
+                    placeholder="选择日期" style="width: 100%" />
                 </el-form-item>
               </el-col>
               <el-col :span="12">
@@ -211,13 +209,13 @@ import detailForm from './component/detailForm.vue'
 import { ElMessage } from 'element-plus'
 import moment from 'moment'
 import useOption from "./hooks/useOptions";
-import { teamInfoList, addTeamSettle, teamInvoice, teamInvalidSettle, teamInvalidInvoice, deleteTeamSettle } from "@/api/groupInspection/inspectionclosing";
+import { teamInfoList, teamTaskList, addTeamSettle, teamInvoice, teamInvalidSettle, teamInvalidInvoice, deleteTeamSettle } from "@/api/groupInspection/inspectionclosing";
 
 onMounted(() => {
   getDict()
 })
 const { teamIdList, taskList, printInvoiceList, payTypeList, statusList, checkStatusList } = useOption()
-
+const { proxy } = getCurrentInstance() as ComponentInternalInstance
 
 //获取表单实例
 const ruleFormRef = ref()
@@ -239,8 +237,16 @@ const rules = reactive({
 })
 const options = ref([])
 const loading = ref(false)
-const taskoptions = ref([])
+const taskLoading = ref(false) //任务下拉加载
+const taskoptions = ref([])  //任务下拉列表,联动单位名称
 
+/** 查询单位名称下拉树结构 */
+const getTreeselect = async (data) => {
+  options.value = []
+  const menu = proxy?.handleTree<MenuOptionsType>(data)
+  options.value = JSON.parse(JSON.stringify(menu))
+}
+// 获取远程单位列表
 const remoteMethod = async (query: any) => {
   loading.value = true
   if (query) {
@@ -249,21 +255,41 @@ const remoteMethod = async (query: any) => {
       item.label = item.teamName
       item.value = item.id
     })
-    options.value = data
+    getTreeselect(data)
   } else {
-    options.value = teamIdList.value
+    getTreeselect(teamIdList.value)
+    // options.value = teamIdList.value
   }
   loading.value = false
 }
-
+// 单位值变化
+const teamIdChange = async (value: any) => {
+  ruleForm.teamTaskId = ''
+  if (!value) return taskoptions.value = []
+  taskLoading.value = true
+  const { rows } = await teamTaskList({ teamId: value })
+  rows.forEach(item => {
+    item.label = item.taskName
+    item.value = item.id
+  })
+  taskoptions.value = rows
+  taskLoading.value = false
+}
 
 //获取单位名称及任务名称下拉列表
 const getDict = async () => {
   remoteMethod('')
 };
 const searchForm = async (formEl: any) => {
-  proTableTask.value?.getTableList();
-  proTableAccounts.value?.getTableList();
+  if (!formEl) return
+  await formEl.validate((valid: any, fields: any) => {
+    if (valid) {
+      proTableTask.value?.getTableList();
+      proTableAccounts.value?.getTableList();
+    } else {
+    }
+  })
+
 }
 const resetForm = (formEl: any) => {
   if (!formEl) return
@@ -332,16 +358,10 @@ const dataCallback = (data: any) => {
 };
 //获取任务信息列表
 const getTableListTask = async (params: any) => {
-  if (!ruleFormRef.value) return
-  await ruleFormRef.value.validate(async (valid: any, fields: any) => {
-    if (valid) {
-      let newParams = { ...params }
-      ruleForm.teamId && (newParams.teamId = ruleForm.teamId);
-      ruleForm.teamTaskId && (newParams.teamTaskId = ruleForm.teamTaskId);
-      return await teamSettleList(newParams)
-    } else {
-    }
-  })
+  let newParams = { ...params }
+  ruleForm.teamId && (newParams.teamId = ruleForm.teamId);
+  ruleForm.teamTaskId && (newParams.teamTaskId = ruleForm.teamTaskId);
+  // return await teamSettleList(newParams)
 };
 
 
@@ -367,7 +387,7 @@ const columnsAccounts = reactive([
   {
     prop: "teamTaskId",
     label: "任务名称",
-    enum: taskList,
+    enum: taskoptions,
     width: 150
   },
   {
@@ -420,6 +440,7 @@ const columnsAccounts = reactive([
 
 ]);
 const dataCallbackAccounts = (data: any) => {
+  console.log("🚀 ~ dataCallbackAccounts ~ data:", data)
   accountsInfo.value = data
   return {
     list: data,
@@ -430,17 +451,11 @@ const dataCallbackAccounts = (data: any) => {
 };
 //获取结账信息列表
 const getTableListAccounts = async (params: any) => {
-  if (!ruleFormRef.value) return
-  await ruleFormRef.value.validate(async (valid: any, fields: any) => {
-    if (valid) {
-      let newParams = { ...params }
-      ruleForm.teamId && (newParams.teamId = ruleForm.teamId);
-      ruleForm.teamTaskId && (newParams.teamTaskId = ruleForm.teamTaskId);
-      return await teamSettleList(newParams)
-    } else {
-    }
-  })
-
+  console.log("🚀 ~ getTableListAccounts ~ params:", params)
+  let newParams = { ...params }
+  ruleForm.teamId && (newParams.teamId = ruleForm.teamId);
+  ruleForm.teamTaskId && (newParams.teamTaskId = ruleForm.teamTaskId);
+  return teamSettleList(newParams)
 };
 
 // 新增抽屉
@@ -467,7 +482,7 @@ const Add = async (formEl) => {
   if (!formEl) return
   await formEl.validate(async (valid: any, fields: any) => {
     if (valid) {
-      addForm.value = { teamId: ruleForm.teamId, teamTaskId: ruleForm.teamTaskId, settleTime: moment().format('YYYY-MM-DD') }
+      addForm.value = { ...ruleForm, settleTime: moment().format('YYYY-MM-DD HH:mm:ss') }
       drawer.value = true
       await nextTick()
       addFormRef.value.clearValidate()
@@ -489,6 +504,7 @@ const confirmClick = async (Ref: any) => {
       drawer.value = false
       await addTeamSettle({ ...addForm.value })
       ElMessage.success('新增成功')
+      proTableAccounts.value?.getTableList()
     } else {
 
     }
@@ -513,7 +529,7 @@ const operationSure = async () => {
   switch (operationType.value) {
     case 1: {
       //代码块;
-      await teamInvalidSettle({ ids: InvalidSettleIds.value })
+      await teamInvalidSettle({ ids: InvalidSettleIds.value, ...ruleForm })
       ElMessage.success('结账作废成功')
       proTableAccounts.value?.clearSelection()
       proTableAccounts.value?.getTableList()
@@ -521,7 +537,7 @@ const operationSure = async () => {
     }
     case 2: {
       //代码块;
-      await teamInvalidSettle({ ids: InvalidSettleId.value })
+      await teamInvalidSettle({ ids: InvalidSettleId.value, ...ruleForm })
       ElMessage.success('结账作废成功')
       proTableAccounts.value?.clearSelection()
       proTableAccounts.value?.getTableList()
@@ -529,7 +545,7 @@ const operationSure = async () => {
     }
     case 3: {
       //代码块;
-      await deleteTeamSettle({ ids: deleteInvoiceId.value })
+      await deleteTeamSettle({ ids: deleteInvoiceId.value, ...ruleForm })
       ElMessage.success('删除成功')
       proTableAccounts.value?.getTableList()
       break;
@@ -539,14 +555,14 @@ const operationSure = async () => {
 }
 //开票(表格上方)
 const handelInvoice = async (params) => {
-  await teamInvoice({ ids: params })
+  await teamInvoice({ ids: params, ...ruleForm })
   ElMessage.success('开票成功')
   proTableAccounts.value?.clearSelection()
   proTableAccounts.value?.getTableList()
 }
 //发票作废
 const ticketInvalid = async (params) => {
-  await teamInvalidInvoice({ ids: params })
+  await teamInvalidInvoice({ ids: params, ...ruleForm })
   ElMessage.success('发票作废成功')
   proTableAccounts.value?.clearSelection()
   proTableAccounts.value?.getTableList()
@@ -562,7 +578,7 @@ const cancellationAccount = (params) => {
 
 //开票
 const makeInvoice = async (row: any) => {
-  await teamInvoice({ ids: row.id })
+  await teamInvoice({ ids: row.id, ...ruleForm })
   ElMessage.success('开票成功')
   proTableAccounts.value?.clearSelection()
   proTableAccounts.value?.getTableList()

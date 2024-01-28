@@ -30,6 +30,7 @@ import './permission';
 
 //没有添加被动事件监听器来阻止'touchstart'事件，请考虑添加事件管理者'passive'，以使页面更加流畅。原因是 Chrome51 版本以后，Chrome 增加了新的事件捕获机制－Passive Event Listeners；
 import 'default-passive-events';
+import './styles/tailwind.css';
 
 import { useDict } from '@/utils/dict';
 import { getConfigKey, updateConfigByKey } from '@/api/system/config';
@@ -39,7 +40,7 @@ import ElementPlus from 'element-plus';
 // 国际化
 import i18n from '@/lang/index';
 
-import moment from 'moment'
+import moment from 'moment';
 
 const app = createApp(App);
 // 全局方法挂载
