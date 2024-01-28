@@ -6,15 +6,15 @@
   >
     <transition :enter-active-class="proxy?.animate.logoAnimate.enter" mode="out-in">
       <router-link v-if="collapse" key="collapse" class="sidebar-logo-link" to="/">
-        <img v-if="logo" :src="logo" class="sidebar-logo" />
+        <img v-if="websiteConfig.logo" :src="websiteConfig.logo" class="sidebar-logo" />
         <h1 v-else class="sidebar-title" :style="{ color: sideTheme === 'theme-dark' ? variables.logoTitleColor : variables.logoLightTitleColor }">
-          {{ title }}
+          {{ websiteConfig.title }}
         </h1>
       </router-link>
       <router-link v-else key="expand" class="sidebar-logo-link" to="/">
-        <img v-if="logo" :src="logo" class="sidebar-logo" />
+        <img v-if="websiteConfig.logo" :src="websiteConfig.logo" class="sidebar-logo" />
         <h1 class="sidebar-title" :style="{ color: sideTheme === 'theme-dark' ? variables.logoTitleColor : variables.logoLightTitleColor }">
-          {{ title }}
+          {{ websiteConfig.title }}
         </h1>
       </router-link>
     </transition>
@@ -23,9 +23,10 @@
 
 <script setup lang="ts">
 import variables from '@/assets/styles/variables.module.scss'
-import logo from '@/assets/logo/logo.png'
 import useSettingsStore from '@/store/modules/settings'
 import { ComponentInternalInstance } from "vue";
+import {websiteConfig} from '@/config/websiteConfig';
+
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 
 defineProps({
@@ -35,7 +36,6 @@ defineProps({
     }
 })
 
-const title = ref('RuoYi-Vue-Plus');
 const settingsStore = useSettingsStore();
 const sideTheme = computed(() => settingsStore.sideTheme);
 </script>

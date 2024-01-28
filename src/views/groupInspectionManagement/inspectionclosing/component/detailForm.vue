@@ -15,7 +15,7 @@
         <el-col :span="12">
           <div class="InfoItem">
             <span class="team">任务:</span>
-            <span>{{ optionsName(taskList, detailInfo.teamTaskId) }}</span>
+            <span>{{ optionsName(taskoptions, detailInfo.teamTaskId) }}</span>
           </div>
         </el-col>
         <el-col :span="12">
@@ -72,6 +72,9 @@ const props = defineProps({
   },
   dialogIndex: {
     type: Number
+  },
+  taskoptions: {
+    type: Array
   }
 })
 

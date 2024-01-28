@@ -44,8 +44,9 @@ export const addTeamSettle = (params: any) => {
  */
 export const teamInvoice = (params: any) => {
   return request({
-    url: `/peis/teamSettle/teamInvoice/${params.ids}`,
+    url: '/peis/teamSettle/teamInvoice',
     method: 'POST',
+    data: params
   });
 };
 /**
@@ -53,8 +54,9 @@ export const teamInvoice = (params: any) => {
  */
 export const teamInvalidSettle = (params: any) => {
   return request({
-    url: `/peis/teamSettle/teamInvalidSettle/${params.ids}`,
+    url: '/peis/teamSettle/teamInvalidSettle',
     method: 'POST',
+    data: params
   });
 };
 
@@ -63,8 +65,9 @@ export const teamInvalidSettle = (params: any) => {
  */
 export const teamInvalidInvoice = (params: any) => {
   return request({
-    url: `/peis/teamSettle/teamInvalidInvoice/${params.ids}`,
+    url: '/peis/teamSettle/teamInvalidInvoice',
     method: 'POST',
+    data: params
   });
 };
 /**
@@ -72,8 +75,9 @@ export const teamInvalidInvoice = (params: any) => {
  */
 export const deleteTeamSettle = (params: any) => {
   return request({
-    url: `/peis/teamSettle/${params.ids}`,
+    url: '/peis/teamSettle',
     method: 'DELETE',
+    data: params
   });
 };
 
