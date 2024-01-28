@@ -5,49 +5,11 @@
       <span @click="handleTable" class="pb-10px" :class="{ 'active': active == 2 }">人员明细</span>
     </div>
     <div v-show="active == 1">
-      <el-row :gutter="20">
-        <el-col :span="12">
-          <div class="InfoItem">
-            <span class="team">单位名称:</span>
-            <span>{{ optionsName(teamIdList, detailInfo.teamId) }}</span>
-          </div>
-        </el-col>
-        <el-col :span="12">
-          <div class="InfoItem">
-            <span class="team">任务:</span>
-            <span>{{ optionsName(taskoptions, detailInfo.teamTaskId) }}</span>
-          </div>
-        </el-col>
-        <el-col :span="12">
-          <div class="InfoItem">
-            <span class="team">批次号:</span>
-            <span>{{ detailInfo.chargeNumber }}</span>
-          </div>
-        </el-col>
-        <el-col :span="12">
-          <div class="InfoItem">
-            <span class="team">结算时间:</span>
-            <span>{{ detailInfo.settleTime }}</span>
-          </div>
-        </el-col>
-        <el-col :span="12">
-          <div class="InfoItem">
-            <span class="team">实收金额:</span>
-            <span>{{ detailInfo.receivedAmount }}</span>
-          </div>
-        </el-col>
-        <el-col :span="12">
-          <div class="InfoItem">
-            <span class="team">支付方式:</span>
-            <span>{{ optionsName(payTypeList, detailInfo.payType) }}</span>
-          </div>
-        </el-col>
-      </el-row>
+      <addForm :addForm="detailInfo" :preview="preview" :taskoptions="taskoptions"></addForm>
     </div>
     <div v-show="active == 2 || dialogIndex == 2">
       <ProTable ref="proTable" :columns="columns" :request-api="getTableList" :data-callback="dataCallback"
         :requestAuto="false" :toolButton="false">
-        <!-- Expand -->
         <template #姓名="scope">
           <div class="name_info">
             <span>{{ scope.row.username }}</span>
@@ -66,6 +28,7 @@
 <script setup lang="ts">
 import ProTable from "@/components/TableSearchComponent/ProTable/index.vue";
 import useOption from "../hooks/useOptions";
+import addForm from './addForm.vue'
 const props = defineProps({
   detailInfo: {
     type: Object,
@@ -75,6 +38,9 @@ const props = defineProps({
   },
   taskoptions: {
     type: Array
+  },
+  preview: {
+    type: Boolean
   }
 })
 

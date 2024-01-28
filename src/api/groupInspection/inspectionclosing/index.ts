@@ -80,4 +80,24 @@ export const deleteTeamSettle = (params: any) => {
     data: params
   });
 };
+/**
+ * 体检单位结账审核驳回
+ */
+export const teamSettleCheckReject = (params: any) => {
+  return request({
+    url: '/peis/teamSettle/teamSettleCheckReject',
+    method: 'POST',
+    data: params
+  });
+};
+/**
+ * 体检单位结账审核通过
+ */
+export const teamSettleCheckPass = (params: any) => {
+  return request({
+    url: '/peis/teamSettle/teamSettleCheckPass',
+    method: 'POST',
+    data: params
+  });
+};
 

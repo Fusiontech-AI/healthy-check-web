@@ -104,9 +104,10 @@
     </el-card>
 
     <!-- 详情 -->
-    <el-dialog v-model="dialogVisible" :title="dialogTitle" style="width: 900px;
+    <el-dialog v-model="dialogVisible" v-if="dialogVisible" :title="dialogTitle" style="width: 900px;
 height: 698px;">
-      <detailForm :detailInfo="detailInfo" :dialogIndex="dialogIndex" :taskoptions="taskoptions"></detailForm>
+      <detailForm :detailInfo="detailInfo" :dialogIndex="dialogIndex" :taskoptions="taskoptions" :preview="isPreview">
+      </detailForm>
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="dialogVisible = false">取消</el-button>
@@ -122,57 +123,14 @@ height: 698px;">
       </template>
       <template #default>
         <div>
-          <el-form ref="addFormRef" :model="addForm" :rules="addRules" label-width="120px" class="demo-ruleForm"
-            status-icon>
-            <el-row :gutter="20">
-              <el-col :span="12">
-                <el-form-item label="单位名称" prop="teamId">
-                  <el-select v-model="addForm.teamId" filterable clearable disabled placeholder="请选择单位名称"
-                    style="width: 240px">
-                    <el-option v-for="item in teamIdList" :key="item.value" :label="item.label" :value="item.value" />
-                  </el-select>
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="任务" prop="teamTaskId">
-                  <el-select v-model="addForm.teamTaskId" filterable clearable disabled placeholder="请选择单位名称"
-                    style="width: 240px">
-                    <el-option v-for="item in taskoptions" :key="item.value" :label="item.label" :value="item.value" />
-                  </el-select>
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="批次号" prop="name">
-                  <el-input v-model="addForm.name" disabled />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="结算时间" prop="settleTime">
-                  <el-date-picker v-model="addForm.settleTime" value-format="YYYY-MM-DD HH:mm:ss" type="date"
-                    placeholder="选择日期" style="width: 100%" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="实收金额" prop="receivedAmount">
-                  <el-input v-model="addForm.receivedAmount" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="24">
-                <el-form-item label="支付方式" prop="payType">
-                  <el-radio-group v-model="addForm.payType" class="ml-4">
-                    <el-radio v-for="(item, index) in radioList" :key="'ra' + index" :label="item.value">{{ item.label
-                    }}</el-radio>
-                  </el-radio-group>
-                </el-form-item>
-              </el-col>
-            </el-row>
-          </el-form>
+          <addFormComponent ref="addRef" :preview="isPreview" :taskoptions="taskoptions" :addForm="addForm">
+          </addFormComponent>
         </div>
       </template>
       <template #footer>
         <div style="flex: auto">
-          <el-button @click="cancelClick(addFormRef)">取消</el-button>
-          <el-button type="primary" @click="confirmClick(addFormRef)">确定</el-button>
+          <el-button @click="cancelClick(addRef.addFormRef)">取消</el-button>
+          <el-button type="primary" @click="confirmClick(addRef.addFormRef)">确定</el-button>
         </div>
       </template>
     </el-drawer>
@@ -203,13 +161,13 @@ height: 698px;">
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
 import ProTable from "@/components/TableSearchComponent/ProTable/index.vue";
-import { teamSettleList } from "@/api/groupInspection/inspectionclosing";
 import { onMounted } from 'vue'
 import detailForm from './component/detailForm.vue'
+import addFormComponent from './component/addForm.vue'
 import { ElMessage } from 'element-plus'
 import moment from 'moment'
 import useOption from "./hooks/useOptions";
-import { teamInfoList, teamTaskList, addTeamSettle, teamInvoice, teamInvalidSettle, teamInvalidInvoice, deleteTeamSettle } from "@/api/groupInspection/inspectionclosing";
+import { teamInfoList, teamTaskList, teamSettleList, addTeamSettle, teamInvoice, teamInvalidSettle, teamInvalidInvoice, deleteTeamSettle } from "@/api/groupInspection/inspectionclosing";
 
 onMounted(() => {
   getDict()
@@ -440,7 +398,6 @@ const columnsAccounts = reactive([
 
 ]);
 const dataCallbackAccounts = (data: any) => {
-  console.log("🚀 ~ dataCallbackAccounts ~ data:", data)
   accountsInfo.value = data
   return {
     list: data,
@@ -451,7 +408,6 @@ const dataCallbackAccounts = (data: any) => {
 };
 //获取结账信息列表
 const getTableListAccounts = async (params: any) => {
-  console.log("🚀 ~ getTableListAccounts ~ params:", params)
   let newParams = { ...params }
   ruleForm.teamId && (newParams.teamId = ruleForm.teamId);
   ruleForm.teamTaskId && (newParams.teamTaskId = ruleForm.teamTaskId);
@@ -459,23 +415,10 @@ const getTableListAccounts = async (params: any) => {
 };
 
 // 新增抽屉
-const addFormRef = ref()
+const addRef = ref()
 //抽屉中的表单数据
 const addForm = ref({})
-const addRules = reactive({
-  settleTime: [
-    { required: true, message: '请选择结算时间', trigger: 'blur' },
-  ],
-  receivedAmount: [
-    { required: true, message: '请填写实收金额', trigger: 'blur' },
-  ]
-})
-const radioList = reactive([
-  { label: '微信', value: '1' },
-  { label: '支付宝', value: '2' },
-  { label: '现金', value: '3' },
-  { label: '银行卡', value: '4' },
-])
+const isPreview = ref(false)
 const drawer = ref(false)
 //新增结账
 const Add = async (formEl) => {
@@ -484,8 +427,9 @@ const Add = async (formEl) => {
     if (valid) {
       addForm.value = { ...ruleForm, settleTime: moment().format('YYYY-MM-DD HH:mm:ss') }
       drawer.value = true
+      isPreview.value = false
       await nextTick()
-      addFormRef.value.clearValidate()
+      addRef.value.addFormRef.clearValidate()
     } else {
       ElMessage.warning('请选择单位名称及任务名称')
     }
@@ -504,12 +448,12 @@ const confirmClick = async (Ref: any) => {
       drawer.value = false
       await addTeamSettle({ ...addForm.value })
       ElMessage.success('新增成功')
+      drawer.value = false
       proTableAccounts.value?.getTableList()
     } else {
 
     }
   })
-  drawer.value = false
 }
 
 
@@ -525,7 +469,7 @@ const InvalidSettleId = ref([])
 const deleteInvoiceId = ref('')
 
 //操作确定
-const operationSure = async () => {
+const operationSure = async () => { //结账作废1,作废2,删除3
   switch (operationType.value) {
     case 1: {
       //代码块;
@@ -609,6 +553,7 @@ const dialogIndex = ref(-1)
 const details = (title: any, row: any) => {
   detailInfo.value = row
   dialogVisible.value = true
+  isPreview.value = true
   if (title == '明细') {
     dialogTitle.value = "分组明细"
     dialogIndex.value = 2
