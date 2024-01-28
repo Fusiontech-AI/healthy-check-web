@@ -21,7 +21,7 @@
                     </slot>
                   </template>
                   <RenderFormValue v-else-if="preview" v-bind="item"></RenderFormValue>
-                  <SearchFormItem v-else :column="item" :search-param="searchParam" />
+                  <SearchFormItem v-else :column="item" :search-param="searchParam" v-on="{ ...item }" />
                 </slot>
               </el-form-item>
             </slot>

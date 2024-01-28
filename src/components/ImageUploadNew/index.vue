@@ -3,7 +3,8 @@
     <el-upload multiple :action="uploadImgUrl" list-type="picture-card" :on-success="handleUploadSuccess"
       :before-upload="handleBeforeUpload" :limit="limit" :on-error="handleUploadError" :on-exceed="handleExceed"
       ref="imageUpload" :before-remove="handleDelete" :show-file-list="true" :headers="headers" :file-list="fileList"
-      :on-preview="handlePictureCardPreview" :class="{ hide: fileList.length >= limit }" v-bind="$attrs">
+      :on-preview="handlePictureCardPreview" :class="{ hide: fileList.length >= limit }" v-bind="$attrs"
+      :data="props.data">
       <el-icon class="avatar-uploader-icon">
         <plus />
       </el-icon>
@@ -33,7 +34,7 @@ import { ComponentInternalInstance } from "vue";
 import { OssVO } from "@/api/system/oss/types";
 import { propTypes } from '@/utils/propTypes';
 import { globalHeaders } from "@/utils/request";
-
+import { guideSheetLogDel } from '@/api/deskRegistration/guideSheetRecovery'
 const props = defineProps({
   modelValue: [String, Object, Array],
   // 图片数量限制
@@ -46,18 +47,28 @@ const props = defineProps({
   isShowTip: {
     type: Boolean,
     default: true
-  }
+  },
+  //自定义请求接口
+  action: {
+    type: String,
+    default: ''
+  },
+  //上传时附带的额外参数
+  data: {
+    type: Object,
+    default: () => { }
+  },
 });
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-const emit = defineEmits(['update:modelValue']);
+const emit = defineEmits(['update:modelValue', 'handleSctp']);
 const number = ref(0);
 const uploadList = ref<any[]>([]);
 const dialogImageUrl = ref("");
 const dialogVisible = ref(false);
 
 const baseUrl = import.meta.env.VITE_APP_BASE_API;
-const uploadImgUrl = ref(baseUrl + "/resource/oss/upload"); // 上传的图片服务器地址
+const uploadImgUrl = ref(baseUrl + props.action); // 上传的图片服务器地址
 const headers = ref(globalHeaders());
 
 const fileList = ref<any[]>([]);
@@ -85,7 +96,7 @@ watch(() => props.modelValue, async val => {
         itemData = { name: item, url: item };
       } else {
         // 此处name使用ossId 防止删除出现重名
-        itemData = { name: item.ossId, url: item.url, ossId: item.ossId };
+        itemData = { name: item.ossId, url: item.url, ossId: item.ossId, id: item.id };
       }
       return itemData;
     });
@@ -124,6 +135,8 @@ const handleBeforeUpload = (file: any) => {
       return false;
     }
   }
+
+  props.data.uploadTime = proxy?.$moment().format('YYYY-MM-DD HH:mm:ss')
   proxy?.$modal.loading("正在上传图片，请稍候...");
   number.value++;
 }
@@ -136,7 +149,7 @@ const handleExceed = () => {
 // 上传成功回调
 const handleUploadSuccess = (res: any, file: UploadFile) => {
   if (res.code === 200) {
-    uploadList.value.push({ name: res.data.fileName, url: res.data.url, ossId: res.data.ossId });
+    // uploadList.value.push({ name: res.data.fileName, url: res.data.url, ossId: res.data.ossId });
     uploadedSuccessfully();
   } else {
     number.value--;
@@ -148,27 +161,34 @@ const handleUploadSuccess = (res: any, file: UploadFile) => {
 }
 
 // 删除图片
-const handleDelete = (file: UploadFile): boolean => {
-  const findex = fileList.value.map(f => f.name).indexOf(file.name);
-  if (findex > -1 && uploadList.value.length === number.value) {
-    let ossId = fileList.value[findex].ossId;
-    delOss(ossId);
-    fileList.value.splice(findex, 1);
-    emit("update:modelValue", listToString(fileList.value));
-    return false;
-  }
-  return true;
+const handleDelete = async (file: UploadFile): boolean => {
+  await guideSheetLogDel({ ids: [file.id] })
+  ElMessage({
+    type: "success",
+    message: `操作成功!`
+  });
+  emit('handleSctp')
+  // const findex = fileList.value.map(f => f.name).indexOf(file.name);
+  // if (findex > -1 && uploadList.value.length === number.value) {
+  //   let ossId = fileList.value[findex].ossId;
+  //   delOss(ossId);
+  //   fileList.value.splice(findex, 1);
+  //   emit("update:modelValue", listToString(fileList.value));
+  //   return false;
+  // }
+  // return true;
 }
 
 // 上传结束处理
 const uploadedSuccessfully = () => {
-  if (number.value > 0 && uploadList.value.length === number.value) {
-    fileList.value = fileList.value.filter(f => f.url !== undefined).concat(uploadList.value);
-    uploadList.value = [];
-    number.value = 0;
-    emit("update:modelValue", listToString(fileList.value));
-    proxy?.$modal.closeLoading();
-  }
+  // if (number.value > 0 && uploadList.value.length === number.value) {
+  //   fileList.value = fileList.value.filter(f => f.url !== undefined).concat(uploadList.value);
+  //   uploadList.value = [];
+  //   number.value = 0;
+  //   emit("update:modelValue", listToString(fileList.value));
+  emit('handleSctp')
+  proxy?.$modal.closeLoading();
+  // }
 }
 
 // 上传失败
