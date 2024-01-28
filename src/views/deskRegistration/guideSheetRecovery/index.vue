@@ -119,7 +119,6 @@
   </div>
 </template>
 <script setup name="guideSheetRecovery" lang="ts">
-import { cloneDeep } from 'lodash'
 import ImageUpload from '@/components/ImageUploadNew'
 import { useHandleData } from '@/hooks/useHandleData'
 import { registerGetSingleInfo, regCombinationProjectList, abandonProjects, delayProjects, saveOrWithdrawGuideSheet, regCombinationProjectRestoreProjects, guideSheetLogList, register } from '@/api/deskRegistration/guideSheetRecovery'
@@ -261,28 +260,6 @@ const formColumns = ref<any>([
     ],
     search: {
       el: 'select', span: 24,
-    },
-    change: (val) => {
-      const arr = [{
-        prop: 'recipient',
-        label: '收件人',
-        search: { el: 'input', span: 24 }
-      },
-      {
-        prop: 'receiptPhone',
-        label: '收件电话',
-        search: { el: 'input', span: 24 }
-      },
-      {
-        prop: 'postAddress',
-        label: '邮寄地址',
-        search: { el: 'input', span: 24 }
-      }]
-      if (val === '0') {
-        formColumns.value = [...formColumns1.value, ...arr]
-        return
-      }
-      formColumns.value = formColumns1.value
     }
   },
 
@@ -459,6 +436,29 @@ const handleXg = async () => {
     message: `保存成功!`
   });
 }
+watch(() => formValue.value.guideSheetReceived, (newVal, oldVal) => {
+  const arr = [{
+    prop: 'recipient',
+    label: '收件人',
+    search: { el: 'input', span: 24 }
+  },
+  {
+    prop: 'receiptPhone',
+    label: '收件电话',
+    search: { el: 'input', span: 24 }
+  },
+  {
+    prop: 'postAddress',
+    label: '邮寄地址',
+    search: { el: 'input', span: 24 }
+  }]
+  if (newVal === '0') {
+    formColumns.value = [...formColumns1.value, ...arr]
+    return
+  }
+  formColumns.value = formColumns1.value
+})
+
 </script>
 <style scoped lang="scss">
 :deep(.el-upload--picture-card) {
