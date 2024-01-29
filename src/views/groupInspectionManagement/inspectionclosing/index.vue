@@ -34,16 +34,24 @@
         <div class="clearfix">
           <el-row>
             <el-col :span="6">
-              <div>累计人数:{{ }}</div>
+              <div>累计人数:
+                <span class="num_color">{{ taskGroupStatistics.totalPeople }}</span>
+              </div>
             </el-col>
             <el-col :span="6">
-              <div>分组金额:{{ }}</div>
+              <div>分组金额:
+                <span class="num_color">{{ taskGroupStatistics.groupAmount }}</span>
+              </div>
             </el-col>
             <el-col :span="6">
-              <div>加项金额:{{}}</div>
+              <div>加项金额:
+                <span class="num_color">{{ taskGroupStatistics.addAmount }}</span>
+              </div>
             </el-col>
             <el-col :span="6">
-              <div>单位应收金额:{{ }}</div>
+              <div>单位应收金额:
+                <span class="num_color">{{ taskGroupStatistics.teamReceiveAmount }}</span>
+              </div>
             </el-col>
           </el-row>
         </div>
@@ -53,7 +61,7 @@
         <!-- Expand -->
         <!-- 表格操作 -->
         <template #operation="scope">
-          <el-button type="primary" @click="details('明细', scope.row)">明细</el-button>
+          <el-button type="primary" @click="details('明细', scope.row)" text>明细</el-button>
         </template>
       </ProTable>
 
@@ -77,10 +85,14 @@
             <div class="payment_info">
               <el-row>
                 <el-col :span="12">
-                  <div>已结金额:{{}}</div>
+                  <div>已结金额:
+                    <span class="num_color">{{ teamSettleStatistics.settledAmount }}</span>
+                  </div>
                 </el-col>
                 <el-col :span="12">
-                  <div>余额:{{ }}</div>
+                  <div>余额:
+                    <span class="num_color">{{ teamSettleStatistics.balance }}</span>
+                  </div>
                 </el-col>
               </el-row>
             </div>
@@ -106,8 +118,14 @@
     <!-- 详情 -->
     <el-dialog v-model="dialogVisible" v-if="dialogVisible" :title="dialogTitle" style="width: 900px;
 height: 698px;">
-      <detailForm :detailInfo="detailInfo" :dialogIndex="dialogIndex" :taskoptions="taskoptions" :preview="isPreview">
-      </detailForm>
+      <!-- 任务信息分组明细 -->
+      <taskDetail v-if="dialogTitle == '分组明细'" :detailInfo="detailInfo" :taskoptions="taskoptions" :ruleForm="ruleForm"
+        :preview="isPreview">
+      </taskDetail>
+      <!-- 结账信息人员明细 -->
+      <accountsDetail v-else :detailInfo="detailInfo" :taskoptions="taskoptions" :ruleForm="ruleForm"
+        :preview="isPreview">
+      </accountsDetail>
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="dialogVisible = false">取消</el-button>
@@ -162,17 +180,18 @@ height: 698px;">
 import { reactive, ref } from 'vue'
 import ProTable from "@/components/TableSearchComponent/ProTable/index.vue";
 import { onMounted } from 'vue'
-import detailForm from './component/detailForm.vue'
+import taskDetail from './component/taskDetail.vue'
+import accountsDetail from './component/accountsDetail.vue'
 import addFormComponent from './component/addForm.vue'
 import { ElMessage } from 'element-plus'
 import moment from 'moment'
 import useOption from "./hooks/useOptions";
-import { teamInfoList, teamTaskList, teamSettleList, addTeamSettle, teamInvoice, teamInvalidSettle, teamInvalidInvoice, deleteTeamSettle } from "@/api/groupInspection/inspectionclosing";
+import { teamInfoList, teamTaskList, teamSettleList, addTeamSettle, teamInvoice, teamInvalidSettle, teamInvalidInvoice, deleteTeamSettle, teamSettleTaskGroupList, teamSettleTaskGroupStatistics, teamSettleAmountStatistics } from "@/api/groupInspection/inspectionclosing";
 
 onMounted(() => {
   getDict()
 })
-const { teamIdList, taskList, printInvoiceList, payTypeList, statusList, checkStatusList } = useOption()
+const { teamIdList, taskList, printInvoiceList, payTypeList, statusList, checkStatusList, payType } = useOption()
 const { proxy } = getCurrentInstance() as ComponentInternalInstance
 
 //获取表单实例
@@ -197,6 +216,8 @@ const options = ref([])
 const loading = ref(false)
 const taskLoading = ref(false) //任务下拉加载
 const taskoptions = ref([])  //任务下拉列表,联动单位名称
+const taskGroupStatistics = ref({})   //任务信息总计数据
+const teamSettleStatistics = ref({})   //体检单位结账金额统计
 
 /** 查询单位名称下拉树结构 */
 const getTreeselect = async (data) => {
@@ -240,10 +261,14 @@ const getDict = async () => {
 };
 const searchForm = async (formEl: any) => {
   if (!formEl) return
-  await formEl.validate((valid: any, fields: any) => {
+  await formEl.validate(async (valid: any, fields: any) => {
     if (valid) {
       proTableTask.value?.getTableList();
       proTableAccounts.value?.getTableList();
+      const { data } = await teamSettleTaskGroupStatistics({ ...ruleForm })
+      taskGroupStatistics.value = data
+      const res = await teamSettleAmountStatistics({ ...ruleForm })
+      teamSettleStatistics.value = res.data
     } else {
     }
   })
@@ -259,7 +284,6 @@ const resetForm = (formEl: any) => {
 //任务信息ProTable 实例
 const proTableTask = ref();
 //表格列表返回数据
-const taskInfo = ref({})
 const detailInfo = ref({})
 // 表格配置项
 const columnsTask = reactive([
@@ -268,11 +292,11 @@ const columnsTask = reactive([
     label: "分组名称",
   },
   {
-    prop: "unitAmount",
+    prop: "teamReceiveAmount",
     label: "单位应收金额",
   },
   {
-    prop: "personCount",
+    prop: "totalPeople",
     label: "累计人数",
   },
   {
@@ -282,13 +306,10 @@ const columnsTask = reactive([
   {
     prop: "groupPayType",
     label: "分组支付方式",
-    enum: [
-      { label: '个人', value: '0' },
-      { label: '单位', value: '1' }
-    ],
+    enum: payType
   },
   {
-    prop: "addPersonCount",
+    prop: "addPeople",
     label: "加项人数",
   },
   {
@@ -296,8 +317,9 @@ const columnsTask = reactive([
     label: "加项金额",
   },
   {
-    prop: "addItemPayType",
+    prop: "addPayType",
     label: "加项支付方式",
+    enum: payType
   },
   {
     prop: "operation",
@@ -306,7 +328,6 @@ const columnsTask = reactive([
 
 ]);
 const dataCallback = (data: any) => {
-  taskInfo.value = data
   return {
     list: data,
     total: data.total,
@@ -319,7 +340,7 @@ const getTableListTask = async (params: any) => {
   let newParams = { ...params }
   ruleForm.teamId && (newParams.teamId = ruleForm.teamId);
   ruleForm.teamTaskId && (newParams.teamTaskId = ruleForm.teamTaskId);
-  // return await teamSettleList(newParams)
+  return teamSettleTaskGroupList(newParams)
 };
 
 
@@ -549,18 +570,14 @@ const deleteInvoice = (row: any) => {
 //明细弹框
 const dialogVisible = ref(false)
 const dialogTitle = ref('')
-const dialogIndex = ref(-1)
 const details = (title: any, row: any) => {
   detailInfo.value = row
   dialogVisible.value = true
   isPreview.value = true
   if (title == '明细') {
     dialogTitle.value = "分组明细"
-    dialogIndex.value = 2
-
   } else {
     dialogTitle.value = "团检收费详情"
-    dialogIndex.value = 1
   }
 }
 
@@ -649,6 +666,10 @@ const optionsName = (arr, value) => {
 
   }
 
+  :deep(.header-button-lf) {
+    width: 100%;
+  }
+
   .no-inherit {
     margin-right: 10px;
     vertical-align: middle;
@@ -658,6 +679,10 @@ const optionsName = (arr, value) => {
     position: absolute;
     bottom: 20px;
     right: 20px;
+  }
+
+  .num_color {
+    color: #FF8400;
   }
 
 }

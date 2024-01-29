@@ -14,7 +14,8 @@
           </el-col>
           <el-col :span="6">
             <el-form-item label="任务名称" prop="teamTaskId">
-              <el-select v-model="ruleForm.teamTaskId" placeholder="请选择任务名称" v-loading="taskLoading">
+              <el-select v-model="ruleForm.teamTaskId" placeholder="请选择任务名称" v-loading="taskLoading"
+                @change="taskIdChange">
                 <el-option v-for="item in taskoptions" :key="item.value" :label="item.label" :value="item.value" />
               </el-select>
             </el-form-item>
@@ -35,33 +36,40 @@
       <div class="payment">
         <div class="task_btn">
           <el-button type="primary" @click="taskDiscount">任务折扣</el-button>
-          <el-button type="primary" @click="sealAccount">封账</el-button>
-          <el-button type="primary" @click="releaseAccount">解除封账</el-button>
+          <el-button type="primary" @click="sealAccount" v-if="!isSeal">封账</el-button>
+          <el-button type="primary" @click="releaseAccount" v-else>解除封账</el-button>
         </div>
         <div class="task_info">
           <el-row>
             <el-col :span="6">
-              <div>累计人数:{{}}</div>
+              <div>累计人数:
+                <span class="num_color">{{ taskGroupStatistics.totalPeople }}</span>
+              </div>
             </el-col>
             <el-col :span="6">
-              <div>分组金额:{{ }}</div>
+              <div>分组金额:
+                <span class="num_color">{{ taskGroupStatistics.groupAmount }}</span>
+              </div>
             </el-col>
             <el-col :span="6">
-              <div>加项金额:{{ }}</div>
+              <div>加项金额:
+                <span class="num_color">{{ taskGroupStatistics.addAmount }}</span>
+              </div>
             </el-col>
             <el-col :span="6">
-              <div>单位应收金额:{{ }}</div>
+              <div>单位应收金额:
+                <span class="num_color">{{ taskGroupStatistics.teamReceiveAmount }}</span>
+              </div>
             </el-col>
           </el-row>
         </div>
       </div>
       <ProTable ref="proTableTask" :columns="columnsTask" :request-api="getTableList" :data-callback="dataCallbackTask"
-        :toolButton="false">
-        <!-- :requestAuto="false" -->
+        :requestAuto="false" :toolButton="false">
         <!-- Expand -->
         <!-- 表格操作 -->
         <template #operation="scope">
-          <el-button type="primary" @click="details('1', scope.row)">明细</el-button>
+          <el-button type="primary" text @click="details('1', scope.row)">明细</el-button>
         </template>
       </ProTable>
 
@@ -84,10 +92,14 @@
             <div class="payment_info">
               <el-row>
                 <el-col :span="12">
-                  <div>已结金额:{{}}</div>
+                  <div>已结金额:
+                    <span class="num_color">{{ teamSettleStatistics.settledAmount }}</span>
+                  </div>
                 </el-col>
                 <el-col :span="12">
-                  <div>余额:{{ }}</div>
+                  <div>余额:
+                    <span class="num_color">{{ teamSettleStatistics.balance }}</span>
+                  </div>
                 </el-col>
               </el-row>
             </div>
@@ -112,8 +124,14 @@
     <!-- 详情 -->
     <el-dialog v-model="dialogVisible" v-if="dialogVisible" :title="dialogTitle" style="width: 900px;
 height: 698px;">
-      <detailForm :detailInfo="detailInfo" :dialogIndex="dialogIndex" :taskoptions="taskoptions" :preview="isPreview">
-      </detailForm>
+      <!-- 任务信息分组明细 -->
+      <taskDetail v-if="dialogTitle == '分组明细'" :detailInfo="detailInfo" :taskoptions="taskoptions" :ruleForm="ruleForm"
+        :preview="isPreview">
+      </taskDetail>
+      <!-- 结账信息人员明细 -->
+      <accountsDetail v-else :detailInfo="detailInfo" :taskoptions="taskoptions" :ruleForm="ruleForm"
+        :preview="isPreview">
+      </accountsDetail>
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="dialogVisible = false">取消</el-button>
@@ -122,24 +140,27 @@ height: 698px;">
       </template>
     </el-dialog>
 
+    <!-- 团检折扣 -->
     <el-dialog v-model="dialogDiscount" title="团检折扣" width="30%">
-      <div>
-        <h5>应收金额:</h5>
-        <el-form :model="discountForm" label-position="left">
-          <el-row :gutter="20">
-            <el-col :span="12">
-              <el-form-item label="实收金额">
-                <el-input v-model="discountForm.name" />
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item label="优惠金额">
-                <el-input v-model="discountForm.name" />
-              </el-form-item>
-            </el-col>
-          </el-row>
-        </el-form>
+      <div class="mb-10px ">
+        <span class="font-bold mr-10px">应收金额:</span>
+        <span class="num_color num_size">{{ taskGroupStatistics.teamReceiveAmount }}</span>
       </div>
+
+      <el-form :model="discountForm" label-position="left">
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="实收金额">
+              <el-input v-model="discountForm.taskReceived" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="优惠金额">
+              <el-input :modelValue="taskDiscountAmount" disabled />
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="discountCancle">取消</el-button>
@@ -187,18 +208,19 @@ height: 698px;">
 import { reactive, ref } from 'vue'
 import ProTable from "@/components/TableSearchComponent/ProTable/index.vue";
 import { onMounted } from 'vue'
-import detailForm from './component/detailForm.vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import taskDetail from './component/taskDetail.vue'
+import accountsDetail from './component/accountsDetail.vue'
+import { ElMessage } from 'element-plus'
 import moment from 'moment'
 import { Search } from '@element-plus/icons-vue'
-import { teamInfoList, teamTaskList, teamSettleList, addTeamSettle, teamInvoice, teamInvalidSettle, teamInvalidInvoice, deleteTeamSettle, teamSettleCheckReject, teamSettleCheckPass } from "@/api/groupInspection/inspectionclosing";
+import { teamInfoList, teamTaskList, teamSettleList, addTeamSettle, teamInvoice, teamInvalidSettle, teamInvalidInvoice, deleteTeamSettle, teamSettleCheckReject, teamSettleCheckPass, teamSettleTaskGroupList, teamSettleTaskGroupStatistics, teamSettleAmountStatistics, teamTaskDiscount, teamSettleSeal, teamSettleUnseal } from "@/api/groupInspection/inspectionclosing";
 import useOption from "./hooks/useOptions";
 
 
 onMounted(() => {
   // getDict()
 })
-const { teamIdList, taskList, printInvoiceList, payTypeList, statusList, checkStatusList } = useOption()
+const { teamIdList, taskList, printInvoiceList, payTypeList, statusList, checkStatusList, payType } = useOption()
 const { proxy } = getCurrentInstance() as ComponentInternalInstance
 /* interface RuleForm {
   teamId: string
@@ -225,6 +247,9 @@ const rules = reactive({
 const options = ref([])
 const loading = ref(false)
 const taskoptions = ref([])
+const taskGroupStatistics = ref({})   //任务信息总计数据
+const teamSettleStatistics = ref({})   //体检单位结账金额统计
+const isSeal = ref(false)  //封账false,解除封账true
 
 /** 查询单位名称下拉树结构 */
 const getTreeselect = async (data) => {
@@ -261,15 +286,25 @@ const teamIdChange = async (value: any) => {
   taskoptions.value = rows
   taskLoading.value = false
 }
+//任务值变化
+const taskIdChange = (value: any) => {
+  if (!value) return
+  const r = taskoptions.value.find(item => item.value == value)
+  isSeal.value = r[0]?.isSeal == 1 ? true : false
+}
 
 
 //获取单位名称及任务名称下拉列表
 const searchForm = async (formEl: any) => {
   if (!formEl) return
-  await formEl.validate((valid: any, fields: any) => {
+  await formEl.validate(async (valid: any, fields: any) => {
     if (valid) {
       proTableTask.value?.getTableList();
       proTableAccounts.value?.getTableList();
+      const { data } = await teamSettleTaskGroupStatistics({ ...ruleForm })
+      taskGroupStatistics.value = data
+      const res = await teamSettleAmountStatistics({ ...ruleForm })
+      teamSettleStatistics.value = res.data
     } else {
     }
   })
@@ -284,7 +319,6 @@ const resetForm = (formEl: any) => {
 //任务信息ProTable 实例
 const proTableTask = ref();
 //表格列表返回数据
-const taskInfo = ref({})
 const detailInfo = ref({})
 // 表格配置项
 const columnsTask = reactive([
@@ -293,11 +327,11 @@ const columnsTask = reactive([
     label: "分组名称",
   },
   {
-    prop: "unitAmount",
+    prop: "teamReceiveAmount",
     label: "单位应收金额",
   },
   {
-    prop: "personCount",
+    prop: "totalPeople",
     label: "累计人数",
   },
   {
@@ -307,13 +341,10 @@ const columnsTask = reactive([
   {
     prop: "groupPayType",
     label: "分组支付方式",
-    enum: [
-      { label: '个人', value: '0' },
-      { label: '单位', value: '1' }
-    ],
+    enum: payType
   },
   {
-    prop: "addPersonCount",
+    prop: "addPeople",
     label: "加项人数",
   },
   {
@@ -321,8 +352,9 @@ const columnsTask = reactive([
     label: "加项金额",
   },
   {
-    prop: "addItemPayType",
+    prop: "addPayType",
     label: "加项支付方式",
+    enum: payType
   },
   {
     prop: "operation",
@@ -331,7 +363,6 @@ const columnsTask = reactive([
 
 ]);
 const dataCallbackTask = (data: any) => {
-  taskInfo.value = data
   return {
     list: data.list,
     total: data.total,
@@ -344,21 +375,30 @@ const getTableList = async (params: any) => {
   let newParams = { ...params }
   ruleForm.teamId && (newParams.teamId = ruleForm.teamId);
   ruleForm.teamTaskId && (newParams.teamTaskId = ruleForm.teamTaskId);
-  // return await teamSettleList(newParams)
+  return teamSettleTaskGroupList(newParams)
 };
 //任务折扣弹框
 const dialogDiscount = ref(false)
-const discountForm = reactive({})
+const discountForm = ref({})
 //任务折扣的方法
 const taskDiscount = () => {
   dialogDiscount.value = true
+  discountForm.value = {}
 }
 const discountCancle = () => {
   dialogDiscount.value = false
 }
-const discountSure = () => {
+const discountSure = async () => {
+  await teamTaskDiscount({ ...discountForm.value, teamId: ruleForm.teamId, id: ruleForm.teamTaskId })
+  ElMessage.success('设置任务折扣成功!')
+  proTableTask.value?.getTableList()
   dialogDiscount.value = false
 }
+
+const taskDiscountAmount = computed(() => {  //计算优惠金额
+  discountForm.value.taskDiscount = discountForm.value.taskReceived && (taskGroupStatistics.value.teamReceiveAmount - discountForm.value.taskReceived)
+  return discountForm.value.taskReceived && (taskGroupStatistics.value.teamReceiveAmount - discountForm.value.taskReceived)
+})
 
 const operationDeter = ref(false)
 const operationTitle = ref('')
@@ -366,14 +406,20 @@ const operationInfo = ref('')
 const operationType = ref(-1)   //封账1,解封2,结账作废3,作废4,删除5
 
 //操作确定
-const operationSure = async () => {
+const operationSure = async () => {//封账1,解封2,结账作废3,作废4,删除5
   switch (operationType.value) {
     case 1: {
       //代码块; 
+      await teamSettleSeal({ teamId: ruleForm.teamId, id: ruleForm.teamTaskId })
+      ElMessage.success('封账成功')
+      proTableTask.value?.getTableList()
       break;
     }
     case 2: {
       //代码块; 
+      await teamSettleUnseal({ teamId: ruleForm.teamId, id: ruleForm.teamTaskId })
+      ElMessage.success('解除封账成功')
+      proTableTask.value?.getTableList()
       break;
     }
     case 3: {
@@ -666,15 +712,18 @@ const optionsName = (arr, value) => {
     height: 176px;
     border-radius: 20px;
     background: linear-gradient(180deg, #CBDFFF 0%, #FFFFFF 27%);
+  }
 
-    :deep(.el-dialog__header) {
-      border-bottom: none;
-    }
+  :deep(.el-dialog__header) {
+    border-bottom: none;
+  }
 
-    :deep(.el-dialog__headerbtn) {
-      top: 1px;
+  :deep(.el-dialog__headerbtn) {
+    top: 1px;
+  }
 
-    }
+  :deep(.header-button-lf) {
+    width: 100%;
   }
 
   .no-inherit {
@@ -682,6 +731,13 @@ const optionsName = (arr, value) => {
     vertical-align: middle;
   }
 
+  .num_color {
+    color: #FF8400;
+  }
+
+  .num_size {
+    font-size: 24px;
+  }
 
 }
 </style>
