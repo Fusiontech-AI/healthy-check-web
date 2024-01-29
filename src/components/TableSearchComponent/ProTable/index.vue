@@ -178,6 +178,7 @@ const processTableData = computed(() => {
     pageable.value.pageSize * pageable.value.pageNum
   );
 });
+console.log(props.initParam, 'props.initParam');
 
 // 监听页面 initParam 改化，重新获取表格数据
 watch(() => props.initParam, getTableList, { deep: true });

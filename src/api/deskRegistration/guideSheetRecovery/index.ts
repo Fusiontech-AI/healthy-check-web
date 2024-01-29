@@ -1,4 +1,3 @@
-import { param } from './../../../utils/index';
 import request from '@/utils/request';
 /**
  * 根据条件查询单个体检人员信息
