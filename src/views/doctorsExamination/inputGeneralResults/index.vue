@@ -1,7 +1,7 @@
 <template>
   <div class="bg-#fff content">
-    <Grid ref="gridRef" :cols="5">
-      <GridItem :span="1">
+    <Grid ref="gridRef" :cols="13">
+      <GridItem :span="2">
         <div class="border-r ">
           <div class="p-10px">
             <el-date-picker start-placeholder="开始日期" end-placeholder="结束日期" type="daterange"
@@ -24,19 +24,19 @@
               <span :class="activeName == '2' ? 'active' : ''" @click="activeName = '2'">分检完成</span>
             </div>
           </div>
-          <el-scrollbar class="left_list" height="calc(100vh - 282px)">
+          <el-scrollbar class="left_list" height="calc(100vh - 292px)">
             <el-card v-for="item in 20" :key="item" shadow="hover" class="list_item">
               <div class="flex justify-between mb-4px">
-                <div><span>张三</span><span>21</span><span>身份证</span><span>出诊</span></div>
-                <el-button link size="small" @click="showCard = !showCard"
-                  :icon="showCard ? ArrowUpBold : ArrowDownBold"></el-button>
+                <div><span> 张三 </span><span> 21 </span><span> 身份证 </span><span> 出诊 </span></div>
+                <el-button link size="small" @click="showCard = showCard && showCard == item ? null : item"
+                  :icon="showCard == item ? ArrowUpBold : ArrowDownBold"></el-button>
               </div>
               <div class="flex justify-between">
                 <span>015475</span>
                 <span>2024-01-12</span>
               </div>
               <el-collapse-transition>
-                <div v-if="showCard" class="mt-6px bg-slate-200 rounded-6px p-4px">
+                <div v-if="showCard && showCard == item" class="mt-6px bg-slate-200 rounded-6px p-4px text-12px">
                   <div>体检日期：2023-09-09</div>
                   <div>单 位：枝江工行</div>
                   <div>电 话：1889920202023</div>
@@ -51,12 +51,69 @@
           </el-scrollbar>
         </div>
       </GridItem>
-      <GridItem :span="3">
-        <div style="height: calc(100vh - 112px); border-left: 1px solid #E8E8E8;border-right: 1px solid #E8E8E8;">
-
+      <GridItem :span="8">
+        <div class="p-10px relative"
+          style="height: calc(100vh - 112px); border-left: 1px solid #E8E8E8; border-right: 1px solid #E8E8E8;">
+          <div class="px-20px">
+            张三三 男 25岁 共30项 / 已检15项
+          </div>
+          <div class="mt-8px">
+            <el-tabs v-model="activetab" type="card">
+              <el-tab-pane label="物理体检" name="1"></el-tab-pane>
+              <el-tab-pane label="内科" name="2"></el-tab-pane>
+              <el-tab-pane label="外科" name="3"></el-tab-pane>
+              <el-tab-pane label="血常规" name="4"></el-tab-pane>
+              <el-tab-pane label="幽门螺旋杆菌HP抗体" name="5"></el-tab-pane>
+              <el-tab-pane label="尿常规" name="6"></el-tab-pane>
+              <el-tab-pane label="胸部正位DR" name="7"></el-tab-pane>
+              <el-tab-pane label="腹部彩超（肝胆胰脾双肾）" name="8"></el-tab-pane>
+            </el-tabs>
+          </div>
+          <div class="flex justify-between">
+            <div>
+              <el-button size="small" type="primary">保存</el-button>
+              <el-button size="small">清除</el-button>
+              <el-button size="small">弃检</el-button>
+              <el-button size="small">使用上次体检结果</el-button>
+              <el-button size="small">快速录入</el-button>
+            </div>
+            <el-button link>查看图片>></el-button>
+          </div>
+          <div class="no-card mt-16px">
+            <ProTable :columns="columns" :data="[{ name: '1' }]" :tool-button="false" :pagination="false"></ProTable>
+          </div>
+          <div class="absolute bottom-0 ">
+            <span class="mr-18px">检查医生：xxx</span>
+            <span>检查日期：2023-03-09 13:34:34</span>
+          </div>
         </div>
       </GridItem>
-      <GridItem :span="1">33</GridItem>
+      <GridItem :span="3">
+        <div class="h-full">
+          <div>
+            <el-tabs type="card">
+              <el-tab-pane label="体检小结" name="1"></el-tab-pane>
+              <el-tab-pane label="其他科室小结" name="2"></el-tab-pane>
+              <el-tab-pane label="历史本科小结" name="3"></el-tab-pane>
+            </el-tabs>
+            <div class="no-card">
+              <ProTable :columns="columns1" :data="[{ name: '1' }, { name: '1' }, { name: '1' },]" :tool-button="false"
+                :pagination="false" :header-cell-style="{ 'font-size': '12px' }" :cell-style="{ 'font-size': '12px' }"
+                height="calc((100vh - 220px) / 2)"></ProTable>
+            </div>
+          </div>
+          <el-tabs type="card">
+            <el-tab-pane label="阳性结果发现" name="1"></el-tab-pane>
+            <el-tab-pane label="医学科普" name="2"></el-tab-pane>
+          </el-tabs>
+          <div class="no-card">
+            <ProTable :columns="columns2"
+              :data="[{ name: '1' }, { name: '1' }, { name: '1' }, { name: '1' }, { name: '1' }, { name: '1' }, { name: '1' }, { name: '1' }, { name: '1' }]"
+              :tool-button="false" :pagination="false" :header-cell-style="{ 'font-size': '12px' }"
+              height="calc((100vh - 230px) / 2)"></ProTable>
+          </div>
+        </div>
+      </GridItem>
     </Grid>
   </div>
 </template>
@@ -65,8 +122,31 @@
 import { ArrowUpBold, ArrowDownBold } from "@element-plus/icons-vue";
 import { ref } from "vue";
 const showInput = ref(false)
-const showCard = ref(false)
+const showCard = ref()
 const activeName = ref('1')
+const activetab = ref('1')
+const columns = ref<any>([
+  { type: 'selection' },
+  { label: '序号', type: 'index', width: 60 },
+  { label: '项目名称', prop: 'name' },
+  { label: '明细结果', prop: 'name' },
+  { label: '单位', prop: 'name' },
+  { label: '参考值', prop: 'name' },
+  { label: '提示', prop: 'name' },
+  { label: '异常', prop: 'name' },
+])
+const columns1 = ref<any>([
+  { type: 'selection' },
+  { label: '项目名称', prop: 'name' },
+  { label: '项目小结', prop: 'name' },
+  { label: '单位', prop: 'name' },
+  { label: '参考范围', prop: 'name' },
+])
+const columns2 = ref<any>([
+  { type: 'selection' },
+  { label: '建议名称', prop: 'name' },
+  { label: '诊断建议', prop: 'name' },
+])
 </script>
 
 <style scoped lang="scss">

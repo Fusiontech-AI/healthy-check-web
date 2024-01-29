@@ -20,7 +20,7 @@
             @click="updateTabs(item.name)">{{ item.label }}</span>
         </div>
         <div class="divider"></div>
-        <div>
+        <div v-loading="loading">
           <pro-table v-if="activeTabValue !== '7'" ref="proTableRef" :columns="columns" :toolButton="false"
             :request-api="getTableList" :data-callback="dataCallback" :isShowSearch="true" rowKey="id">
             <template #tableHeader="{ selectedListIds }">
@@ -274,6 +274,7 @@ const getPjbzData = async () => {
   pjbzFormRef.value?.formRef.resetFields()
   if (treeNodeClickObj.value.code === 'all' || isEmpty(treeNodeClickObj.value)) return formValue.value = {}
   try {
+    loading.value = true
     const { data } = await hazardFactorsQuery(
       {
         associationType: activeTabValue.value,
@@ -288,21 +289,28 @@ const getPjbzData = async () => {
       evaluationCriterion: data?.vo?.evaluationCriterion,
       id: data?.vo?.id
     }
+    loading.value = false
   } catch (error) {
+    loading.value = false
   }
 }
+const loading = ref(false)
 // 获取表格数据
 const getTableList: any = async (params: any) => {
   if (treeNodeClickObj.value.code === 'all' || isEmpty(treeNodeClickObj.value)) return
   try {
-    return await hazardFactorsQuery(
+    loading.value = true
+    const data = await hazardFactorsQuery(
       {
         ...params,
         associationType: activeTabValue.value,
         hazardFactorsName: treeNodeClickObj.value.value,
         hazardFactorsCode: treeNodeClickObj.value.code
       })
+    loading.value = false
+    return data
   } catch (error) {
+    loading.value = false
   }
 }
 
@@ -414,6 +422,7 @@ const defaultProps = {
     ::-webkit-scrollbar {
       width: 0px;
     }
+
     ::-webkit-scrollbar-thumb {
       background-color: transparent;
     }
