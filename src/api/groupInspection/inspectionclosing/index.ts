@@ -100,4 +100,83 @@ export const teamSettleCheckPass = (params: any) => {
     data: params
   });
 };
-
+/**
+ * 查询体检单位结账任务分组列表
+ */
+export const teamSettleTaskGroupList = (params: any) => {
+  return request({
+    url: '/peis/teamSettle/teamSettleTaskGroupList',
+    method: 'GET',
+    params
+  });
+};
+/**
+ *查询体检单位结账任务分组统计
+ */
+export const teamSettleTaskGroupStatistics = (params: any) => {
+  return request({
+    url: '/peis/teamSettle/teamSettleTaskGroupStatistics',
+    method: 'GET',
+    params
+  });
+};
+/**
+ *获取体检单位结账金额统计
+ */
+export const teamSettleAmountStatistics = (params: any) => {
+  return request({
+    url: '/peis/teamSettle/teamSettleAmountStatistics',
+    method: 'POST',
+    data: params
+  });
+};
+/**
+ *查询体检单位结账任务分组人员明细列表
+ */
+export const teamSettleTaskGroupDetailList = (params: any) => {
+  return request({
+    url: '/peis/teamSettle/teamSettleTaskGroupDetailList',
+    method: 'GET',
+    params
+  });
+};
+/**
+ *查询体检单位结账人员明细列表
+ */
+export const teamSettleDetailList = (params: any) => {
+  return request({
+    url: `/peis/teamSettle/teamSettleDetailList/${params.id}`,
+    method: 'GET',
+    params
+  });
+};
+/**
+ *体检单位结账任务折扣
+ */
+export const teamTaskDiscount = (params: any) => {
+  return request({
+    url: '/peis/teamSettle/teamTaskDiscount',
+    method: 'POST',
+    data: params
+  });
+};
+/**
+ *体检单位结账封账
+ */
+export const teamSettleSeal = (params: any) => {
+  return request({
+    url: '/peis/teamSettle/teamSettleSeal',
+    method: 'POST',
+    data: params
+  });
+};
+/**
+ *体检单位结账解除封账
+ */
+export const teamSettleUnseal = (params: any) => {
+  return request({
+    url: '/peis/teamSettle/teamSettleUnseal',
+    method: 'POST',
+    data: params
+  });
+};

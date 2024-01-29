@@ -31,35 +31,59 @@ export default function useOption() {
     { label: '审核不通过', value: '2' },
   ])
 
+  //分组支付方式,加项支付方式
+  const payType = ref([])
+
+  //业务类别
+  const category = ref([])
+
+  //体检类型
+  const physicalType = ref([])
+
+  //婚姻状况
+  const marriageStatus = ref([])
+
+  //体检状态
+  const healthyCheckStatus = ref([])
+
+  //是否需要总检
+  const needGeneralReview = ref([])
+
   const getOption = async (params) => {
     const { rows } = await systemList({ dictType: params })
     rows.forEach(item => {
       item.label = item.dictLabel
       item.value = item.dictValue
     });
+    if (params == 'bus_healthy_check_status') {
+      rows.forEach(item => {
+        if (item.label == '已终检')
+          item.tagType = 'success'
+      });
+    }
     return rows
   }
 
   const getList = async () => {
-    // teamIdList.value = await getOption('')
+    payType.value = await getOption('bus_group_pay_type')
+    category.value = await getOption('bus_category')
+    physicalType.value = await getOption('bus_physical_type')
+    marriageStatus.value = await getOption('bus_marriage_status')
+    healthyCheckStatus.value = await getOption('bus_healthy_check_status')
+    needGeneralReview.value = await getOption('bus_need_general_review')
+
   }
   getList()
   const getteamIdList = async () => {
     const { data } = await teamInfoList()
-    const { rows } = await teamTaskList({ pageSize: -1 })
     data.forEach(item => {
       item.label = item.teamName
       item.value = item.id
     })
-    rows.forEach(item => {
-      item.label = item.taskName
-      item.value = item.id
-    })
     teamIdList.value = data
-    taskList.value = rows
   }
   getteamIdList()
-  return { teamIdList, taskList, printInvoiceList, payTypeList, statusList, checkStatusList }
+  return { teamIdList, taskList, printInvoiceList, payTypeList, statusList, checkStatusList, payType, category, physicalType, marriageStatus, healthyCheckStatus, needGeneralReview }
 }
 
 
