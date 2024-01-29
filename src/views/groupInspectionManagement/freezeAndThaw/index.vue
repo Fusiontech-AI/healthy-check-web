@@ -1,5 +1,5 @@
 <template>
-  <div class="p-2">
+  <div>
     <transition :enter-active-class="proxy?.animate.searchAnimate.enter" :leave-active-class="proxy?.animate.searchAnimate.leave">
       <div class="mb-[10px]">
         <el-card shadow="hover">
@@ -24,13 +24,30 @@
               {{ item.label }}
             </div>
           </div>
-          <ProTable ref="proTableRef" :columns="columns" :request-api="getTableList" :toolButton="false" rowKey="id">
+          <ProTable ref="proTableRef" :columns="columns" :request-api="getTableList" :toolButton="false" rowKey="id" :dataCallback="dataCallback">
             <template #tableHeader="scope">
-              <el-button class="mb-[10px]" :disabled="!scope.isSelected" type="primary" round v-if="activeTab===0">冻结</el-button>
-              <el-button class="mb-[10px]" :disabled="!scope.isSelected" type="primary" round v-if="activeTab===1">解冻</el-button>
+              <el-button
+                class="mb-[10px]"
+                :disabled="!scope.isSelected"
+                type="primary"
+                round
+                v-if="activeTab==='1'"
+                @click="handleFreeze(scope.selectedListIds)"
+              >
+                冻结
+              </el-button>
+              <el-button
+                class="mb-[10px]"
+                :disabled="!scope.isSelected"
+                type="primary"
+                round
+                v-if="activeTab==='0'"
+                @click="handleUnfreeze(scope.selectedListIds)"
+                >解冻</el-button
+              >
             </template>
-            <template #f1="scope">
-              <span class="text-[#5a9cf8] cursor-pointer">{{ scope.row.f1 }}</span>
+            <template #healthyCheckCode="scope">
+              <span class="text-[#5a9cf8] cursor-pointer">{{ scope.row.healthyCheckCode }}</span>
             </template>
           </ProTable>
         </el-card>
@@ -38,19 +55,26 @@
     </transition>
   </div>
 </template>
-<script lang="ts" setup name="freezeAndThaw">
+<script lang="ts" setup name="groupInspectionManagementFreezeAndThaw">
 import { getCurrentInstance, ComponentInternalInstance, ref } from 'vue';
 import { basicInfoColumnBasic,columnsBasic } from './data';
+import {registerUnfreeze,registerFreeze,registerPage} from '@/api/groupInspectionManagement/freezeAndUnfreeze/index'
+import { teamInfoList, teamTaskList } from "@/api/groupInspection/inspectionclosing";
+
+const teamIdList = ref<any>([]) //单位列表
+const teamTaskLists = ref<any>([]) //任务列表
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-const basicInfoColumn = ref<any>(basicInfoColumnBasic)
 const basicSearchFormRef = ref()
 const proTableRef = ref<any>()
 
-const activeTab = ref<any>(0)
+const {bus_healthy_check_status,sys_user_sex}  =toRefs<any>(proxy?.useDict('bus_healthy_check_status','sys_user_sex'))
+const basicInfoColumn = ref<any>(basicInfoColumnBasic(bus_healthy_check_status,sys_user_sex,teamIdList,teamTaskLists))
+
+const activeTab = ref<any>('1')
 const tabList = markRaw<any>([
-  { label: '未冻结', key: 0 },
-  { label: '冻结', key: 1 },
+  { label: '未冻结', key: '1' },
+  { label: '冻结', key: '0' },
 ])
 
 const columns = reactive<any>(columnsBasic);
@@ -69,43 +93,64 @@ const initFormData = {
 };
 const queryParams = ref<any>(initFormData);
 
+// 获取单位-任务接口
+const getteamIdList = async () => {
+    const { data } = await teamInfoList({})
+    const { rows } = await teamTaskList({ pageSize: -1 })
+    teamIdList.value = proxy?.handleTree<any>(data)
+    teamTaskLists.value = rows
+}
+getteamIdList()
 
 // 切换tab
 const handleClickTab = (tab:any)=>{
   activeTab.value = tab.key
+  proTableRef.value?.getTableList()
   proTableRef.value!.clearSelection()
 }
 
-const getTableList = () =>{
-  return {
-    data:{
-      list:[
-      {
-        f1:'123456',
-        f2:'F100001',
-        f3:'42090902002020',
-        f4:'团检',
-        f5:'职业病体检',
-        f6:'张小刚',
-        f7:'已婚',
-        f8:'24'
-      }
-    ],
-    total:0,
-    pageNum:1,
-    pageSize:10
-  }
-  }
+const getTableList = async () =>{
+  const [registerTimeStart,registerTimeEnd] = queryParams.value?.registerTime || []
+  const data = await registerPage({freezeStatus: activeTab.value,...queryParams.value,registerTime:undefined,registerTimeStart,registerTimeEnd})
+  return {data}
 }
 
 const handleSearch = () => {
   queryParams.value.pageNum = 1;
-  console.log(queryParams.value,'查询')
+  proTableRef.value?.getTableList()
 }
+
 const handleReset = () => {
   queryParams.value.pageNum = 1;
   basicSearchFormRef.value?.resetFields()
+  proTableRef.value?.getTableList()
 }
+
+// 冻结
+const handleFreeze =async (ids:any) => {
+  await registerFreeze(ids)
+  ElMessage.success('冻结成功')
+  nextTick(() =>{
+    proTableRef.value?.getTableList()
+    proTableRef.value?.clearSelection()
+  })
+}
+// 解冻
+const handleUnfreeze =async (ids:any)=>{
+  await registerUnfreeze(ids)
+  ElMessage.success('解冻成功')
+  nextTick(() =>{
+    proTableRef.value?.getTableList()
+    proTableRef.value?.clearSelection()
+  })
+}
+
+const dataCallback = (data: any) => {
+  return {
+    list: data.rows,
+    total: data.total,
+  };
+};
 </script>
 
 <style lang="scss" scoped>
