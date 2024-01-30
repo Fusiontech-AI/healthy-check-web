@@ -5,88 +5,201 @@
         <div class="title-box"></div>
         基础信息
       </div>
-      <form-guid :fields="fields" :model="form" :rules="rules" :col-count="4" :preview="true" />
+      <SearchForm ref="formRef" :columns="formColumns" :search-param="formValue" :search-col="4" :rules="rules"
+        :disabled="false" label-position="right">
+      </SearchForm>
     </el-card>
     <el-card shadow="hover">
       <div class="title">
         <div class="title-box"></div>
         套餐项目
       </div>
-      <TransferFilterComplex />
+      <TransferFilterComplex :tableHeader="tableHeader" @itemChange="itemChange" />
     </el-card>
-    <div class="footer-submit"><el-button class="button" round>取消</el-button><el-button class="button" type="primary" round>确定</el-button></div>
+    <div class="footer-submit">
+      <el-button class="button" round @click="router.go(-1)">取消</el-button>
+      <el-button class="button" type="primary" round @click="handleSubmit"
+        :disabled="formValue.infoItemBos.length === 0">确定</el-button>
+    </div>
   </div>
 </template>
 
 <script setup name="operation" lang="ts">
 import TransferFilterComplex from '@/components/TransferFilterComplex'
-const fields=ref([
-{
+import {
+  packageAdd
+} from "@/api/peis/package";
+const tableHeader = ref([
+  {
+    prop: 'combinProjectCode',
+    label: '项目编码'
+  },
+  {
+    prop: 'combinProjectName',
+    label: '项目名称'
+  },
+  {
+    prop: 'standardAmount',
+    label: '金额'
+  },
+])
+const { proxy } = getCurrentInstance() as ComponentInternalInstance
+const { bus_physical_type, bus_gender } = toRefs<any>(proxy?.useDict('bus_physical_type', 'bus_gender'))
+const formColumns = ref([
+  {
     label: '体检类型',
-    name: 'name',
-    component: 'Select',
+    prop: 'tjType',
+    enum: bus_physical_type,
+    search: { el: 'select' }
   },
   {
     label: '适用性别',
-    name: 'idCard',
-    component: 'Select'
+    prop: 'suitSex',
+    enum: bus_gender,
+    search: { el: 'select' }
   },
   {
     label: '套餐名称',
-    name: 'peCode',
-    component: 'Input'
+    prop: 'packageName',
+    search: { el: 'input', }
   },
   {
     label: '套餐简称',
-    name: 'groupId',
-    component: 'Input',
+    prop: 'packageSimpleName',
+    search: { el: 'input', }
   },
   {
     label: '套餐简拼',
-    name: 'ksrq',
-    component: 'Input',
+    prop: 'pySimpleCode	',
+    search: { el: 'input', }
   },
   {
     label: '排序',
-    name: 'px',
-    component: 'Input',
+    prop: 'packageSort',
+    search: { el: 'input', },
   },
   {
-    label: '复制套餐',
-    name: 'fztc',
-    component: 'Select',
+    label: '状态',
+    prop: 'status',
+    search: { el: 'select' },
+    enum: [
+      {
+        value: '0',
+        label: '正常'
+      },
+      {
+        value: '1',
+        label: '停用'
+      },
+    ]
+  },
+  {
+    label: '在岗状态',
+    prop: 'packageSort',
+    search: { el: 'select', },
+    isShowSearch: false
+  },
+  {
+    label: '危害因素',
+    prop: 'packageSort',
+    search: { el: 'select', prop: { multiple: true }, span: 2 },
+    isShowSearch: false
+  },
+  {
+    label: '照射源',
+    prop: 'packageSort',
+    search: { el: 'select', },
+    isShowSearch: false
+  },
+  {
+    label: '职业照射种类',
+    prop: 'packageSort',
+    search: { el: 'select', },
+    isShowSearch: false
+  },
+  {
+    label: '其他粉尘',
+    prop: 'packageSort',
+    search: { el: 'input', },
+    isShowSearch: false
+  },
+  {
+    label: '其他化学因素',
+    prop: 'packageSort',
+    search: { el: 'input', },
+    isShowSearch: false
   },
 ])
-const form=ref({})
-const rules=ref([
-
-])
-const handleAdd=(type)=>{
+const formValue = reactive({
+  infoItemBos: []
+})
+const router = useRouter();
+const formRef = ref(null)
+const rules = ref({
+  tjType: [
+    { required: true, message: '请选择体检类型', trigger: 'change' },
+  ],
+  suitSex: [
+    { required: true, message: '请选择适用性别', trigger: 'change' },
+  ],
+  packageName: [
+    { required: true, message: '请输入套餐名称', trigger: 'blur' },
+  ],
+  status: [
+    { required: true, message: '请选择状态', trigger: 'change' },
+  ],
+})
+//确定
+const handleSubmit = () => {
+  formRef.value.validate(async (valid, fields) => {
+    if (valid) {
+      await packageAdd({
+        ...formValue
+      })
+      ElMessage({
+        type: "success",
+        message: `操作成功!`
+      });
+    }
+  })
+}
+const itemChange = (val) => {
+  const { rightTableData, queryObj } = val
+  formValue.infoItemBos = rightTableData.map(item => {
+    return {
+      basicProjectCode: item.combinProjectCode,
+      basicProjectName: item.combinProjectName,
+    }
+  })
+  formValue.standardAmount = queryObj.standardAmount
+  formValue.discount = queryObj.discount
 
 }
 </script>
 <style scoped lang="scss">
-.title{
-  display:flex;
-  align-items:center;
-  font-weight:bold;
-  margin-bottom:5px;
-  .title-box{
+.title {
+  display: flex;
+  align-items: center;
+  font-weight: bold;
+  margin-bottom: 5px;
+
+  .title-box {
     width: 4px;
     height: 16px;
     border-radius: 2px;
     opacity: 1;
     background: #FF8F33;
-    margin-right:4px;
+    margin-right: 4px;
   }
 }
-.footer-submit{
+
+.footer-submit {
   height: 64px;
   border-radius: 4px 4px 0px 0px;
   opacity: 1;
   background: #FFFFFF;
   box-shadow: 0px -2px 16px 0px rgba(128, 146, 181, 0.1);
-  display:flex;
-  align-items:center;
+  display: flex;
+  align-items: center;
 }
 </style>

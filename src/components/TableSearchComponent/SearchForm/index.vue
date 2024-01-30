@@ -103,7 +103,7 @@ const validate = async (cb: any) => {
 
 //清空校验
 async function clearValidate() {
-  await unref(formRef)?.clearValidate();
+   await unref(formRef)?.clearValidate();
 }
 
 // 重置表单内容
