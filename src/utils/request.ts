@@ -130,8 +130,8 @@ service.interceptors.response.use(
         }).then(() => {
           isRelogin.show = false;
           useUserStore().logout().then(() => {
-              location.href = import.meta.env.VITE_APP_CONTEXT_PATH + 'index';
-            });
+            location.href = import.meta.env.VITE_APP_CONTEXT_PATH + 'index';
+          });
         }).catch(() => {
           isRelogin.show = false;
         });
@@ -169,30 +169,66 @@ export function download(url: string, params: any, fileName: string) {
   downloadLoadingInstance = ElLoading.service({ text: '正在下载数据，请稍候', background: 'rgba(0, 0, 0, 0.7)' });
   // prettier-ignore
   return service.post(url, params, {
-      transformRequest: [
-        (params: any) => {
-          return tansParams(params);
-        }
-      ],
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      responseType: 'blob'
-    }).then(async (resp: any) => {
-      const isLogin = blobValidate(resp);
-      if (isLogin) {
-        const blob = new Blob([resp]);
-        FileSaver.saveAs(blob, fileName);
-      } else {
-        const resText = await resp.data.text();
-        const rspObj = JSON.parse(resText);
-        const errMsg = errorCode[rspObj.code] || rspObj.msg || errorCode['default'];
-        ElMessage.error(errMsg);
+    transformRequest: [
+      (params: any) => {
+        return tansParams(params);
       }
-      downloadLoadingInstance.close();
-    }).catch((r: any) => {
-      console.error(r);
-      ElMessage.error('下载文件出现错误，请联系管理员！');
-      downloadLoadingInstance.close();
-    });
+    ],
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    responseType: 'blob'
+  }).then(async (resp: any) => {
+    const isLogin = blobValidate(resp);
+    if (isLogin) {
+      const blob = new Blob([resp]);
+      FileSaver.saveAs(blob, fileName);
+    } else {
+      const resText = await resp.data.text();
+      const rspObj = JSON.parse(resText);
+      const errMsg = errorCode[rspObj.code] || rspObj.msg || errorCode['default'];
+      ElMessage.error(errMsg);
+    }
+    downloadLoadingInstance.close();
+  }).catch((r: any) => {
+    console.error(r);
+    ElMessage.error('下载文件出现错误，请联系管理员！');
+    downloadLoadingInstance.close();
+  });
 }
+
+/**
+ *
+ * 实现下载pdf文件
+ * 公用下载
+ */
+export async function downloadMethod(response: any, fileName: any) {
+  // 提取文件名
+  // const fileName = response.headers['content-disposition'].match(/filename=(.*)/)[1]
+  // const fileName = fileName || 'default.pdf'
+  // 将二进制流转为blob
+  const blob = new Blob([response.data], { type: 'application/octet-stream' })
+  if (typeof window.navigator.msSaveBlob !== 'undefined') {
+    // 兼容IE，window.navigator.msSaveBlob：以本地方式保存文件
+    window.navigator.msSaveBlob(blob, decodeURI(fileName))
+  } else {
+    // 创建新的URL并指向File对象或者Blob对象的地址
+    const blobURL = window.URL.createObjectURL(blob)
+    // 创建a标签，用于跳转至下载链接
+    const tempLink = document.createElement('a')
+    tempLink.style.display = 'none'
+    tempLink.href = blobURL
+    tempLink.setAttribute('download', decodeURI(fileName))
+    // 兼容：某些浏览器不支持HTML5的download属性
+    if (typeof tempLink.download === 'undefined') {
+      tempLink.setAttribute('target', '_blank')
+    }
+    // 挂载a标签
+    document.body.appendChild(tempLink)
+    tempLink.click()
+    document.body.removeChild(tempLink)
+    // 释放blob URL地址
+    window.URL.revokeObjectURL(blobURL)
+  }
+}
+
 // 导出 axios 实例
 export default service;
