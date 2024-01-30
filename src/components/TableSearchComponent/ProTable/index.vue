@@ -67,7 +67,7 @@
       <!-- 插入表格最后一行之后的插槽 -->
       <template #append>
         <slot name="append" />
-      </template>
+      </template> 
       <!-- 无数据 -->
       <template #empty>
         <div class="table-empty">
@@ -178,6 +178,7 @@ const processTableData = computed(() => {
     pageable.value.pageSize * pageable.value.pageNum
   );
 });
+console.log(props.initParam, 'props.initParam');
 
 // 监听页面 initParam 改化，重新获取表格数据
 watch(() => props.initParam, getTableList, { deep: true });
