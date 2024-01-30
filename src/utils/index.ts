@@ -382,7 +382,7 @@ export function filterEnum(callValue: any, enumData?: any, fieldNames?: FieldNam
 export function findItemNested(enumData: any, callValue: any, value: string, children: string) {
   return enumData.reduce((accumulator: any, current: any) => {
     if (accumulator) return accumulator;
-    if (current[value] === callValue) return current;
+    if (current[value] == callValue) return current;
     if (current[children]) return findItemNested(current[children], callValue, value, children);
   }, null);
 }

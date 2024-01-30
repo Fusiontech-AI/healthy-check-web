@@ -67,7 +67,7 @@
       <!-- 插入表格最后一行之后的插槽 -->
       <template #append>
         <slot name="append" />
-      </template>
+      </template> 
       <!-- 无数据 -->
       <template #empty>
         <div class="table-empty">
