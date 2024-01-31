@@ -1,58 +1,56 @@
 <template>
   <div>
-    <transition :enter-active-class="proxy?.animate.searchAnimate.enter" :leave-active-class="proxy?.animate.searchAnimate.leave">
-      <div class="mb-[10px]">
-        <el-card shadow="hover">
-          <SearchForm
-            ref="basicSearchFormRef"
-            :search-param="queryParams"
-            :columns="basicInfoColumn"
-            :searchCol="4"
-            :show-action-group="true"
-            :search="handleSearch"
-            :reset="handleReset"
-          >
-          </SearchForm>
-          <el-divider class="!mt-[-10px]" />
-          <div class="flex items-center mb-[10px]">
-            <div
-              v-for="(item,index) in tabList"
-              :key="index"
-              :class="[item.key===activeTab?'active-tab-btn':'','cursor-pointer py-[4px] px-[10px]']"
-              @click="handleClickTab(item)"
-            >
-              {{ item.label }}
-            </div>
-          </div>
-          <ProTable ref="proTableRef" :columns="columns" :request-api="getTableList" :toolButton="false" rowKey="id" :dataCallback="dataCallback">
-            <template #tableHeader="scope">
-              <el-button
-                class="mb-[10px]"
-                :disabled="!scope.isSelected"
-                type="primary"
-                round
-                v-if="activeTab==='1'"
-                @click="handleFreeze(scope.selectedListIds)"
-              >
-                冻结
-              </el-button>
-              <el-button
-                class="mb-[10px]"
-                :disabled="!scope.isSelected"
-                type="primary"
-                round
-                v-if="activeTab==='0'"
-                @click="handleUnfreeze(scope.selectedListIds)"
-                >解冻</el-button
-              >
-            </template>
-            <template #healthyCheckCode="scope">
-              <span class="text-[#5a9cf8] cursor-pointer">{{ scope.row.healthyCheckCode }}</span>
-            </template>
-          </ProTable>
-        </el-card>
+    <div class="mb-[10px] card table-main" style="padding-bottom: 0px;">
+      <SearchForm
+        ref="basicSearchFormRef"
+        :search-param="queryParams"
+        :columns="basicInfoColumn"
+        :searchCol="4"
+        :show-action-group="true"
+        :search="handleSearch"
+        :reset="handleReset"
+        class="form-search-freeze"
+      >
+      </SearchForm>
+    </div>
+    <div class="card table-main">
+      <div class="flex items-center mb-[10px]">
+        <div
+          v-for="(item,index) in tabList"
+          :key="index"
+          :class="[item.key===activeTab?'active-tab-btn':'','cursor-pointer py-[4px] px-[10px]']"
+          @click="handleClickTab(item)"
+        >
+          {{ item.label }}
+        </div>
       </div>
-    </transition>
+      <ProTable ref="proTableRef" :columns="columns" :request-api="getTableList" :toolButton="false" rowKey="id" :dataCallback="dataCallback">
+        <template #tableHeader="scope">
+          <el-button
+            class="mb-[10px]"
+            :disabled="!scope.isSelected"
+            type="primary"
+            round
+            v-if="activeTab==='1'"
+            @click="handleFreeze(scope.selectedListIds)"
+          >
+            冻结
+          </el-button>
+          <el-button
+            class="mb-[10px]"
+            :disabled="!scope.isSelected"
+            type="primary"
+            round
+            v-if="activeTab==='0'"
+            @click="handleUnfreeze(scope.selectedListIds)"
+            >解冻</el-button
+          >
+        </template>
+        <template #healthyCheckCode="scope">
+          <span class="text-[#5a9cf8] cursor-pointer">{{ scope.row.healthyCheckCode }}</span>
+        </template>
+      </ProTable>
+    </div>
   </div>
 </template>
 <script lang="ts" setup name="groupInspectionManagementFreezeAndThaw">
@@ -159,5 +157,9 @@ const dataCallback = (data: any) => {
   border-radius: 93px;
   background: #F1F5FB;
   color: #2879FF;
+}
+.form-search-freeze{
+  padding: 0px;
+  margin-bottom: 0px;
 }
 </style>
