@@ -20,3 +20,23 @@ export const dailyPhysicalOverviewExport = (params: any) => {
     data: params
   });
 };
+/**
+ * 查询体检人员登记信息列表
+ */
+export const registerPage = (params: any) => {
+  return request({
+    url: '/peis/register/page',
+    method: 'GET',
+    params
+  });
+};
+/**
+ * 查询团检分组信息列表
+ */
+export const teamGroupList = (params: any) => {
+  return request({
+    url: '/peis/teamGroup/list',
+    method: 'GET',
+    params
+  });
+};

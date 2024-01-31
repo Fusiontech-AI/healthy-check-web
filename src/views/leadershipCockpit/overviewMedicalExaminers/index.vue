@@ -6,7 +6,7 @@
       <template #tableHeader>
         <div class="flex justify-between w-full mt-10px">
           <el-button type="primary" class="ml-10px" @click="handleExport">导出excel</el-button>
-          <el-button type="primary" class="mr-10px">统计说明</el-button>
+          <el-button type="primary" class="mr-10px" @click="handleDescription">统计说明</el-button>
         </div>
       </template>
     </ProTable>
@@ -19,6 +19,8 @@ import { reactive } from 'vue';
 import { dailyPhysicalOverview, dailyPhysicalOverviewExport } from '@/api/leadershipCockpit/overviewMedicalExaminers'
 import { teamInfoList } from "@/api/groupInspection/inspectionclosing";
 import { downloadMethod } from '@/utils/request';
+import { ElMessage, ElMessageBox } from 'element-plus'
+import type { Action } from 'element-plus'
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 
 // 获取下拉列表
@@ -187,6 +189,14 @@ const dataCallback = (data: any) => {
 const handleExport = async () => {
   const data = await dailyPhysicalOverviewExport(param.value)
   downloadMethod({ data }, `每日体检者概览_${new Date().getTime()}.xlsx`)
+}
+
+//统计说明
+const handleDescription = () => {
+  ElMessageBox.alert('时间统计规则：个检以当日的【登记时间】、团检以当日的【报道时间】为为统计口径。<br/>费用统计规则：个检无论会否缴费、团检无论是否收费均计算在内，因为个检、团队费用核算有另外口径，在此不做统计。', '说明', {
+    confirmButtonText: '确定',
+    dangerouslyUseHTMLString: true
+  })
 }
 
 

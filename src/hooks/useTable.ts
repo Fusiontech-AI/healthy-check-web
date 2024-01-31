@@ -70,7 +70,7 @@ export const useTable = (
         const { pageNum, pageSize, total } = data;
         console.log('🚀 ~ getTableList ~ pageNum, pageSize, total:', pageNum, pageSize, total);
         console.log('🚀 ~ getTableList ~ total:', total);
-        // updatePageable({ pageNum, pageSize, total });
+        updatePageable({ total });
       }
     } catch (error) {
       requestError && requestError(error);
