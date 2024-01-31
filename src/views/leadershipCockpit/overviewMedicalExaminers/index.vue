@@ -182,7 +182,7 @@ const getUserTreeList = async (params: any) => {
 const dataCallback = (data: any) => {
   return {
     list: [data],
-    total: data.totalNum
+    total: data.totalNum || 0
   }
 }
 //导出excel

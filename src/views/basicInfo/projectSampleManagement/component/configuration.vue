@@ -13,7 +13,8 @@
               </template>
             </el-input>
           </div>
-          <ProTable ref="proTable" :columns="columns" :data="dataTableList" :height="670" :pagination="false" :toolButton="false">
+          <ProTable ref="proTable" :columns="columns" :requestApi="getTableList" :dataCallback="dataCallback"
+            :data="dataTableList" :height="670" :requestAuto="false" :toolButton="false" :initParam="initParam">
             <template #operation="{ row, $index }">
               <el-button @click="handleChecked(row, $index)" text type="primary">选中</el-button>
             </template>
@@ -23,13 +24,14 @@
 
       <el-col :span="12">
         <div>
-        <div class="head_search">已选项目 (共{{ checkedLength }}项)</div>
-        <ProTable ref="itemTable" :columns="itemColumns" :data="dataItemTable" :toolButton="false" :pagination="false" :height="670">
-          <template #operation="{ row, $index }">
-            <el-button @click="itemDelete(row, $index)" text type="primary">删除</el-button>
-          </template>
-        </ProTable>
-      </div>
+          <div class="head_search">已选项目 (共{{ checkedLength }}项)</div>
+          <ProTable ref="itemTable" :columns="itemColumns" :data="dataItemTable" :toolButton="false" :pagination="false"
+            :height="670">
+            <template #operation="{ row, $index }">
+              <el-button @click="itemDelete(row, $index)" text type="primary">删除</el-button>
+            </template>
+          </ProTable>
+        </div>
       </el-col>
     </el-row>
   </div>
@@ -39,12 +41,6 @@
 import ProTable from '@/components/TableSearchComponent/ProTable/index.vue'
 import { Search } from '@element-plus/icons-vue'
 import { combinationProjectList, getCombinProjectBySampleId } from '@/api/basicInfo/basicProjectManagement'
-import { itemType, getOption, getList } from "../hooks/useOptions";
-
-onMounted(() => {
-  getList()
-  getItemList()
-})
 const props = defineProps({
   configurationInfo: {
     type: Object,
@@ -53,10 +49,11 @@ const props = defineProps({
 })
 
 //项目搜索
+const initParam = reactive({ combinProjectName: null })
 const loading = ref(false)
 const inputValue = ref('')
-const searchProject = async () => {
-  await getTableList(inputValue.value)
+const searchProject = () => {
+  initParam.combinProjectName = inputValue.value
 }
 
 const filterProject = (arr1, arr2) => {
@@ -81,6 +78,7 @@ const filterProject = (arr1, arr2) => {
 }
 
 //项目检索
+const proTable = ref(null)
 const columns = ref([
   {
     prop: "combinProjectCode",
@@ -96,23 +94,23 @@ const columns = ref([
   },
 ])
 const dataTableList = ref([])
-const getTableList = async (params) => {
+const getTableList = async (params: any) => {
   loading.value = true
-  if (params) {
-    const { rows } = await combinationProjectList({ combinProjectName: params })
-    rows.forEach(item => {
-      item.combinProjectId = item.id
-    })
-    dataTableList.value = rows
-  } else {
-    const { rows } = await combinationProjectList()
-    rows.forEach(item => {
-      item.combinProjectId = item.id
-    })
-    dataTableList.value = rows
-  }
-  dataTableList.value=filterProject(dataItemTable.value,dataTableList.value)
+  const data = await combinationProjectList(params)
+  data.rows.forEach(item => {
+    item.combinProjectId = item.id
+  })
+  dataTableList.value = data.rows
+  dataTableList.value = filterProject(dataItemTable.value, dataTableList.value)
   loading.value = false
+  return { data }
+}
+
+const dataCallback = (data: any) => {
+  return {
+    list: data.rows,
+    total: data.total
+  }
 }
 
 const handleChecked = (row, $index) => {
@@ -149,9 +147,11 @@ const getItemList = async () => {
     item.id = item.combinProjectId
   })
   dataItemTable.value = data
-  getTableList()
+  proTable.value?.getTableList()
   loading.value = false
 }
+getItemList()
+
 const itemDelete = (row, $index) => {
   dataTableList.value.push({ ...row })
   dataItemTable.value.splice($index, 1)
@@ -167,7 +167,7 @@ defineExpose({ dataItemTable })
   height: 30px;
   justify-content: space-between;
   margin-bottom: 10px;
-  
+
 
   .head_title {
     width: 100px;
@@ -177,8 +177,4 @@ defineExpose({ dataItemTable })
     width: 200px;
   }
 }
-
-
-
-
 </style>

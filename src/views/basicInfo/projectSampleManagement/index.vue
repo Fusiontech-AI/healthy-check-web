@@ -1,6 +1,6 @@
 <template>
   <div style="padding:10px">
-    <el-card >
+    <el-card>
       <el-row>
         <el-col :span="4">
           <div class="sample">
@@ -20,55 +20,31 @@
 
         <el-col :span="20">
           <div class="sample">
-            <el-form :model="searchForm" label-width="120px">
-              <el-row>
-                <el-col :span="8">
-                  <el-form-item label="项目名称">
-                    <el-input v-model="searchForm.combinProjectName"></el-input>
-                  </el-form-item>
-                </el-col>
-                <el-col :span="8">
-                  <el-form-item label="项目编码">
-                    <el-input v-model="searchForm.combinProjectCode"></el-input>
-                  </el-form-item>
-                </el-col>
-                <el-col :span="8">
-                  <el-form-item>
-                    <el-button @click="searchTable" round>搜索</el-button>
-                    <el-button @click="resetTable" round>重置</el-button>
-                  </el-form-item>
-                </el-col>
-              </el-row>
-            </el-form>
+            <ProTable ref="proTable" :columns="columns" :request-api="getTableList" :data-callback="dataCallback"
+              :height="550" :toolButton="false">
+              <template #tableHeader="scope">
+                <el-button type="danger" @click="batchDisable(scope.selectedListIds)" :disabled="!scope.isSelected"
+                  round>批量禁用</el-button>
+                <el-button type="primary" @click="changeClassify(scope.selectedListIds)" :disabled="!scope.isSelected"
+                  round>批量修改分类</el-button>
+                <el-button type="primary" @click="handleAdd(1)" round>新增</el-button>
+              </template>
 
-            <div>
-              <ProTable ref="proTable" :columns="columns" :request-api="getTableList" :data-callback="dataCallback"
-                :height="550" :toolButton="false">
-                <template #tableHeader="scope">
-                  <el-button type="danger" @click="batchDisable(scope.selectedListIds)" :disabled="!scope.isSelected"
-                    round>批量禁用</el-button>
-                  <el-button type="primary" @click="changeClassify(scope.selectedListIds)" :disabled="!scope.isSelected"
-                    round>批量修改分类</el-button>
-                  <el-button type="primary" @click="handleAdd(1)" round>新增</el-button>
-                </template>
+              <template #operation="{ row }">
+                <div>
+                  <el-button type="primary" text @click="handleAdd(2, row)">详情</el-button>
+                  <el-popover placement="bottom" :width="50" trigger="click">
+                    <template #reference>
+                      <el-button type="primary" text>更多</el-button>
+                    </template>
+                    <div class="more" @click="handleAdd(3, row)">编辑</div>
+                    <div class="more" @click="handleConfiguration(row)">配置</div>
+                    <div class="more" style="margin-bottom: 0;color:#F75252 ;" @click="handleForbidden(row.id)">禁用</div>
+                  </el-popover>
 
-                <template #operation="{ row }">
-                  <div>
-                    <el-button type="primary" text @click="handleAdd(2, row)">详情</el-button>
-                    <el-popover placement="bottom" :width="50" trigger="click">
-                      <template #reference>
-                        <el-button type="primary" text>更多</el-button>
-                      </template>
-                      <div class="more" @click="handleAdd(3, row)">编辑</div>
-                      <div class="more" @click="handleConfiguration(row)">配置</div>
-                      <div class="more" style="margin-bottom: 0;color:#F75252 ;" @click="handleForbidden(row.id)">禁用</div>
-                    </el-popover>
-
-                  </div>
-                </template>
-              </ProTable>
-            </div>
-
+                </div>
+              </template>
+            </ProTable>
           </div>
         </el-col>
       </el-row>
@@ -114,7 +90,7 @@
     </el-drawer>
 
     <!-- 项目配置 -->
-    <el-drawer v-model="configurationDrawer" v-if="configurationDrawer" title="配置项目" direction="rtl" :size="858">
+    <el-drawer v-model="configurationDrawer" v-if="configurationDrawer" title="配置项目" direction="rtl" :size="1100">
       <configuration ref="configurationRef" :configurationInfo="configurationInfo"></configuration>
       <template #footer>
         <div style="flex: auto">
@@ -161,13 +137,11 @@ import ProTable from '@/components/TableSearchComponent/ProTable/index.vue'
 import addForm from './component/addForm.vue'
 import configuration from "./component/configuration.vue";
 import { systemList, sampleList, addSample, updataSample, batchUpdateCategory, batchDisableApi, getCombinProjectBySampleId, updateCombinProjectBySampleId } from '@/api/basicInfo/basicProjectManagement'
-import { optionsType, optionsSample, optionsCode, optionsPrint, optionsApply, getOption, getList } from "./hooks/useOptions";
-
+import useOptions from "./hooks/useOptions";
+const { optionsType, optionsSample, optionsCode, optionsPrint, optionsApply, itemType } = useOptions()
 onMounted(() => {
   getTypeList('bus_sample_category')
-  getList()
 })
-
 const inputType = ref('')
 const TypeList = ref([])
 const activeKS = ref(-1)
@@ -197,15 +171,6 @@ const cancelKS = () => {
   currentType.value = {}
 }
 
-// 表格搜索
-const searchForm = ref({})
-const searchTable = () => {
-  proTable.value?.getTableList();
-}
-const resetTable = () => {
-  searchForm.value = {}
-  proTable.value?.getTableList();
-}
 
 //任务信息ProTable 实例
 const proTable = ref();
@@ -215,11 +180,17 @@ const columns = reactive([
   {
     prop: "sampleCode",
     label: "样本编码",
+    search: {
+      el: 'input'
+    },
     width: 120,
   },
   {
     prop: "sampleName",
     label: "样本名称",
+    search: {
+      el: 'input'
+    },
     width: 120,
   },
   {
@@ -293,9 +264,6 @@ const getTableList = (params) => {
   let newParams = { ...params }
   if (currentType.value.dictValue) {
     newParams.sampleCategory = currentType.value.dictValue
-  }
-  if (searchForm.value != {}) {
-    newParams = { ...newParams, ...searchForm.value }
   }
   return sampleList(newParams)
 }
@@ -428,8 +396,6 @@ const handleConfiguration = async (row) => {
   configurationInfo.value = { ...row }
 }
 const saveClick = async () => {
-  console.log("🚀 ~ saveClick ~ saveClick:", saveClick)
-
   await updateCombinProjectBySampleId({ id: configurationInfo.value.id, sampleInfoListVos: configurationRef.value?.dataItemTable })
   ElMessage.success('配置成功')
   configurationDrawer.value = false
@@ -493,15 +459,15 @@ const handleForbidden = (id) => {
   height: 176px;
   border-radius: 20px;
   background: linear-gradient(180deg, #CBDFFF 0%, #FFFFFF 27%);
+}
 
-  :deep(.el-dialog__header) {
-    border-bottom: none;
-  }
+:deep(.el-dialog__header) {
+  border-bottom: none;
+}
 
-  :deep(.el-dialog__headerbtn) {
-    top: 1px;
+:deep(.el-dialog__headerbtn) {
+  top: 1px;
 
-  }
 }
 
 :deep(.el-drawer) {
