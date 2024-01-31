@@ -1,6 +1,6 @@
 <template>
   <div class="unit-list-wrap">
-    <span class="title-before font-bold">单位基础信息</span>
+    <span class="font-bold title-before">单位基础信息</span>
     <SearchForm
       ref="basicRef"
       :search-param="formValue"
@@ -24,7 +24,7 @@
         <el-input v-model="formValue.teamName" placeholder="请输入" @input="handleChangeTeamName" />
       </template>
     </SearchForm>
-    <span class="title-before font-bold">单位其他信息</span>
+    <span class="font-bold title-before">单位其他信息</span>
     <SearchForm ref="basicOtherRef" :search-param="formValue" :columns="otherInfoColumn" :searchCol="2" :disabled="disabledForm" label-width="135px">
       <template #regionCode>
         <el-select
@@ -189,8 +189,11 @@ var validatePhone = (rule, value, callback) => {
 }
 
 const submitData =async ()=> {
-  await basicRef.value?.validate()
-  return formValue.value
+  let validForm = false
+  await basicRef.value.validate(async(valid:any) =>{
+    validForm = valid
+  })
+  return validForm?formValue.value:false
 }
 
 const clearValidate = () => {

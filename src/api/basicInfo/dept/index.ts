@@ -5,7 +5,7 @@ export const listDept = (query: any) => {
   return request({
     url: '/peis/tjks/list',
     method: 'get',
-    params: query,
+    params: query
   });
 };
 
@@ -14,7 +14,7 @@ export const addDept = (data: any) => {
   return request({
     url: '/peis/tjks',
     method: 'post',
-    data,
+    data
   });
 };
 
@@ -23,7 +23,7 @@ export const editDept = (data: any) => {
   return request({
     url: '/peis/tjks',
     method: 'put',
-    data,
+    data
   });
 };
 
@@ -31,6 +31,14 @@ export const editDept = (data: any) => {
 export const deleteDept = (id: any) => {
   return request({
     url: `/peis/tjks/${id}`,
-    method: 'delete',
+    method: 'delete'
+  });
+};
+
+// 查询体检科室编码
+export const getKsCode = () => {
+  return request({
+    url: '/peis/tjks/getKsCode',
+    method: 'get'
   });
 };

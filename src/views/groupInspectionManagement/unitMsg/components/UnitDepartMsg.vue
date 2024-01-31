@@ -125,12 +125,16 @@ const openDrawer = async (flag:any, row:any)=>{
 }
 
 const handleSubmit =async () => {
-  await departFormRef.value.validate()
-  const service = formValue.value?.id?editTeamDept : addTeamDept
-  await service(formValue.value)
-  ElMessage.success(formValue.value?.id?'编辑成功':'新增成功')
-  proTableRef.value?.getTableList()
-  handleClose()
+  await departFormRef.value.validate(async(valid:any) =>{
+    if(valid){
+      await departFormRef.value.validate()
+      const service = formValue.value?.id?editTeamDept : addTeamDept
+      await service(formValue.value)
+      ElMessage.success(formValue.value?.id?'编辑成功':'新增成功')
+      proTableRef.value?.getTableList()
+      handleClose()
+    }
+  })
 }
 
 // 关闭弹框
