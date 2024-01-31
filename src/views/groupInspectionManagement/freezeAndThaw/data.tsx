@@ -52,15 +52,16 @@ export const basicInfoColumnBasic = (bus_healthy_check_status: any, sys_user_sex
   {
     prop: 'teamId',
     label: '单位',
-    search: { el: 'tree-select', props: { checkStrictly: true, label: 'teamName' } },
+    search: { el: 'tree-select', props: { checkStrictly: true, label: 'teamName', value: 'id' } },
     enum: teamIdList,
-    fieldNames: { label: 'teamName', value: 'id' }
+    slot: 'teamId'
   },
   {
     prop: 'taskId',
     label: '任务',
     search: { el: 'select' },
-    enum: teamTaskLists
+    enum: teamTaskLists,
+    fieldNames: { label: 'taskName', value: 'id' }
   },
   {
     prop: 'healthyCheckCode',

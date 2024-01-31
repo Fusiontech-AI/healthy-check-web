@@ -11,6 +11,17 @@
         :reset="handleReset"
         class="form-search-freeze"
       >
+        <template #teamId>
+          <el-tree-select
+            v-model="queryParams.teamId"
+            :data="teamIdList"
+            check-strictly
+            :props="{label:'teamName', value:'id' }"
+            filterable
+            clearable
+            @change="handleChange"
+          />
+        </template>
       </SearchForm>
     </div>
     <div class="card table-main">
@@ -99,6 +110,14 @@ const getteamIdList = async () => {
     teamTaskLists.value = rows
 }
 getteamIdList()
+
+// 单位改变
+const handleChange = async (val:any) =>{
+  const { rows } = await teamTaskList({teamId:val })
+  teamTaskLists.value = rows
+  basicInfoColumn.value = basicInfoColumnBasic(bus_healthy_check_status,sys_user_sex,teamIdList,teamTaskLists)
+  queryParams.value.taskId = null
+}
 
 // 切换tab
 const handleClickTab = (tab:any)=>{
