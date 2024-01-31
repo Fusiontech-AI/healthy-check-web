@@ -1,5 +1,5 @@
 <template>
-  <div class="unit-list-wrap">
+  <div class="unit-list-wrap" v-loading="loadingForm">
     <span class="font-bold title-before">单位基础信息</span>
     <SearchForm
       ref="basicRef"
@@ -81,6 +81,7 @@ const { bus_team_level } = toRefs<any>(proxy?.useDict('bus_team_level'));//单�
 const disabledForm =ref<boolean>(false)
 const regionOptions = ref<any>([])
 const loading = ref(false)
+const loadingForm = ref<any>(false)
 
 onMounted(() => {})
 
@@ -108,6 +109,7 @@ watch(()=>props.editFlag,(flag) =>{
 })
 
 watch(()=>[props.id,props.data],async (val:any) =>{
+  loadingForm.value = true
   const [id, data] = val || []
   if(data?.id &&id){
     if(data?.teamLevel ==='1'){//根据单位级别回显上级单位
@@ -122,6 +124,12 @@ watch(()=>[props.id,props.data],async (val:any) =>{
     console.log('reset')
     formValue.value = {}
   }
+  loadingForm.value = false
+  // if(id&&data?.regionCode){//所属地区回显
+  //   const param = {dictType:'bus_area',dictValue:data?.regionCode} as any
+  //   const {rows} = await listData(param)
+  //   regionOptions.value = rows
+  // }
 },{
   immediate:true
 })

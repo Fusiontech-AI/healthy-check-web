@@ -124,7 +124,7 @@ export const departColumnsBasic = [
   { prop: 'deptNo', label: '部门编码' },
   { prop: 'deptName', label: '部门名称' },
   { prop: 'deptManager', label: '部门负责人' },
-  { prop: 'teamId', label: '上级单位' },
+  { prop: 'teamName', label: '上级单位' },
   { prop: 'updateTime', label: '更新时间' },
   { prop: 'operation', label: '操作', fixed: 'right', width: 150 }
 ];
