@@ -202,18 +202,20 @@ const handleDelete =async () => {
 // 保存
 const handleSave =async () => {
   let unitFormData = await basciInfoRef.value?.submitData()
-  unitFormData = {...unitFormData,enterpriseSize:Number(unitFormData?.enterpriseSize)}
-  const service = unitFormData?.id ? editTeamInfo : addTeamInfo
-  await service(unitFormData)
-  proxy?.$modal.msgSuccess(unitFormData?.id?'编辑单位成功':'新增单位成功');
-  await getTeamInfoList()
-  editFlag.value = !editFlag.value
-  if(!unitFormData.id){
-    treeRef.value?.setCurrentKey(lastTreeData.value?.id)
-    handleNodeClick(lastTreeData.value)
-  }else{
-    treeRef.value?.setCurrentKey(selectTreeNodeId.value)
-    handleNodeClick(selectTreeNodeRow.value)
+  if(unitFormData){
+    unitFormData = {...unitFormData,enterpriseSize:Number(unitFormData?.enterpriseSize)}
+    const service = unitFormData?.id ? editTeamInfo : addTeamInfo
+    await service(unitFormData)
+    proxy?.$modal.msgSuccess(unitFormData?.id?'编辑单位成功':'新增单位成功');
+    await getTeamInfoList()
+    editFlag.value = !editFlag.value
+    if(!unitFormData.id){
+      treeRef.value?.setCurrentKey(lastTreeData.value?.id)
+      handleNodeClick(lastTreeData.value)
+    }else{
+      treeRef.value?.setCurrentKey(selectTreeNodeId.value)
+      handleNodeClick(selectTreeNodeRow.value)
+    }
   }
 }
 
