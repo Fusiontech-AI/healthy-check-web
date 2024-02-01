@@ -9,7 +9,7 @@
               {{ item.label }}
             </el-radio>
           </el-radio-group>
-          <span v-else>{{ addForm.payType }}</span>
+          <span v-else>{{ optionsName(radioList, addForm.payType) }}</span>
         </el-form-item>
       </template>
     </SearchForm>
@@ -103,6 +103,17 @@ const radioList = reactive([
   { label: '现金', value: '3' },
   { label: '银行卡', value: '4' },
 ])
+// 得出支付方式
+const optionsName = (arr, value) => {
+  let TypeName = ''
+  arr.forEach(item => {
+    if (item.value == value) {
+      TypeName = item.label
+    }
+  })
+  return TypeName
+}
+
 defineExpose({ addFormRef })
 
 </script>

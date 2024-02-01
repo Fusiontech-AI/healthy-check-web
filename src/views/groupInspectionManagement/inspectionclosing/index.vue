@@ -394,7 +394,7 @@ const columnsAccounts = reactive([
   {
     prop: "payType",
     label: "支付方式",
-    // enum: payTypeList
+    enum: payTypeList
   },
   {
     prop: "createTime",

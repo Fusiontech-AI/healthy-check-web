@@ -9,7 +9,7 @@
               {{ item.label }}
             </el-radio>
           </el-radio-group>
-          <span v-else>{{ addForm.payType }}</span>
+          <span v-else>{{ optionsName(radioList, addForm.payType) }}</span>
         </el-form-item>
       </template>
     </SearchForm>
