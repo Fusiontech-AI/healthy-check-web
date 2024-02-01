@@ -1,5 +1,5 @@
 <template>
-  <div class="container-tj">
+  <div class="container-tj items-start">
     <el-card shadow="hover" class="left">
       <template #header>
         <div class="card-header">
@@ -7,29 +7,24 @@
           <el-button class="button" type="primary">新增任务</el-button>
         </div>
       </template>
-      <el-select v-model="form.value" placeholder="请选择单位" class="left-select">
-        <el-option v-for="item in form.options" :key="item.value" :label="item.label" :value="item.value" />
-      </el-select>
-      <el-date-picker
-        v-model="form.value1"
-        type="daterange"
-        range-separator="至"
-        start-placeholder="开始时间"
-        end-placeholder="结束时间"
-        style="width: 100%;margin-top: 10px;"
-      />
-      <div class="left-input">
-        <el-input v-model="form.value" placeholder="请输入任务名称" suffix-icon="Search" />
-        <el-button class="button">重置</el-button>
-      </div>
-      <div class="left-box">
-        <div class="box"><span>体检任务:</span> 测试</div>
-        <div class="box"><span>单位:</span> 测试</div>
-        <div class="box"><span>签订日期:</span> 测试</div>
-        <div class="group-type">
-          <span class="zhi">职</span>
-          <!-- <span class="jian" v-else-if="item.zyb === '0'">健</span>
+      <SearchForm :search-param="queryParams" :columns="basicInfoColumn" :searchCol="1" :show-action-group="false">
+        <template #gjc>
+          <div class="left-input">
+            <el-input v-model="queryParams.taskName" placeholder="请输入任务名称" suffix-icon="Search" />
+            <el-button class="button" @click="handleCz">重置</el-button>
+          </div>
+        </template>
+      </SearchForm>
+      <div class="left-view ">
+        <div class="left-box mb10px" v-for="item in teamTaskLists" @click="handleClickItem(item)">
+          <div class="box"><span>体检任务:</span> {{ item.taskName }}</div>
+          <div class="box"><span>单位:</span> {{ item.teamName }}</div>
+          <div class="box"><span>签订日期:</span> {{ item.signDate }}</div>
+          <div class="group-type">
+            <span class="zhi">职</span>
+            <!-- <span class="jian" v-else-if="item.zyb === '0'">健</span>
                 <span class="fang" v-else>放</span> -->
+          </div>
         </div>
       </div>
     </el-card>
@@ -37,91 +32,227 @@
     <el-card shadow="hover" class="right">
       <div class="rwtitle">
         <span>任务详情</span>
-        <div><el-button class="button" type="primary">编辑任务</el-button><el-button class="button" type="primary">删除任务</el-button></div>
+        <div>
+          <el-button class="button" type="primary">编辑任务</el-button>
+          <el-button class="button" type="primary">删除任务</el-button>
+          <el-button class="button" type="primary">上一步</el-button>
+          <el-button class="button" type="primary" @click="handleX1">下一步</el-button>
+        </div>
       </div>
       <div><span>基本信息</span></div>
       <!-- 查询表单 -->
-      <form-guid :fields="searchColumns" :model="form" :rules="rules" :col-count="4" :preview="true" />
+      <SearchForm ref="searchFormRef" :search-param="form" :columns="formColumn" :searchCol="4" :show-action-group="false"
+        :rules="rules">
+      </SearchForm>
       <div><span>体检项目信息</span></div>
-      <el-tabs v-model="activeName" class="demo-tabs" @tab-click="handleClick">
+      <el-tabs v-model="activeName" @tab-click="handleClick">
         <el-tab-pane label="分组管理" name="first">
-          <Frist />
+          <Frist :form="form" />
         </el-tab-pane>
         <el-tab-pane label="套餐/项目选择" name="second">
-          <Second />
+          <Second :formSecond="formSecond" />
         </el-tab-pane>
         <el-tab-pane label="人员管理" name="third">
           <Third />
         </el-tab-pane>
-        <el-tab-pane label="委托协议" name="fourth"><Fourth /></el-tab-pane>
+        <el-tab-pane label="委托协议" name="fourth">
+          <Fourth />
+        </el-tab-pane>
       </el-tabs>
     </el-card>
   </div>
 </template>
 
 <script setup lang="tsx" name="taskManagement">
+import { debounce } from 'lodash'
+import { teamTaskList, teamInfoList, peisTeamTask, peisTeamTaskUpdate, teamTaskDetail } from '@/api/groupInspectionManagement/taskManagement'
 import type { TabsPaneContext } from 'element-plus'
 import Frist from '@/views/groupInspectionManagement/taskManagement/components/frist.vue'
 import Second from '@/views/groupInspectionManagement/taskManagement/components/second.vue'
 import Third from '@/views/groupInspectionManagement/taskManagement/components/third.vue'
 import Fourth from '@/views/groupInspectionManagement/taskManagement/components/fourth.vue'
 const form = reactive({
-  value: '',
-  options: [],
-  value1: ''
+  groupList: [{
+    groupPayType: '1'
+  }]
 });
-const activeName=ref('first')
-const searchColumns = ref([
-{
+const { proxy } = getCurrentInstance() as ComponentInternalInstance;
+const queryParams = reactive({
+  teamId: '',
+  times: [],
+  taskName: ''
+})
+const searchFormRef = ref()
+const teamIdList = ref([])
+const formSecond = ref([])
+const teamTaskLists = ref([])
+const activeName = ref('first')
+const { bus_physical_type, bus_charge_type } = toRefs<any>(proxy?.useDict("bus_physical_type", 'bus_charge_type'));
+const formColumn = ref([
+  {
     label: '任务名称',
-    name: 'name',
-    component: 'Input',
+    prop: 'taskName',
+    search: { el: 'input' },
   },
   {
     label: '团检单位',
-    name: 'idCard',
-    component: 'Select'
+    prop: 'teamId',
+    search: { el: 'tree-select' },
+    enum: teamIdList,
+    fieldNames: { label: 'teamName', value: 'id' }
   },
   {
     label: '体检类型',
-    name: 'peCode',
-    component: 'Select'
+    prop: 'physicalType',
+    enum: bus_physical_type,
+    search: { el: 'select' }
   },
   {
     label: '签订日期',
-    name: 'groupId',
-    component: 'Datepicker',
+    prop: 'signDate',
+    search: { el: 'date-picker' },
   },
   {
     label: '开始日期',
-    name: 'ksrq',
-    component: 'Datepicker',
+    prop: 'beginDate',
+    search: { el: 'date-picker' },
   },
   {
     label: '结束日期',
-    name: 'jsrq',
-    component: 'Datepicker',
+    prop: 'endDate',
+    search: { el: 'date-picker' },
   },
   {
     label: '收费类型',
-    name: 'sflx',
-    component: 'Select',
+    prop: 'chargeType',
+    enum: bus_charge_type,
+    search: { el: 'select' },
+  },
+  {
+    label: '销售负责人',
+    prop: 'saleHead',
+    search: { el: 'input' },
   },
   {
     label: '是否审核',
-    name: 'sfsh',
-    component: 'Select',
+    prop: 'isReview',
+    enum: [
+      {
+        label: '是',
+        value: '0',
+      },
+      {
+        label: '否',
+        value: '1',
+      },
+    ],
+    search: { el: 'select' },
   },
 ]);
-const rules=ref([])
+const rules = ref({
+  taskName: [
+    { required: true, message: '请输入任务名称', trigger: 'blur' },
+  ],
+  teamId: [
+    { required: true, message: '请选择团检单位', trigger: 'change' },
+  ],
+  physicalType: [
+    { required: true, message: '请选择体检类型', trigger: 'change' },
+  ],
+  signDate: [
+    { required: true, message: '请选择签订日期', trigger: 'change' },
+  ],
+  chargeType: [
+    { required: true, message: '请选择收费类型', trigger: 'change' },
+  ],
+  isReview: [
+    { required: true, message: '请选择是否审核', trigger: 'change' },
+  ],
+})
+//获得单位
+const getList = async () => {
+  const { data } = await teamInfoList({})
+  teamIdList.value = proxy?.handleTree<any>(data)
+}
+getList()
+//任务列表
+const getTaskList = async () => {
+  const signBeginDate = queryParams.times[0]
+  const signEndDate = queryParams.times[1]
+  const { rows } = await teamTaskList({ ...queryParams, signEndDate, signBeginDate })
+  teamTaskLists.value = rows
+}
+getTaskList()
+//监听
+watch(queryParams, (newV) => {
+  getRemote()
+})
+const getRemote = debounce(() => {
+  getTaskList()
+}, 500)
+const basicInfoColumn = reactive([
+  {
+    prop: 'teamId',
+    label: '',
+    search: { el: 'tree-select' },
+    enum: teamIdList,
+    fieldNames: { label: 'teamName', value: 'id' }
+  },
+  {
+    prop: 'times',
+    label: '',
+    search: { el: 'date-picker', props: { type: 'daterange', valueFormat: 'YYYY-MM-DD' } }
+  },
+  {
+    prop: 'gjc',
+    label: '',
+    search: {},
+    slot: 'gjc'
+  },
+])
 const handleClick = (tab: TabsPaneContext, event: Event) => {
   console.log(tab, event)
+}
+//重置
+const handleCz = () => {
+  queryParams.teamId = ''
+  queryParams.times = []
+  queryParams.taskName = ''
+}
+//下一步
+const handleX1 = async () => {
+  searchFormRef.value.validate(async (valid, fields) => {
+    if (valid) {
+      if (form.id) {
+        const { data } = await peisTeamTaskUpdate(form)
+        formSecond.value = data
+        activeName.value = 'second'
+      } else {
+        const { data } = await peisTeamTask(form)
+        formSecond.value = data
+        activeName.value = 'second'
+      }
+    }
+  })
+
+}
+//详情
+const handleClickItem = async (row) => {
+  const { data } = await teamTaskDetail(row)
+  for (const key in data) {
+    form[key] = data[key]
+  }
+
 }
 </script>
 
 <style scoped lang="scss">
+.left-view {
+  height: calc(100vh - 320px);
+  overflow-y: auto;
+}
+
 .container-tj {
-  margin: 16px;
   display: flex;
   justify-content: space-between;
 }
@@ -145,7 +276,7 @@ const handleClick = (tab: TabsPaneContext, event: Event) => {
   }
 
   .left-box {
-    margin-top: 10px;
+    cursor: pointer;
     padding: 10px;
     border: 1px solid blue;
     border-radius: 8px;
@@ -191,22 +322,16 @@ const handleClick = (tab: TabsPaneContext, event: Event) => {
     }
   }
 
-  .left-select {
-    width: 100%;
-  }
-
-  .left-picker {
-    width: 100%;
-    margin-top: 10px;
-  }
-
   .left-input {
     display: flex;
-    margin-top: 10px;
 
     .button {
       margin-left: 15px;
     }
   }
+}
+
+:deep(.form-search) {
+  padding: 0;
 }
 </style>

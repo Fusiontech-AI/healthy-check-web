@@ -2,7 +2,8 @@
   <div v-if="columns.length" class="card form-search">
     <el-form ref="formRef" :model="searchParam" label-position="left" labelWidth="auto" v-bind="$attrs">
       <Grid ref="gridRef" :collapsed="collapsed" :gap="[20, 0]" :cols="searchCol">
-        <GridItem v-for="(item, index) in columns" :key="item.prop" v-bind="getResponsive(item)" :index="index">
+        <GridItem v-for="(item, index) in columns" :key="item.prop" v-bind="getResponsive(item)" :index="index"
+          :class="{ 'notLabel': !item.label }">
           <slot :name="item.prop + 'Component'">
             <slot :name="'search' + item.slot">
               <el-form-item :prop="item.prop" v-if="(item.isShowSearch ?? true)">
@@ -155,3 +156,16 @@ const showCollapse = computed(() => {
   return show;
 });
 </script>
+<style scoped lang="scss">
+.notLabel {
+  :deep(.el-form-item__label-wrap) {
+    width: 0;
+  }
+
+  :deep(.el-form-item--default) {
+    margin-bottom: 10px;
+  }
+
+}
+</style>
+

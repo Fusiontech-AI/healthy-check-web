@@ -1,55 +1,58 @@
+import { useDict } from '@/utils/dict';
+const { bus_physical_type, bus_charge_type, sys_user_sex, bus_healthy_check_status, bus_duty_status } = toRefs<any>(
+  useDict('bus_physical_type', 'bus_charge_type', 'sys_user_sex', 'bus_healthy_check_status', 'bus_duty_status')
+);
 // 人员基本信息表单配置项
 export const formInfoColumns: any = [
   {
-    prop: 'name',
+    prop: 'taskName',
     label: '任务名称',
     search: {
-      el: 'input',
-      // render: () => {
-      //   return <el-button>11</el-button>;
-      // }
-    },
+      el: 'input'
+    }
   },
   {
-    prop: 'name',
+    prop: 'teamName',
     label: '团检单位',
-    enum: [{ label: '单位1', value: '1' }],
+    enum: [],
     search: { el: 'select', props: { filterable: true, disabled: false } }
   },
   {
-    prop: 'name',
+    prop: 'physicalType',
     label: '体检类型',
-    enum: [{ label: '单位1', value: '1' }],
+    enum: bus_physical_type,
+    fieldNames: { label: 'dictLabel', value: 'dictValue' },
     search: { el: 'select', props: { filterable: true } }
   },
   {
-    prop: 'name',
+    prop: 'signDate',
     label: '签订日期',
-    enum: [{ label: '单位1', value: '1' }],
     search: { el: 'date-picker', props: { type: 'date', valueFormat: 'YYYY-MM-DD' } }
   },
   {
-    prop: 'name',
+    prop: 'beginDate',
     label: '开始日期',
-    enum: [{ label: '单位1', value: '1' }],
     search: { el: 'date-picker', props: { type: 'date', valueFormat: 'YYYY-MM-DD' } }
   },
   {
-    prop: 'name',
+    prop: 'endDate',
     label: '结束日期',
-    enum: [{ label: '单位1', value: '1' }],
     search: { el: 'date-picker', props: { type: 'date', valueFormat: 'YYYY-MM-DD' } }
   },
   {
-    prop: 'name',
+    prop: 'chargeType',
     label: '收费类型',
-    enum: [{ label: '单位1', value: '1' }],
-    search: { el: 'select', props: { type: 'date', valueFormat: 'YYYY-MM-DD' } }
+    enum: bus_charge_type,
+    fieldNames: { label: 'dictLabel', value: 'dictValue' },
+    search: { el: 'select', props: { type: 'date' } }
   },
   {
-    prop: 'name',
+    prop: 'isReview',
     label: '是否审核',
-    enum: [{ label: '单位1', value: '1' }],
+    enum: [
+      { label: '是', value: '0' },
+      { label: '否', value: '1' }
+    ],
     search: { el: 'select', props: { filterable: true } }
   }
 ];
@@ -57,21 +60,13 @@ export const formInfoColumns: any = [
 // 人员信息表格配置
 export const tableColumn: any = [
   { type: 'index', label: '序号', fixed: 'left', width: 70 },
-  {
-    prop: 'name',
-    label: '姓名',
-    fixed: 'left',
-    enum: [
-      { label: 'aaa', value: '1' },
-      { label: 'bbb', value: '1' }
-    ]
-  },
-  { prop: 'name', label: '性别' },
-  { prop: 'name', label: '年龄' },
-  { prop: 'name', label: '身份证号', width: 150 },
-  { prop: 'name', label: '项目分组' },
-  { prop: 'name', label: '在岗类型' },
-  { prop: 'name', label: '体检状态' },
+  { prop: 'name', label: '姓名', fixed: 'left' },
+  { prop: 'gender', label: '性别', enum: sys_user_sex, fieldNames: { label: 'dictLabel', value: 'dictValue' } },
+  { prop: 'age', label: '年龄' },
+  { prop: 'credentialNumber', label: '身份证号', width: 150 },
+  { prop: 'groupName', label: '项目分组' },
+  { prop: 'dutyStatus', label: '在岗类型', enum: bus_duty_status, fieldNames: { label: 'dictLabel', value: 'dictValue' } },
+  { prop: 'healthyCheckStatus', label: '体检状态', enum: bus_healthy_check_status, fieldNames: { label: 'dictLabel', value: 'dictValue' } },
   { prop: 'operation', label: '操作', width: 120, fixed: 'right' }
 ];
 
@@ -353,5 +348,5 @@ export const personColumn: any = [
   {
     label: '完成时间',
     value: '18100000000'
-  },
-]
+  }
+];
