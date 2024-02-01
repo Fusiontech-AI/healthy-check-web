@@ -212,7 +212,7 @@ export const tansParams = (params: any) => {
   for (const propName of Object.keys(params)) {
     const value = params[propName];
     const part = encodeURIComponent(propName) + '=';
-    if (value !== null && value !== '' && typeof value !== 'undefined') {
+    if (value !== null && typeof value !== 'undefined') {
       if (typeof value === 'object') {
         for (const key of Object.keys(value)) {
           if (value[key] !== null && value[key] !== '' && typeof value[key] !== 'undefined') {

@@ -6,7 +6,7 @@
         基础信息
       </div>
       <SearchForm ref="formRef" :columns="formColumns" :search-param="formValue" :search-col="4" :rules="rules"
-        :disabled="false" label-position="right">
+        :disabled="!!look" label-position="right">
       </SearchForm>
     </el-card>
     <el-card shadow="hover">
@@ -14,12 +14,13 @@
         <div class="title-box"></div>
         套餐项目
       </div>
-      <TransferFilterComplex :tableHeader="tableHeader" @itemChange="itemChange" />
+      <TransferFilterComplex :tableHeader="tableHeader" @itemChange="itemChange" :disabled="!!look"
+        :formValue="formValue" />
     </el-card>
     <div class="footer-submit">
       <el-button class="button" round @click="router.go(-1)">取消</el-button>
       <el-button class="button" type="primary" round @click="handleSubmit"
-        :disabled="formValue.infoItemBos.length === 0">确定</el-button>
+        :disabled="formValue.tjPackageInfoItemBos.length === 0 || !!look">确定</el-button>
     </div>
   </div>
 </template>
@@ -27,7 +28,10 @@
 <script setup name="operation" lang="ts">
 import TransferFilterComplex from '@/components/TransferFilterComplex'
 import {
-  packageAdd
+  packageAdd,
+  packageDetail,
+  packageUpload,
+  packageInfoList
 } from "@/api/peis/package";
 const tableHeader = ref([
   {
@@ -131,9 +135,11 @@ const formColumns = ref([
   },
 ])
 const formValue = reactive({
-  infoItemBos: []
+  tjPackageInfoItemBos: [],
+  defaultItemList: []
 })
 const router = useRouter();
+const route = useRoute();
 const formRef = ref(null)
 const rules = ref({
   tjType: [
@@ -149,13 +155,34 @@ const rules = ref({
     { required: true, message: '请选择状态', trigger: 'change' },
   ],
 })
+const { id, look } = route.query
+//获得详情
+const getDetail = async () => {
+  const { data } = await packageDetail({ id })
+  for (const key in data) {
+    formValue[key] = data[key]
+  }
+}
+//获得需要回显的项目
+const getXm = async () => {
+  const { rows } = await packageInfoList({ packageId: id })
+  formValue.defaultItemList = rows
+}
+id && getDetail()
+id && getXm()
 //确定
 const handleSubmit = () => {
   formRef.value.validate(async (valid, fields) => {
     if (valid) {
-      await packageAdd({
-        ...formValue
-      })
+      if (id) {
+        await packageUpload({
+          ...formValue
+        })
+      } else {
+        await packageAdd({
+          ...formValue
+        })
+      }
       ElMessage({
         type: "success",
         message: `操作成功!`
@@ -164,16 +191,16 @@ const handleSubmit = () => {
   })
 }
 const itemChange = (val) => {
-  const { rightTableData, queryObj } = val
-  formValue.infoItemBos = rightTableData.map(item => {
+  const { rightTableData } = val
+  formValue.tjPackageInfoItemBos = rightTableData.map(item => {
     return {
-      basicProjectCode: item.combinProjectCode,
-      basicProjectName: item.combinProjectName,
+      packageId: id,
+      combinProjectId: item.combinProjectId || item.id,
+      standardAmount: item.standardAmount,
+      discount: item.discount,
+      receivableAmount: item.receivableAmount,
     }
   })
-  formValue.standardAmount = queryObj.standardAmount
-  formValue.discount = queryObj.discount
-
 }
 </script>
 <style scoped lang="scss">

@@ -3,55 +3,109 @@ import { display } from 'html2canvas/dist/types/css/property-descriptors/display
 <template>
   <div>
     <el-tabs type="border-card" tab-position="left">
-      <el-tab-pane label="危害上岗男">
-        <TransferFilterComplex />
+      <el-tab-pane :label="item.groupName" v-for="item in props.formSecond">
+        <SearchForm :search-param="queryParams" :columns="basicInfoColumnZYB" :searchCol="4" :show-action-group="false"
+          :rules="rulesZYB">
+        </SearchForm>
+        <TransferFilterComplex :tableHeader="tableHeader" @itemChange="itemChange" :isRw="true" :formValue="formValue" />
+        <SearchForm :search-param="queryParams" :columns="basicInfoColumn" :searchCol="4" :show-action-group="false"
+          class="mt10px">
+        </SearchForm>
       </el-tab-pane>
-      <el-tab-pane label="危害离职男">Config</el-tab-pane>
-      <el-tab-pane label="危害离职女">Role</el-tab-pane>
     </el-tabs>
-    <div class="group-price">
-      <form-guid :fields="fields" :model="form" :rules="rules" :col-count="4" :preview="true" />
-    </div>
   </div>
 </template>
 
 <script setup lang="tsx" name="second">
 import TransferFilterComplex from '@/components/TransferFilterComplex.vue'
-const fields=ref([
-{
-    label: '分组折扣',
-    name: 'name',
-    component: 'Input',
+import { teamGroupDetail } from '@/api/groupInspectionManagement/taskManagement'
+const props = defineProps(['formSecond'])
+const tableHeader = ref([
+  {
+    prop: 'name',
+    label: '项目名称'
   },
-{
-    label: '加项折扣',
-    name: 'name',
-    component: 'Input',
+  {
+    prop: 'standardAmount',
+    label: '金额'
   },
-{
+  {
+    prop: 'receivableAmount',
+    label: '折后金额'
+  },
+])
+const basicInfoColumn = ref([
+  {
+    label: '分组折扣 ',
+    prop: 'itemDiscount',
+    search: { el: 'input' }
+  },
+  {
+    label: '加项折扣 ',
+    prop: 'addDiscount',
+    search: { el: 'input' }
+  },
+  {
     label: '标准价格（元）',
-    name: 'name',
-    component: 'Input',
+    prop: 'standardPrice',
+    search: { el: 'input' }
   },
-{
+  {
     label: '折后价格（元）',
-    name: 'name',
-    component: 'Input',
+    prop: 'actualPrice',
+    search: { el: 'input' }
   },
 
 ])
-const form=ref({})
-const rules=ref([])
+const basicInfoColumnZYB = ref([
+  {
+    label: '在岗类型 ',
+    prop: 'dutyStatus',
+    search: { el: 'select' }
+  },
+  {
+    label: '危害因素 ',
+    prop: 'groupHazardsList',
+    search: { el: 'select', props: { multiple: true } }
+  },
+])
+watch(() => props.formSecond, (newV) => {
+  console.log(newV);
+  getInfo(newV[0])
+})
+//获得需要回显的数据
+const getInfo = async (row) => {
+  const { id } = row
+  const { data } = await teamGroupDetail({ id })
+  console.log("🚀 ~ getInfo ~ data:", data)
+}
+const queryParams = ref({})
+const formValue = reactive({})
+const rulesZYB = ref(
+  {
+    dutyStatus: [
+      { required: true, message: '请选择在岗类型', trigger: 'change' },
+    ],
+    groupHazardsList: [
+      { required: true, message: '请选择危害因素', trigger: 'change' },
+    ],
+  }
+)
+const rules = ref({})
+const itemChange = (val) => {
+  const { rightTableData, queryObj } = val
+}
 </script>
 <style scoped lang="scss">
-.group-price{
+.group-price {
   background: #F1F5FB;
   border-radius: 4px;
-  display:flex;
-  align-items:center;
-  padding-top:20px;
+  display: flex;
+  align-items: center;
+  padding-top: 20px;
 }
-:deep(.el-tabs--border-card){
-  border:none;
+
+:deep(.el-tabs--border-card) {
+  border: none;
 }
 </style>
