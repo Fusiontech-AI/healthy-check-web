@@ -47,7 +47,7 @@ const props = defineProps({
 
 const emit = defineEmits(['handleCancle', 'handleSure']);
 const active = ref(1)
-// const { category, physicalType, marriageStatus, healthyCheckStatus, needGeneralReview } = useOption()
+const { category, physicalType, marriageStatus, healthyCheckStatus, needGeneralReview } = useOption()
 
 //获取收费信息数据
 const getFormDetail = () => {
@@ -74,12 +74,12 @@ const columns = reactive([
   {
     prop: "businessCategory",
     label: "业务类别",
-    // enum: category
+    enum: category
   },
   {
     prop: "physicalType",
     label: "体检类型",
-    // enum: physicalType
+    enum: physicalType
   },
   {
     prop: "name",
@@ -88,7 +88,7 @@ const columns = reactive([
   {
     prop: "marriageStatus",
     label: "婚否",
-    // enum: marriageStatus
+    enum: marriageStatus
   },
   {
     prop: "age",
@@ -105,12 +105,12 @@ const columns = reactive([
   {
     prop: "healthyCheckStatus",
     label: "体检状态",
-    // enum: healthyCheckStatus
+    enum: healthyCheckStatus
   },
   {
     prop: "needGeneralReview",
     label: "需要总检",
-    // enum: needGeneralReview
+    enum: needGeneralReview
   },
   /* {
     prop: "groupName",
