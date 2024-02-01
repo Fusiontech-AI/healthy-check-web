@@ -95,7 +95,7 @@ import ProTable from '@/components/TableSearchComponent/ProTable/index.vue'
 import addForm from './component/addForm.vue'
 import configuration from "./component/configuration.vue";
 import { tjksList, addBasicProject, updataBasicProject, deleteBasicProject, combinationProjectList, addCombinationProject, updataCombinationProject, deleteCombinationProject } from '@/api/basicInfo/basicProjectManagement'
-import { optionsKS, optionsSuitSex, optionsSampleType, getList, getTypeList } from "./hooks/useOptions";
+import { optionsKS, optionsSuitSex, optionsSampleType, getList, getTypeList, optionsFinancialType } from "./hooks/useOptions";
 
 onMounted(() => {
   getSearchTypeList()
@@ -201,6 +201,7 @@ const columns = reactive([
   {
     prop: "financialType",
     label: "财务类别",
+    enum: optionsFinancialType,
     width: 120,
   },
   // {
