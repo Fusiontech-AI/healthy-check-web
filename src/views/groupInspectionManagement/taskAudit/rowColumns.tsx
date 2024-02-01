@@ -7,7 +7,8 @@ const {
   sys_user_sex,
   bus_healthy_check_status,
   bus_category,
-  bus_physical_type
+  bus_physical_type,
+  bus_need_general_review
 } = toRefs<any>(
   useDict(
     'bus_marriage_status',
@@ -17,7 +18,7 @@ const {
     'sys_user_sex',
     'bus_healthy_check_status',
     'bus_category',
-    'bus_physical_type'
+    'bus_physical_type','bus_need_general_review'
   )
 );
 
@@ -68,7 +69,7 @@ export const basicInforColumns: any = [
 // 任务分组Columns
 export const taskGroupingColumn: any = [
   { prop: 'groupName', label: '分组名称', width: 120, fixed: 'left' },
-  { prop: 'gender', label: '性别' },
+  { prop: 'gender', label: '性别', enum: sys_user_sex, fieldNames: { label: 'dictLabel', value: 'dictValue' } },
   { prop: 'marriage', label: '婚否', enum: bus_marriage_status, fieldNames: { label: 'dictLabel', value: 'dictValue' } },
   { prop: 'dutyStatus', label: '在岗类型', width: 120, enum: bus_duty_status, fieldNames: { label: 'dictLabel', value: 'dictValue' } },
   {
@@ -123,31 +124,31 @@ export const personnelListColumn: any = [
 
 // 任务人员列表Columns
 export const groupPersonColumn: any = [
-  { prop: 'name', label: '体检号' },
-  { prop: 'name', label: '档案号' },
-  { prop: 'name', label: '证件号', width: 180 },
-  { prop: 'name', label: '业务类型', width: 120 },
-  { prop: 'name', label: '体检类型', width: 120 },
+  { prop: 'healthyCheckCode', label: '体检号' },
+  { prop: 'recordCode', label: '档案号' },
+  { prop: 'credentialNumber', label: '证件号', width: 180 },
+  { prop: 'businessCategory', label: '业务类型', width: 120,  },
+  { prop: 'physicalType', label: '体检类型', width: 120  },
   { prop: 'name', label: '姓名' },
-  { prop: 'name', label: '婚否' },
-  { prop: 'name', label: '年龄' },
-  { prop: 'name', label: '电话' },
-  { prop: 'name', label: '体检日期', width: 120 },
-  { prop: 'name', label: '体检状态', width: 120 },
-  { prop: 'name', label: '需要总检', width: 120 },
-  { prop: 'name', label: '人员类别', width: 120 },
-  { prop: 'name', label: '总费用' },
-  { prop: 'name', label: '团费' },
-  { prop: 'name', label: '个费' },
-  { prop: 'name', label: '单位' },
-  { prop: 'name', label: '分组' },
-  { prop: 'name', label: '部门' },
-  { prop: 'name', label: '介绍人' },
-  { prop: 'name', label: '创建人' },
-  { prop: 'name', label: '报到人' },
-  { prop: 'name', label: '总检医生', width: 120 },
-  { prop: 'name', label: '审核时间', width: 120 },
-  { prop: 'name', label: '完成时间', width: 120 }
+  { prop: 'marriageStatus', label: '婚否', },
+  { prop: 'age', label: '年龄' },
+  { prop: 'phone', label: '电话' },
+  { prop: 'healthyCheckTime', label: '体检日期', width: 120 },
+  { prop: 'healthyCheckStatus', label: '体检状态', width: 120},
+  { prop: 'needGeneralReview', label: '需要总检', width: 120},
+  { prop: 'status', label: '人员类别', width: 120 },
+  { prop: 'totalAmount', label: '总费用' },
+  { prop: 'teamAmount', label: '团费' },
+  { prop: 'personAmount', label: '个费' },
+  { prop: 'teamName', label: '单位' },
+  { prop: 'groupName', label: '分组' },
+  { prop: 'deptName', label: '部门' },
+  { prop: 'introducerName', label: '介绍人' },
+  { prop: 'createByName', label: '创建人' },
+  { prop: 'registerDoctorName', label: '报到人' },
+  { prop: 'generalReviewDoctorName', label: '总检医生', width: 120 },
+  { prop: 'auditTime', label: '审核时间', width: 120 },
+  { prop: 'finishTime', label: '完成时间', width: 120 }
   // { prop: 'operation', label: "操作", width: 80, fixed: "right" },
 ];
 

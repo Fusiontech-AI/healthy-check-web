@@ -4,39 +4,49 @@
       <el-col :span="5">
         <div class="bg-#fff rounded-4px">
           <div class="p-10px">
-            <el-select class="w-full" placeholder="请输入">
-              <el-option label="全部" value=""></el-option>
-            </el-select>
-            <el-date-picker class="my-2" v-model="dateValue" type="daterange" start-placeholder="开始时间"
-              end-placeholder="结束时间" style="width: 100%;" />
+            <el-tree-select v-model="searchParam.teamId" class="w-full" placeholder="请搜索" filterable clearable
+              :data="teamIdList" node-key="id" :props="{ label: 'teamName' }" @change="getTeamTaskData">
+            </el-tree-select>
+            <el-date-picker class="my-2" v-model="searchParam.dateValue" type="daterange" value-format="YYYY-MM-DD"
+              format="YYYY-MM-DD" start-placeholder="开始时间" end-placeholder="结束时间" style="width: 100%;" @change="getTeamTaskData"/>
             <div class="flex items-center">
-              <el-input placeholder="请输入关键字"></el-input>
-              <el-button>重置</el-button>
+              <el-input placeholder="请输入关键字" v-model="searchParam.taskName"  @input="updateInput"></el-input>
+              <el-button @click="reset">重置</el-button>
             </div>
           </div>
           <el-scrollbar class="list_card" height="calc(100vh - 238px)">
-            <el-card shadow="hover" v-for="item in 20" :key="item" class="card_item"
-              :class="isActive == item ? 'active' : ''">
-              <div class="flex justify-between items-center">
-                <span class="tetx-[#141C28]">2023年职业病体检</span>
-                <div class="flex">
-                  <span class="ml-auto px-[3px] rounded-[2px] font-bold text-[#fff] bg-[#2175FF]">放</span>
-                  <span class="ml-1 px-[3px] rounded-[2px] font-bold text-[#fff] bg-[#FFA81C]">健</span>
-                </div>
-              </div>
-              <div class="flex justify-between items-center my-2 text-[12px] text-[#89919F]"><span>胖胖乐有限公司</span></div>
-              <div class="flex justify-between items-center text-[12px] text-[#89919F]">
-                <span>2023-8-21</span><span class="text-red">未通过</span>
-              </div>
-            </el-card>
+            <div v-loading="teamTaskLoading">
+              <template v-if="teamTaskList && teamTaskList.length !== 0">
+                <el-card shadow="hover" v-for="item in teamTaskList" :key="item" class="card_item"
+                  :class="isActiveId == item.id ? 'active' : ''" @click="clickTeamTask(item)">
+                  <div class="flex justify-between items-center">
+                    <span class="tetx-[#141C28]">{{ item.taskName }}</span>
+                    <div class="flex">
+                      <span class="ml-auto px-[3px] rounded-[2px] font-bold text-[#fff] bg-[#2175FF]">放</span>
+                      <span class="ml-1 px-[3px] rounded-[2px] font-bold text-[#fff] bg-[#FFA81C]">健</span>
+                    </div>
+                  </div>
+                  <div class="flex justify-between items-center my-2 text-[12px] text-[#89919F]">
+                    <span>{{ item.teamName }}</span>
+                  </div>
+                  <div class="flex justify-between items-center text-[12px] text-[#89919F]">
+                    <span>{{ item.signDate }}</span>
+                    <span :class="item?.reviewResult == '1' ? 'text-#09C268' : 'text-#F75252'">{{
+                      item.reviewResult == '1' ? '通过' : '未通过' }}
+                    </span>
+                  </div>
+                </el-card>
+              </template>
+              <el-empty v-else description="无数据" />
+            </div>
           </el-scrollbar>
         </div>
       </el-col>
       <el-col :span="19">
         <el-card class="content">
           <div class="flex justify-end">
-            <el-button round type="primary" plain>下载模板</el-button>
-            <el-button round type="primary" plain>批量导出</el-button>
+            <el-button round type="primary" plain @click="importTemplate">下载模板</el-button>
+            <el-button round type="primary" plain @click="batchExport">批量导出</el-button>
             <el-button round type="primary" plain @click="batchImportDialog = true">批量导入</el-button>
             <el-button round type="primary" style="padding: 5px 40px; " @click="handleAdd()">新增</el-button>
           </div>
@@ -44,8 +54,8 @@
             <div class="my-2 ">
               <div class="font-bold card_title"><span></span>基本信息</div>
             </div>
-            <SearchForm ref="formRef" :columns="formColumns" :search-param="formValue" :search-col="3" :rules="rules"
-              :disabled="true"> </SearchForm>
+            <SearchForm ref="formRef" :columns="formColumns" :search-param="activeTeamTaskInfo" :search-col="3"
+              :rules="rules" :disabled="true"></SearchForm>
           </div>
           <div class="divider"></div>
           <div>
@@ -54,7 +64,8 @@
             </div>
             <div class="my-2"><span class="text-red">*</span> 请根据当前任务所选体检类型，下载对应模板后再上传</div>
             <div class="no-card">
-              <ProTable :columns="tableColumns" :toolButton="false" :data="[{ name: '1' }]">
+              <ProTable :columns="tableColumns" :toolButton="false" :request-api="queryTaskReviewRegister"
+                :init-param="initParam" :request-auto="false">
                 <template #operation="scope">
                   <el-button type="primary" link @click="showPersonDialog = true">查看</el-button>
                   <el-button type="danger" link>删除</el-button>
@@ -69,7 +80,7 @@
       <add-drawer @closeDialog="addDrawer = false"></add-drawer>
     </el-drawer>
     <el-dialog title="批量导入" v-model="batchImportDialog">
-      <batch-import></batch-import>
+      <batch-import :is-show-dialog="batchImportDialog" :team-task-info="activeTeamTaskInfo" @close-dialog="batchImportDialog = false"></batch-import>
     </el-dialog>
     <el-dialog title="人员信息详情" v-model="showPersonDialog" width="45%">
       <div class="h-[550px] overflow-auto">
@@ -91,17 +102,24 @@
 </template>
 
 <script setup lang="tsx">
+import _ from 'lodash';
 import { formInfoColumns, tableColumn, personColumn } from './rowColumns'
 import AddDrawer from './components/AddDrawer.vue'
 import BatchImport from './components/BatchImport.vue'
+import { getTeamTaskList, queryTaskReviewRegister } from '@/api/groupInspection/taskAudit';
+import { teamInfoList } from '@/api/groupInspection/inspectionclosing';
+const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 
 const formColumns = ref<any>(formInfoColumns)
 const tableColumns = ref<any>(tableColumn)
 const personColumns = ref<any>(personColumn)
-const isActive = ref(1)
-const dateValue = ref('')
+const searchParam = ref<any>({
+  teamId: '',
+  dateValue: [],
+  taskName: ''
+})
+const isActiveId = ref('')
 const formRef = ref<any>(null)
-const formValue = ref<any>({ name: '1' }) // 基本信息绑定的值
 const addDrawer = ref<boolean>(false) // 新增弹框显示隐藏
 const showPersonDialog = ref<boolean>(false) // 人员信息弹窗显示隐藏
 const batchImportDialog = ref<boolean>(false) // 批量导入弹框显示隐藏
@@ -110,11 +128,67 @@ const rules = reactive({
     { required: true, message: '请输入任务名称', trigger: 'blur' },
   ]
 })
+/** 批量导出 */
+const batchExport = () => {
+ 
+}
+/** 下载模板操作 */
+const importTemplate = () => {
+  proxy?.download("/peis/teamTask/exportRegisterTemplate", {
+    taskId: isActiveId.value,
+    templateType: activeTeamTaskInfo.value.physicalType
+  }, `人员导入模版.xlsx`);
+}
 
 // 新增打开抽屉弹框
 const handleAdd = () => {
   addDrawer.value = true
 }
+const reset = () => {
+  searchParam.value = {}
+  getTeamTaskData()
+}
+
+// 点击任务卡片获取右侧数据
+const clickTeamTask = (row: any) => {
+  if (!row.id) return
+  isActiveId.value = row.id
+  activeTeamTaskInfo.value = { ...row, chargeType: String(row.chargeType) }// 基础信息
+  initParam.taskId = row.id
+}
+
+// 团检任务基本信息
+const activeTeamTaskInfo = ref<any>({})
+// 获取左侧团检任务列表
+const teamTaskList = ref<any>([])
+const teamTaskLoading = ref<boolean>(false)
+const initParam = reactive({ taskId: '' })
+const getTeamTaskData = async () => {
+  try {
+    teamTaskLoading.value = true
+    const {dateValue, ...p} = searchParam.value
+    const { rows } = await getTeamTaskList({
+      ...p,
+      signBeginDate: dateValue?.[0],
+      signEndDate: dateValue?.[1]
+    })
+    teamTaskLoading.value = false
+    teamTaskList.value = rows
+    clickTeamTask(isActiveId.value ? activeTeamTaskInfo.value : rows?.[0])
+  } catch (error) {
+    teamTaskLoading.value = false
+  }
+}
+getTeamTaskData()
+const updateInput = _.debounce(getTeamTaskData, 200) // 防抖
+
+const teamIdList = ref<any>()
+// 获取单位接口
+const getteamIdList = async () => {
+  const { data } = await teamInfoList({})
+  teamIdList.value = proxy?.handleTree<any>(data)
+}
+getteamIdList()
 </script>
 
 <style scoped lang="scss">
@@ -177,4 +251,5 @@ const handleAdd = () => {
     font-weight: bold;
     background: #FF8F33;
   }
-}</style>
+}
+</style>

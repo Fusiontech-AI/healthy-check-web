@@ -54,8 +54,7 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['handleCancle', 'handleSure']);
-// const { category, physicalType, marriageStatus, healthyCheckStatus, needGeneralReview } = useOption()
-const { healthyCheckStatus } = useOption()
+const { category, physicalType, marriageStatus, healthyCheckStatus, needGeneralReview } = useOption()
 
 // 获取table实例
 const proTable = ref()
@@ -75,12 +74,12 @@ const columns = reactive([
   {
     prop: "businessCategory",
     label: "业务类别",
-    // enum: category
+    enum: category
   },
   {
     prop: "physicalType",
     label: "体检类型",
-    // enum: physicalType
+    enum: physicalType
   },
   {
     prop: "name",
@@ -89,7 +88,7 @@ const columns = reactive([
   {
     prop: "marriageStatus",
     label: "婚否",
-    // enum: marriageStatus
+    enum: marriageStatus
   },
   {
     prop: "age",
@@ -113,7 +112,7 @@ const columns = reactive([
   {
     prop: "needGeneralReview",
     label: "需要总检",
-    // enum: needGeneralReview
+    enum: needGeneralReview
   },
   /* {
     prop: "groupName",

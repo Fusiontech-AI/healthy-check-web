@@ -1,5 +1,5 @@
 <template>
-  <div class="h-[600px]">
+  <div class="h-[610px]">
     <div class="h-full flex flex-col justify-between">
       <div class="px-8">
         <el-steps :active="steps" process-status="wait">
@@ -11,12 +11,12 @@
         <div v-if="steps == 1">
           <div class="mt-4">
             <div class="box mb-4">
-              <div class="text-#141C28 text-[16px] font-medium	">填写导入团检人员信息</div>
+              <div class="text-#141C28 text-[16px] font-medium">填写导入团检人员信息</div>
               <div class="my-3">请按照数据模板的格式准备导入数据，模板中的表头名称不可更改，表头行不能删除，单次导入的数据不超过1000条。</div>
               <div>
-                <el-button class="mr-5" type="primary" link>下载健康体检模板</el-button>
-                <el-button class="mr-5" link>下载职业病体检模板</el-button>
-                <el-button class="mr-5" link>下载放射体检模板</el-button>
+                <el-button class="mr-5" plain @click="importTemplate('JKTJ')">下载健康体检模板</el-button>
+                <el-button class="mr-5" plain @click="importTemplate('ZYJKTJ')">下载职业病体检模板</el-button>
+                <el-button class="mr-5" plain @click="importTemplate('FSTJ')">下载放射体检模板</el-button>
               </div>
             </div>
             <div class="box h-[306px] overflow-auto">
@@ -80,7 +80,7 @@
         </div>
       </div>
       <div class="flex justify-end">
-        <el-button @click="steps--">取消</el-button>
+        <el-button @click="handleClose">取消</el-button>
         <el-button type="primary" @click="steps++">下一步</el-button>
       </div>
     </div>
@@ -88,9 +88,13 @@
 </template>
 
 <script setup lang="ts">
-import { SuccessFilled } from '@element-plus/icons-vue';
 import { importColumn } from '../rowColumns'
+const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 
+const props = defineProps<{
+  isShowDialog: boolean,
+  teamTaskInfo: any
+}>()
 const importColumns = ref<any>(importColumn)
 const steps = ref(1)
 const checked = ref()
@@ -106,6 +110,24 @@ const data = [
   {name: 1},
   {name: 2},
 ]
+
+/** 下载模板操作 */
+const importTemplate = (templateType: any) => {
+  proxy?.download("/peis/teamTask/exportRegisterTemplate", {
+    taskId: props.teamTaskInfo.id,
+    templateType
+  }, `人员导入模版.xlsx`);
+}
+
+const emits = defineEmits(['close-dialog'])
+const handleClose = () => {
+  emits('close-dialog')
+}
+watch(()=> props.isShowDialog, (newVal)=>{
+  if(newVal) {
+    steps.value = 1
+  }
+}, {immediate: true})
 </script>
 
 <style scoped lang="scss">

@@ -4,7 +4,7 @@
       <el-col :span="5">
         <div class="bg-[#fff]">
           <div class="p-[10px]">
-            <el-date-picker v-model="dateValue" type="daterange" start-placeholder="开始时间" end-placeholder="结束时间"
+            <el-date-picker v-model="dateValue" type="daterange" value-format="YYYY-MM-DD" format="YYYY-MM-DD" start-placeholder="开始时间" end-placeholder="结束时间"
               style="width: 100%;" @change="getTeamTaskData" />
             <el-input class="mt-2" placeholder="请输入关键字" v-model="taskName" @input="updateInput"></el-input>
             <div class="tabs">
@@ -21,9 +21,9 @@
             <div v-loading="teamTaskLoading">
               <template v-if="teamTaskList && teamTaskList.length !== 0">
                 <el-card shadow="hover" v-for="item in teamTaskList" :key="item.id" class="list_card"
-                  :class="isActiveId == item.id ? 'active' : ''" @click="clickTeamTask(item.id)">
+                  :class="isActiveId == item.id ? 'active' : ''" @click="clickTeamTask(item)">
                   <div class="flex items-center">
-                    <el-checkbox v-model="item.checked" size="large" />
+                    <el-checkbox v-model="item.checked" size="large" @click.stop />
                     <span class="ml-2 text-[#141C28]">{{ item?.signDate }}</span>
                     <span class="ml-auto px-[3px] rounded-[2px] font-bold text-[#fff] bg-[#FFA81C]">{{
                       bus_physical_type?.find((val: any) => val.dictValue == item.physicalType)?.label?.substring(0,
@@ -32,8 +32,12 @@
                   </div>
                   <div class="flex justify-between items-center text-[12px] mt-[8px]">
                     <span class="text-[#89919F] flex-1">{{ item?.taskName }}</span>
-                    <span :class="item?.isReview == '0' ? 'text-#09C268' : 'text-#FF8400'" class="ml-1">
+                    <span v-if="isReview == '1'" :class="item?.isReview == '0' ? 'text-#09C268' : 'text-#FF8400'"
+                      class="ml-1">
                       {{ item?.isReview == '0' ? '已审' : '待审' }}
+                    </span>
+                    <span v-else :class="item?.reviewResult == '1' ? 'text-#09C268' : 'text-#F75252'">
+                      {{ item?.reviewResult == '1' ? '通过' : '驳回' }}
                     </span>
                   </div>
                 </el-card>
@@ -122,7 +126,7 @@
     </el-row>
     <el-drawer v-model="showDrawer" title="任务审核" size="50%" @handleClose="auditValue = '1'">
       <audit-dialog :basicInfoData="basicInfoData" :auditValue="auditValue"
-        @closeDialog="showDrawer = false; getTaskReviewDetail(isActiveId)"></audit-dialog>
+        @closeDialog="showDrawer = false; getTeamTaskData()"></audit-dialog>
     </el-drawer>
     <el-dialog title="分组详情" v-model="showGroupDialog" width="70%">
       <group-details :grounDetailItem="grounDetailItem"></group-details>
@@ -204,7 +208,6 @@ const handleBatchAudit = () => {
   )
     .then(async () => {
       await reviewTask({ idList: ids, reviewResult: auditValue.value })
-      isActiveId.value = ''
       getTeamTaskData()
       ElMessage({
         type: 'success',
@@ -247,12 +250,13 @@ const initParam = reactive({ taskId: '' })
 
 const rightLoading = ref(false)
 // 点击任务卡片获取右侧数据
-const clickTeamTask = async (id: string) => {
-  if (!id) return
+const clickTeamTask = (row: any) => {
+  if (!row.id) return
   rightLoading.value = true
-  isActiveId.value = id
-  initParam.taskId = isActiveId.value
-  await getTaskReviewDetail(isActiveId.value) // 获取任务基础信息
+  isActiveId.value = row.id
+  initParam.taskId = row.id
+  basicInfoData.value = row  //任务基础信息
+  // await getTaskReviewDetail(isActiveId.value) // 获取任务基础信息
   rightLoading.value = false
 }
 // 查询团检任务管理列表
@@ -269,7 +273,8 @@ const getTeamTaskData = async () => {
     teamTaskList.value.forEach((item: any) => { item.checked = false })
     teamTaskLoading.value = false
     allChecked.value = false
-    clickTeamTask(isActiveId.value || rows?.[0]?.id)
+    // clickTeamTask(isActiveId.value || rows?.[0]?.id)
+    clickTeamTask(isActiveId.value ? basicInfoData.value : rows?.[0])
   } catch (error) {
     teamTaskLoading.value = false
   }
