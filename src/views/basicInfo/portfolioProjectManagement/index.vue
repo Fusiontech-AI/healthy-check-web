@@ -20,53 +20,29 @@
 
         <el-col :span="20">
           <div class="sample">
-            <el-form :model="searchForm" label-width="120px">
-              <el-row>
-                <el-col :span="8">
-                  <el-form-item label="项目名称">
-                    <el-input v-model="searchForm.basicProjectName"></el-input>
-                  </el-form-item>
-                </el-col>
-                <el-col :span="8">
-                  <el-form-item label="项目编码">
-                    <el-input v-model="searchForm.basicProjectCode"></el-input>
-                  </el-form-item>
-                </el-col>
-                <el-col :span="8">
-                  <el-form-item>
-                    <el-button @click="searchTable" round>搜索</el-button>
-                    <el-button @click="resetTable" round>重置</el-button>
-                  </el-form-item>
-                </el-col>
-              </el-row>
-            </el-form>
+            <ProTable ref="proTable" :columns="columns" :request-api="getTableList" :data-callback="dataCallback"
+              :height="550" :toolButton="false">
+              <template #tableHeader="scope">
+                <el-button type="danger" @click="batchDelete(scope.selectedListIds)" :disabled="!scope.isSelected"
+                  round>批量删除</el-button>
+                <el-button type="primary" round>同步</el-button>
+                <el-button type="primary" @click="handleAdd(1)" round>新增</el-button>
+              </template>
 
-            <div>
-              <ProTable ref="proTable" :columns="columns" :request-api="getTableList" :data-callback="dataCallback"
-                :height="550" :toolButton="false">
-                <template #tableHeader="scope">
-                  <el-button type="danger" @click="batchDelete(scope.selectedListIds)" :disabled="!scope.isSelected"
-                    round>批量删除</el-button>
-                  <el-button type="primary" round>同步</el-button>
-                  <el-button type="primary" @click="handleAdd(1)" round>新增</el-button>
-                </template>
+              <template #operation="{ row }">
+                <div>
+                  <el-button type="primary" text @click="handleAdd(2, row)">详情</el-button>
+                  <el-popover placement="bottom" :width="50" trigger="click">
+                    <template #reference>
+                      <el-button type="primary" text>更多</el-button>
+                    </template>
+                    <div class="more" @click="handleAdd(3, row)">编辑</div>
+                    <div class="more" style="margin-bottom: 0;color:#F75252 ;" @click="handleDlete(row.id)">删除</div>
+                  </el-popover>
 
-                <template #operation="{ row }">
-                  <div>
-                    <el-button type="primary" text @click="handleAdd(2, row)">详情</el-button>
-                    <el-popover placement="bottom" :width="50" trigger="click">
-                      <template #reference>
-                        <el-button type="primary" text>更多</el-button>
-                      </template>
-                      <div class="more" @click="handleAdd(3, row)">编辑</div>
-                      <div class="more" style="margin-bottom: 0;color:#F75252 ;" @click="handleDlete(row.id)">删除</div>
-                    </el-popover>
-
-                  </div>
-                </template>
-              </ProTable>
-            </div>
-
+                </div>
+              </template>
+            </ProTable>
           </div>
         </el-col>
       </el-row>
@@ -97,8 +73,8 @@
     </el-dialog>
 
     <!-- 新增抽屉 -->
-    <el-drawer v-model="addDrawer" v-if="addDrawer" :title="addTitle" direction="rtl" :size="738">
-      <div>项目基础信息</div>
+    <el-drawer v-model="addDrawer" v-if="addDrawer" :title="addTitle" direction="rtl" :size="1100">
+      <div class="title_bord">项目基础信息</div>
       <addForm :addInfo="addInfo" ref="formRef" :isPreview="isPreview"></addForm>
       <template #footer>
         <div style="flex: auto" v-if="!isPreview">
@@ -118,8 +94,8 @@ import { ref, reactive } from 'vue'
 import ProTable from '@/components/TableSearchComponent/ProTable/index.vue'
 import addForm from './component/addForm.vue'
 import configuration from "./component/configuration.vue";
-import { tjksList, addBasicProject, updataBasicProject, deleteBasicProject, combinationProjectList, addCombinationProject, updataCombinationProject,deleteCombinationProject } from '@/api/basicInfo/basicProjectManagement'
-import { optionsKS, optionsSuitSex,optionsSampleType, getList, getTypeList } from "./hooks/useOptions";
+import { tjksList, addBasicProject, updataBasicProject, deleteBasicProject, combinationProjectList, addCombinationProject, updataCombinationProject, deleteCombinationProject } from '@/api/basicInfo/basicProjectManagement'
+import { optionsKS, optionsSuitSex, optionsSampleType, getList, getTypeList } from "./hooks/useOptions";
 
 onMounted(() => {
   getSearchTypeList()
@@ -153,16 +129,6 @@ const cancelKS = () => {
   currentType.value = {}
 }
 
-// 表格搜索
-const searchForm = ref({})
-const searchTable = () => {
-  proTable.value?.getTableList();
-}
-const resetTable = () => {
-  searchForm.value = {}
-  proTable.value?.getTableList();
-}
-
 //任务信息ProTable 实例
 const proTable = ref();
 // 表格配置项
@@ -171,11 +137,17 @@ const columns = reactive([
   {
     prop: "combinProjectCode",
     label: "项目编码",
+    search: {
+      el: 'input'
+    },
     width: 120,
   },
   {
     prop: "combinProjectName",
     label: "项目名称",
+    search: {
+      el: 'input'
+    },
     width: 120,
   },
   {
@@ -206,11 +178,11 @@ const columns = reactive([
     label: "金额",
     width: 120,
   },
-  // {
-  //   prop: "outAddress",
-  //   label: "检查地址",
-  //   width: 120,
-  // },
+  {
+    prop: "checkAddress",
+    label: "检查地址",
+    width: 120,
+  },
   {
     prop: "hisCode",
     label: "HIS关联码",
@@ -254,9 +226,6 @@ const getTableList = (params) => {
   let newParams = { ...params }
   if (currentType.value.id) {
     newParams.ksId = currentType.value.id
-  }
-  if (searchForm.value != {}) {
-    newParams = { ...newParams, ...searchForm.value }
   }
   return combinationProjectList(newParams)
 }
@@ -319,7 +288,7 @@ const handleAdd = (type, row) => { //type=1是新增,2是查看,3是编辑
   formRef.value?.addInfoRef.clearValidate()
   if (type == 1) {
     addTitle.value = '新增'
-    addInfo.value = {}
+    addInfo.value = { privacyFlag: '1', guideFlag: '0', workerFlag: '0' }
   } else if (type == 2) {
     addTitle.value = '详情'
     isPreview.value = true
@@ -359,6 +328,12 @@ const handleDlete = (id) => {
 </script>
 
 <style scoped lang="scss">
+.title_bord {
+  border-left: 6px solid #FF8F33;
+  margin-bottom: 20px;
+  padding-left: 10px;
+}
+
 .sample {
   padding: 10px;
   height: 700px;

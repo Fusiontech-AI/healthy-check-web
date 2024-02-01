@@ -1,5 +1,6 @@
 <template>
   <div>
+    <div class="title_bord">绑定项目</div>
     <el-row v-loading="loading" :gutter="10">
       <el-col :span="12">
         <div>
@@ -13,8 +14,8 @@
               </template>
             </el-input>
           </div>
-          <ProTable ref="proTable" :columns="columns" :data="dataTableList" :height="400" :pagination="false"
-            :toolButton="false">
+          <ProTable ref="proTable" :columns="columns" :requestApi="getTableList" :dataCallback="dataCallback"
+            :data="dataTableList" :initParam="initParam" :height="400" :toolButton="false">
             <template #operation="{ row, $index }">
               <el-button @click="handleChecked(row, $index)" text type="primary" :disabled="isPreview">选中</el-button>
             </template>
@@ -61,8 +62,9 @@ const props = defineProps({
 //项目搜索
 const loading = ref(false)
 const inputValue = ref('')
+const initParam = reactive({ basicProjectName: null })
 const searchProject = async () => {
-  await getTableList(inputValue.value)
+  initParam.basicProjectName = inputValue.value
 }
 
 const filterProject = (arr1, arr2) => {
@@ -127,33 +129,28 @@ const dataTableList = ref([])
 
 //查询所有的项目检索
 const tableListAll = async (params) => {
-  loading.value = true
   const { rows } = await basicProjectList()
   rows.forEach(item => {
     item.basicProjectId = item.id
   })
-  loading.value = false
   return rows
 }
 
 
 const getTableList = async (params) => {
-  loading.value = true
-  if (params) {
-    const { rows } = await basicProjectList({ combinProjectName: params })
-    rows.forEach(item => {
-      item.basicProjectId = item.id
-    })
-    dataTableList.value = rows
-  } else {
-    const { rows } = await basicProjectList()
-    rows.forEach(item => {
-      item.basicProjectId = item.id
-    })
-    dataTableList.value = rows
-  }
+  const data = await basicProjectList(params)
+  data.rows.forEach(item => {
+    item.basicProjectId = item.id
+  })
+  dataTableList.value = data.rows
   dataTableList.value = filterProject(dataItemTable.value, dataTableList.value)
-  loading.value = false
+  return { data }
+}
+const dataCallback = (data: any) => {
+  return {
+    list: data.rows,
+    total: data.total
+  }
 }
 
 const handleChecked = (row, $index) => {
@@ -187,14 +184,14 @@ const getItemList = async () => {
   loading.value = true
   if (!props.configurationInfo.id) {
     dataItemTable.value = []
-    getTableList()
+    await getTableList()
     loading.value = false
     return
   }
   const list = await tableListAll()
   const { rows } = await combinationProjectInfoList({ id: props.configurationInfo.id })
   dataItemTable.value = findProject(rows, list)
-  getTableList()
+  await getTableList()
   loading.value = false
 }
 const itemDelete = (row, $index) => {
@@ -207,6 +204,12 @@ defineExpose({ dataItemTable })
 </script>
 
 <style scoped lang="scss">
+.title_bord {
+  border-left: 6px solid #FF8F33;
+  margin-bottom: 20px;
+  padding-left: 10px;
+}
+
 .head_search {
   display: flex;
   height: 30px;

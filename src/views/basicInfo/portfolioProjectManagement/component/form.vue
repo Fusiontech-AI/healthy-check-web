@@ -1,6 +1,6 @@
 <template>
-  <el-form ref="fromRef" :model="model" :rules="rules" label-width="120px" class="demo-ruleForm">
-    <el-row>
+  <el-form ref="fromRef" :model="model" :rules="rules" class="demo-ruleForm" :label-width="140">
+    <el-row :gutter="20">
       <el-col :span="24 / (item.colCount ?? colCount)" v-for="item in fields" :key="item">
         <el-form-item :label="item.label + ':'" :prop="item.name">
           <el-input v-model="model[item.name]" clearable :placeholder="'请输入' + item.label" :disabled="item.disabled"
@@ -12,7 +12,7 @@
           }}</span>
 
           <el-select v-model="model[item.name]" :multiple="item.multiple" :filterable="item.filterable" clearable
-            :placeholder="'请选择' + item.label" v-if="item.component == 'Select' && !isPreview">
+            :disabled="item.disabled" :placeholder="'请选择' + item.label" v-if="item.component == 'Select' && !isPreview">
             <el-option v-for="dictitem in item.dict" :key="dictitem.value" :label="dictitem.label"
               :value="dictitem.value">
             </el-option>
@@ -38,7 +38,7 @@
 
       <el-collapse-transition v-if="collapse.length > 0">
         <div v-show="show">
-          <el-row>
+          <el-row :gutter="20">
             <el-col :span="24 / (item.colCount ?? colCount)" v-for="item in collapse" :key="item">
               <el-form-item :label="item.label + ':'" :prop="item.name">
                 <el-input v-model="model[item.name]" :type="item.type" clearable
@@ -85,11 +85,11 @@
         <el-button @click="show = !show" v-if="collapse.length > 0" text type="primary">
           <span>{{ show ? '折叠' : '展开' }}</span>
           <el-icon :size="20" style="margin-left:10px ;" color="#409EFC">
-          <ArrowUp v-if="show"/>
-          <ArrowDown v-else/>
-        </el-icon>
-      </el-button>
-        
+            <ArrowUp v-if="show" />
+            <ArrowDown v-else />
+          </el-icon>
+        </el-button>
+
       </div>
 
     </el-row>
@@ -171,10 +171,10 @@ defineExpose({
 </script>
 
 <style scoped>
-.btn{
-  width:100%;
+.btn {
+  width: 100%;
   display: flex;
-  justify-content:center;
+  justify-content: center;
   margin-bottom: 10px;
 }
 </style>

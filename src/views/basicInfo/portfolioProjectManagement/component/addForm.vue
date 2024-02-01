@@ -163,24 +163,24 @@ const collapse = ref([
     name: 'useLimit',
     component: 'Input',
   },
-  /* {
+  {
     label: '是否进入隐私报告',
-    name: 'Select',
+    name: 'privacyFlag',
     component: 'Select',
     dict: optionsOutFlag
   },
   {
     label: '是否进入指引单',
-    name: 'Select',
+    name: 'guideFlag',
     component: 'Select',
     dict: optionsOutFlag
-  }, 
+  },
   {
     label: '是否进入工作站',
-    name: 'Select',
+    name: 'workerFlag',
     component: 'Select',
     dict: optionsOutFlag
-  },*/
+  },
   {
     label: '指引单提示信息',
     name: 'guideNotice',
@@ -217,6 +217,33 @@ const collapse = ref([
 ])
 
 const configurationRef = ref(null)
+// 监听是否需要标本,所属标本联动
+watch(() => props.addInfo.specimenNeedFlag, (newVal) => {
+  console.log('newVal', newVal);
+  addFileds.value.forEach(item => {
+    if (item.label == '所属标本') {
+      item.disabled = newVal == 1 ? true : false
+    }
+  })
+  if (newVal == 1) {
+    props.addInfo.specimenType = null
+  }
+}, {
+  immediate: true
+})
+//监听是否外送,外送回调地址联动
+watch(() => props.addInfo.outFlag, (newVal) => {
+  collapse.value.forEach(item => {
+    if (item.label == '外送回调地址') {
+      item.disabled = newVal == 1 ? true : false
+    }
+  })
+  if (newVal == 1) {
+    props.addInfo.outAddress = null
+  }
+}, {
+  immediate: true
+})
 
 defineExpose({ addInfoRef, configurationRef })
 

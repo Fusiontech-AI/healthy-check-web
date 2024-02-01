@@ -99,12 +99,12 @@
           </div>
         </template>
         <template #status="{ row }">
-          <span :class="{ abandon: row.status == '2' }">{{ optionsName(statusList, row.status) }}</span>
+          <span :class="{ abandon: row.status == '废弃' }">{{ row.status }}</span>
         </template>
         <template #checkStatus="{ row }">
-          <span :class="[{ 'to_reviewed': row.checkStatus == 0 }, { 'reviewed': row.checkStatus == 1 }]">{{
-            optionsName(checkStatusList,
-              row.checkStatus) }}</span>
+          <span :class="[{ 'to_reviewed': row.checkStatus == '待审核' }, { 'reviewed': row.checkStatus == '已审核' }]">{{
+            row.checkStatus
+          }}</span>
         </template>
         <template #operation="{ row }">
           <el-button type="primary" text @click="details('详情', row)">详情</el-button>
@@ -306,7 +306,7 @@ const columnsTask = reactive([
   {
     prop: "groupPayType",
     label: "分组支付方式",
-    enum: payType
+    // enum: payType
   },
   {
     prop: "addPeople",
@@ -319,7 +319,7 @@ const columnsTask = reactive([
   {
     prop: "addPayType",
     label: "加项支付方式",
-    enum: payType
+    // enum: payType
   },
   {
     prop: "operation",
@@ -376,7 +376,7 @@ const columnsAccounts = reactive([
   {
     prop: "printInvoice",
     label: "是否打印发票",
-    enum: printInvoiceList,
+    // enum: printInvoiceList,
   },
   {
     prop: "invoiceNumber",
@@ -394,7 +394,7 @@ const columnsAccounts = reactive([
   {
     prop: "payType",
     label: "支付方式",
-    enum: payTypeList
+    // enum: payTypeList
   },
   {
     prop: "createTime",
@@ -403,12 +403,12 @@ const columnsAccounts = reactive([
   {
     prop: "status",
     label: "状态",
-    enum: statusList
+    // enum: statusList
   },
   {
     prop: "checkStatus",
     label: "审核状态",
-    enum: checkStatusList
+    // enum: checkStatusList
   },
   {
     prop: "operation",

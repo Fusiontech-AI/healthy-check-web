@@ -95,14 +95,12 @@ const columns = ref([
 ])
 const dataTableList = ref([])
 const getTableList = async (params: any) => {
-  loading.value = true
   const data = await combinationProjectList(params)
   data.rows.forEach(item => {
     item.combinProjectId = item.id
   })
   dataTableList.value = data.rows
   dataTableList.value = filterProject(dataItemTable.value, dataTableList.value)
-  loading.value = false
   return { data }
 }
 
@@ -147,7 +145,7 @@ const getItemList = async () => {
     item.id = item.combinProjectId
   })
   dataItemTable.value = data
-  proTable.value?.getTableList()
+  await proTable.value?.getTableList()
   loading.value = false
 }
 getItemList()
