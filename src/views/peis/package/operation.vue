@@ -183,6 +183,7 @@ const handleSubmit = () => {
           ...formValue
         })
       }
+      router.go(-1)
       ElMessage({
         type: "success",
         message: `操作成功!`
@@ -191,7 +192,7 @@ const handleSubmit = () => {
   })
 }
 const itemChange = (val) => {
-  const { rightTableData } = val
+  const { rightTableData, queryObj } = val
   formValue.tjPackageInfoItemBos = rightTableData.map(item => {
     return {
       packageId: id,
@@ -201,6 +202,9 @@ const itemChange = (val) => {
       receivableAmount: item.receivableAmount,
     }
   })
+  for (const key in queryObj) {
+    formValue[key] = queryObj[key]
+  }
 }
 </script>
 <style scoped lang="scss">

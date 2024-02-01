@@ -1,6 +1,7 @@
 <template>
   <div class="p-2">
-    <ProTable :columns="tableColumns" :toolButton="false" :request-api="packageList" :init-param="initParam">
+    <ProTable ref="proTable" :columns="tableColumns" :toolButton="false" :request-api="packageList"
+      :init-param="initParam">
       <template #tableHeader="scope">
         <el-button type="primary" round @click="handleAdd">新增</el-button>
         <el-button type="danger" round @click="handleAdd">批量禁用</el-button>

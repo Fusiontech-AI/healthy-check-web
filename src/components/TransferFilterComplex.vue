@@ -196,7 +196,7 @@ const handleTableScroll = () => {
 
 watchEffect(() => {
   filterList()
-  emit('itemChange', { rightTableData: rightTableData.value })
+  emit('itemChange', { queryObj, rightTableData: rightTableData.value })
 })
 
 watch(() => form.input, (newVal) => {
