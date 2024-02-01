@@ -62,15 +62,17 @@ export const useTable = (
       let { rows, data, total } = await api({ ...state.searchInitParam, ...state.totalParam });
       rows && (data = rows);
       rows && (data.list = rows);
-      total && (data.total = total);
+      if(total || total === 0) {
+        data.total = total
+      }
       dataCallBack && (data = dataCallBack(data));
       state.tableData = isPageable ? data.list : data;
       // 解构后台返回的分页数据 (如果有分页更新分页信息)
       if (isPageable) {
         const { pageNum, pageSize, total } = data;
         console.log('🚀 ~ getTableList ~ pageNum, pageSize, total:', pageNum, pageSize, total);
-        console.log('🚀 ~ getTableList ~ total:', total);
-        // updatePageable({ pageNum, pageSize, total });
+        // console.log('🚀 ~ getTableList ~ total:', total);
+        updatePageable({ pageNum, pageSize, total });
       }
     } catch (error) {
       requestError && requestError(error);

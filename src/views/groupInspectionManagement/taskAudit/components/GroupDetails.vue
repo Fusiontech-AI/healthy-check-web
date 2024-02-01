@@ -5,7 +5,7 @@
       <el-tab-pane label="人员明细" name="2" />
     </el-tabs>
     <div class="h-[400px]">
-      <div v-show="activeValue == '1'" >
+      <div v-show="activeValue == '1'">
         <Grid ref="gridRef" :gap="20" :cols="2">
           <template v-for="item in taskGroupingColumns" :key="item.label">
             <div v-if="item.prop !== 'startAge' && item.prop !== 'operation'">
@@ -29,7 +29,8 @@
         </Grid>
       </div>
       <div v-show="activeValue == '2'" class="no-card">
-        <ProTable :columns="groupPersonColumns" :toolButton="false" :data="[{ name: 'aaaaaakaskhaskhahadhsa,d' }]">
+        <ProTable :columns="groupPersonColumns" :toolButton="false" :request-api="getRegisterPage"
+          :init-param="initParam">
         </ProTable>
       </div>
     </div>
@@ -37,16 +38,23 @@
 </template>
 
 <script setup lang="tsx">
+import { getRegisterPage } from '@/api/deskRegistration/deregistration'
 import { taskGroupingColumn, groupPersonColumn } from '../rowColumns'
-const props = defineProps<{
-  grounDetailItem: any
-}>()
+const props = defineProps({
+  grounDetailItem: {
+    type: Object,
+    default: {}
+  }
+})
 const taskGroupingColumns = ref<any>(taskGroupingColumn) // 任务分组Columns
 const groupPersonColumns = ref<any>(groupPersonColumn) // 人员明细配置项
 const activeValue = ref('1')
-
-watch(()=>props.grounDetailItem, ()=> {
+const initParam = reactive({
+  teamGroupId: props.grounDetailItem.id
+})
+watch(() => props.grounDetailItem, () => {
   activeValue.value = '1'
+  props.grounDetailItem.id && (initParam.teamGroupId = props.grounDetailItem.id)
 })
 </script>
 
