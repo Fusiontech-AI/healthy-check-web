@@ -25,38 +25,40 @@
               <div><el-button type="primary" @click="$router.back()">返回</el-button></div>
             </div>
           </el-card>
-          <el-card class="mb-[8px]">
-            <template #header> 套餐名称： </template>
-            <ProTable
-              :columns="tableColumns"
-              :toolButton="false"
-              :data="dataSourse"
-              label-position="right"
-              :searchCol="4"
-              :highlight-current-row="true"
-              row-key="id"
-            >
-            </ProTable>
+          <div class="waiting-right-detail">
+            <el-card class="mb-[8px]">
+              <template #header> 套餐名称： </template>
+              <ProTable
+                :columns="tableColumns"
+                :toolButton="false"
+                :data="dataSourse"
+                label-position="right"
+                :searchCol="4"
+                :highlight-current-row="true"
+                row-key="id"
+              >
+              </ProTable>
 
-            <SearchForm ref="deptFormRef" :search-param="searchParam" :columns="departColumn" :searchCol="4"> </SearchForm>
-          </el-card>
+              <SearchForm ref="deptFormRef" :search-param="searchParam" :columns="departColumn" :searchCol="4"> </SearchForm>
+            </el-card>
 
-          <el-card>
-            <template #header> 待检用户： </template>
-            <ProTable
-              :columns="tableColumns"
-              :toolButton="false"
-              :data="dataSourse"
-              label-position="right"
-              :searchCol="4"
-              :highlight-current-row="true"
-              row-key="id"
-            >
-              <template #tableHeader="scope">
-                <el-button type="primary" :disabled="!scope.isSelected" @click="batchChangeGroup(scope.selectedListIds)">批量换组 </el-button>
-              </template>
-            </ProTable>
-          </el-card>
+            <el-card>
+              <template #header> 待检用户： </template>
+              <ProTable
+                :columns="tableColumns"
+                :toolButton="false"
+                :data="dataSourse"
+                label-position="right"
+                :searchCol="4"
+                :highlight-current-row="true"
+                row-key="id"
+              >
+                <template #tableHeader="scope">
+                  <el-button type="primary" :disabled="!scope.isSelected" @click="batchChangeGroup(scope.selectedListIds)">批量换组 </el-button>
+                </template>
+              </ProTable>
+            </el-card>
+          </div>
         </div>
       </el-col>
     </el-row>
@@ -106,10 +108,6 @@ const handleNodeClick = (node:any)=>{
  console.log(node,'===node')
 }
 
-const handleBack = ()=>{
-
-}
-
 const tableColumns = ref([
   { prop: 'f1', label: '项目名称' },
   { prop: 'f2', label: '原金额' },
@@ -120,5 +118,9 @@ const tableColumns = ref([
 <style lang="scss" scoped>
 .left-card {
   height: calc(100vh - 190px);
+}
+.waiting-right-detail{
+  height: calc(100vh - 179px);
+  overflow: auto;
 }
 </style>

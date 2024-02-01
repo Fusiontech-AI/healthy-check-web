@@ -103,13 +103,13 @@ const initFormData = {
 const queryParams = ref<any>(initFormData);
 
 // 获取单位-任务接口
-const getteamIdList = async () => {
+const getTeamIdList = async () => {
     const { data } = await teamInfoList({})
     const { rows } = await teamTaskList({ pageSize: -1 })
     teamIdList.value = proxy?.handleTree<any>(data)
     teamTaskLists.value = rows
 }
-getteamIdList()
+getTeamIdList()
 
 // 单位改变
 const handleChange = async (val:any) =>{
