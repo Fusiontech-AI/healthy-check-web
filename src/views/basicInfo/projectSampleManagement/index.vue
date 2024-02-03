@@ -21,7 +21,7 @@
         <el-col :span="20">
           <div class="sample">
             <ProTable ref="proTable" :columns="columns" :request-api="getTableList" :data-callback="dataCallback"
-              :height="550" :toolButton="false">
+              :init-param="initParam" :height="550" :toolButton="false">
               <template #tableHeader="scope">
                 <el-button type="danger" @click="batchDisable(scope.selectedListIds)" :disabled="!scope.isSelected"
                   round>批量禁用</el-button>
@@ -146,6 +146,7 @@ const inputType = ref('')
 const TypeList = ref([])
 const activeKS = ref(-1)
 const currentType = ref({})
+const initParam = reactive({ sampleCategory: null })
 const searchType = () => {
   getTypeList('bus_sample_category', inputType.value)
 }
@@ -165,10 +166,12 @@ const getTypeList = async (ZDName, params) => {
 const ksClick = (item, index) => {
   activeKS.value = index
   currentType.value = item
+  initParam.sampleCategory = item.dictValue
 }
 const cancelKS = () => {
   activeKS.value = -1
   currentType.value = {}
+  initParam.sampleCategory = null
 }
 
 
@@ -262,9 +265,6 @@ const columns = reactive([
 ]);
 const getTableList = (params) => {
   let newParams = { ...params }
-  if (currentType.value.dictValue) {
-    newParams.sampleCategory = currentType.value.dictValue
-  }
   return sampleList(newParams)
 }
 const dataCallback = (data: any) => {

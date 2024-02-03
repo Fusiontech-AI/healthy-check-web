@@ -149,13 +149,13 @@ const ksClick = (item: any, index: any) => {
 const cancelKS = () => {
   activeKS.value = -1
   currentType = {}
-  initParam.ksId = ''
+  initParam.ksId = null
 }
 
 
 //任务信息ProTable 实例
 const proTable = ref();
-const initParam = reactive({ ksId: '' })
+const initParam = reactive({ ksId: null })
 // 表格配置项
 const columns = reactive<any>([
   { type: "selection", fixed: "left", width: 70 },

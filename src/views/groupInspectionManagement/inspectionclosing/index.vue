@@ -98,13 +98,14 @@
             </div>
           </div>
         </template>
-        <template #status="{ row }">
-          <span :class="{ abandon: row.status == '废弃' }">{{ row.status }}</span>
+        <template #statusName="{ row }">
+          <span :class="{ abandon: row.statusName == '废弃' }">{{ row.statusName }}</span>
         </template>
-        <template #checkStatus="{ row }">
-          <span :class="[{ 'to_reviewed': row.checkStatus == '待审核' }, { 'reviewed': row.checkStatus == '已审核' }]">{{
-            row.checkStatus
-          }}</span>
+        <template #checkStatusName="{ row }">
+          <span
+            :class="[{ 'to_reviewed': row.checkStatusName == '待审核' }, { 'reviewed': row.checkStatusName == '已审核' }]">{{
+              row.checkStatusName
+            }}</span>
         </template>
         <template #operation="{ row }">
           <el-button type="primary" text @click="details('详情', row)">详情</el-button>
@@ -401,12 +402,12 @@ const columnsAccounts = reactive([
     label: "录入时间",
   },
   {
-    prop: "status",
+    prop: "statusName",
     label: "状态",
     // enum: statusList
   },
   {
-    prop: "checkStatus",
+    prop: "checkStatusName",
     label: "审核状态",
     // enum: checkStatusList
   },

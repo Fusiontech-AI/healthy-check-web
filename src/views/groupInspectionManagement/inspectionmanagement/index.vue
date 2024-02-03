@@ -105,17 +105,18 @@
             </div>
           </div>
         </template>
-        <template #status="{ row }">
-          <span :class="{ abandon: row.status == '废弃' }">{{ row.status }}</span>
+        <template #statusName="{ row }">
+          <span :class="{ abandon: row.statusName == '废弃' }">{{ row.statusName }}</span>
         </template>
-        <template #checkStatus="{ row }">
-          <span :class="[{ 'to_reviewed': row.checkStatus == '待审核' }, { 'reviewed': row.checkStatus == '已审核' }]">{{
-            row.checkStatus }}</span>
+        <template #checkStatusName="{ row }">
+          <span
+            :class="[{ 'to_reviewed': row.checkStatusName == '待审核' }, { 'reviewed': row.checkStatusName == '已审核' }]">{{
+              row.checkStatusName }}</span>
         </template>
         <template #operation="{ row }">
           <el-button type="primary" text @click="details('2', row)">详情</el-button>
           <el-button type="primary" text @click="cancellation(row)">作废</el-button>
-          <el-button type="primary" text @click="deleteInvoice(row)" :disabled="row.status != '废弃'">删除</el-button>
+          <el-button type="primary" text @click="deleteInvoice(row)" :disabled="row.statusName != '废弃'">删除</el-button>
         </template>
       </ProTable>
     </el-card>
@@ -289,7 +290,7 @@ const teamIdChange = async (value: any) => {
 const taskIdChange = (value: any) => {
   if (!value) return
   const r = taskoptions.value.find(item => item.value == value)
-  isSeal.value = r[0]?.isSeal == 1 ? true : false
+  isSeal.value = r.isSeal == 1 ? true : false
 }
 
 
@@ -411,14 +412,18 @@ const operationSure = async () => {//封账1,解封2,结账作废3,作废4,删�
       //代码块; 
       await teamSettleSeal({ teamId: ruleForm.teamId, id: ruleForm.teamTaskId })
       ElMessage.success('封账成功')
+      isSeal.value = !isSeal.value
       proTableTask.value?.getTableList()
+      proTableAccounts.value?.getTableList()
       break;
     }
     case 2: {
       //代码块; 
       await teamSettleUnseal({ teamId: ruleForm.teamId, id: ruleForm.teamTaskId })
       ElMessage.success('解除封账成功')
+      isSeal.value = !isSeal.value
       proTableTask.value?.getTableList()
+      proTableAccounts.value?.getTableList()
       break;
     }
     case 3: {
@@ -452,8 +457,8 @@ const operationSure = async () => {//封账1,解封2,结账作废3,作废4,删�
 //封账
 const sealAccount = () => {
   operationDeter.value = true
-  operationTitle.value = '是否确定废弃记录?'
-  operationInfo.value = '废弃记录后，将变更该结算单下内人员的收费状态'
+  operationTitle.value = '是否确定进行封账操作？'
+  operationInfo.value = '封账后将无法进行结账操作'
   operationType.value = 1
 }
 //解封
@@ -494,7 +499,7 @@ const columnsAccounts = reactive([
     label: "实收金额",
   },
   {
-    prop: "printInvoice",
+    prop: "printInvoiceName",
     label: "是否打印发票",
     // enum: printInvoiceList
   },
@@ -521,13 +526,13 @@ const columnsAccounts = reactive([
     label: "录入时间",
   },
   {
-    prop: "status",
+    prop: "statusName",
     label: "状态",
     // enum: statusList
 
   },
   {
-    prop: "checkStatus",
+    prop: "checkStatusName",
     label: "审核状态",
     // enum: checkStatusList
   },

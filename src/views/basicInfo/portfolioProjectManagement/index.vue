@@ -21,7 +21,7 @@
         <el-col :span="20">
           <div class="sample">
             <ProTable ref="proTable" :columns="columns" :request-api="getTableList" :data-callback="dataCallback"
-              :height="550" :toolButton="false">
+              :init-param="initParam" :height="550" :toolButton="false">
               <template #tableHeader="scope">
                 <el-button type="danger" @click="batchDelete(scope.selectedListIds)" :disabled="!scope.isSelected"
                   round>批量删除</el-button>
@@ -106,6 +106,7 @@ const inputType = ref('')
 const TypeList = ref([])
 const activeKS = ref(-1)
 const currentType = ref({})
+const initParam = reactive({ ksId: null })
 const searchType = () => {
   getSearchTypeList(inputType.value)
 }
@@ -123,10 +124,12 @@ const getSearchTypeList = async (params) => {
 const ksClick = (item, index) => {
   activeKS.value = index
   currentType.value = item
+  initParam.ksId = item.id
 }
 const cancelKS = () => {
   activeKS.value = -1
   currentType.value = {}
+  initParam.ksId = null
 }
 
 //任务信息ProTable 实例
@@ -225,9 +228,6 @@ const columns = reactive([
 ]);
 const getTableList = (params) => {
   let newParams = { ...params }
-  if (currentType.value.id) {
-    newParams.ksId = currentType.value.id
-  }
   return combinationProjectList(newParams)
 }
 const dataCallback = (data: any) => {

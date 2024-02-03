@@ -43,6 +43,9 @@ const addColumns = reactive([
     label: '单位名称',
     search: {
       el: 'select',
+      props: {
+        disabled: true
+      }
     },
     enum: teamIdList
   },
@@ -51,6 +54,9 @@ const addColumns = reactive([
     label: '任务',
     search: {
       el: 'select',
+      props: {
+        disabled: true
+      }
     },
     enum: props.taskoptions
   },
@@ -59,6 +65,9 @@ const addColumns = reactive([
     label: '批次号',
     search: {
       el: 'input',
+      props: {
+        disabled: true
+      }
     },
   },
   {
