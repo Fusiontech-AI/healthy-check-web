@@ -1,10 +1,27 @@
 <template>
-  <div style="padding: 0 15px;" @click="toggleClick">
-    <svg :class="{ 'is-active': isActive }" class="hamburger" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="64" height="64">
-      <path
-        d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM142.4 642.1L298.7 519a8.84 8.84 0 0 0 0-13.9L142.4 381.9c-5.8-4.6-14.4-.5-14.4 6.9v246.3a8.9 8.9 0 0 0 14.4 7z"
-      />
-    </svg>
+  <div class="menu-collapse" @click="toggleClick">
+    <div class="menu-collapse_circle">
+      <svg
+        :class="{ 'is-active': isActive }"
+        class="hamburger"
+        t="1706492086074"
+        viewBox="0 0 1024 1024"
+        version="1.1"
+        xmlns="http://www.w3.org/2000/svg"
+        p-id="1816"
+        width="32"
+        height="32"
+      >
+        <path
+          d="M542.165333 183.168a42.666667 42.666667 0 0 1 0 60.330667L273.664 512l268.501333 268.501333a42.666667 42.666667 0 0 1-60.330666 60.330667l-298.666667-298.666667a42.666667 42.666667 0 0 1 0-60.330666l298.666667-298.666667a42.666667 42.666667 0 0 1 60.330666 0z"
+          p-id="1817"
+        ></path>
+        <path
+          d="M840.832 183.168a42.666667 42.666667 0 0 1 0 60.330667L572.330667 512l268.501333 268.501333a42.666667 42.666667 0 0 1-60.330667 60.330667l-298.666666-298.666667a42.666667 42.666667 0 0 1 0-60.330666l298.666666-298.666667a42.666667 42.666667 0 0 1 60.330667 0z"
+          p-id="1818"
+        ></path>
+      </svg>
+    </div>
   </div>
 </template>
 
@@ -21,12 +38,19 @@ const toggleClick = () => {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+@import '../../assets/styles/variables.module.scss';
+
+
 .hamburger {
   display: inline-block;
   vertical-align: middle;
-  width: 20px;
-  height: 20px;
+  width: 12px;
+  height: 12px;
+
+  &:hover {
+    fill: $--color-primary;
+  }
 }
 
 .hamburger.is-active {

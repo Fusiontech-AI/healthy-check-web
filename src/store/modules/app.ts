@@ -21,6 +21,12 @@ export const useAppStore = defineStore('app', () => {
     return languageObj[language.value];
   });
 
+  const openSlidebar = (withoutAnimation: boolean) => {
+    sidebar.opened = true;
+    sidebar.withoutAnimation = withoutAnimation;
+    sidebarStatus.value = '0';
+  };
+
   const toggleSideBar = (withoutAnimation: boolean) => {
     if (sidebar.hide) {
       return false;
@@ -62,6 +68,7 @@ export const useAppStore = defineStore('app', () => {
     size,
     changeLanguage,
     toggleSideBar,
+    openSlidebar,
     closeSideBar,
     toggleDevice,
     setSize,
