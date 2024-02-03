@@ -52,3 +52,14 @@ export const reviewTask = (data: any) => {
     data
   });
 };
+
+/**
+ * 保存人员信息
+ */
+export const insertRegisterData = (data: any) => {
+  return request({
+    url: '/peis/teamTask/insertRegisterData',
+    method: 'post',
+    data
+  });
+};
