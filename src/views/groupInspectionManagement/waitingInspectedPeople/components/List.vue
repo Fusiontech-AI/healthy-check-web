@@ -25,7 +25,7 @@
         />
       </template>
       <template #taskName="scope">
-        <div class="text-[#5a9cf8] cursor-pointer" @click="handleDetail( scope.row.taskName)">{{ scope.row.taskName || '--' }}</div>
+        <div class="text-[#5a9cf8] cursor-pointer" @click="handleDetail( scope.row)">{{ scope.row.taskName || '--' }}</div>
       </template>
       <template #tableHeader="scope">
         <el-button type="primary" :disabled="!scope.isSelected" @click="batchChangeGroup(scope.selectedListIds)">批量换组 </el-button>
@@ -109,7 +109,7 @@ const tableColumnsBasic = (teamTaskLists: any, bus_physical_type:any) =>[
   { prop: 'teamId', label: '体检单位', search: { el: 'select', }, isShow: false, slot:'teamId' },
   { prop: 'taskId', label: '任务名称', search: { el: 'select'}, isShow: false, enum: teamTaskLists, fieldNames: { label: 'taskName', value: 'id' } },
   { prop: 'f41', label: '分组', search: { el: 'select' }, isShow: false },
-  { prop: 'f4', label: '体检号/姓名', search: { el: 'input' }, isShow: false },
+  { prop: 'healthyCheckCode', label: '体检号/姓名', search: { el: 'input' }, isShow: false },
   { prop: 'f5', label: '身份证', search: { el: 'input' }, isShow: false },
   { prop: 'taskName', label: '任务名称', fixed: 'left' },
   { prop: 'healthyCheckCode', label: '体检号' },
@@ -148,6 +148,7 @@ const getTableList = async (params: any) =>{
 
 const handleReset = ()=>{
   queryParams.value.teamId = null
+  queryParams.value.teamId = null
   queryParams.value.taskId = null
   proTableRef.value.getTableList()
 }
@@ -176,8 +177,8 @@ const handleTaskNameChange = ()=>{
 }
 
 // 查看详情
-const handleDetail = ()=>{
-    emits('goTo','Detail',{id:'123'})
+const handleDetail = (row:any)=>{
+    emits('goTo','Detail',{ teamId: row.teamId,teamName: row.teamName})
 }
 
 const dataCallback = (data: any) => {
