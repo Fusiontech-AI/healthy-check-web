@@ -55,7 +55,7 @@
               <div class="font-bold card_title"><span></span>基本信息</div>
             </div>
             <SearchForm ref="formRef" :columns="formColumns" :search-param="activeTeamTaskInfo" :search-col="3"
-              :rules="rules" :disabled="true"></SearchForm>
+              :rules="rules" :disabled="true" ></SearchForm>
           </div>
           <div class="divider"></div>
           <div>
@@ -64,7 +64,7 @@
             </div>
             <div class="my-2"><span class="text-red">*</span> 请根据当前任务所选体检类型，下载对应模板后再上传</div>
             <div class="no-card">
-              <ProTable :columns="tableColumns" :toolButton="false" :request-api="queryTaskReviewRegister"
+              <ProTable ref="proTableRef" :columns="tableColumns" :toolButton="false" :request-api="queryTaskReviewRegister"
                 :init-param="initParam" :request-auto="false">
                 <template #operation="scope">
                   <el-button type="primary" link @click="showPersonDialog = true">查看</el-button>
@@ -79,8 +79,8 @@
     <el-drawer v-model="addDrawer" title="新增团检人员" size="60%">
       <add-drawer @closeDialog="addDrawer = false"></add-drawer>
     </el-drawer>
-    <el-dialog title="批量导入" v-model="batchImportDialog">
-      <batch-import :is-show-dialog="batchImportDialog" :team-task-info="activeTeamTaskInfo" @close-dialog="batchImportDialog = false"></batch-import>
+    <el-dialog title="批量导入" v-model="batchImportDialog" width="55%">
+      <batch-import :is-show-dialog="batchImportDialog" :team-task-info="activeTeamTaskInfo" @close-dialog="batchImportDialog = false; proTableRef?.getTableList()"></batch-import>
     </el-dialog>
     <el-dialog title="人员信息详情" v-model="showPersonDialog" width="45%">
       <div class="h-[550px] overflow-auto">
@@ -109,7 +109,7 @@ import BatchImport from './components/BatchImport.vue'
 import { getTeamTaskList, queryTaskReviewRegister } from '@/api/groupInspection/taskAudit';
 import { teamInfoList } from '@/api/groupInspection/inspectionclosing';
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-
+const proTableRef = ref()
 const formColumns = ref<any>(formInfoColumns)
 const tableColumns = ref<any>(tableColumn)
 const personColumns = ref<any>(personColumn)

@@ -94,10 +94,7 @@ const formRef = ref<any>(null)
 // 表单校验
 const validate = async (cb: any) => {
   await unref(formRef)?.validate((valid: any, fields: any) => {
-    if (valid) {
-      cb(valid, fields)
-    } else {
-    }
+    cb(valid, fields)
   })
 }
 
