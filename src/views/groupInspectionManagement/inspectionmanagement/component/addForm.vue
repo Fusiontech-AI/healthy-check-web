@@ -55,7 +55,7 @@ const addColumns = reactive([
     enum: props.taskoptions
   },
   {
-    prop: 'name',
+    prop: 'chargeNumber',
     label: '批次号',
     search: {
       el: 'input',
