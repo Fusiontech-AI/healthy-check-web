@@ -73,14 +73,6 @@ const bgColor = computed(() => sideTheme.value === 'theme-dark' ? variables.menu
 
 const MenuWidth = computed(() => appStore.sidebar.opened ? variables.sideBarWidth : variables.menuWidth);
 
-// const findRoutePath = () => {
-//   const fullPath = route.fullPath
-//    sidebarRouters.find(i=> {
-
-//    })
-// }
-
-
 const resolvePath = (item: RouteOption, parentMenu: any): any => {
   const { path, query } = parentMenu
   if (isExternal(path)) {
