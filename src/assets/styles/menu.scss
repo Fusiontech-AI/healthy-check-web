@@ -1,0 +1,118 @@
+@import './variables.module.scss';
+
+.openSidebar .scrollbar-sub-wrapper {
+  width: 160px !important;
+}
+
+.hideSidebar .scrollbar-sub-wrapper {
+  width: 0 !important;
+}
+
+.menus-container {
+  position: relative;
+  // position: flex;
+  // left: 0;
+  // top: $base-header-height;
+  box-shadow: $base-menu-shadow;
+  display: flex;
+}
+
+.menus-list {
+  width: $base-menu-width;
+  box-shadow: $base-menu-shadow;
+
+  .menus-list_wrapper {
+    width: 100%;
+    height: calc(100vh - $base-header-height);
+    padding: 12px 8px;
+    font-size: 12px;
+  }
+}
+
+.menus-sub-wrapper {
+  width: 160px;
+  height: calc(100vh - $base-header-height);
+  padding: 32px 8px;
+  box-shadow: $base-menu-shadow;
+}
+
+.menus-sub_item {
+  display: block;
+  white-space: nowrap;
+  padding: 8px 12px;
+  border-radius: 4px;
+  color: $base-text-color-leavel-two;
+  font-size: 14px;
+  margin-bottom: 4px;
+
+  &:hover {
+    color: $--color-primary;
+    background: #ddebfb;
+  }
+}
+
+.router-link-active {
+  color: $--color-primary;
+  background: #ddebfb;
+}
+
+.menu-collapse {
+  width: 30px;
+  height: 30px;
+  box-shadow: $base-menu-shadow;
+  position: absolute;
+  z-index: 100;
+  top: 4px;
+  right: 0%;
+  transform: translate(50%, 0);
+  border-radius: 100%;
+  // background-color: red;
+  font-size: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #fff;
+  cursor: pointer;
+
+  .menu-collapse_circle {
+    width: 20px;
+    height: 20px;
+    background: #f0f4fa;
+    border-radius: 100%;
+    box-shadow: $base-menu-shadow;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .search-icon {
+      color: #000;
+    }
+  }
+}
+
+#menu-hover_wrapper {
+  background-color: transparent;
+  position: fixed;
+  top: 0;
+  left: calc($base-menu-width - 2px);
+  z-index: 1000;
+
+  .menu-hover_wrapper {
+    width: 160px;
+    padding: 10px;
+    border-radius: 4px;
+    background: #ffffff;
+    box-shadow: 0px 0px 16px 0px rgba(128, 146, 181, 0.2);
+
+    .menus-sub_item {
+      display: inline-block;
+      width: 100%;
+      padding: 12px 8px;
+      font-size: 12px;
+    }
+  }
+}
+
+.scrollbar-sub-wrapper {
+  transition: all 0.3s ease-in-out;
+}

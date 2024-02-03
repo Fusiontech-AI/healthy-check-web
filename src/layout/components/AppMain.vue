@@ -35,11 +35,12 @@ watch(()=> useSettingsStore().animationEnable, (val) => {
 <style lang="scss" scoped>
 .app-main {
   /* 50= navbar  50  */
-  min-height: calc(100vh - 50px);
-  padding: 10px;
+  // min-height: calc(100vh - 100px);
+  height: calc(100vh - 100px);
+  padding: 0 10px;
   width: 100%;
   position: relative;
-  overflow: hidden;
+  overflow-y: auto;
   background: #f3f5fa;
 }
 
@@ -50,11 +51,11 @@ watch(()=> useSettingsStore().animationEnable, (val) => {
 .hasTagsView {
   .app-main {
     /* 84 = navbar + tags-view = 50 + 34 */
-    min-height: calc(100vh - 84px);
+    min-height: calc(100vh - 100px);
   }
 
   .fixed-header+.app-main {
-    padding-top: 84px;
+    padding-top: 100px;
   }
 }
 </style>
@@ -79,5 +80,4 @@ watch(()=> useSettingsStore().animationEnable, (val) => {
   background-color: #c0c0c0;
   border-radius: 3px;
 }
-
 </style>

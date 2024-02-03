@@ -42,25 +42,26 @@
             </el-popover>
           </div>
         </el-tooltip>
-        <el-tooltip content="Github" effect="dark" placement="bottom">
-          <ruo-yi-git id="ruoyi-git" class="right-menu-item hover-effect" />
-        </el-tooltip>
 
+        <!-- 项目文档 -->
         <el-tooltip :content="$t('navbar.document')" effect="dark" placement="bottom">
           <ruo-yi-doc id="ruoyi-doc" class="right-menu-item hover-effect" />
         </el-tooltip>
 
-        <el-tooltip :content="$t('navbar.full')" effect="dark" placement="bottom">
+        <!-- 全屏 -->
+        <!-- <el-tooltip :content="$t('navbar.full')" effect="dark" placement="bottom">
           <screenfull id="screenfull" class="right-menu-item hover-effect" />
-        </el-tooltip>
+        </el-tooltip> -->
 
-        <el-tooltip :content="$t('navbar.language')" effect="dark" placement="bottom">
+        <!-- 语言 -->
+        <!-- <el-tooltip :content="$t('navbar.language')" effect="dark" placement="bottom">
           <lang-select id="lang-select" class="right-menu-item hover-effect" />
-        </el-tooltip>
+        </el-tooltip> -->
 
-        <el-tooltip :content="$t('navbar.layoutSize')" effect="dark" placement="bottom">
+        <!-- 布局大小 -->
+        <!-- <el-tooltip :content="$t('navbar.layoutSize')" effect="dark" placement="bottom">
           <size-select id="size-select" class="right-menu-item hover-effect" />
-        </el-tooltip>
+        </el-tooltip> -->
       </template>
       <div class="avatar-container">
         <el-dropdown @command="handleCommand" class="right-menu-item hover-effect" trigger="click">
