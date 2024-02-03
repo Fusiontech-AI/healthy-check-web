@@ -245,4 +245,8 @@ const optionsName = (arr, value) => {
   display: inline-block;
   width: 100px;
 }
+
+:deep(.table-main) {
+  background-color: transparent;
+}
 </style>

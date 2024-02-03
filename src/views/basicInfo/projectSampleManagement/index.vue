@@ -76,7 +76,7 @@
 
     <!-- 新增抽屉 -->
     <el-drawer v-model="addDrawer" :title="addTitle" direction="rtl" :size="738">
-      <div>样本信息</div>
+      <div class="title">样本信息</div>
       <addForm :addInfo="addInfo" ref="formRef" :isPreview="isPreview"></addForm>
       <template #footer>
         <div style="flex: auto" v-if="!isPreview">
@@ -104,10 +104,10 @@
     <el-dialog v-model="batchEditDialog" title="修改分类" width="600px" class="sealAccountClass" style="height: 250px;">
       <div>
         <div class="my-header" style="margin-bottom: 10px;">
-          <el-icon color="#F75252" class="no-inherit" :size="20">
+          <el-icon color="#FF8400" class="no-inherit" :size="18">
             <WarningFilled></WarningFilled>
           </el-icon>
-          <span>是否确认将选择的 {{ batchList.length }} 条数据改到下方所属分类</span>
+          <span style="color: #FF8400;">是否确认将选择的 {{ batchList.length }} 条数据改到下方所属分类</span>
         </div>
         <el-form ref="batchEditRef" :model="batchEditForm" :rules="batchEditRules">
           <el-form-item prop="sampleCategory">
@@ -473,5 +473,22 @@ const handleForbidden = (id) => {
 :deep(.el-drawer) {
   background: linear-gradient(180deg, #CBDFFF 0%, #FFFFFF 12%);
   border-radius: 20px 0px 0px 20px;
+}
+
+.no-inherit {
+  vertical-align: middle;
+  margin-right: 5px;
+}
+
+.title {
+  border-left: 6px solid #FF8F33;
+  // margin-bottom: 20px;
+  padding-left: 10px;
+  display: flex;
+  justify-content: space-between;
+}
+
+:deep(.form-search) {
+  background-color: transparent;
 }
 </style>

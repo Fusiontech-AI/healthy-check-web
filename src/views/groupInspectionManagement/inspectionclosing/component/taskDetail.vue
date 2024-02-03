@@ -237,4 +237,8 @@ getStatistics()
 .num_color {
   color: #FF8400;
 }
+
+:deep(.table-main) {
+  background-color: transparent;
+}
 </style>

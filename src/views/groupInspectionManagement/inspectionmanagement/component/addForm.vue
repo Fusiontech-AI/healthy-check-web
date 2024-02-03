@@ -117,4 +117,8 @@ defineExpose({ addFormRef })
 
 </script>
 
-<style scoped></style>
+<style scoped>
+:deep(.form-search) {
+  background-color: transparent;
+}
+</style>

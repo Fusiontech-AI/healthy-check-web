@@ -78,7 +78,7 @@
 
     <!-- 新增抽屉 -->
     <el-drawer v-model="addDrawer" :title="addTitle" direction="rtl" :size="738" :destroy-on-close="true">
-      <div>项目基础信息</div>
+      <div class="title">项目基础信息</div>
       <addForm :addInfo="addInfo" ref="formRef" :isPreview="isPreview"></addForm>
       <template #footer>
         <div style="flex: auto" v-if="!isPreview">
@@ -345,6 +345,14 @@ const handleDlete = (id) => {
   padding: 10px;
   height: 700px;
   border-right: 1px solid #E8E8E8;
+}
+
+.title {
+  border-left: 6px solid #FF8F33;
+  margin-bottom: 20px;
+  padding-left: 10px;
+  display: flex;
+  justify-content: space-between;
 }
 
 .sample_title {
