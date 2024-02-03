@@ -102,3 +102,12 @@ export const deleteTeamInfo = (ids: any) => {
     method: 'delete'
   });
 };
+
+// 根据字典类型查询字典数据信息
+export const selectDictByTypeAndValue =(query: any)=>{
+  return request({
+    url: '/system/dict/data/selectDictByTypeAndValue',
+    method: 'get',
+    params: query
+  });
+}
