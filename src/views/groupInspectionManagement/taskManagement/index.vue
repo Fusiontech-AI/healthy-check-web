@@ -34,8 +34,10 @@
         <span>任务详情</span>
         <div>
           <el-button class="button" type="primary">编辑任务</el-button>
+          <el-button class="button" type="">取消编辑</el-button>
+          <el-button class="button" type="primary">保存任务</el-button>
           <el-button class="button" type="primary">删除任务</el-button>
-          <el-button class="button" type="primary">上一步</el-button>
+          <el-button class="button" type="primary" @click="handleS1">上一步</el-button>
           <el-button class="button" type="primary" @click="handleX1">下一步</el-button>
         </div>
       </div>
@@ -65,7 +67,7 @@
 
 <script setup lang="tsx" name="taskManagement">
 import { debounce } from 'lodash'
-import { teamTaskList, teamInfoList, peisTeamTask, peisTeamTaskUpdate, teamTaskDetail } from '@/api/groupInspectionManagement/taskManagement'
+import { teamTaskList, teamInfoList, peisTeamTask, peisTeamTaskUpdate, teamTaskDetail, updateGroupProjectInfo } from '@/api/groupInspectionManagement/taskManagement'
 import type { TabsPaneContext } from 'element-plus'
 import Frist from '@/views/groupInspectionManagement/taskManagement/components/frist.vue'
 import Second from '@/views/groupInspectionManagement/taskManagement/components/second.vue'
@@ -223,21 +225,42 @@ const handleCz = () => {
 const handleX1 = async () => {
   searchFormRef.value.validate(async (valid, fields) => {
     if (valid) {
-      if (form.id) {
-        const { data } = await peisTeamTaskUpdate(form)
-        formSecond.value = data
-        activeName.value = 'second'
-      } else {
-        const { data } = await peisTeamTask(form)
-        formSecond.value = data
-        activeName.value = 'second'
+      if (activeName.value == 'first') {
+        if (form.id) {
+          const { data } = await peisTeamTaskUpdate(form)
+          formSecond.value = data
+          activeName.value = 'second'
+        } else {
+          const { data } = await peisTeamTask(form)
+          formSecond.value = data
+          activeName.value = 'second'
+        }
+        return
+      }
+      if (activeName.value == 'second') {
+        const { data } = await updateGroupProjectInfo(formSecond.value)
+        activeName.value = 'third'
+        return
       }
     }
   })
 
 }
+//上一步
+const handleS1 = () => {
+  if (activeName.value == 'fourth') {
+    activeName.value = 'third'
+  }
+  if (activeName.value == 'third') {
+    activeName.value = 'second'
+  }
+  if (activeName.value == 'second') {
+    activeName.value = 'first'
+  }
+}
 //详情
 const handleClickItem = async (row) => {
+  activeName.value = 'first'
   const { data } = await teamTaskDetail(row)
   for (const key in data) {
     form[key] = data[key]

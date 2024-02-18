@@ -46,3 +46,11 @@ export const teamGroupDetail = (params: any) => {
     method: 'GET'
   });
 };
+// 修改任务项目分组信息
+export const updateGroupProjectInfo = (params: any) => {
+  return request({
+    url: '/peis/teamGroup/updateGroupProjectInfo',
+    method: 'POST',
+    data: params
+  });
+};
