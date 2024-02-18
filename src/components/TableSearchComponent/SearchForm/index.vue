@@ -6,7 +6,7 @@
           :class="{ 'notLabel': !item.label }">
           <slot :name="item.prop + 'Component'">
             <slot :name="'search' + item.slot">
-              <el-form-item :prop="item.prop" v-if="(item.isShowSearch ?? true)">
+              <el-form-item :prop="item.prop" v-bind="item.search">
                 <template #label>
                   <el-space :size="4">
                     <span>{{ `${item.search?.label ?? item.label}` }}</span>

@@ -63,3 +63,13 @@ export const insertRegisterData = (data: any) => {
     data
   });
 };
+
+/**
+ * 获取体检人员登记信息详细信息
+ */
+export const getRegisterById = (id: any) => {
+  return request({
+    url: `/peis/register/${id}`,
+    method: 'get',
+  });
+};
