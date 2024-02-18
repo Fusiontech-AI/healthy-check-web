@@ -106,8 +106,18 @@ const enterMenuItem = (menuItem: RouteOption, index: number) => {
   const menulist = document.getElementsByClassName('menu-item')
   const rect = menulist[index]?.getBoundingClientRect()
     const wrapperHtml = document.getElementById('menu-hover_wrapper')
+    const clientHeight = wrapperHtml?.clientHeight || 0
+    const winHeight = document.documentElement.clientHeight
+
+
     if(wrapperHtml) {
-      wrapperHtml.style.top = rect.top + 'px'
+      if(winHeight - rect.top < clientHeight){
+        wrapperHtml.style.top = ''
+        wrapperHtml.style.bottom = '5px'
+      } else {
+        wrapperHtml.style.top = rect.top + 'px'
+        wrapperHtml.style.bottom = ''
+      }
     }
   })
 }
