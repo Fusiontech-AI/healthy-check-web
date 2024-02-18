@@ -2,7 +2,7 @@
   <div v-if="columns.length" class="card form-search">
     <el-form ref="formRef" :model="searchParam" label-position="left" labelWidth="auto" v-bind="$attrs">
       <Grid ref="gridRef" :collapsed="collapsed" :gap="[20, 0]" :cols="searchCol">
-        <GridItem v-for="(item, index) in columns" :key="item.prop" v-bind="getResponsive(item)" :index="index"
+        <GridItem v-for="(item, index) in columnsFunc" :key="item.prop" v-bind="getResponsive(item)" :index="index"
           :class="{ 'notLabel': !item.label }">
           <slot :name="item.prop + 'Component'">
             <slot :name="'search' + item.slot">
@@ -108,6 +108,12 @@ async function clearValidate() {
 async function resetFields() {
   await unref(formRef)?.resetFields();
 }
+
+// 控制表单列显示与隐藏
+const columnsFunc = computed(()=> {
+  return props.columns.filter(item => item.isShowSearch??true)
+})
+
 // 输出组件的方法，让外部组件可以调用
 defineExpose({
   validate,
