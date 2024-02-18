@@ -20,11 +20,11 @@
           </el-col>
         </el-row>
       </template>
-      <template #tableHeader="scope">
+      <template #tableHeader="{isSelected}">
         <div class="flex justify-between">
           <div>
-            <el-button type="primary" round @click="showDialog = true">自动合并档案</el-button>
-            <el-button type="primary" round @click="showDialog = true">选择合并档案</el-button>
+            <el-button type="primary" round :disabled="!isSelected" @click="showDialog = true">自动合并档案</el-button>
+            <el-button type="primary" round :disabled="!isSelected" @click="showDialog = true">选择合并档案</el-button>
           </div>
         </div>
       </template>
@@ -34,7 +34,7 @@
         <ProTable :columns="recordColumns" :toolButton="false" :data="[{ name: 'aaaaaakaskhaskhahadhsa,d' }]"
           :pagination="false"></ProTable>
       </div>
-      <div class="w-full flex justify-center mt-18px">
+      <div class="w-full flex justify-end mt-18px">
         <el-button round @click="showDialog = false">取消</el-button>
         <el-button type="primary" round @click="showDialog = false">确定</el-button>
       </div>

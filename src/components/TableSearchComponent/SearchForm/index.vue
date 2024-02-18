@@ -5,7 +5,7 @@
         <GridItem v-for="(item, index) in columns" :key="item.prop" v-bind="getResponsive(item)" :index="index">
           <slot :name="item.prop + 'Component'">
             <slot :name="'search' + item.slot">
-              <el-form-item :prop="item.prop" v-if="(item.isShowSearch ?? true)">
+              <el-form-item :prop="item.prop" v-bind="item.search">
                 <template #label>
                   <el-space :size="4">
                     <span>{{ `${item.search?.label ?? item.label}` }}</span>
@@ -152,3 +152,15 @@ const showCollapse = computed(() => {
   return show;
 });
 </script>
+<style scoped lang="scss">
+.notLabel {
+  :deep(.el-form-item__label-wrap) {
+    width: 0;
+  }
+
+  :deep(.el-form-item--default) {
+    margin-bottom: 10px;
+  }
+
+}
+</style>

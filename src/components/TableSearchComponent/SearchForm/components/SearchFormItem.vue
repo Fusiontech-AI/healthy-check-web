@@ -1,15 +1,22 @@
 <template>
-  <component :is="column.search?.render ?? `el-${column.search?.el}`"
+  <component
+    :is="column.search?.render ?? `el-${column.search?.el}`"
     v-bind="{ ...handleSearchProps, ...placeholder, searchParam: _searchParam, clearable, filterable: true, ...column.search }"
     v-model.trim="_searchParam[column.search?.key ?? handleProp(column.prop!)]"
     :data="column.search?.el === 'tree-select' ? columnEnum : []"
-    :options="['cascader', 'select-v2'].includes(column.search?.el!) ? columnEnum : []">
+    :options="['cascader', 'select-v2'].includes(column.search?.el!) ? columnEnum : []"
+  >
     <template v-if="column.search?.el === 'cascader'" #default="{ data }">
       <span>{{ data[fieldNames.label] }}</span>
     </template>
     <template v-if="column.search?.el === 'select'">
-      <component :is="`el-option`" v-for="(col, index) in columnEnum" :key="index" :label="col[fieldNames.label]"
-        :value="col[fieldNames.value]"></component>
+      <component
+        :is="`el-option`"
+        v-for="(col, index) in columnEnum"
+        :key="index"
+        :label="col[fieldNames.label]"
+        :value="col[fieldNames.value]"
+      ></component>
     </template>
     <slot v-else></slot>
   </component>
@@ -77,7 +84,7 @@ const placeholder = computed(() => {
       endPlaceholder: search?.props?.endPlaceholder ?? "结束时间"
     };
   }
-  const placeholder = search?.props?.placeholder ?? (search?.el?.includes("input") ? "请输入" : "请选择");
+  const placeholder = search?.props?.placeholder ?? (search?.el?.includes("input") ? "请输入" + props.column.label: "请选择" + props.column.label);
   return { placeholder };
 });
 
