@@ -2,7 +2,7 @@
   <div>
     <el-row v-loading="loading" :gutter="10">
       <el-col :span="12">
-        <div>
+        <el-card shadow="never">
           <div class="head_search">
             <div class="head_title">项目检索</div>
             <el-input v-model="inputValue" class="head_input">
@@ -19,11 +19,11 @@
               <el-button @click="handleChecked(row, $index)" text type="primary">选中</el-button>
             </template>
           </ProTable>
-        </div>
+        </el-card>
       </el-col>
 
       <el-col :span="12">
-        <div>
+        <el-card shadow="never" class="h-814px">
           <div class="head_search">已选项目 (共{{ checkedLength }}项)</div>
           <ProTable ref="itemTable" :columns="itemColumns" :data="dataItemTable" :toolButton="false" :pagination="false"
             :height="670">
@@ -31,7 +31,7 @@
               <el-button @click="itemDelete(row, $index)" text type="primary">删除</el-button>
             </template>
           </ProTable>
-        </div>
+        </el-card>
       </el-col>
     </el-row>
   </div>

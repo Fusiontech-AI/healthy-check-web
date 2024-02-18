@@ -78,7 +78,7 @@
 
     <!-- 新增抽屉 -->
     <el-drawer v-model="addDrawer" :title="addTitle" direction="rtl" :size="738" :destroy-on-close="true">
-      <div>项目基础信息</div>
+      <div class="title">项目基础信息</div>
       <addForm :addInfo="addInfo" ref="formRef" :isPreview="isPreview"></addForm>
       <template #footer>
         <div style="flex: auto" v-if="!isPreview">
@@ -149,13 +149,13 @@ const ksClick = (item: any, index: any) => {
 const cancelKS = () => {
   activeKS.value = -1
   currentType = {}
-  initParam.ksId = ''
+  initParam.ksId = null
 }
 
 
 //任务信息ProTable 实例
 const proTable = ref();
-const initParam = reactive({ ksId: '' })
+const initParam = reactive({ ksId: null })
 // 表格配置项
 const columns = reactive<any>([
   { type: "selection", fixed: "left", width: 70 },
@@ -345,6 +345,14 @@ const handleDlete = (id) => {
   padding: 10px;
   height: 700px;
   border-right: 1px solid #E8E8E8;
+}
+
+.title {
+  border-left: 6px solid #FF8F33;
+  margin-bottom: 20px;
+  padding-left: 10px;
+  display: flex;
+  justify-content: space-between;
 }
 
 .sample_title {

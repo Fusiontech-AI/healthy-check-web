@@ -9,3 +9,13 @@ export const getRegisterPage = (params: any) => {
     params
   });
 };
+
+/**
+ * 体检人员再次登记
+ */
+export const reRegistration = (ids: any) => {
+  return request({
+    url: `/peis/register/reRegistration/${ids}`,
+    method: 'PUT',
+  });
+};

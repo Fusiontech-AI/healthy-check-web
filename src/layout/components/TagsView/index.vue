@@ -8,7 +8,6 @@
         :class="isActive(tag) ? 'active' : ''"
         :to="{ path: tag.path ? tag.path : '', query: tag.query, fullPath: tag.fullPath ? tag.fullPath : '' }"
         class="tags-view-item"
-        :style="activeStyle(tag)"
         @click.middle="!isAffix(tag) ? closeSelectedTag(tag) : ''"
         @contextmenu.prevent="openMenu(tag, $event)"
       >
@@ -51,7 +50,7 @@ const router = useRouter();
 
 const visitedViews = computed(() => useTagsViewStore().visitedViews);
 const routes = computed(() => usePermissionStore().routes);
-const theme = computed(() => useSettingsStore().theme);
+// const theme = computed(() => useSettingsStore().theme);
 
 watch(route, () => {
     addTags();
@@ -68,13 +67,13 @@ watch(visible, (value) => {
 const isActive = (r: TagView): boolean => {
     return r.path === route.path;
 }
-const activeStyle = (tag: TagView) => {
+/* const activeStyle = (tag: TagView) => {
     if (!isActive(tag)) return {};
     return {
         "background-color": theme.value,
         "border-color": theme.value
     };
-}
+} */
 const isAffix = (tag: TagView) => {
     return tag.meta && tag.meta.affix;
 }
@@ -229,7 +228,6 @@ const handleScroll = () => {
     closeMenu();
 }
 
-
 onMounted(() => {
     initTags();
     addTags();
@@ -237,26 +235,27 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
+@import '@/assets/styles/variables.module.scss';
+
 .tags-view-container {
-  height: 34px;
+  height: 50px;
   width: 100%;
-  background-color: var(--el-bg-color);
-  border: 1px solid var(--el-border-color-light);
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.12), 0 0 3px 0 rgba(0, 0, 0, 0.04);
+  background-color: rgb(243, 246, 251);
   .tags-view-wrapper {
+    padding: 10px;
     .tags-view-item {
+      border-radius: 4px;
+      border: none;
       display: inline-block;
       position: relative;
       cursor: pointer;
-      height: 26px;
-      line-height: 23px;
-      background-color: var(--el-bg-color);
-      border: 1px solid var(--el-border-color-light);
+      height: 30px;
+      line-height: 30px;
       color: #495060;
       padding: 0 8px;
       font-size: 12px;
       margin-left: 5px;
-      margin-top: 4px;
+      background-color: #fff;
       &:hover {
         color: var(--el-color-primary);
       }
@@ -267,10 +266,8 @@ onMounted(() => {
         margin-right: 15px;
       }
       &.active {
-        background-color: #42b983;
-        color: #fff;
-        border-color: #42b983;
-        &::before {
+        color: $--color-primary;
+        /* &::before {
           content: "";
           background: #fff;
           display: inline-block;
@@ -279,7 +276,7 @@ onMounted(() => {
           border-radius: 50%;
           position: relative;
           margin-right: 5px;
-        }
+        } */
       }
     }
   }

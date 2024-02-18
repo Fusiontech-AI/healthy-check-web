@@ -7,7 +7,7 @@
           <el-col :span="6">
             <el-form-item label="单位名称" prop="teamId">
               <el-tree-select v-model="ruleForm.teamId" :data="options" filterable clearable remote :loading="loading"
-                placeholder="请选择单位名称" :remote-method="remoteMethod"
+                placeholder="请搜索单位名称" :remote-method="remoteMethod"
                 :props="{ value: 'value', label: 'label', children: 'children' }" value-key="id" check-strictly
                 @change="teamIdChange" />
             </el-form-item>
@@ -22,8 +22,8 @@
           </el-col>
           <el-col :span="6">
             <el-form-item>
-              <el-button type="primary" @click="searchForm(ruleFormRef)"> 查询 </el-button>
-              <el-button @click="resetForm(ruleFormRef)">重置</el-button>
+              <el-button type="primary" @click="searchForm(ruleFormRef)" round> 查询 </el-button>
+              <el-button @click="resetForm(ruleFormRef)" round>重置</el-button>
             </el-form-item>
           </el-col>
         </el-row>
@@ -35,9 +35,9 @@
       </div>
       <div class="payment">
         <div class="task_btn">
-          <el-button type="primary" @click="taskDiscount">任务折扣</el-button>
-          <el-button type="primary" @click="sealAccount" v-if="!isSeal">封账</el-button>
-          <el-button type="primary" @click="releaseAccount" v-else>解除封账</el-button>
+          <el-button type="primary" @click="taskDiscount" round>任务折扣</el-button>
+          <el-button type="primary" @click="sealAccount" v-if="!isSeal" round>封账</el-button>
+          <el-button type="primary" @click="releaseAccount" v-else round>解除封账</el-button>
         </div>
         <div class="task_info">
           <el-row>
@@ -84,10 +84,10 @@
         <template #tableHeader="scope">
           <div class="payment">
             <div class="payment_btn">
-              <el-button type="primary" @click="closingAudit(scope.selectedListIds)"
-                :disabled="!scope.isSelected">结账审核</el-button>
-              <el-button type="primary" @click="cancellationAccount(scope.selectedListIds)"
-                :disabled="!scope.isSelected">结账作废</el-button>
+              <el-button type="primary" @click="closingAudit(scope.selectedListIds)" :disabled="!scope.isSelected"
+                round>结账审核</el-button>
+              <el-button type="primary" @click="cancellationAccount(scope.selectedListIds)" :disabled="!scope.isSelected"
+                round>结账作废</el-button>
             </div>
             <div class="payment_info">
               <el-row>
@@ -105,17 +105,18 @@
             </div>
           </div>
         </template>
-        <template #status="{ row }">
-          <span :class="{ abandon: row.status == '废弃' }">{{ row.status }}</span>
+        <template #statusName="{ row }">
+          <span :class="{ abandon: row.statusName == '废弃' }">{{ row.statusName }}</span>
         </template>
-        <template #checkStatus="{ row }">
-          <span :class="[{ 'to_reviewed': row.checkStatus == '待审核' }, { 'reviewed': row.checkStatus == '已审核' }]">{{
-            row.checkStatus }}</span>
+        <template #checkStatusName="{ row }">
+          <span
+            :class="[{ 'to_reviewed': row.checkStatusName == '待审核' }, { 'reviewed': row.checkStatusName == '已审核' }]">{{
+              row.checkStatusName }}</span>
         </template>
         <template #operation="{ row }">
           <el-button type="primary" text @click="details('2', row)">详情</el-button>
           <el-button type="primary" text @click="cancellation(row)">作废</el-button>
-          <el-button type="primary" text @click="deleteInvoice(row)" :disabled="row.status != '废弃'">删除</el-button>
+          <el-button type="primary" text @click="deleteInvoice(row)" :disabled="row.statusName != '废弃'">删除</el-button>
         </template>
       </ProTable>
     </el-card>
@@ -133,8 +134,8 @@ height: 698px;">
       </accountsDetail>
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="dialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="dialogVisible = false"> 确定 </el-button>
+          <el-button @click="dialogVisible = false" round>取消</el-button>
+          <el-button type="primary" @click="dialogVisible = false" round> 确定 </el-button>
         </span>
       </template>
     </el-dialog>
@@ -162,8 +163,8 @@ height: 698px;">
       </el-form>
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="discountCancle">取消</el-button>
-          <el-button type="primary" @click="discountSure">
+          <el-button @click="discountCancle" round>取消</el-button>
+          <el-button type="primary" @click="discountSure" round>
             确定
           </el-button>
         </span>
@@ -260,7 +261,7 @@ const getTreeselect = async (data) => {
 const remoteMethod = async (query: any) => {
   loading.value = true
   if (query) {
-    const { data } = await teamInfoList({ phoneticCode: query })
+    const { data } = await teamInfoList({ teamName: query })
     data.forEach(item => {
       item.label = item.teamName
       item.value = item.id
@@ -289,7 +290,7 @@ const teamIdChange = async (value: any) => {
 const taskIdChange = (value: any) => {
   if (!value) return
   const r = taskoptions.value.find(item => item.value == value)
-  isSeal.value = r[0]?.isSeal == 1 ? true : false
+  isSeal.value = r.isSeal == 1 ? true : false
 }
 
 
@@ -411,14 +412,18 @@ const operationSure = async () => {//封账1,解封2,结账作废3,作废4,删�
       //代码块; 
       await teamSettleSeal({ teamId: ruleForm.teamId, id: ruleForm.teamTaskId })
       ElMessage.success('封账成功')
+      isSeal.value = !isSeal.value
       proTableTask.value?.getTableList()
+      proTableAccounts.value?.getTableList()
       break;
     }
     case 2: {
       //代码块; 
       await teamSettleUnseal({ teamId: ruleForm.teamId, id: ruleForm.teamTaskId })
       ElMessage.success('解除封账成功')
+      isSeal.value = !isSeal.value
       proTableTask.value?.getTableList()
+      proTableAccounts.value?.getTableList()
       break;
     }
     case 3: {
@@ -452,8 +457,8 @@ const operationSure = async () => {//封账1,解封2,结账作废3,作废4,删�
 //封账
 const sealAccount = () => {
   operationDeter.value = true
-  operationTitle.value = '是否确定废弃记录?'
-  operationInfo.value = '废弃记录后，将变更该结算单下内人员的收费状态'
+  operationTitle.value = '是否确定进行封账操作？'
+  operationInfo.value = '封账后将无法进行结账操作'
   operationType.value = 1
 }
 //解封
@@ -494,7 +499,7 @@ const columnsAccounts = reactive([
     label: "实收金额",
   },
   {
-    prop: "printInvoice",
+    prop: "printInvoiceName",
     label: "是否打印发票",
     // enum: printInvoiceList
   },
@@ -521,13 +526,13 @@ const columnsAccounts = reactive([
     label: "录入时间",
   },
   {
-    prop: "status",
+    prop: "statusName",
     label: "状态",
     // enum: statusList
 
   },
   {
-    prop: "checkStatus",
+    prop: "checkStatusName",
     label: "审核状态",
     // enum: checkStatusList
   },
@@ -662,7 +667,7 @@ const optionsName = (arr, value) => {
   }
 
   .title {
-    border-left: 6px solid #409eff;
+    border-left: 6px solid #FF8F33;
     margin-bottom: 20px;
     padding-left: 10px;
     display: flex;
@@ -736,6 +741,12 @@ const optionsName = (arr, value) => {
 
   .num_size {
     font-size: 24px;
+  }
+
+  .dialog-footer {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
   }
 
 }

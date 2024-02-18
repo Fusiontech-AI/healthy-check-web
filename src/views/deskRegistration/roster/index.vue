@@ -46,7 +46,7 @@
 import { ref } from 'vue';
 import { getRegisterPage } from '@/api/deskRegistration/deregistration'
 const { proxy } = getCurrentInstance() as ComponentInternalInstance
-const { bus_physical_type, bus_category, sys_user_sex } = toRefs<any>(proxy?.useDict('bus_physical_type', 'bus_category', 'sys_user_sex'))
+const { bus_physical_type, bus_category, sys_user_sex, bus_personnel_marriage_status, bus_healthy_check_status } = toRefs<any>(proxy?.useDict('bus_physical_type', 'bus_category', 'sys_user_sex', 'bus_personnel_marriage_status', 'bus_healthy_check_status'))
 const pagination = reactive({
   pageNum: 1,
   pageSize: 10,
@@ -68,14 +68,14 @@ const tableColumns = ref<any>([
   { prop: 'healthyCheckCode', label: '体检号', fixed: 'left' },
   { prop: 'recordCode', label: '档案号', fixed: 'left' },
   { prop: 'credentialNumber', label: '证件号', fixed: 'left' },
-  { prop: 'businessCategory', label: '业务类别', width: 100, isFilterEnum: false },
-  { prop: 'physicalType', label: '体检类型', width: 100, isFilterEnum: false },
+  { prop: 'businessCategory', label: '业务类别', width: 100, enum: bus_category, fieldNames: { label: 'dictLabel', value: 'dictValue' }  },
+  { prop: 'physicalType', label: '体检类型', width: 100, enum: bus_physical_type, fieldNames: { label: 'dictLabel', value: 'dictValue' }  },
   { prop: 'name', label: '姓名' },
-  { prop: 'marriageStatus', label: '婚否', isFilterEnum: false },
+  { prop: 'marriageStatus', label: '婚否', enum: bus_personnel_marriage_status, fieldNames: { label: 'dictLabel', value: 'dictValue' }  },
   { prop: 'age', label: '年龄' },
   { prop: 'phone', label: '电话', },
   { prop: 'healthyCheckTime', label: '体检日期', width: 100 },
-  { prop: 'healthyCheckStatus', label: '体检状态', width: 100, isFilterEnum: false },
+  { prop: 'healthyCheckStatus', label: '体检状态', width: 100, enum: bus_healthy_check_status, fieldNames: { label: 'dictLabel', value: 'dictValue' }  },
   { prop: 'teamName', label: '单位', },
   { prop: 'groupName', label: '分组', },
   { prop: 'generalReviewDoctorName', label: '总检医生', width: 100 },

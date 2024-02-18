@@ -141,6 +141,7 @@ const handleReset = () => {
   queryParams.value.pageNum = 1;
   basicSearchFormRef.value?.resetFields()
   proTableRef.value?.getTableList()
+  teamTaskLists.value = []
 }
 
 // 冻结

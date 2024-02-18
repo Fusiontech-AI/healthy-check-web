@@ -1,6 +1,8 @@
 <template>
   <div>
-    <div class="head_title">参考值</div>
+    <div class="mb-10px">
+      <span class="head_title">参考值</span>
+    </div>
     <ProTable ref="proTable" :columns="columns" :requestApi="basicProjectRefList" :height="550" :toolButton="false"
       v-loading="loading">
       <template #tableHeader="scope">
@@ -227,5 +229,11 @@ const optionsSuitSexName = computed(() => {
     background: #F3F6FB;
     border-radius: 4px;
   }
+}
+
+.head_title {
+  color: #2879FF;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #2879FF;
 }
 </style>

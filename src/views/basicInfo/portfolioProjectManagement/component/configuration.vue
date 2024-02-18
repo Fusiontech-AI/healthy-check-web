@@ -189,7 +189,7 @@ const getItemList = async () => {
     return
   }
   const list = await tableListAll()
-  const { rows } = await combinationProjectInfoList({ id: props.configurationInfo.id })
+  const { rows } = await combinationProjectInfoList({ combinProjectId: props.configurationInfo.id })
   dataItemTable.value = findProject(rows, list)
   await getTableList()
   loading.value = false

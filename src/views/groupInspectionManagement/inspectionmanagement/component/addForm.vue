@@ -55,7 +55,7 @@ const addColumns = reactive([
     enum: props.taskoptions
   },
   {
-    prop: 'name',
+    prop: 'chargeNumber',
     label: '批次号',
     search: {
       el: 'input',
@@ -117,4 +117,8 @@ defineExpose({ addFormRef })
 
 </script>
 
-<style scoped></style>
+<style scoped>
+:deep(.form-search) {
+  background-color: transparent;
+}
+</style>
