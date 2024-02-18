@@ -14,8 +14,21 @@
         <div class="title-box"></div>
         套餐项目
       </div>
-      <TransferFilterComplex :tableHeader="tableHeader" @itemChange="itemChange" :disabled="!!look"
-        :formValue="formValue" />
+      <TransferFilterComplex ref="TransferFilterComplexRef" :tableHeader="tableHeader" @itemChange="itemChange"
+        :disabled="!!look" :formValue="formValue">
+        <template #TcWh>
+          <div class="mt10px">套餐金额 {{ formValue.standardAmount }}元
+            <span class="ml10px">整体折扣：</span>
+            <el-input v-model="formValue.discount" placeholder="请输入" style="width:100px;" @blur="handleBlur('1')"
+              oninput="value=value.replace(/[^\d.]/g, '').replace(/\.{2,}/g, '.').replace('.', '$#$').replace(/\./g, '').replace('$#$', '.').replace(/^(\-)*(\d+)\.(\d\d).*$/, '$1$2.$3').replace(/^\./g, '')"
+              :disabled="!!look" />
+            <span class="ml10px">折后应收：</span>
+            <el-input v-model="formValue.receivableAmount" placeholder="请输入" style="width:100px;" @blur="handleBlur('2')"
+              oninput="value=value.replace(/[^\d.]/g, '').replace(/\.{2,}/g, '.').replace('.', '$#$').replace(/\./g, '').replace('$#$', '.').replace(/^(\-)*(\d+)\.(\d\d).*$/, '$1$2.$3').replace(/^\./g, '')"
+              :disabled="!!look" />
+          </div>
+        </template>
+      </TransferFilterComplex>
     </el-card>
     <div class="footer-submit">
       <el-button class="button" round @click="router.go(-1)">取消</el-button>
@@ -138,6 +151,7 @@ const formValue = reactive({
   tjPackageInfoItemBos: [],
   defaultItemList: []
 })
+const TransferFilterComplexRef = ref(null)
 const router = useRouter();
 const route = useRoute();
 const formRef = ref(null)
@@ -162,14 +176,16 @@ const getDetail = async () => {
   for (const key in data) {
     formValue[key] = data[key]
   }
+  getXm()
 }
 //获得需要回显的项目
 const getXm = async () => {
   const { rows } = await packageInfoList({ packageId: id })
   formValue.defaultItemList = rows
+  TransferFilterComplexRef.value.defaultItems()
 }
 id && getDetail()
-id && getXm()
+
 //确定
 const handleSubmit = () => {
   formRef.value.validate(async (valid, fields) => {
@@ -192,7 +208,7 @@ const handleSubmit = () => {
   })
 }
 const itemChange = (val) => {
-  const { rightTableData, queryObj } = val
+  const { rightTableData } = val
   formValue.tjPackageInfoItemBos = rightTableData.map(item => {
     return {
       packageId: id,
@@ -202,9 +218,10 @@ const itemChange = (val) => {
       receivableAmount: item.receivableAmount,
     }
   })
-  for (const key in queryObj) {
-    formValue[key] = queryObj[key]
-  }
+}
+//整体折扣和折后应收失焦
+const handleBlur = (type) => {
+  TransferFilterComplexRef.value.handleSelected({}, '', '2', type)
 }
 </script>
 <style scoped lang="scss">

@@ -1,15 +1,14 @@
-import { display } from 'html2canvas/dist/types/css/property-descriptors/display'; import { nonWhiteSpace } from
-'html2canvas/dist/types/css/syntax/parser';
 <template>
   <div>
-    <el-tabs type="border-card" tab-position="left">
-      <el-tab-pane :label="item.groupName" v-for="item in props.formSecond">
-        <SearchForm :search-param="queryParams" :columns="basicInfoColumnZYB" :searchCol="4" :show-action-group="false"
+    <el-tabs type="border-card" tab-position="left" v-model="activeName" @tab-click="handleClick">
+      <el-tab-pane :label="item.groupName" :name="item.groupName" v-for="item in props.formSecond">
+        <SearchForm :search-param="item" :columns="basicInfoColumnZYB" :searchCol="4" :show-action-group="false"
           :rules="rulesZYB">
         </SearchForm>
-        <TransferFilterComplex :tableHeader="tableHeader" @itemChange="itemChange" :isRw="true" :formValue="formValue" />
-        <SearchForm :search-param="queryParams" :columns="basicInfoColumn" :searchCol="4" :show-action-group="false"
-          class="mt10px">
+        <TransferFilterComplex ref="TransferFilterComplexRef" :tableHeader="tableHeader"
+          @itemChange="(val) => itemChange(val, item)" :isRw="true" :formValue="item" />
+        <SearchForm :search-param="item" :columns="basicInfoColumn" :searchCol="4" :show-action-group="false"
+          class="mt10px" :rules="rules">
         </SearchForm>
       </el-tab-pane>
     </el-tabs>
@@ -18,7 +17,6 @@ import { display } from 'html2canvas/dist/types/css/property-descriptors/display
 
 <script setup lang="tsx" name="second">
 import TransferFilterComplex from '@/components/TransferFilterComplex.vue'
-import { teamGroupDetail } from '@/api/groupInspectionManagement/taskManagement'
 const props = defineProps(['formSecond'])
 const tableHeader = ref([
   {
@@ -34,26 +32,31 @@ const tableHeader = ref([
     label: '折后金额'
   },
 ])
+const TransferFilterComplexRef = ref(null)
+const activeName = ref('')
 const basicInfoColumn = ref([
   {
     label: '分组折扣 ',
     prop: 'itemDiscount',
-    search: { el: 'input' }
+    search: { el: 'input' },
+    blur: (val) => handleBlur('6')
   },
   {
     label: '加项折扣 ',
     prop: 'addDiscount',
-    search: { el: 'input' }
+    search: { el: 'input' },
+    blur: (val) => handleBlur('6')
   },
   {
     label: '标准价格（元）',
     prop: 'standardPrice',
-    search: { el: 'input' }
+    search: { el: 'input', disabled: true }
   },
   {
     label: '折后价格（元）',
     prop: 'actualPrice',
-    search: { el: 'input' }
+    search: { el: 'input' },
+    blur: (val) => handleBlur('2')
   },
 
 ])
@@ -69,19 +72,24 @@ const basicInfoColumnZYB = ref([
     search: { el: 'select', props: { multiple: true } }
   },
 ])
-watch(() => props.formSecond, (newV) => {
-  console.log(newV);
-  getInfo(newV[0])
+watch(() => props.formSecond, async (newV) => {
+  props.formSecond.forEach((item => {
+    const { groupType, price, groupPayType, addPayType, itemDiscount, addDiscount, groupItemList, standardPrice, actualPrice, } = item
+    item.groupFlag = '1'
+    item.amountCalGroupBo = { groupType, price, groupPayType, addPayType, itemDiscount, addDiscount }
+    item.defaultItemList = groupItemList
+    item.standardAmount = standardPrice
+    item.receivableAmount = actualPrice
+  }))
+  const { groupName } = newV[0]
+  activeName.value = groupName
+  await nextTick()
+  TransferFilterComplexRef.value.forEach(item => {
+    item.defaultItems()
+  })
 })
-//获得需要回显的数据
-const getInfo = async (row) => {
-  const { id } = row
-  const { data } = await teamGroupDetail({ id })
-  console.log("🚀 ~ getInfo ~ data:", data)
-}
-const queryParams = ref({})
-const formValue = reactive({})
-const rulesZYB = ref(
+
+const rulesZYB = reactive(
   {
     dutyStatus: [
       { required: true, message: '请选择在岗类型', trigger: 'change' },
@@ -91,9 +99,75 @@ const rulesZYB = ref(
     ],
   }
 )
-const rules = ref({})
-const itemChange = (val) => {
-  const { rightTableData, queryObj } = val
+//金额校验
+const validatePrice = (rule: any, value: any, callback: any) => {
+  let pattern = new RegExp('^[0-9]*[1-9][0-9]*$')
+  if (value === '') {
+    callback()
+  } else if (!pattern.test(value)) {
+    callback(new Error('请输入正整数'))
+  } else {
+    callback()
+  }
+}
+const rules = reactive({
+  itemDiscount: [
+    { required: true, message: '请输入分组折扣', trigger: 'blur' },
+    { validator: validatePrice },
+  ],
+  addDiscount: [
+    { required: true, message: '请输入加项折扣', trigger: 'blur' },
+    { type: validatePrice },
+  ],
+  actualPrice: [
+    { required: true, message: '请输入折后价格', trigger: 'blur' },
+    { type: validatePrice },
+  ],
+})
+//tab切换
+const handleClick = (tab, event) => {
+  // let index = getIndex(tab.props.label)
+  // const { groupType, price, groupPayType, addPayType, itemDiscount, addDiscount, groupItemList } = props.formSecond[index]
+  // props.formSecond[index].amountCalGroupBo = {
+  //   groupType, price, groupPayType, addPayType, itemDiscount, addDiscount
+  // }
+  // props.formSecond[index].defaultItemList = groupItemList
+}
+//失焦事件
+const handleBlur = (val) => {
+  let index = getIndex(activeName.value)
+  props.formSecond[index].standardAmount = props.formSecond[index].standardPrice
+  props.formSecond[index].receivableAmount = props.formSecond[index].actualPrice
+  TransferFilterComplexRef.value[index].handleSelected({}, '', '2', val)
+}
+//根据tabName返回索引
+const getIndex = (name) => {
+  let index = 0
+  props.formSecond.forEach((item, i) => {
+    if (item.groupName == name) {
+      index = i
+    }
+  })
+  return index
+}
+const itemChange = (val, item) => {
+  const { rightTableData } = val
+  item.groupItemList = rightTableData.map(item => {
+    return {
+      itemId: item.id,
+      itemName: item.combinProjectName,
+      combinProjectCode: item.combinProjectCode,
+      standardPrice: item.standardAmount,
+      actualPrice: item.receivableAmount,
+      discount: item.discount,
+      include: item.type == '1' ? '1' : '0',
+      isRequired: false,
+    }
+  })
+  let { standardAmount, receivableAmount, discount } = item
+  item.standardPrice = standardAmount
+  item.actualPrice = receivableAmount
+  item.discount = discount
 }
 </script>
 <style scoped lang="scss">
