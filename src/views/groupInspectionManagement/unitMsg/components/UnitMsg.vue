@@ -11,28 +11,36 @@
       label-width="135px"
     >
       <template #teamLevel>
-        <el-select v-model="formValue.teamLevel" placeholder="请选择" clearable @change="handleChangeTeamLevel">
+        <el-select v-model="formValue.teamLevel" placeholder="请选择单位级别" clearable @change="handleChangeTeamLevel">
           <el-option v-for="dict in bus_team_level" :key="dict.value" :label="dict.label" :value="dict.value" />
         </el-select>
       </template>
       <template #parentId>
-        <el-select v-model="formValue.parentId" placeholder="请选择" @change="handleChangeParentId" :disabled="parentIdDisabled">
+        <el-select v-model="formValue.parentId" placeholder="请选择关联上级单位" @change="handleChangeParentId" :disabled="parentIdDisabled">
           <el-option v-for="item in parentIdOption" :key="item?.id" :label="item?.teamName" :value="item?.id" />
         </el-select>
       </template>
       <template #teamName>
-        <el-input v-model="formValue.teamName" placeholder="请输入" @input="handleChangeTeamName" />
+        <el-input v-model="formValue.teamName" placeholder="请输入单位名称" @input="handleChangeTeamName" />
       </template>
     </SearchForm>
     <span class="font-bold title-before">单位其他信息</span>
-    <SearchForm ref="basicOtherRef" :search-param="formValue" :columns="otherInfoColumn" :searchCol="2" :disabled="disabledForm" label-width="135px">
+    <SearchForm
+      ref="basicOtherRef"
+      :search-param="formValue"
+      :columns="otherInfoColumn"
+      :searchCol="2"
+      :disabled="disabledForm"
+      label-width="135px"
+      :rules="otherInfoRules"
+    >
       <template #regionCode>
         <el-select
           v-model="formValue.regionCode"
           filterable
           remote
           reserve-keyword
-          placeholder="请输入"
+          placeholder="请输入所属地区进行检索"
           :remote-method="remoteMethodRegionCode"
           :loading="loading"
         >
@@ -50,6 +58,7 @@ import {
   getTeamNoById,
   teamInfoList,
   selectDictByTypeAndValue,
+  queryTeamInfoById
 } from '@/api/groupInspectionManagement/unitMsg/index';
 import { getFirstLetter } from '@/utils/pinyin';
 import { listData } from '@/api/system/dict/data';
@@ -72,7 +81,7 @@ const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 
 const formValue = ref<any>({ teamLevel: null });
 
-const basicInfoColumn = ref<any>(basicInfoColumnBasic);
+const basicInfoColumn = ref<any>(basicInfoColumnBasic(false));
 const otherInfoColumn = ref<any>(otherInfoColumnBasic);
 
 const basicRef = ref();
@@ -116,44 +125,45 @@ watch(
     immediate: true,
   }
 );
-
-watch(
-  () => [props.id, props.data],
-  async (val: any) => {
+watch(()=>props.id, async (id) =>{
+  if(id){
     loadingForm.value = true;
-    const [id, data] = val || [];
-    if (data?.id && id) {
-      if (data?.teamLevel === '1') {
-        //根据单位级别回显上级单位
-        parentIdOption.value = [];
-      }
-      if (data?.teamLevel === '2') {
-        const { data } = await teamInfoList({ teamLevel: 1 });
-        parentIdOption.value = data;
-      }
-      formValue.value = data;
-    } else {
-      console.log('reset');
-      basicRef.value?.resetFields();
-      formValue.value = {};
-      basicOtherRef.value?.resetFields();
+    const { data } = await queryTeamInfoById(id);
+     //根据单位级别回显上级单位
+    if (data?.teamLevel === 1) {
+      parentIdOption.value = [];
+      basicInfoColumn.value = basicInfoColumnBasic(false)
+    }
+    if (data?.teamLevel === 2) {
+      const { data } = await teamInfoList({ teamLevel: 1 });
+      parentIdOption.value = data;
+      basicInfoColumn.value = basicInfoColumnBasic(true)
+    }
+    formValue.value = {
+      ...data,
+      teamLevel: String(data?.teamLevel),
+      parentId: String(data?.parentId),
+      industryType: data?.industryType ? String(data?.industryType) : '',
+      regionCode: data?.regionCode ? String(data?.regionCode) : '',
+      economicType: data?.economicType ? String(data?.economicType) : '',
+      enterpriseSize: data?.enterpriseSize ? String(data?.enterpriseSize) : '',
+    }
+    if(data?.regionCode) {
+      //所属地区回显
+      const param = { dictType: 'bus_area', dictValue: data?.regionCode } as any;
+      const { data: res } = await selectDictByTypeAndValue(param);
+      regionOptions.value = [res];
     }
     loadingForm.value = false;
-    nextTick(async () => {
-      if (id && data?.regionCode) {
-        //所属地区回显
-        const param = { dictType: 'bus_area', dictValue: data?.regionCode } as any;
-        // const {rows} = await listData(param)
-        const { data: res } = await selectDictByTypeAndValue(param);
-        regionOptions.value = [res];
-      }
-    });
-  },
-  {
-    immediate: true,
-    deep: true,
+  }else{
+    console.log('reset');
+    basicRef.value?.resetFields();
+    formValue.value = {};
+    basicOtherRef.value?.resetFields();
   }
-);
+},{
+    immediate: true,
+})
 
 onMounted(() => {
   getListType();
@@ -169,6 +179,7 @@ const handleChangeTeamLevel = async (val: any) => {
     rules.value.parentId = { required: false };
     formValue.value.parentId = null;
     parentIdDisabled.value = true;
+    basicInfoColumn.value = basicInfoColumnBasic(false)
   }
   if (val === '2') {
     //二级单位时单位编号根据关联上级单位生成
@@ -181,6 +192,7 @@ const handleChangeTeamLevel = async (val: any) => {
       message: '请选择关联上级单位',
       trigger: ['blur', 'change'],
     };
+    basicInfoColumn.value = basicInfoColumnBasic(true)
     nextTick(() => {
       clearValidate();
     });
@@ -232,6 +244,9 @@ const submitData = async () => {
   await basicRef.value.validate(async (valid: any) => {
     validForm = valid;
   });
+  await basicOtherRef.value.validate(async (valid: any) => {
+    validForm = valid;
+  });
   return validForm ? formValue.value : false;
 };
 
@@ -255,6 +270,82 @@ const rules = ref<any>({
   phoneticCode: { required: true, message: '请输入拼音简码', trigger: ['blur', 'change'] },
   contactPhone: { required: false, trigger: ['blur', 'change'], validator: validatePhone },
 });
+
+// 女职工总人数校验
+var validateFemaleEmployeeNum = (_:any, value:any, callback:any) => {
+  if (!value) {
+    callback();
+  }
+  if(formValue.value.employeeTotalNum && value > formValue.value.employeeTotalNum){
+    callback(new Error('女职工总人数不能大于职工总人数'))
+  }
+  callback();
+};
+
+// 生产工人数校验
+var validatProductTotalNum = (_:any, value:any, callback:any) => {
+  if (!value) {
+    callback();
+  }
+  if(formValue.value.employeeTotalNum && value > formValue.value.employeeTotalNum){
+    callback(new Error('生产工人数不能大于职工总人数'))
+  }
+  callback();
+};
+
+// 接害工人数校验
+var validateAffectedTotalNum = (_:any, value:any, callback:any) => {
+  if (!value) {
+    callback();
+  }
+  if(formValue.value.employeeTotalNum && value > formValue.value.employeeTotalNum){
+    callback(new Error('接害工人数不能大于职工总人数'))
+  }
+  callback();
+};
+
+// 接害女职工人数校验
+var validateFemaleAffectedNum = (_:any, value:any, callback:any) => {
+  if (!value) {
+    callback();
+  }
+  if(formValue.value.employeeTotalNum && value > formValue.value.employeeTotalNum){
+    callback(new Error('接害女职工人数不能大于职工总人数'))
+  }
+  if(formValue.value.affectedTotalNum && value > formValue.value.affectedTotalNum){
+    callback(new Error('接害女职工人数不能大于接害工人数'))
+  }
+  if(formValue.value.femaleEmployeeNum && value > formValue.value.femaleEmployeeNum){
+    callback(new Error('接害女职工人数不能大于女职工总人数'))
+  }
+  callback();
+};
+
+// 生产女职工人数校验
+var validateFemaleProductNum = (_:any, value:any, callback:any) => {
+  if (!value) {
+    callback();
+  }
+  if(formValue.value.employeeTotalNum && value > formValue.value.employeeTotalNum){
+    callback(new Error('生产女职工人数不能大于职工总人数'))
+  }
+  if(formValue.value.productTotalNum && value > formValue.value.productTotalNum){
+    callback(new Error('生产女职工人数不能大于生产工人数'))
+  }
+  if(formValue.value.femaleEmployeeNum && value > formValue.value.femaleEmployeeNum){
+    callback(new Error('生产女职工人数不能大于女职工总人数'))
+  }
+  callback();
+};
+
+const otherInfoRules = ref<any>({
+  femaleEmployeeNum: { validator: validateFemaleEmployeeNum,trigger: ['blur', 'change'] },//女职工总人数
+  productTotalNum: { validator: validatProductTotalNum,trigger: ['blur', 'change'] },//生产工人数
+  femaleProductNum: { validator: validateFemaleProductNum,trigger: ['blur', 'change'] },//生产女职工人数
+  affectedTotalNum: { validator: validateAffectedTotalNum,trigger: ['blur', 'change'] },//接害工人数
+  femaleAffectedNum: { validator: validateFemaleAffectedNum,trigger: ['blur', 'change'] },//接害女职工人数
+});
+
 
 defineExpose({ submitData, clearValidate, resetFields });
 </script>

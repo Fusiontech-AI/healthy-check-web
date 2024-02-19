@@ -4,9 +4,17 @@
       <el-col :span="5">
         <div class="bg-[#fff]">
           <div class="p-[10px]">
-            <el-date-picker v-model="dateValue" type="daterange" value-format="YYYY-MM-DD" format="YYYY-MM-DD" start-placeholder="开始时间" end-placeholder="结束时间"
-              style="width: 100%;" @change="getTeamTaskData" />
-            <el-input class="mt-2" placeholder="请输入关键字" v-model="taskName" @input="updateInput"></el-input>
+            <el-date-picker
+              v-model="dateValue"
+              type="daterange"
+              value-format="YYYY-MM-DD"
+              format="YYYY-MM-DD"
+              start-placeholder="开始时间"
+              end-placeholder="结束时间"
+              style="width: 100%;"
+              @change="getTeamTaskData"
+            />
+            <el-input class="mt-2" placeholder="请输入任务名称" v-model="taskName" @input="updateInput"></el-input>
             <div class="tabs">
               <span :class="isReview == '1' ? 'active' : ''" @click="updateTabs('1')">待审批</span>
               <span :class="isReview == '0' ? 'active' : ''" @click="updateTabs('0')">已审批</span>
@@ -14,17 +22,31 @@
             <div class="divider"></div>
             <div class="flex justify-between items-center">
               <el-checkbox v-model="allChecked" size="large" @change="handleCheckAllChange">全选</el-checkbox>
-              <el-button type="primary" round size="small" @click="handleBatchAudit">批量审核</el-button>
+              <el-button
+                :type="isReview == '1'?'primary':'danger'"
+                round
+                size="small"
+                :disabled="disabledBatchAudit"
+                @click="handleBatchAudit(isReview)"
+                >{{isReview == '1'?'批量审核':'批量退回'}}</el-button
+              >
             </div>
           </div>
           <el-scrollbar class="left_list" height="calc(100vh - 294px)">
             <div v-loading="teamTaskLoading">
               <template v-if="teamTaskList && teamTaskList.length !== 0">
-                <el-card shadow="hover" v-for="item in teamTaskList" :key="item.id" class="list_card"
-                  :class="isActiveId == item.id ? 'active' : ''" @click="clickTeamTask(item)">
+                <el-card
+                  shadow="hover"
+                  v-for="item in teamTaskList"
+                  :key="item.id"
+                  class="list_card"
+                  :class="isActiveId == item.id ? 'active' : ''"
+                  @click="clickTeamTask(item)"
+                >
                   <div class="flex items-center">
-                    <el-checkbox v-model="item.checked" size="large" @click.stop />
-                    <span class="ml-2 text-[#141C28]">{{ item?.signDate }}</span>
+                    <el-checkbox v-model="item.checked" size="large" @click.stop>
+                      <span class="text-[#141C28] font-normal">{{ item?.signDate }}</span>
+                    </el-checkbox>
                     <span class="ml-auto px-[3px] rounded-[2px] font-bold text-[#fff] bg-[#FFA81C]">{{
                       bus_physical_type?.find((val: any) => val.dictValue == item.physicalType)?.label?.substring(0,
                         1)
@@ -32,8 +54,7 @@
                   </div>
                   <div class="flex justify-between items-center text-[12px] mt-[8px]">
                     <span class="text-[#89919F] flex-1">{{ item?.taskName }}</span>
-                    <span v-if="isReview == '1'" :class="item?.isReview == '0' ? 'text-#09C268' : 'text-#FF8400'"
-                      class="ml-1">
+                    <span v-if="isReview == '1'" :class="item?.isReview == '0' ? 'text-#09C268' : 'text-#FF8400'" class="ml-1">
                       {{ item?.isReview == '0' ? '已审' : '待审' }}
                     </span>
                     <span v-else :class="item?.reviewResult == '1' ? 'text-#09C268' : 'text-#F75252'">
@@ -58,17 +79,23 @@
             <div>
               <div class="my-2 flex justify-between items-center">
                 <div class="card_title"><span></span>任务基础信息</div>
-                <el-button link class="mr-2" @click="basicTaskInforShow = !basicTaskInforShow"
-                  :icon="basicTaskInforShow ? ArrowUpBold : ArrowDownBold" />
+                <el-button
+                  link
+                  class="mr-2"
+                  @click="basicTaskInforShow = !basicTaskInforShow"
+                  :icon="basicTaskInforShow ? ArrowUpBold : ArrowDownBold"
+                />
               </div>
               <el-collapse-transition>
                 <Grid ref="gridRef" v-show="basicTaskInforShow" :gap="20" :cols="2">
                   <GridItem :span="1" v-for="item in basicInforColumn" :key="item.prop">
                     <div class="flex text-[14px] text-[#141C28]">
                       <span class="w-[120px] text-[#89919F] ml-[30px]">{{ item.label }}</span>
-
-                      <span v-if="item.prop === 'isReview'" class="flex-1"
-                        :class="basicInfoData?.[item.prop] == '1' ? 'text-#FF8400' : 'text-#09C268'">
+                      <span
+                        v-if="item.prop === 'isReview'"
+                        class="flex-1"
+                        :class="basicInfoData?.[item.prop] == '1' ? 'text-#FF8400' : 'text-#09C268'"
+                      >
                         {{ item.enum.find((val: any) => val.value == basicInfoData?.[item.prop])?.label }}
                       </span>
                       <div v-else>
@@ -88,13 +115,17 @@
             <div>
               <div class="my-2 flex justify-between items-center">
                 <div class="card_title"><span></span>任务分组</div>
-                <el-button link class="mr-2" @click="taskGroupShow = !taskGroupShow"
-                  :icon="taskGroupShow ? ArrowUpBold : ArrowDownBold" />
+                <el-button link class="mr-2" @click="taskGroupShow = !taskGroupShow" :icon="taskGroupShow ? ArrowUpBold : ArrowDownBold" />
               </div>
               <el-collapse-transition>
                 <div v-show="taskGroupShow" class="no-card">
-                  <ProTable :columns="taskGroupingColumns" :toolButton="false" :request-api="queryTaskReviewGroup"
-                    :init-param="initParam" :request-auto="false">
+                  <ProTable
+                    :columns="taskGroupingColumns"
+                    :toolButton="false"
+                    :request-api="queryTaskReviewGroup"
+                    :init-param="initParam"
+                    :request-auto="false"
+                  >
                     <template #operation="{ row }">
                       <el-button type="primary" link @click="viewGrounDetail(row)">查看</el-button>
                     </template>
@@ -106,15 +137,19 @@
             <div>
               <div class="my-2 flex justify-between items-center">
                 <div class="card_title"><span></span>人员列表</div>
-                <el-button link class="mr-2" @click="personListShow = !personListShow"
-                  :icon="personListShow ? ArrowUpBold : ArrowDownBold" />
+                <el-button link class="mr-2" @click="personListShow = !personListShow" :icon="personListShow ? ArrowUpBold : ArrowDownBold" />
               </div>
               <el-collapse-transition>
                 <div v-show="personListShow" class="no-card">
-                  <ProTable :columns="personnelListColumns" :toolButton="false" :request-api="queryTaskReviewRegister"
-                    :init-param="initParam" :request-auto="false">
-                    <template #operation="scope">
-                      <el-button type="primary" link @click="showPersonDialog = true">查看</el-button>
+                  <ProTable
+                    :columns="personnelListColumns"
+                    :toolButton="false"
+                    :request-api="queryTaskReviewRegister"
+                    :init-param="initParam"
+                    :request-auto="false"
+                  >
+                    <template #operation="{row}">
+                      <el-button type="primary" link @click="viewPersonDetail(row)">查看</el-button>
                     </template>
                   </ProTable>
                 </div>
@@ -125,8 +160,7 @@
       </el-col>
     </el-row>
     <el-drawer v-model="showDrawer" title="任务审核" size="50%" @handleClose="auditValue = '1'">
-      <audit-dialog :basicInfoData="basicInfoData" :auditValue="auditValue"
-        @closeDialog="showDrawer = false; getTeamTaskData()"></audit-dialog>
+      <audit-dialog :basicInfoData="basicInfoData" :auditValue="auditValue" @closeDialog="showDrawer = false; getTeamTaskData()"></audit-dialog>
     </el-drawer>
     <el-dialog title="分组详情" v-model="showGroupDialog" width="70%">
       <group-details :grounDetailItem="grounDetailItem"></group-details>
@@ -136,16 +170,17 @@
       </div>
     </el-dialog>
     <el-dialog title="人员信息详情" v-model="showPersonDialog" width="45%">
-      <div class="h-[550px] overflow-auto">
-        <Grid ref="gridRef" :gap="20" :cols="2">
+      <el-scrollbar height="550px" class="no-card">
+        <SearchForm ref="formRef" :columns="personColumns" :search-param="personInfo" :search-col="2"></SearchForm>
+        <!-- <Grid ref="gridRef" :gap="20" :cols="2">
           <GridItem :span="1" v-for="item in personColumns " :key="item.label">
             <div class="flex text-[14px] text-[#141C28] ml-4">
               <span class="w-[120px] text-[#89919F]">{{ item.label }}：</span>
               <span class="flex-1">{{ item.value }}</span>
             </div>
           </GridItem>
-        </Grid>
-      </div>
+        </Grid> -->
+      </el-scrollbar>
       <div class="flex justify-end mt-4">
         <el-button round @click="showPersonDialog = false">取消</el-button>
         <el-button round type="primary" @click="showPersonDialog = false">确定</el-button>
@@ -162,7 +197,8 @@ import Grid from "@/components/Grid/index.vue";
 import GridItem from "@/components/Grid/components/GridItem.vue";
 import GroupDetails from "./components/GroupDetails.vue";
 import { basicInforColumns, taskGroupingColumn, personnelListColumn, personColumn } from './rowColumns'
-import { getTeamTaskList, queryTaskReviewDetail, queryTaskReviewGroup, queryTaskReviewRegister, reviewTask } from "@/api/groupInspection/taskAudit/index";
+import { getTeamTaskList, getRegisterById, queryTaskReviewGroup, queryTaskReviewRegister, reviewTask } from "@/api/groupInspection/taskAudit/index";
+
 import dayjs from "dayjs";
 const { proxy } = getCurrentInstance() as ComponentInternalInstance
 const { bus_physical_type } = toRefs<any>(proxy?.useDict('bus_physical_type'))
@@ -178,6 +214,11 @@ const personColumns = ref(personColumn)
 const taskGroupingColumns = ref<any>(taskGroupingColumn) // 任务分组Columns
 const personnelListColumns = ref<any>(personnelListColumn) // 人员列表Columns
 
+const personInfo = ref({})
+const viewPersonDetail = async(row:any) => {
+  showPersonDialog.value = true
+  // const {data} = await getRegisterById(row.id)
+}
 // 批量审核
 const allChecked = ref(false)
 const handleCheckAllChange = (val: any) => {
@@ -185,21 +226,27 @@ const handleCheckAllChange = (val: any) => {
     item.checked = val
   })
 }
-const handleBatchAudit = () => {
+const disabledBatchAudit = computed(()=> {
   const ids = teamTaskList.value.filter((item: any) => item.checked).map((item: any) => item.id)
-  if (ids.length == 0) return ElMessage.warning('请至少选择一项！')
+  return ids.length === 0 ? true:false
+})
+
+const handleBatchAudit = (type:any) => {
+  // type == '1' 待审核==>审核操作 type == '0' 已审核==>退回操作
+  const ids = teamTaskList.value.filter((item: any) => item.checked).map((item: any) => item.id)
   auditValue.value = '1'
   ElMessageBox(
     {
-      title: `是否确定审核所选的${ids.length}条数据？`,
+      title: type == '1'?`是否确定审核所选的${ids.length}条数据？`: '确认提示',
       message: () => {
-        return <>
+        return type == '1' ?
+        <>
           <div>审核结论：<el-radio-group v-model={auditValue.value} class="ml-4">
             <el-radio label="1" size="large">通过</el-radio>
             <el-radio label="2" size="large">驳回</el-radio>
           </el-radio-group>
           </div>
-        </>
+        </> : <p>是否确定将所选的{ids.length}条数据，退回至未审核状态？</p>
       },
       showCancelButton: true,
       confirmButtonText: '确定',
@@ -230,25 +277,18 @@ const viewGrounDetail = (row: any) => {
   grounDetailItem.value = _.cloneDeep(row)
 }
 
-// 任务基础信息
-const basicInfoData = ref<any>({})
-const getTaskReviewDetail = async (id: string) => {
-  if (!id) return basicInfoData.value = {}
-  const { data } = await queryTaskReviewDetail(id)
-  basicInfoData.value = data
-}
 
 // 左侧列表数据展示
-// const dateValue = ref<any>([dayjs(new Date()).format("YYYY-MM-DD"), dayjs(new Date()).format("YYYY-MM-DD")]) //时间
-const dateValue = ref<any>([]) //时间
+const dateValue = ref<any>([dayjs(new Date()).format("YYYY-MM-DD"), dayjs(new Date()).format("YYYY-MM-DD")]) //时间
+// const dateValue = ref<any>([]) //时间
 const taskName = ref() // 任务名称
 const isReview = ref('1') // 是否审核
 const teamTaskList = ref<any>([])
 const teamTaskLoading = ref(false)
 const isActiveId = ref<any>()
 const initParam = reactive({ taskId: '' })
-
 const rightLoading = ref(false)
+const basicInfoData = ref<any>({}) // 任务基础信息
 // 点击任务卡片获取右侧数据
 const clickTeamTask = (row: any) => {
   if (!row.id) return
@@ -256,7 +296,6 @@ const clickTeamTask = (row: any) => {
   isActiveId.value = row.id
   initParam.taskId = row.id
   basicInfoData.value = row  //任务基础信息
-  // await getTaskReviewDetail(isActiveId.value) // 获取任务基础信息
   rightLoading.value = false
 }
 // 查询团检任务管理列表
@@ -287,7 +326,6 @@ const updateTabs = (val: string) => {
   isReview.value = val
   getTeamTaskData()
 }
-
 </script>
 
 <style scoped lang="scss">

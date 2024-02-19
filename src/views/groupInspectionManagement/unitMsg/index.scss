@@ -30,34 +30,41 @@
   color: #2879ff !important;
 }
 
-.title-before {
-  position: relative;
-  display: inline-block;
-  margin-left: 10px;
-
-  &::after {
-    content: '';
-    position: absolute;
-    width: 4px;
-    height: 16px;
-    background: #ff8f33;
-    left: -10px;
-    border-radius: 2px;
-    top: 3px;
+  .title-before{
+    position: relative;
+    display: inline-block;
+    margin-left: 10px;
+    &::after{
+      content: '';
+      position: absolute;
+      width: 4px;
+      height: 16px;
+      background: #FF8F33;
+      left: -10px;
+      border-radius: 2px;
+      top:3px
+    }
   }
-}
-.basci-info-wrap {
-  max-height: 200px;
-  overflow: auto;
-}
-.unit-tree {
-  max-height: calc(100vh - 200px);
-  overflow: auto;
-}
-.unit-page-wrap {
-  height: calc(100vh - 135px);
-}
-.unit-list-wrap {
-  max-height: calc(100vh - 175px);
-  overflow: auto;
-}
+  .basci-info-wrap{
+    max-height: 200px;
+    overflow: auto;
+  }
+  .unit-tree{
+    max-height: calc(100vh - 200px);
+    overflow: auto;
+  }
+  .unit-page-wrap{
+    height: calc(100vh - 135px);
+  }
+  .unit-list-wrap{
+    max-height: calc(100vh - 175px);
+    overflow: auto;
+  }
+  .alert-select{
+    height: 30px;
+    background: #F1F5FB;
+    border-radius: 4px;
+    line-height: 30px;
+    font-size: 14px;
+    padding: 0px 10px;
+  }

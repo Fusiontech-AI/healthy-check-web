@@ -1,7 +1,14 @@
 <template>
   <div>
-    <ProTable ref="proTableRef" :columns="tableColumns" :toolButton="false" :request-api="getTableList"
-      label-position="right" :searchCol="4" rowKey="id">
+    <ProTable
+      ref="proTableRef"
+      :columns="tableColumns"
+      :toolButton="false"
+      :request-api="getTableList"
+      label-position="right"
+      :searchCol="4"
+      rowKey="id"
+    >
       <template #searchxm>
         <el-row>
           <el-col :span="12">
@@ -12,19 +19,14 @@
           <el-col :span="12">
             <el-form-item label="性别：">
               <el-select v-model="searchParams.gender" :filterable="true" clearable placeholder="请选择性别" style="width: 100%;">
-                <el-option v-for="option of sys_user_sex" :key="option.dictValue" :label="option.dictLabel"
-                  :value="option.dictValue"></el-option>
+                <el-option v-for="option of sys_user_sex" :key="option.dictValue" :label="option.dictLabel" :value="option.dictValue"></el-option>
               </el-select>
             </el-form-item>
           </el-col>
         </el-row>
       </template>
-      <template #tableHeader="{ selectedListIds }">
-        <div class="flex justify-between">
-          <div>
-            <el-button type="primary" round @click="handleReRegister(selectedListIds)">再次登记</el-button>
-          </div>
-        </div>
+      <template #tableHeader="{ selectedListIds, isSelected }">
+        <el-button type="primary" round :disabled="!isSelected" @click="handleReRegister(selectedListIds)">再次登记</el-button>
       </template>
     </ProTable>
   </div>
@@ -34,13 +36,13 @@
 import { ref } from 'vue';
 import { getRegisterPage, reRegistration } from "@/api/deskRegistration/deregistration";
 const { proxy } = getCurrentInstance() as ComponentInternalInstance
-const { bus_physical_type, bus_category, bus_personnel_marriage_status, bus_healthy_check_status, needGeneralReview, sys_user_sex } = toRefs<any>(proxy?.useDict('bus_physical_type', 'bus_category', 'bus_personnel_marriage_status', 'bus_healthy_check_status', 'needGeneralReview', 'sys_user_sex'))
+const { bus_physical_type, bus_category, bus_personnel_marriage_status, bus_healthy_check_status, needGeneralReview, sys_user_sex, bus_person_category } = toRefs<any>(proxy?.useDict('bus_physical_type', 'bus_category', 'bus_personnel_marriage_status', 'bus_healthy_check_status', 'needGeneralReview', 'sys_user_sex', 'bus_person_category'))
 import { dayjs } from 'element-plus';
 const tableColumns = ref<any>([
   { type: 'selection', },
   { prop: 'healthyCheckCode', label: '体检号', search: { el: 'input' }, isShow: false },
   { prop: 'name', label: '姓名', search: { el: 'input', }, isShow: false, slot: 'xm' },
-  { prop: 'healthyCheckTime', label: '体检日期', search: { el: 'date-picker', props: { type: 'daterange', valueFormat: "YYYY-MM-DD", format: "YYYY-MM-DD", clearable: true } }, isShow: false },
+  { prop: 'healthyCheckTime', label: '体检日期', search: { el: 'date-picker', props: { type: 'daterange', valueFormat: "YYYY-MM-DD", format: "YYYY-MM-DD", clearable: true }}, isShow: false },
   { prop: 'physicalType', label: '体检类型', search: { el: 'select' }, isShow: false },
   { prop: 'businessCategory', label: '业务类别', search: { el: 'select' }, isShow: false },
   { prop: 'guideSheetReceived', label: '回收', enum: [{ label: '是', value: '0' }, { label: '否', value: '1' }], search: { el: 'select' }, isShow: false },
@@ -51,8 +53,8 @@ const tableColumns = ref<any>([
   { prop: 'credentialNumber', label: '身份证号', search: { el: 'input' }, isShow: false },
   { prop: 'taskId', label: '任务', search: { el: 'input' }, isShow: false },
   { prop: 'chargeTime', label: '支付日期', search: { el: 'date-picker', props: { type: 'daterange', valueFormat: "YYYY-MM-DD", format: "YYYY-MM-DD", clearable: true } }, isShow: false },
-  { prop: 'createBy', label: '创建人', search: { el: 'input' }, isShow: false },
-  { prop: 'status', label: '人员类别', enum: [{ label: '正常', value: '0' }, { label: '否', value: '取消登记' }], search: { el: 'select' }, isShow: false },
+  { prop: 'createByName', label: '创建人', search: { el: 'input' }, isShow: false },
+  { prop: 'personCategory', label: '人员类别', enum: bus_person_category, search: { el: 'select' }, isShow: false },
   { prop: 'healthyCheckCode', label: '体检号', fixed: 'left' },
   { prop: 'recordCode', label: '档案号', fixed: 'left' },
   { prop: 'credentialNumber', label: '证件号', fixed: 'left', width: 180 },
@@ -87,7 +89,8 @@ const tableColumns = ref<any>([
 const proTableRef = ref()
 const searchParams = ref({
   name: '',
-  gender: ''
+  gender: '',
+  // healthyCheckTime: [dayjs(new Date()).format("YYYY-MM-DD"), dayjs(new Date()).format("YYYY-MM-DD")]
 })
 const handleReRegister = (ids: any) => {
   console.log(ids);

@@ -1,5 +1,5 @@
 <template>
-  <el-card>
+  <el-card :body-style="{ padding:'0px !important' }">
     <div class="unit-page-wrap">
       <el-row :gutter="8">
         <el-col :span="5">
@@ -20,6 +20,20 @@
             <el-alert type="info" center :closable="false" :show-icon="false" style="border: none">
               <div class="flex items-center">
                 <div class="text-[#3F4755] whitespace-nowrap">当前选择：</div>
+          <div class="ml-[10px]">
+            <div class="flex justify-between mt-[10px]">
+              <div class="font-bold">单位列表</div>
+              <el-tooltip class="box-item" content="新增单位" placement="top">
+                <div class="add-circle w-[24px] h-[24px] cursor-pointer bg-[#2879FF] flex items-center justify-center" @click="handleAddUnit">
+                  <el-icon color="#fff">
+                    <Plus />
+                  </el-icon>
+                </div>
+              </el-tooltip>
+            </div>
+            <div class="my-[10px]">
+              <div class="flex alert-select">
+                <div class="text-[#3F4755]" style="white-space: nowrap">当前选择：</div>
                 <span class="text-[#2879FF]">{{ selectTreeNodeName || '--' }}</span>
                 <span v-if="selectTreeNodeName" @click="handleClearSelectTreeNodeName" class="flex items-center cursor-pointer px-[8px]">
                   <el-icon color="#2879FF">
@@ -27,21 +41,21 @@
                   </el-icon>
                 </span>
               </div>
-            </el-alert>
-          </div>
-          <div><el-input v-model="unitName" placeholder="单位搜索" clearable /></div>
-          <div class="mt-[10px]">
-            <el-tree
-              v-loading="treeLoading"
-              ref="treeRef"
-              class="unit-tree"
-              :filter-node-method="filterNode"
-              :data="treeData"
-              :props="{ label: 'teamName' }"
-              node-key="id"
-              default-expand-all
-              @node-click="handleNodeClick"
-            />
+            </div>
+            <div><el-input v-model="unitName" placeholder="请输入单位名称搜索" clearable /></div>
+            <div class="mt-[10px]">
+              <el-tree
+                v-loading="treeLoading"
+                ref="treeRef"
+                class="unit-tree"
+                :filter-node-method="filterNode"
+                :data="treeData"
+                :props="{ label: 'teamName' }"
+                node-key="id"
+                default-expand-all
+                @node-click="handleNodeClick"
+              />
+            </div>
           </div>
         </el-col>
         <el-col :span="19">
@@ -60,11 +74,11 @@
                 {{ item.label }}
               </div>
             </div>
-            <div class="pr-[10px]">
-              <el-button type="danger" round v-if="activeTab === 0 && selectTreeNodeId" @click="handleDelete"> 删除单位 </el-button>
+            <div class="pr-[10px]" v-if="activeTab==0">
+              <el-button round v-if="activeTab === 0 && selectTreeNodeId" @click="handleDelete"> 删除 </el-button>
               <el-button round @click="handleCancle" v-if="!editFlag">取消</el-button>
-              <el-button type="primary" round @click="handleSave" v-if="!editFlag"> 保存单位 </el-button>
-              <el-button type="primary" round @click="handleEdit" v-if="editFlag"> 编辑单位 </el-button>
+              <el-button type="primary" round @click="handleSave" v-if="!editFlag"> 保存 </el-button>
+              <el-button type="primary" round @click="handleEdit" v-if="editFlag"> 编辑 </el-button>
             </div>
           </div>
           <div class="line2"></div>
@@ -153,16 +167,16 @@ const handleNodeClick = async (data: any) => {
   selectTreeNodeName.value = data.teamName;
   selectTreeNodeId.value = data?.id;
   selectTreeNodeRow.value = data;
-  const { data: response } = await queryTeamInfoById(data?.id);
-  unitFormData.value = {
-    ...response,
-    teamLevel: String(response?.teamLevel),
-    parentId: String(response?.parentId),
-    industryType: response?.industryType ? String(response?.industryType) : '',
-    regionCode: response?.regionCode ? String(response?.regionCode) : '',
-    economicType: response?.economicType ? String(response?.economicType) : '',
-    enterpriseSize: response?.enterpriseSize ? String(response?.enterpriseSize) : '',
-  };
+  // const { data: response } = await queryTeamInfoById(data?.id);
+  // unitFormData.value = {
+  //   ...response,
+  //   teamLevel: String(response?.teamLevel),
+  //   parentId: String(response?.parentId),
+  //   industryType: response?.industryType ? String(response?.industryType) : '',
+  //   regionCode: response?.regionCode ? String(response?.regionCode) : '',
+  //   economicType: response?.economicType ? String(response?.economicType) : '',
+  //   enterpriseSize: response?.enterpriseSize ? String(response?.enterpriseSize) : '',
+  // };
 };
 
 // 新增单位
@@ -206,8 +220,8 @@ const handleDelete = async () => {
   }
   const [err] = await to(
     proxy?.$modal.confirm(
-      '删除后该单位/部门不支持维护任务',
-      '是否确定删除该单位及下方单位/部门？'
+      '删除后该单位不支持维护任务',
+      '是否确定删除该单位及下方单位？'
     ) as any
   );
   if (!err) {
@@ -251,6 +265,7 @@ const filterNode = (value: string, data: Tree) => {
 </script>
 
 <style lang="scss" scoped>
+@import './index.scss';
 @import './index.scss';
 
 :deep(.el-alert__description) {
