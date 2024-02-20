@@ -24,9 +24,9 @@
         <div v-loading="loading">
           <pro-table v-if="activeTabValue !== '7'" ref="proTableRef" :columns="columns" :toolButton="false"
             :request-api="getTableList" :data-callback="dataCallback" :isShowSearch="true" rowKey="id">
-            <template #tableHeader="{ selectedListIds }">
+            <template #tableHeader="{ selectedListIds, isSelected }">
               <el-button round type="primary" @click="onpenDrawer({})">新增</el-button>
-              <el-button round @click="handleDel(selectedListIds)">批量删除</el-button>
+              <el-button round :disabled="!isSelected" @click="handleDel(selectedListIds)">批量删除</el-button>
             </template>
             <template #operation="{ row }">
               <el-button round type="primary" link @click="onpenDrawer(row, true)">详情</el-button>
@@ -52,7 +52,7 @@
         <SearchForm style="background: transparent; padding: 18px 30px;" ref="formRef" :columns="fields"
           :search-param="formValue" :rules="rules" :searchCol="1" :preview="false" :disabled="isDetail">
           <!-- 照射源 -->
-          <template #shineSource>
+          <template #shineSourceSlot>
             <el-select v-model="formValue.shineSource" @change="changeShineSource" clearable filterable
               style="width: 70%">
               <el-option v-for="item in bus_shine_source" :label="item.label" :value="item.value"
@@ -312,6 +312,7 @@ const getTableList: any = async (params: any) => {
         hazardFactorsCode: treeNodeClickObj.value.code
       })
     loading.value = false
+    proTableRef.value?.clearSelection();
     return data
   } catch (error) {
     loading.value = false

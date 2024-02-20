@@ -11,7 +11,7 @@
           <div class="menu-item_icon">
             <svg-icon :icon-class="onlyOneChild.meta.icon || (item.meta && item.meta.icon)" />
           </div>
-          <span class="menu-title" :title="hasTitle(onlyOneChild.meta.title)">{{ onlyOneChild.meta.title }}</span>
+          <span class="menu-title" v-if="appStore.sidebar.opened" :title="hasTitle(onlyOneChild.meta.title)">{{ onlyOneChild.meta.title }}</span>
         </app-link>
       </div>
     </template>
@@ -19,7 +19,7 @@
     <div
       v-else
       class="menu-item"
-      :class="{ 'menu-item_active': isActiveRouter(item) }"
+      :class="{ 'menu-item_active': isActiveRouter(item), 'menu-item-closed': !appStore.sidebar.opened  }"
       @click="clickMenuItem(item)"
       @mouseenter="mouseenterMenuItem(item)"
     >
@@ -27,16 +27,19 @@
       <div class="menu-item_icon">
         <svg-icon :icon-class="item.meta ? item.meta.icon : ''" />
       </div>
-      <span class="menu-title" :title="hasTitle(item.meta?.title)">{{ item.meta?.title }}</span>
+      <span class="menu-title" v-if="appStore.sidebar.opened" :title="hasTitle(item.meta?.title)">{{ item.meta?.title }}</span>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 // import AppLink from './Link.vue'
+import useAppStore from '@/store/modules/app';
 import { getNormalPath } from '@/utils/ruoyi'
 import { isExternal } from '@/utils/validate'
 import { RouteOption, useRoute } from "vue-router";
+
+const appStore = useAppStore();
 
 const props = defineProps({
   // route object
@@ -140,6 +143,7 @@ const mouseenterMenuItem = (item: RouteOption) => {
   background: #FFFFFF;
   color: #89919F;
   cursor: pointer;
+  // box-shadow: 0px 4px 8px 0px rgba(40, 121, 255, 0.2);
 
   &:hover {
     background: #F1F5FB;
@@ -152,23 +156,32 @@ const mouseenterMenuItem = (item: RouteOption) => {
       color: $--color-primary;
     }
   }
-}
 
-.menu-item_icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 100%;
-  margin: 0 auto;
-  box-shadow: 0px 0px 16px 0px rgba(128, 146, 181, 0.1);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 24px;
+  .menu-item_icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 100%;
+    margin: 0 auto;
+    box-shadow: 0px 0px 16px 0px rgba(128, 146, 181, 0.1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
 
-  .svg-icon {
-    color: #B1DAFC;
+    .svg-icon {
+      color: #B1DAFC;
+    }
   }
 }
+
+.menu-item-closed {
+  .menu-item_icon {
+    padding: 8px;
+    border-radius: 50%;
+    box-shadow: 0px 4px 8px 0px rgba(40, 121, 255, 0.2);
+  }
+}
+
 
 .menu-title {
   margin-top: 6px;

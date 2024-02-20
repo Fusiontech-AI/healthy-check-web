@@ -1,31 +1,33 @@
 <template>
-  <div class="container-tj items-start">
+  <div class="flex justify-between items-start">
     <el-card shadow="hover" class="left">
       <template #header>
-        <div class="card-header">
+        <div class="flex justify-between">
           <span>任务列表</span>
-          <el-button class="button" type="primary" @click="handleXZRW" round plain>新增任务</el-button>
+          <el-tooltip class="box-item" content="新增任务" placement="top">
+            <div
+              class="rounded-full w-[24px] h-[24px] cursor-pointer bg-[#2879FF] flex items-center justify-center text-[14px]">
+              <el-icon color="#fff" @click="handleXZRW">
+                <Plus />
+              </el-icon>
+            </div>
+          </el-tooltip>
         </div>
       </template>
       <SearchForm :search-param="queryParams" :columns="basicInfoColumn" :searchCol="1" :show-action-group="false">
         <template #gjc>
-          <div class="left-input">
-            <el-input v-model="queryParams.taskName" placeholder="请输入任务名称" suffix-icon="Search" />
-            <el-button round plain @click="handleCz">重置</el-button>
+          <div class="flex gap-2">
+            <el-input v-model="queryParams.taskName" placeholder="输入关键词搜索" suffix-icon="Search" />
+            <el-button class="button" :icon="RefreshRight" @click="handleCz" />
           </div>
         </template>
       </SearchForm>
+
       <div class="left-view ">
-        <div class="left-box mb10px" v-for="item in teamTaskLists" @click="handleClickItem(item)">
-          <div class="box"><span>体检任务:</span> {{ item.taskName }}</div>
-          <div class="box"><span>单位:</span> {{ item.teamName }}</div>
-          <div class="box"><span>签订日期:</span> {{ item.signDate }}</div>
-          <div class="group-type">
-            <span class="zhi">职</span>
-            <!-- <span class="jian" v-else-if="item.zyb === '0'">健</span>
-                <span class="fang" v-else>放</span> -->
-          </div>
-        </div>
+        <template v-for="item in teamTaskLists" :key="item.id">
+          <CardItem :bus_physical_type="bus_physical_type" :item="item" :activeKey="activeKey"
+            @click-item="handleClickItem(item)" />
+        </template>
       </div>
     </el-card>
 
@@ -73,12 +75,14 @@
 import { debounce, cloneDeep } from 'lodash'
 import { teamTaskList, teamInfoList, peisTeamTask, peisTeamTaskUpdate, teamTaskDetail, updateGroupProjectInfo, teamTaskDel, teamTaskVerifyGroupData, teamTaskVerifyGroupPackageData } from '@/api/groupInspectionManagement/taskManagement'
 import type { TabsPaneContext } from 'element-plus'
+import { RefreshRight } from '@element-plus/icons-vue'
 import Frist from '@/views/groupInspectionManagement/taskManagement/components/frist.vue'
 import Second from '@/views/groupInspectionManagement/taskManagement/components/second.vue'
 import Third from '@/views/groupInspectionManagement/taskManagement/components/third.vue'
 import Fourth from '@/views/groupInspectionManagement/taskManagement/components/fourth.vue'
-
+import CardItem from './components/CardItem.vue';
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
+
 const queryParams = reactive({
   teamId: '',
   times: [],
@@ -94,14 +98,17 @@ const formObj = {
 }
 const form = ref(formObj);
 const searchFormRef = ref()
-const teamIdList = ref([])
+const teamIdList = ref<any[]>([])
 const formSecond = ref([])
 const formSecondClone = ref([])
 const teamTaskLists = ref([])
 const activeName = ref('first')
 const preview = ref(false)
+const activeKey = ref<number>()
+
 const { bus_physical_type, bus_charge_type } = toRefs<any>(proxy?.useDict("bus_physical_type", 'bus_charge_type'));
-const formColumn = ref([
+
+const formColumn = ref<any[]>([
   {
     label: '任务名称',
     prop: 'taskName',
@@ -162,6 +169,7 @@ const formColumn = ref([
     search: { el: 'select' },
   },
 ]);
+
 const rules = ref({
   taskName: [
     { required: true, message: '请输入任务名称', trigger: 'blur' },
@@ -185,7 +193,7 @@ const rules = ref({
 //获得单位
 const getList = async () => {
   const { data } = await teamInfoList({})
-  teamIdList.value = proxy?.handleTree<any>(data)
+  teamIdList.value = proxy?.handleTree<any>(data) || []
 }
 getList()
 //任务列表
@@ -203,7 +211,7 @@ watch(queryParams, (newV) => {
 const getRemote = debounce(() => {
   getTaskList()
 }, 500)
-const basicInfoColumn = reactive([
+const basicInfoColumn = reactive<any[]>([
   {
     prop: 'teamId',
     label: '',
@@ -234,7 +242,7 @@ const handleCz = () => {
 }
 //下一步
 const handleX1 = async () => {
-  searchFormRef.value.validate(async (valid, fields) => {
+  searchFormRef.value.validate(async (valid: any, fields: any) => {
     if (valid) {
       if (activeName.value == 'first') {
         form.value.groupList.forEach(item => {
@@ -325,8 +333,9 @@ const handleS1 = () => {
   }
 }
 //详情
-const handleClickItem = async (row) => {
+const handleClickItem = async (row: any) => {
   activeName.value = 'first'
+  activeKey.value = row.id
   const { data } = await teamTaskDetail(row)
   data.taskId = data.id
   data.groupList.forEach(item => {
@@ -394,66 +403,6 @@ const handleGSH = () => {
 
 .left {
   width: 350px;
-
-  .card-header {
-    display: flex;
-    justify-content: space-between;
-  }
-
-  .left-box {
-    cursor: pointer;
-    padding: 10px;
-    border: 1px solid blue;
-    border-radius: 8px;
-
-    .box {
-      margin-bottom: 10px;
-
-      span {
-        display: inline-block;
-        width: 80px;
-      }
-    }
-
-    .group-type {
-      span {
-        display: inline-block;
-        width: 24px;
-        height: 24px;
-        border-radius: 2px;
-        text-align: center;
-        line-height: 24px;
-        margin-right: 10px;
-        font-size: 12px;
-      }
-
-      .zhi {
-        background: rgba(11, 191, 191, 0.07);
-        border: 1px solid rgba(11, 191, 191, 0.5);
-        color: #0bbfbf;
-      }
-
-      .fang {
-        background: rgba(241, 143, 45, 0.06);
-        border: 1px solid rgba(241, 143, 45, 0.5);
-        color: #f18f2d;
-      }
-
-      .jian {
-        background: rgba(24, 149, 238, 0.07);
-        border: 1px solid rgba(24, 149, 238, 0.5);
-        color: #1895ee;
-      }
-    }
-  }
-
-  .left-input {
-    display: flex;
-
-    .button {
-      margin-left: 15px;
-    }
-  }
 }
 
 :deep(.form-search) {

@@ -13,10 +13,11 @@
       >
         {{ tag.title }}
         <span v-if="!isAffix(tag)" @click.prevent.stop="closeSelectedTag(tag)">
-          <close class="el-icon-close" style="width: 1em; height: 1em;vertical-align: middle;" />
+          <CircleClose class="el-icon-close" style="width: 14px; height: 14px;vertical-align: middle;margin-top: -3px;" />
         </span>
       </router-link>
     </scroll-pane>
+
     <ul v-show="visible" :style="{ left: left + 'px', top: top + 'px' }" class="contextmenu">
       <li @click="refreshSelectedTag(selectedTag)"><refresh-right style="width: 1em; height: 1em;" /> 刷新页面</li>
       <li v-if="!isAffix(selectedTag)" @click="closeSelectedTag(selectedTag)"><close style="width: 1em; height: 1em;" /> 关闭当前</li>
