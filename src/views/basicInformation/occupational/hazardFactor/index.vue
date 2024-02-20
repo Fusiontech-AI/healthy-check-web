@@ -5,7 +5,8 @@
         <div class="left_box">
           <div class="p-10px">
             <div class="text-18px font-medium">危害因素分类</div>
-            <el-input v-model="searchTreeValue" class="mt-2" placeholder="请输入关键字" @input="getTreeData"></el-input>
+            <el-input v-model="searchTreeValue" class="mt-2" placeholder="请输入关键字" @input="getTreeData"
+              clearable></el-input>
           </div>
           <el-scrollbar class="px-10px" height="calc(100vh - 205px)">
             <el-tree v-loading="treeLoading" class="tree_root" highlight-current :data="treeData"
@@ -23,9 +24,9 @@
         <div v-loading="loading">
           <pro-table v-if="activeTabValue !== '7'" ref="proTableRef" :columns="columns" :toolButton="false"
             :request-api="getTableList" :data-callback="dataCallback" :isShowSearch="true" rowKey="id">
-            <template #tableHeader="{ selectedListIds }">
+            <template #tableHeader="{ selectedListIds, isSelected }">
               <el-button round type="primary" @click="onpenDrawer({})">新增</el-button>
-              <el-button round @click="handleDel(selectedListIds)">批量删除</el-button>
+              <el-button round :disabled="!isSelected" @click="handleDel(selectedListIds)">批量删除</el-button>
             </template>
             <template #operation="{ row }">
               <el-button round type="primary" link @click="onpenDrawer(row, true)">详情</el-button>
@@ -51,7 +52,7 @@
         <SearchForm style="background: transparent; padding: 18px 30px;" ref="formRef" :columns="fields"
           :search-param="formValue" :rules="rules" :searchCol="1" :preview="false" :disabled="isDetail">
           <!-- 照射源 -->
-          <template #shineSource>
+          <template #shineSourceSlot>
             <el-select v-model="formValue.shineSource" @change="changeShineSource" clearable filterable
               style="width: 70%">
               <el-option v-for="item in bus_shine_source" :label="item.label" :value="item.value"
@@ -135,7 +136,6 @@ const handleCloseTag = (tag: any) => {
 // 删除
 const handleDel = (ids: any) => {
   if (ids.length == 0) return ElMessage({ type: 'warning', message: '请先选择一项' })
-
   ElMessageBox.confirm('请确认是否删除？', '警告', {
     cancelButtonText: '取消',
     confirmButtonText: '确定',
@@ -194,32 +194,36 @@ const changeShineSource = (val: string) => {
   shineTypeOption.value = occupationalDict.value.filter((item: any) => item.busType === val)
 }
 // 新增修改提交保存
-const handleSubmit = async () => {
+const handleSubmit = () => {
   if (activeTabValue.value === '7') {
     if (isDetail.value) {
       isDetail.value = false
     } else {
-      pjbzFormRef.value.validate().then(async () => {
+      pjbzFormRef.value.validate(async (valid: any) => {
+        if (valid) {
+          await saveOrUpdate({ associationType: activeTabValue.value, ...formValue.value, sortCode: treeNodeClickObj.value.sortCode })
+          showDrawer.value = false
+          getPjbzData()
+          ElMessage({
+            message: formValue.value.id ? '编辑成功' : '新增成功',
+            type: 'success',
+          })
+          isDetail.value = true
+        }
+      })
+    }
+  } else {
+    formRef.value.validate(async (valid: any) => {
+      if (valid) {
         await saveOrUpdate({ associationType: activeTabValue.value, ...formValue.value, sortCode: treeNodeClickObj.value.sortCode })
         showDrawer.value = false
-        getPjbzData()
+        proTableRef.value?.getTableList()
         ElMessage({
           message: formValue.value.id ? '编辑成功' : '新增成功',
           type: 'success',
         })
-        isDetail.value = true
-      })
-    }
-  } else {
-    formRef.value.validate().then(async () => {
-      await saveOrUpdate({ associationType: activeTabValue.value, ...formValue.value, sortCode: treeNodeClickObj.value.sortCode })
-      showDrawer.value = false
-      proTableRef.value?.getTableList()
-      ElMessage({
-        message: formValue.value.id ? '编辑成功' : '新增成功',
-        type: 'success',
-      })
-    }).catch(() => { })
+      }
+    })
   }
 }
 
@@ -308,6 +312,7 @@ const getTableList: any = async (params: any) => {
         hazardFactorsCode: treeNodeClickObj.value.code
       })
     loading.value = false
+    proTableRef.value?.clearSelection();
     return data
   } catch (error) {
     loading.value = false

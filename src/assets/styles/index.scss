@@ -1,9 +1,9 @@
 @import './variables.module.scss';
 @import './mixin.scss';
 @import './transition.scss';
-@import './element-ui.scss';
-@import './menu.scss';
-// @import './sidebar.scss';
+@import './element-ui.scss'; // element样式文件
+@import './menu.scss'; // 新菜单样式文件
+// @import './sidebar.scss'; // 原（初始化）菜单样式文件
 @import './btn.scss';
 @import './ruoyi.scss';
 @import 'animate.css';

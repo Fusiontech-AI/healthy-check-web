@@ -1,5 +1,5 @@
 <template>
-  <div class="p-2">
+  <div>
     <el-row :gutter="20">
       <!-- 部门树 -->
       <el-col :lg="4" :xs="24" style="">

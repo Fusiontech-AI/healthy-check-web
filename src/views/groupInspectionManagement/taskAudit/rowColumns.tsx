@@ -8,7 +8,9 @@ const {
   bus_healthy_check_status,
   bus_category,
   bus_physical_type,
-  bus_need_general_review
+  bus_need_general_review,
+  bus_person_category,
+  bus_cost_type
 } = toRefs<any>(
   useDict(
     'bus_marriage_status',
@@ -18,7 +20,10 @@ const {
     'sys_user_sex',
     'bus_healthy_check_status',
     'bus_category',
-    'bus_physical_type','bus_need_general_review'
+    'bus_physical_type',
+    'bus_need_general_review',
+    'bus_person_category',
+    'bus_cost_type'
   )
 );
 
@@ -124,19 +129,19 @@ export const personnelListColumn: any = [
 
 // 任务人员列表Columns
 export const groupPersonColumn: any = [
-  { prop: 'healthyCheckCode', label: '体检号' },
-  { prop: 'recordCode', label: '档案号' },
-  { prop: 'credentialNumber', label: '证件号', width: 180 },
-  { prop: 'businessCategory', label: '业务类型', width: 120,  },
-  { prop: 'physicalType', label: '体检类型', width: 120  },
+  { prop: 'healthyCheckCode', label: '体检号',fixed: 'left' },
+  { prop: 'recordCode', label: '档案号', fixed: 'left'  },
+  { prop: 'credentialNumber', label: '证件号', width: 180, fixed: 'left'  },
+  { prop: 'businessCategory', label: '业务类别', width: 120, enum: bus_category, fieldNames: { label: 'dictLabel', value: 'dictValue' }  },
+  { prop: 'physicalType', label: '体检类型', width: 120, enum: bus_physical_type, fieldNames: { label: 'dictLabel', value: 'dictValue' }   },
   { prop: 'name', label: '姓名' },
-  { prop: 'marriageStatus', label: '婚否', },
+  { prop: 'marriageStatus', label: '婚否', enum: bus_marriage_status, fieldNames: { label: 'dictLabel', value: 'dictValue' } },
   { prop: 'age', label: '年龄' },
-  { prop: 'phone', label: '电话' },
+  { prop: 'phone', label: '电话', width: 120 },
   { prop: 'healthyCheckTime', label: '体检日期', width: 120 },
-  { prop: 'healthyCheckStatus', label: '体检状态', width: 120},
-  { prop: 'needGeneralReview', label: '需要总检', width: 120},
-  { prop: 'status', label: '人员类别', width: 120 },
+  { prop: 'healthyCheckStatus', label: '体检状态', width: 120,  enum: bus_healthy_check_status, fieldNames: { label: 'dictLabel', value: 'dictValue' }},
+  { prop: 'needGeneralReview', label: '需要总检', width: 120, enum: bus_need_general_review, fieldNames: { label: 'dictLabel', value: 'dictValue' } },
+  { prop: 'personCategory', label: '人员类别', width: 120, enum: bus_person_category },
   { prop: 'totalAmount', label: '总费用' },
   { prop: 'teamAmount', label: '团费' },
   { prop: 'personAmount', label: '个费' },
@@ -156,114 +161,126 @@ export const groupPersonColumn: any = [
 export const personColumn: any = [
   {
     label: '体检号',
-    value: '18100000000'
+    prop: 'healthyCheckCode'
   },
   {
     label: '档案号',
-    value: '18100000000'
+    prop: 'recordCode'
   },
   {
     label: '证件号',
-    value: '18100000000'
+    prop: 'credentialNumber'
   },
   {
     label: '业务类别',
-    value: '团检'
+    prop: 'businessCategory',
+    enum: bus_category, 
+    fieldNames: { label: 'dictLabel', value: 'dictValue' } 
   },
   {
     label: '体检类型',
-    value: '职业病体检'
+    prop: 'physicalType',
+    enum: bus_physical_type, 
+    fieldNames: { label: 'dictLabel', value: 'dictValue' } 
   },
   {
     label: '姓名',
-    value: '11'
+    prop: 'name'
   },
   {
     label: '婚否',
-    value: '未婚'
+    prop: 'marriageStatus',
+    enum: bus_marriage_status, 
+    fieldNames: { label: 'dictLabel', value: 'dictValue' } 
   },
   {
     label: '年龄',
-    value: '18'
+    prop: 'age'
   },
   {
     label: '电话',
-    value: '18100000000'
+    prop: 'phone'
   },
   {
     label: '体检日期',
-    value: '18100000000'
+    prop: 'healthyCheckTime'
   },
   {
     label: '体检状态',
-    value: '18100000000'
+    prop: 'healthyCheckStatus',
+    enum: bus_healthy_check_status, 
+    fieldNames: { label: 'dictLabel', value: 'dictValue' } 
   },
   {
     label: '需要总检',
-    value: '18100000000'
+    prop: 'needGeneralReview',
+    enum: bus_need_general_review, 
+    fieldNames: { label: 'dictLabel', value: 'dictValue' } 
   },
   {
     label: '人员费别',
-    value: '18100000000'
+    prop: 'costType',
+    enum: bus_cost_type, 
+    fieldNames: { label: 'dictLabel', value: 'dictValue' } 
   },
   {
     label: '总费用（元）',
-    value: '18100000000'
+    prop: 'totalAmount'
   },
   {
     label: '团费（元）',
-    value: '18100000000'
+    prop: 'teamAmount'
   },
   {
     label: '个费（元）',
-    value: '18100000000'
+    prop: 'personAmount'
   },
   {
     label: '单位',
-    value: '18100000000'
+    prop: 'teamName'
   },
   {
     label: '分组',
-    value: '18100000000'
+    prop: 'groupName'
   },
   {
     label: '部门',
-    value: '18100000000'
+    prop: 'deptName'
   },
   {
     label: '介绍人',
-    value: '18100000000'
+    prop: 'introducerName'
   },
   {
     label: '创建人',
-    value: '18100000000'
+    prop: 'createByName'
   },
   {
     label: '报到人',
-    value: '18100000000'
+    prop: 'registerDoctorName'
   },
   {
     label: '总检医生',
-    value: '18100000000'
+    prop: '18100000000'
   },
   {
     label: '总检时间',
-    value: '18100000000'
+    prop: 'generalReviewDoctorName'
   },
   {
     label: '审核医生',
-    value: '18100000000'
+    prop: 'auditDoctorName'
   },
   {
     label: '审核时间',
-    value: '18100000000'
+    prop: 'auditTime'
   },
   {
     label: '预约日期',
-    value: '18100000000'
+    prop: 'healthyCheckTime'
   },
   {
     label: '完成时间',
-    value: '18100000000'
+    prop: 'finishTime'
   }
 ];

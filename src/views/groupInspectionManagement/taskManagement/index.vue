@@ -1,31 +1,33 @@
 <template>
-  <div class="container-tj items-start">
+  <div class="flex justify-between items-start">
     <el-card shadow="hover" class="left">
       <template #header>
-        <div class="card-header">
+        <div class="flex justify-between">
           <span>任务列表</span>
-          <el-button class="button" type="primary">新增任务</el-button>
+          <el-tooltip class="box-item" content="新增任务" placement="top">
+            <div
+              class="rounded-full w-[24px] h-[24px] cursor-pointer bg-[#2879FF] flex items-center justify-center text-[14px]">
+              <el-icon color="#fff" @click="handleXZRW">
+                <Plus />
+              </el-icon>
+            </div>
+          </el-tooltip>
         </div>
       </template>
       <SearchForm :search-param="queryParams" :columns="basicInfoColumn" :searchCol="1" :show-action-group="false">
         <template #gjc>
-          <div class="left-input">
-            <el-input v-model="queryParams.taskName" placeholder="请输入任务名称" suffix-icon="Search" />
-            <el-button class="button" @click="handleCz">重置</el-button>
+          <div class="flex gap-2">
+            <el-input v-model="queryParams.taskName" placeholder="输入关键词搜索" suffix-icon="Search" />
+            <el-button class="button" :icon="RefreshRight" @click="handleCz" />
           </div>
         </template>
       </SearchForm>
+
       <div class="left-view ">
-        <div class="left-box mb10px" v-for="item in teamTaskLists" @click="handleClickItem(item)">
-          <div class="box"><span>体检任务:</span> {{ item.taskName }}</div>
-          <div class="box"><span>单位:</span> {{ item.teamName }}</div>
-          <div class="box"><span>签订日期:</span> {{ item.signDate }}</div>
-          <div class="group-type">
-            <span class="zhi">职</span>
-            <!-- <span class="jian" v-else-if="item.zyb === '0'">健</span>
-                <span class="fang" v-else>放</span> -->
-          </div>
-        </div>
+        <template v-for="item in teamTaskLists" :key="item.id">
+          <CardItem :bus_physical_type="bus_physical_type" :item="item" :activeKey="activeKey"
+            @click-item="handleClickItem(item)" />
+        </template>
       </div>
     </el-card>
 
@@ -33,30 +35,36 @@
       <div class="rwtitle">
         <span>任务详情</span>
         <div>
-          <el-button class="button" type="primary">编辑任务</el-button>
-          <el-button class="button" type="primary">删除任务</el-button>
-          <el-button class="button" type="primary">上一步</el-button>
-          <el-button class="button" type="primary" @click="handleX1">下一步</el-button>
+          <el-button class="button" type="primary" v-if="form.id && preview" @click="preview = false" round
+            plain>编辑任务</el-button>
+          <el-button class="button" type="" v-if="form.id && !preview" @click="preview = true" round
+            plain>取消编辑</el-button>
+          <el-button class="button" type="primary" @click="handleBCRW" round plain>保存任务</el-button>
+          <el-button class="button" type="primary" v-if="form.id" @click="handleSCRW" round plain>删除任务</el-button>
+          <el-button class="button" type="primary" @click="handleS1" v-if="activeName != 'first'" round
+            plain>上一步</el-button>
+          <el-button class="button" type="primary" @click="handleX1" v-if="activeName != 'fourth'" round
+            plain>下一步</el-button>
         </div>
       </div>
       <div><span>基本信息</span></div>
       <!-- 查询表单 -->
       <SearchForm ref="searchFormRef" :search-param="form" :columns="formColumn" :searchCol="4" :show-action-group="false"
-        :rules="rules">
+        :rules="rules" :preview="preview">
       </SearchForm>
       <div><span>体检项目信息</span></div>
       <el-tabs v-model="activeName" @tab-click="handleClick">
         <el-tab-pane label="分组管理" name="first">
-          <Frist :form="form" />
+          <Frist :form="form" :preview="preview" />
         </el-tab-pane>
         <el-tab-pane label="套餐/项目选择" name="second">
-          <Second :formSecond="formSecond" />
+          <Second :formSecond="formSecond" :preview="preview" :form="form" />
         </el-tab-pane>
         <el-tab-pane label="人员管理" name="third">
-          <Third />
+          <Third :preview="preview" :form="form" v-if="activeName == 'third'" />
         </el-tab-pane>
         <el-tab-pane label="委托协议" name="fourth">
-          <Fourth />
+          <Fourth :preview="preview" :form="form" v-if="activeName == 'fourth'" />
         </el-tab-pane>
       </el-tabs>
     </el-card>
@@ -64,31 +72,43 @@
 </template>
 
 <script setup lang="tsx" name="taskManagement">
-import { debounce } from 'lodash'
-import { teamTaskList, teamInfoList, peisTeamTask, peisTeamTaskUpdate, teamTaskDetail } from '@/api/groupInspectionManagement/taskManagement'
+import { debounce, cloneDeep } from 'lodash'
+import { teamTaskList, teamInfoList, peisTeamTask, peisTeamTaskUpdate, teamTaskDetail, updateGroupProjectInfo, teamTaskDel, teamTaskVerifyGroupData, teamTaskVerifyGroupPackageData } from '@/api/groupInspectionManagement/taskManagement'
 import type { TabsPaneContext } from 'element-plus'
+import { RefreshRight } from '@element-plus/icons-vue'
 import Frist from '@/views/groupInspectionManagement/taskManagement/components/frist.vue'
 import Second from '@/views/groupInspectionManagement/taskManagement/components/second.vue'
 import Third from '@/views/groupInspectionManagement/taskManagement/components/third.vue'
 import Fourth from '@/views/groupInspectionManagement/taskManagement/components/fourth.vue'
-const form = reactive({
-  groupList: [{
-    groupPayType: '1'
-  }]
-});
+import CardItem from './components/CardItem.vue';
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
+
 const queryParams = reactive({
   teamId: '',
   times: [],
   taskName: ''
 })
+const formObj = {
+  groupList: [{
+    groupPayType: '1'
+  }],
+  signDate: proxy?.$moment().format('YYYY-MM-DD'),
+  beginDate: proxy?.$moment().format('YYYY-MM-DD'),
+  endDate: proxy?.$moment().format('YYYY-MM-DD'),
+}
+const form = ref(formObj);
 const searchFormRef = ref()
-const teamIdList = ref([])
+const teamIdList = ref<any[]>([])
 const formSecond = ref([])
+const formSecondClone = ref([])
 const teamTaskLists = ref([])
 const activeName = ref('first')
+const preview = ref(false)
+const activeKey = ref<number>()
+
 const { bus_physical_type, bus_charge_type } = toRefs<any>(proxy?.useDict("bus_physical_type", 'bus_charge_type'));
-const formColumn = ref([
+
+const formColumn = ref<any[]>([
   {
     label: '任务名称',
     prop: 'taskName',
@@ -110,17 +130,17 @@ const formColumn = ref([
   {
     label: '签订日期',
     prop: 'signDate',
-    search: { el: 'date-picker' },
+    search: { el: 'date-picker', valueFormat: "YYYY-MM-DD" },
   },
   {
     label: '开始日期',
     prop: 'beginDate',
-    search: { el: 'date-picker' },
+    search: { el: 'date-picker', valueFormat: "YYYY-MM-DD" },
   },
   {
     label: '结束日期',
     prop: 'endDate',
-    search: { el: 'date-picker' },
+    search: { el: 'date-picker', valueFormat: "YYYY-MM-DD" },
   },
   {
     label: '收费类型',
@@ -149,6 +169,7 @@ const formColumn = ref([
     search: { el: 'select' },
   },
 ]);
+
 const rules = ref({
   taskName: [
     { required: true, message: '请输入任务名称', trigger: 'blur' },
@@ -172,7 +193,7 @@ const rules = ref({
 //获得单位
 const getList = async () => {
   const { data } = await teamInfoList({})
-  teamIdList.value = proxy?.handleTree<any>(data)
+  teamIdList.value = proxy?.handleTree<any>(data) || []
 }
 getList()
 //任务列表
@@ -190,7 +211,7 @@ watch(queryParams, (newV) => {
 const getRemote = debounce(() => {
   getTaskList()
 }, 500)
-const basicInfoColumn = reactive([
+const basicInfoColumn = reactive<any[]>([
   {
     prop: 'teamId',
     label: '',
@@ -221,28 +242,141 @@ const handleCz = () => {
 }
 //下一步
 const handleX1 = async () => {
-  searchFormRef.value.validate(async (valid, fields) => {
+  searchFormRef.value.validate(async (valid: any, fields: any) => {
     if (valid) {
-      if (form.id) {
-        const { data } = await peisTeamTaskUpdate(form)
-        formSecond.value = data
-        activeName.value = 'second'
-      } else {
-        const { data } = await peisTeamTask(form)
-        formSecond.value = data
-        activeName.value = 'second'
+      if (activeName.value == 'first') {
+        form.value.groupList.forEach(item => {
+          if (item.isSyncProject1) {
+            item.isSyncProject = '0'
+          } else {
+            item.isSyncProject = '1'
+          }
+        })
+        if (form.value.taskId) {
+          //调用校验接口
+          await handleJY1()
+          const { data } = await peisTeamTaskUpdate({ ...form.value, id: form.value.taskId })
+          formSecond.value = data
+          activeName.value = 'second'
+        } else {
+          const { data } = await peisTeamTask(form.value)
+          formSecond.value = data
+          activeName.value = 'second'
+          form.value.taskId = data[0].taskId
+        }
+        formSecondClone.value = cloneDeep(formSecond.value)
+        //执行列表刷新
+        getTaskList()
+
+        return
+      }
+      if (activeName.value == 'second') {
+        //调用校验接口
+        await handleJY2()
+        await updateGroupProjectInfo(formSecond.value)
+        activeName.value = 'third'
+
+        return
+      }
+      if (activeName.value == 'third') {
+        activeName.value = 'fourth'
+        return
       }
     }
   })
 
 }
-//详情
-const handleClickItem = async (row) => {
-  const { data } = await teamTaskDetail(row)
-  for (const key in data) {
-    form[key] = data[key]
+//校验第一步所填数据
+const handleJY1 = async () => {
+  const arr = form.value.groupList.filter(item => item.id)
+  const { data } = await teamTaskVerifyGroupData(arr)
+  if (data.isPrompt) {
+    await proxy?.$modal.confirm(data.promptMessage)
   }
-
+}
+//校验第二步所填数据
+const handleJY2 = async () => {
+  //过滤出初始化没有标准价格的项
+  const list = []
+  formSecondClone.value.forEach(item => {
+    if (item.actualPrice != null) {
+      list.push(item.id)
+    }
+  })
+  const arr = formSecond.value.filter(item => list.includes(item.id))
+  const arr1 = arr.map(item => {
+    const { id, groupName, itemDiscount, addDiscount, isSyncProject, actualPrice, groupItemList
+    } = item
+    return {
+      id, groupName, itemDiscount, addDiscount, isSyncProject, actualPrice,
+      itemList: groupItemList.map(item => item.itemId)
+    }
+  })
+  if (arr1.length == 0) return
+  const { data } = await teamTaskVerifyGroupPackageData(arr1)
+  if (data.isPrompt) {
+    await proxy?.$modal.confirm(data.promptMessage)
+  }
+}
+//上一步
+const handleS1 = () => {
+  if (activeName.value == 'fourth') {
+    activeName.value = 'third'
+    return
+  }
+  if (activeName.value == 'third') {
+    activeName.value = 'second'
+    return
+  }
+  if (activeName.value == 'second') {
+    activeName.value = 'first'
+  }
+}
+//详情
+const handleClickItem = async (row: any) => {
+  activeName.value = 'first'
+  activeKey.value = row.id
+  const { data } = await teamTaskDetail(row)
+  data.taskId = data.id
+  data.groupList.forEach(item => {
+    if (item.isSyncProject == '0') {
+      item.isSyncProject1 = true
+    } else {
+      item.isSyncProject1 = false
+    }
+  })
+  form.value = data
+  preview.value = true
+}
+//保存任务
+const handleBCRW = async () => {
+  await searchFormRef.value.validate(async (valid, fields) => {
+    if (valid) {
+      await updateGroupProjectInfo(formSecond.value)
+      proxy?.$modal.msgSuccess("操作成功");
+      getTaskList()
+    }
+  })
+}
+//删除任务
+const handleSCRW = async () => {
+  await proxy?.$modal.confirm('确认要删除此任务吗?')
+  await teamTaskDel({ ids: [form.value.id] })
+  proxy?.$modal.msgSuccess("操作成功");
+  handleGSH()
+  getTaskList()
+}
+//新增任务
+const handleXZRW = async () => {
+  await proxy?.$modal.confirm('<span style="font-weight:bold">当前任务未保存，是否确认切换/新增任务？</span><br/> 切换/新增任务后，当前编辑内容将被清空')
+  handleGSH()
+}
+//数据格式化
+const handleGSH = () => {
+  preview.value = false
+  form.value = formObj
+  activeName.value = 'first'
+  searchFormRef.value.resetFields()
 }
 </script>
 
@@ -269,69 +403,13 @@ const handleClickItem = async (row) => {
 
 .left {
   width: 350px;
-
-  .card-header {
-    display: flex;
-    justify-content: space-between;
-  }
-
-  .left-box {
-    cursor: pointer;
-    padding: 10px;
-    border: 1px solid blue;
-    border-radius: 8px;
-
-    .box {
-      margin-bottom: 10px;
-
-      span {
-        display: inline-block;
-        width: 80px;
-      }
-    }
-
-    .group-type {
-      span {
-        display: inline-block;
-        width: 24px;
-        height: 24px;
-        border-radius: 2px;
-        text-align: center;
-        line-height: 24px;
-        margin-right: 10px;
-        font-size: 12px;
-      }
-
-      .zhi {
-        background: rgba(11, 191, 191, 0.07);
-        border: 1px solid rgba(11, 191, 191, 0.5);
-        color: #0bbfbf;
-      }
-
-      .fang {
-        background: rgba(241, 143, 45, 0.06);
-        border: 1px solid rgba(241, 143, 45, 0.5);
-        color: #f18f2d;
-      }
-
-      .jian {
-        background: rgba(24, 149, 238, 0.07);
-        border: 1px solid rgba(24, 149, 238, 0.5);
-        color: #1895ee;
-      }
-    }
-  }
-
-  .left-input {
-    display: flex;
-
-    .button {
-      margin-left: 15px;
-    }
-  }
 }
 
 :deep(.form-search) {
   padding: 0;
+}
+
+:deep(.el-tabs__item) {
+  pointer-events: none !important;
 }
 </style>

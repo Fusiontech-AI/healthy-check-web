@@ -1,10 +1,14 @@
 <template>
   <div class="text-[14px] h-full flex flex-col justify-between no-card">
     <div>
-      <div class="font-bold card_title"><span></span>单位分组</div>
-      <SearchForm ref="formRef" :columns="unitGroupColumns" :search-param="formValue" :rules="rules"></SearchForm>
-      <div class="font-bold card_title"><span></span>基础信息</div>
-      <SearchForm ref="formRef" :columns="basicsInfoColumns" :search-param="formValue" :rules="rules"></SearchForm>
+      <SearchForm ref="formRef" :columns="unitGroupColumns" :search-param="formValue" :rules="rules">
+        <template #groupTitleComponent>
+          <div class="font-bold card_title"><span></span>单位分组</div>
+        </template>
+        <template #infoTitleComponent>
+          <div class="font-bold card_title"><span></span>基础信息</div>
+        </template>
+      </SearchForm>
     </div>
     <div class="flex justify-end mt-4">
       <el-button @click="hanldeClose">取消</el-button>
@@ -14,9 +18,8 @@
 </template>
 
 <script setup lang="ts">
-import { unitGroupColumn, basicsInfoColumn } from '../rowColumns'
+import { unitGroupColumn } from '../rowColumns'
 const unitGroupColumns = ref<any>(unitGroupColumn)
-const basicsInfoColumns = ref<any>(basicsInfoColumn)
 const formValue = ref({})
 const formRef = ref()
 const rules = reactive({
@@ -35,16 +38,17 @@ const hanldeClose = () => {
 
 <style scoped lang="scss">
 .card_title {
-    display: flex;
-    align-items: center;
-    margin-bottom: 10px;
-    span {
-      width: 4px;
-      height: 16px;
-      margin-right: 4px;
-      border-radius: 2px;
-      font-weight: bold;
-      background: #FF8F33;
-    }
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+
+  span {
+    width: 4px;
+    height: 16px;
+    margin-right: 4px;
+    border-radius: 2px;
+    font-weight: bold;
+    background: #FF8F33;
   }
+}
 </style>

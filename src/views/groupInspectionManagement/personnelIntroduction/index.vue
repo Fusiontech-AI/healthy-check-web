@@ -10,8 +10,8 @@
             <el-date-picker class="my-2" v-model="searchParam.dateValue" type="daterange" value-format="YYYY-MM-DD"
               format="YYYY-MM-DD" start-placeholder="开始时间" end-placeholder="结束时间" style="width: 100%;" @change="getTeamTaskData"/>
             <div class="flex items-center">
-              <el-input placeholder="请输入关键字" v-model="searchParam.taskName"  @input="updateInput"></el-input>
-              <el-button @click="reset">重置</el-button>
+              <el-input placeholder="请输入任务名称" v-model="searchParam.taskName"  @input="updateInput"></el-input>
+              <el-button @click="reset" :icon="RefreshRight" style="padding: 8px;margin-left: 10px;"></el-button>
             </div>
           </div>
           <el-scrollbar class="list_card" height="calc(100vh - 238px)">
@@ -55,7 +55,7 @@
               <div class="font-bold card_title"><span></span>基本信息</div>
             </div>
             <SearchForm ref="formRef" :columns="formColumns" :search-param="activeTeamTaskInfo" :search-col="3"
-              :rules="rules" :disabled="true"></SearchForm>
+             :disabled="true" ></SearchForm>
           </div>
           <div class="divider"></div>
           <div>
@@ -64,11 +64,11 @@
             </div>
             <div class="my-2"><span class="text-red">*</span> 请根据当前任务所选体检类型，下载对应模板后再上传</div>
             <div class="no-card">
-              <ProTable :columns="tableColumns" :toolButton="false" :request-api="queryTaskReviewRegister"
+              <ProTable ref="proTableRef" :columns="tableColumns" :toolButton="false" :request-api="queryTaskReviewRegister"
                 :init-param="initParam" :request-auto="false">
-                <template #operation="scope">
+                <template #operation="{row}">
                   <el-button type="primary" link @click="showPersonDialog = true">查看</el-button>
-                  <el-button type="danger" link>删除</el-button>
+                  <el-button type="danger" link @click="handleDel(row)">删除</el-button>
                 </template>
               </ProTable>
             </div>
@@ -79,20 +79,21 @@
     <el-drawer v-model="addDrawer" title="新增团检人员" size="60%">
       <add-drawer @closeDialog="addDrawer = false"></add-drawer>
     </el-drawer>
-    <el-dialog title="批量导入" v-model="batchImportDialog">
-      <batch-import :is-show-dialog="batchImportDialog" :team-task-info="activeTeamTaskInfo" @close-dialog="batchImportDialog = false"></batch-import>
+    <el-dialog title="批量导入" v-model="batchImportDialog" width="55%">
+      <batch-import :is-show-dialog="batchImportDialog" :team-task-info="activeTeamTaskInfo" @close-dialog="batchImportDialog = false; proTableRef?.getTableList()"></batch-import>
     </el-dialog>
     <el-dialog title="人员信息详情" v-model="showPersonDialog" width="45%">
-      <div class="h-[550px] overflow-auto">
-        <Grid ref="gridRef" :gap="20" :cols="2">
+      <el-scrollbar height="550px" class="no-card">
+        <SearchForm ref="formRef" :columns="personColumns" :search-param="personInfo" :search-col="2"></SearchForm>
+        <!-- <Grid ref="gridRef" :gap="20" :cols="2">
           <GridItem :span="1" v-for="item in personColumns " :key="item.label">
             <div class="flex text-[14px] text-[#141C28] ml-4">
               <span class="w-[120px] text-[#89919F]">{{ item.label }}：</span>
               <span class="flex-1">{{ item.value }}</span>
             </div>
           </GridItem>
-        </Grid>
-      </div>
+        </Grid> -->
+      </el-scrollbar>
       <div class="flex justify-end mt-4">
         <el-button round @click="showPersonDialog = false">取消</el-button>
         <el-button round type="primary" @click="showPersonDialog = false">确定</el-button>
@@ -108,8 +109,9 @@ import AddDrawer from './components/AddDrawer.vue'
 import BatchImport from './components/BatchImport.vue'
 import { getTeamTaskList, queryTaskReviewRegister } from '@/api/groupInspection/taskAudit';
 import { teamInfoList } from '@/api/groupInspection/inspectionclosing';
+import { RefreshRight } from '@element-plus/icons-vue';
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-
+const proTableRef = ref()
 const formColumns = ref<any>(formInfoColumns)
 const tableColumns = ref<any>(tableColumn)
 const personColumns = ref<any>(personColumn)
@@ -123,11 +125,28 @@ const formRef = ref<any>(null)
 const addDrawer = ref<boolean>(false) // 新增弹框显示隐藏
 const showPersonDialog = ref<boolean>(false) // 人员信息弹窗显示隐藏
 const batchImportDialog = ref<boolean>(false) // 批量导入弹框显示隐藏
-const rules = reactive({
-  name: [
-    { required: true, message: '请输入任务名称', trigger: 'blur' },
-  ]
-})
+const personInfo = ref({})
+
+const handleDel = (row:any) => {
+  ElMessageBox.confirm('请确认是否删除？', '警告', {
+    cancelButtonText: '取消',
+    confirmButtonText: '确定',
+    type: 'warning'
+  }).then(async () => {
+    // await batchDeleteByIds(ids)
+    ElMessage({
+      message: '删除成功',
+      type: 'success',
+    })
+    proTableRef.value?.clearSelection();
+    proTableRef.value?.getTableList()
+  }).catch(() => {
+    ElMessage({
+      type: 'info',
+      message: '已取消',
+    })
+  })
+}
 /** 批量导出 */
 const batchExport = () => {
  
