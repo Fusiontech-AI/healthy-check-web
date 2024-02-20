@@ -1,3 +1,4 @@
+import { param } from './../../../utils/index';
 import request from '@/utils/request';
 
 // 查询团检任务管理列表
@@ -52,5 +53,65 @@ export const updateGroupProjectInfo = (params: any) => {
     url: '/peis/teamGroup/updateGroupProjectInfo',
     method: 'POST',
     data: params
+  });
+};
+// 删除团检任务管理
+export const teamTaskDel = (params: any) => {
+  return request({
+    url: `/peis/teamTask/${params.ids}`,
+    method: 'DELETE'
+  });
+};
+// 新增体检单位任务文件
+export const teamTaskFile = (params: any) => {
+  return request({
+    url: `/peis/teamTaskFile`,
+    method: 'POST',
+    data: params
+  });
+};
+// 查询体检单位任务文件列表
+export const teamTaskFileList = (params: any) => {
+  return request({
+    url: `/peis/teamTaskFile/list`,
+    method: 'GET',
+    params
+  });
+};
+// 团检任务校验分组数据
+export const teamTaskVerifyGroupData = (params: any) => {
+  return request({
+    url: `/peis/teamTask/verifyGroupData`,
+    method: 'POST',
+    data: params
+  });
+};
+// 团检任务校验分组数据
+export const teamTaskVerifyGroupPackageData = (params: any) => {
+  return request({
+    url: `/peis/teamTask/verifyGroupPackageData`,
+    method: 'POST',
+    data: params
+  });
+};
+// 删除体检单位任务文件
+export const teamTaskFileDel = (params: any) => {
+  return request({
+    url: `/peis/teamTaskFile/${params.ids}`,
+    method: 'DELETE'
+  });
+};
+// 获取体检单位任务文件详细信息
+export const teamTaskFileInfo = (params: any) => {
+  return request({
+    url: `/peis/teamTaskFile/${params.id}`,
+    method: 'GET'
+  });
+};
+// 获取团检分组信息详细信息
+export const teamGroupInfo = (params: any) => {
+  return request({
+    url: `/peis/teamGroup/${params.id}`,
+    method: 'GET'
   });
 };

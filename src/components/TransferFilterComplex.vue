@@ -30,7 +30,7 @@
             <div>
               <el-button type="danger" round @click="handleSelected({}, '', '5')" :disabled="props.disabled">清空
               </el-button>
-              <el-button type="primary" round @click="handleSelected({}, '', '5')" :disabled="props.disabled">还原
+              <el-button type="primary" round @click="handleHY" :disabled="props.disabled">还原
               </el-button>
             </div>
           </div>
@@ -79,7 +79,7 @@ import { debounce, isEmpty } from 'lodash'
 import type { TabsPaneContext } from 'element-plus'
 import { combinationProjectList, commonDynamicBilling, queryPackageAndProjectPages, queryProjectByPackageId } from '@/api/peis/projectPort'
 const props = defineProps(['tableHeader', 'disabled', 'isRw', 'formValue'])
-const emit = defineEmits(['itemChange'])
+const emit = defineEmits(['itemChange', 'handleHY'])
 const tableData = ref([])
 const tableDataClone = ref([])
 const rightTableData = ref([])
@@ -254,7 +254,6 @@ watch(() => form.input, (newVal) => {
 
 //回显
 const defaultItems = () => {
-  const newV = props.formValue.defaultItemList
   const { packageId, defaultItemList } = props.formValue
   const zxList = defaultItemList.map(item => {
     return item.itemId
@@ -262,7 +261,7 @@ const defaultItems = () => {
   tcObj.value = { id: packageId, zxList }
   if (props.isRw) {
     //数据组装
-    rightTableData.value = newV.map((item, i) => {
+    rightTableData.value = defaultItemList.map((item, i) => {
       return {
         sort: i + 1,
         payType: '1',//变更类型(0个人 1单位 2混合支付)
@@ -280,7 +279,7 @@ const defaultItems = () => {
     })
   } else {
     //数据组装
-    rightTableData.value = newV.map((item, i) => {
+    rightTableData.value = defaultItemList.map((item, i) => {
       return {
         sort: i + 1,
         payType: '1',//变更类型(0个人 1单位 2混合支付)
@@ -294,7 +293,10 @@ const defaultItems = () => {
     })
   }
 }
-
+//还原接口调用
+const handleHY = () => {
+  emit('handleHY')
+}
 const getRemote = debounce(() => {
   tableData.value = []
   tableDataClone.value = []

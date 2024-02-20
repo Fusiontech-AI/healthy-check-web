@@ -1,14 +1,15 @@
 <template>
-  <div>
+  <div class="tabs">
     <el-tabs type="border-card" tab-position="left" v-model="activeName" @tab-click="handleClick">
       <el-tab-pane :label="item.groupName" :name="item.groupName" v-for="item in props.formSecond">
         <SearchForm :search-param="item" :columns="basicInfoColumnZYB" :searchCol="4" :show-action-group="false"
-          :rules="rulesZYB">
+          :rules="rulesZYB" :disabled="preview" v-if="props.form.physicalType == 'ZYJKTJ'">
         </SearchForm>
         <TransferFilterComplex ref="TransferFilterComplexRef" :tableHeader="tableHeader"
-          @itemChange="(val) => itemChange(val, item)" :isRw="true" :formValue="item" />
+          @itemChange="(val) => itemChange(val, item)" :isRw="true" :formValue="item" :disabled="preview"
+          @handleHY="handleHY" />
         <SearchForm :search-param="item" :columns="basicInfoColumn" :searchCol="4" :show-action-group="false"
-          class="mt10px" :rules="rules">
+          class="mt10px" :rules="rules" :disabled="preview">
         </SearchForm>
       </el-tab-pane>
     </el-tabs>
@@ -16,8 +17,9 @@
 </template>
 
 <script setup lang="tsx" name="second">
+import { teamGroupInfo } from '@/api/groupInspectionManagement/taskManagement'
 import TransferFilterComplex from '@/components/TransferFilterComplex.vue'
-const props = defineProps(['formSecond'])
+const props = defineProps(['formSecond', 'preview', 'form'])
 const tableHeader = ref([
   {
     prop: 'name',
@@ -151,6 +153,8 @@ const getIndex = (name) => {
   return index
 }
 const itemChange = (val, item) => {
+  console.log(123);
+
   const { rightTableData } = val
   item.groupItemList = rightTableData.map(item => {
     return {
@@ -169,6 +173,26 @@ const itemChange = (val, item) => {
   item.actualPrice = receivableAmount
   item.discount = discount
 }
+//还原
+const handleHY = async () => {
+  let id = ''
+  let index = ''
+  props.formSecond.forEach((item, i) => {
+    if (item.groupName == activeName.value) {
+      id = item.id
+      index = i
+    }
+  })
+  const { data } = await teamGroupInfo({ id })
+  const { groupType, price, groupPayType, addPayType, itemDiscount, addDiscount, groupItemList, standardPrice, actualPrice, } = data
+  data.groupFlag = '1'
+  data.amountCalGroupBo = { groupType, price, groupPayType, addPayType, itemDiscount, addDiscount }
+  data.defaultItemList = groupItemList
+  data.standardAmount = standardPrice
+  data.receivableAmount = actualPrice
+  props.formSecond[index] = data
+  TransferFilterComplexRef.value[index].defaultItems()
+}
 </script>
 <style scoped lang="scss">
 .group-price {
@@ -181,5 +205,11 @@ const itemChange = (val, item) => {
 
 :deep(.el-tabs--border-card) {
   border: none;
+}
+
+.tabs {
+  :deep(.el-tabs__item) {
+    pointer-events: auto !important;
+  }
 }
 </style>

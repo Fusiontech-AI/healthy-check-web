@@ -165,10 +165,10 @@ service.interceptors.response.use(
   }
 );
 // 通用下载方法
-export function download(url: string, params: any, fileName: string) {
+export function download(url: string, params: any, fileName: string, post = 'post') {
   downloadLoadingInstance = ElLoading.service({ text: '正在下载数据，请稍候', background: 'rgba(0, 0, 0, 0.7)' });
   // prettier-ignore
-  return service.post(url, params, {
+  return service[post](url, params, {
     transformRequest: [
       (params: any) => {
         return tansParams(params);
@@ -205,28 +205,28 @@ export async function downloadMethod(response: any, fileName: any) {
   // const fileName = response.headers['content-disposition'].match(/filename=(.*)/)[1]
   // const fileName = fileName || 'default.pdf'
   // 将二进制流转为blob
-  const blob = new Blob([response.data], { type: 'application/octet-stream' })
+  const blob = new Blob([response.data], { type: 'application/octet-stream' });
   if (typeof window.navigator.msSaveBlob !== 'undefined') {
     // 兼容IE，window.navigator.msSaveBlob：以本地方式保存文件
-    window.navigator.msSaveBlob(blob, decodeURI(fileName))
+    window.navigator.msSaveBlob(blob, decodeURI(fileName));
   } else {
     // 创建新的URL并指向File对象或者Blob对象的地址
-    const blobURL = window.URL.createObjectURL(blob)
+    const blobURL = window.URL.createObjectURL(blob);
     // 创建a标签，用于跳转至下载链接
-    const tempLink = document.createElement('a')
-    tempLink.style.display = 'none'
-    tempLink.href = blobURL
-    tempLink.setAttribute('download', decodeURI(fileName))
+    const tempLink = document.createElement('a');
+    tempLink.style.display = 'none';
+    tempLink.href = blobURL;
+    tempLink.setAttribute('download', decodeURI(fileName));
     // 兼容：某些浏览器不支持HTML5的download属性
     if (typeof tempLink.download === 'undefined') {
-      tempLink.setAttribute('target', '_blank')
+      tempLink.setAttribute('target', '_blank');
     }
     // 挂载a标签
-    document.body.appendChild(tempLink)
-    tempLink.click()
-    document.body.removeChild(tempLink)
+    document.body.appendChild(tempLink);
+    tempLink.click();
+    document.body.removeChild(tempLink);
     // 释放blob URL地址
-    window.URL.revokeObjectURL(blobURL)
+    window.URL.revokeObjectURL(blobURL);
   }
 }
 
