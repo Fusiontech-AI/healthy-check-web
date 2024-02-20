@@ -81,7 +81,7 @@
       </el-table-column>
       <el-table-column prop="address" label="操作" width="100">
         <template #default="{ row, $index }">
-          <el-button type="danger" @click="handleDel(row, $index)" :disabled="preview" link>删除</el-button>
+          <el-button type="danger" @click="handleDel($index)" :disabled="preview" link>删除</el-button>
         </template>
       </el-table-column>
     </el-table>
