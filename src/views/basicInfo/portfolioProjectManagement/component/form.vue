@@ -26,11 +26,12 @@
           </el-radio-group>
           <span v-if="item.component == 'Radio' && isPreview"> {{ optionsName(item.dict, model[item.name]) }}</span>
 
-          <el-switch v-model="model[item.name]" v-if="item.component == 'Switch' && !isPreview" active-color="#13ce66"
-            inactive-color="#ff4949" :active-value="item['active-value']" :inactive-value="item['inactive-value']">
+          <el-switch v-model="model[item.name]" v-if="item.component == 'Switch' && !isPreview"
+            style="--el-switch-on-color: #2879FF; --el-switch-off-color: #dcdfe6" :active-value="item['active-value']"
+            :inactive-value="item['inactive-value']">
           </el-switch>
           <span v-if="item.component == 'Switch' && isPreview"> {{
-            item['active-value'] ? item['active-label'] : item['inactive-label'] }}</span>
+            model[item.name] == item['active-value'] ? item['active-label'] : item['inactive-label'] }}</span>
 
         </el-form-item>
 
@@ -68,11 +69,11 @@
                 }}</span>
 
                 <el-switch v-model="model[item.name]" v-if="item.component == 'Switch' && !isPreview"
-                  active-color="#13ce66" inactive-color="#ff4949" :active-value="item['active-value']"
-                  :inactive-value="item['inactive-value']">
+                  style="--el-switch-on-color: #2879FF; --el-switch-off-color: #dcdfe6"
+                  :active-value="item['active-value']" :inactive-value="item['inactive-value']">
                 </el-switch>
                 <span v-if="item.component == 'Switch' && isPreview"> {{
-                  item['active-value'] ? item['active-label'] : item['inactive-label'] }}</span>
+                  model[item.name] == item['active-value'] ? item['active-label'] : item['inactive-label'] }}</span>
 
               </el-form-item>
 

@@ -7,12 +7,12 @@
             <div class="sample_title">项目样本类别</div>
             <div class="sample_choice">
               <span style="margin-right: 10px;">当前选择:</span>
-              <span style="color:#2879FF;margin-right: 10px;">{{ currentType.dictLabel }}</span>
+              <span style="color:#2879FF;margin-right: 10px;">{{ currentType.dictLabel || '--' }}</span>
               <el-icon v-if="currentType.dictLabel" color="#2879FF" class="no-inherit" @click="cancelKS">
                 <CircleClose style="vertical-align: middle;" />
               </el-icon>
             </div>
-            <el-input v-model="inputType" @input="searchType" style="margin-bottom:10px" />
+            <el-input v-model="inputType" @input="searchType" placeholder="样本类别搜索" style="margin-bottom:10px" />
             <div v-for="(item, index) in TypeList" :key="'type' + index" style="cursor:pointer;" class="sample_list"
               @click="ksClick(item, index)" :class="{ 'active': index == activeKS }">{{ item.dictLabel }}</div>
           </div>
@@ -23,13 +23,17 @@
             <ProTable ref="proTable" :columns="columns" :request-api="getTableList" :data-callback="dataCallback"
               :init-param="initParam" :height="550" :toolButton="false">
               <template #tableHeader="scope">
-                <el-button type="danger" @click="batchDisable(scope.selectedListIds)" :disabled="!scope.isSelected"
-                  round>批量禁用</el-button>
+                <el-button type="primary" @click="handleAdd(1)" round>新增</el-button>
                 <el-button type="primary" @click="changeClassify(scope.selectedListIds)" :disabled="!scope.isSelected"
                   round>批量修改分类</el-button>
-                <el-button type="primary" @click="handleAdd(1)" round>新增</el-button>
+                <el-button type="danger" @click="batchDisable(scope.selectedListIds)" :disabled="!scope.isSelected"
+                  round>批量禁用</el-button>
               </template>
 
+              <template #status="{ row }">
+                <el-switch v-model="row.status" style="--el-switch-on-color: #2879FF; --el-switch-off-color: #dcdfe6"
+                  active-value="0" inactive-value="1" @click="changeStatus(row)" />
+              </template>
               <template #operation="{ row }">
                 <div>
                   <el-button type="primary" text @click="handleAdd(2, row)">详情</el-button>
@@ -110,8 +114,8 @@
           <span style="color: #FF8400;">是否确认将选择的 {{ batchList.length }} 条数据改到下方所属分类</span>
         </div>
         <el-form ref="batchEditRef" :model="batchEditForm" :rules="batchEditRules">
-          <el-form-item prop="sampleCategory">
-            <el-select v-model="batchEditForm.sampleCategory">
+          <el-form-item prop="sampleCategory" label="所属类别">
+            <el-select v-model="batchEditForm.sampleCategory" placeholder="请选择所属类别">
               <el-option v-for="item in optionsType" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>
           </el-form-item>
@@ -284,7 +288,7 @@ const disableIds = ref([])  //禁用id
 const batchDisable = (ids) => {
   operationDeter.value = true
   operationTitle.value = '是否确定禁用对应的记录？'
-  operationInfo.value = '删除后，引用此样本的组合项目及套餐不可打印条码'
+  operationInfo.value = '禁用后，引用此样本的组合项目及套餐不可打印条码'
   operationType.value = 1
   batchDisableIds.value = [...ids]
 }
@@ -384,6 +388,15 @@ const confirmClick = async (formEl) => {
   })
 
 }
+//编辑是否启用
+const changeStatus = async (params) => {
+  try {
+    await updataSample({ ...params })
+    ElMessage.success('切换状态成功')
+  } finally {
+    proTable.value?.getTableList();
+  }
+}
 
 
 //配置项目抽屉
@@ -405,7 +418,7 @@ const saveClick = async () => {
 const handleForbidden = (id) => {
   operationDeter.value = true
   operationTitle.value = '是否确定禁用对应的记录？'
-  operationInfo.value = '删除后，引用此样本的组合项目及套餐不可打印条码'
+  operationInfo.value = '禁用后，引用此样本的组合项目及套餐不可打印条码'
   operationType.value = 2
   disableIds.value = [id]
 }

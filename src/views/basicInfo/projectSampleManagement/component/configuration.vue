@@ -5,7 +5,7 @@
         <el-card shadow="never">
           <div class="head_search">
             <div class="head_title">项目检索</div>
-            <el-input v-model="inputValue" class="head_input">
+            <el-input v-model="inputValue" class="head_input" placeholder="请输入">
               <template #suffix>
                 <el-icon class="el-input__icon" @click="searchProject">
                   <search />
@@ -28,7 +28,7 @@
           <ProTable ref="itemTable" :columns="itemColumns" :data="dataItemTable" :toolButton="false" :pagination="false"
             :height="670">
             <template #operation="{ row, $index }">
-              <el-button @click="itemDelete(row, $index)" text type="primary">删除</el-button>
+              <el-button @click="itemDelete(row, $index)" text type="danger">删除</el-button>
             </template>
           </ProTable>
         </el-card>

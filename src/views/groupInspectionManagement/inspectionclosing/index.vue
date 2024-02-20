@@ -6,15 +6,15 @@
         <el-row :gutter="20">
           <el-col :span="6">
             <el-form-item label="单位名称" prop="teamId">
-              <el-tree-select v-model="ruleForm.teamId" :data="options" filterable clearable remote :loading="loading"
-                placeholder="请搜索单位名称" :remote-method="remoteMethod"
+              <el-tree-select v-model="ruleForm.teamId" :data="options" filterable clearable :loading="loading"
+                placeholder="请搜索单位名称" :filter-method="remoteMethod"
                 :props="{ value: 'value', label: 'label', children: 'children' }" value-key="id" check-strictly
                 @change="teamIdChange" />
             </el-form-item>
           </el-col>
           <el-col :span="6">
             <el-form-item label="任务名称" prop="teamTaskId">
-              <el-select v-model="ruleForm.teamTaskId" placeholder="请选择任务名称" v-loading="taskLoading">
+              <el-select v-model="ruleForm.teamTaskId" placeholder="请选择任务名称" filterable clearable v-loading="taskLoading">
                 <el-option v-for="item in taskoptions" :key="item.value" :label="item.label" :value="item.value" />
               </el-select>
             </el-form-item>
@@ -33,24 +33,26 @@
         <div class="title_name">任务信息</div>
         <div class="clearfix">
           <el-row>
-            <el-col :span="6">
+            <el-col :span="5">
               <div>累计人数:
-                <span class="num_color">{{ taskGroupStatistics.totalPeople }}</span>
+                <span class="num_color">{{ taskGroupStatistics.totalPeople || '--' }}</span>
               </div>
             </el-col>
-            <el-col :span="6">
+            <el-col :span="5">
               <div>分组金额:
-                <span class="num_color">{{ taskGroupStatistics.groupAmount }}</span>
+                <span class="num_color">{{ taskGroupStatistics.groupAmount || '--' }}</span>
               </div>
             </el-col>
-            <el-col :span="6">
+            <el-col :span="8">
               <div>加项金额:
-                <span class="num_color">{{ taskGroupStatistics.addAmount }}</span>
+                <span class="num_color">{{ taskGroupStatistics.addAmount || '--' }}</span>
+                <span> (个人{{ taskGroupStatistics.personAddAmount || '--' }}，单位{{ taskGroupStatistics.teamAddAmount || '--'
+                }})</span>
               </div>
             </el-col>
             <el-col :span="6">
               <div>单位应收金额:
-                <span class="num_color">{{ taskGroupStatistics.teamReceiveAmount }}</span>
+                <span class="num_color">{{ taskGroupStatistics.teamReceiveAmount || '--' }}</span>
               </div>
             </el-col>
           </el-row>
@@ -86,12 +88,12 @@
               <el-row>
                 <el-col :span="12">
                   <div>已结金额:
-                    <span class="num_color">{{ teamSettleStatistics.settledAmount }}</span>
+                    <span class="num_color">{{ teamSettleStatistics.settledAmount || '--' }}</span>
                   </div>
                 </el-col>
                 <el-col :span="12">
                   <div>余额:
-                    <span class="num_color">{{ teamSettleStatistics.balance }}</span>
+                    <span class="num_color">{{ teamSettleStatistics.balance || '--' }}</span>
                   </div>
                 </el-col>
               </el-row>
@@ -109,9 +111,9 @@
         </template>
         <template #operation="{ row }">
           <el-button type="primary" text @click="details('详情', row)">详情</el-button>
-          <el-button type="primary" text @click="makeInvoice(row)">开票</el-button>
-          <el-button type="primary" text @click="cancellation(row)">作废</el-button>
-          <el-button type="primary" text @click="deleteInvoice(row)" :disabled="row.status != 2">删除</el-button>
+          <el-button type="primary" text @click="makeInvoice(row)" :disabled="row.status == 2">开票</el-button>
+          <el-button type="primary" text @click="cancellation(row)" :disabled="row.status == 2">作废</el-button>
+          <el-button type="danger" text @click="deleteInvoice(row)" :disabled="row.status != 2">删除</el-button>
         </template>
       </ProTable>
     </el-card>
