@@ -64,10 +64,11 @@ export const basicInforColumns: any = [
   },
   {
     label: '审核状态：',
-    prop: 'isReview',
+    prop: 'reviewResult',
     enum: [
-      { label: '已审', value: '0' },
-      { label: '待审', value: '1' }
+      { label: '待审', value: '0' },
+      { label: '通过', value: '1' },
+      { label: '驳回', value: '2' }
     ]
   }
 ];
@@ -174,12 +175,14 @@ export const personColumn: any = [
   {
     label: '业务类别',
     prop: 'businessCategory',
+    search: {el: 'select'},
     enum: bus_category, 
     fieldNames: { label: 'dictLabel', value: 'dictValue' } 
   },
   {
     label: '体检类型',
     prop: 'physicalType',
+    search: {el: 'select'},
     enum: bus_physical_type, 
     fieldNames: { label: 'dictLabel', value: 'dictValue' } 
   },
@@ -190,6 +193,7 @@ export const personColumn: any = [
   {
     label: '婚否',
     prop: 'marriageStatus',
+    search: {el: 'select'},
     enum: bus_marriage_status, 
     fieldNames: { label: 'dictLabel', value: 'dictValue' } 
   },
@@ -208,18 +212,21 @@ export const personColumn: any = [
   {
     label: '体检状态',
     prop: 'healthyCheckStatus',
+    search: {el: 'select'},
     enum: bus_healthy_check_status, 
     fieldNames: { label: 'dictLabel', value: 'dictValue' } 
   },
   {
     label: '需要总检',
     prop: 'needGeneralReview',
+    search: {el: 'select'},
     enum: bus_need_general_review, 
     fieldNames: { label: 'dictLabel', value: 'dictValue' } 
   },
   {
     label: '人员费别',
     prop: 'costType',
+    search: {el: 'select'},
     enum: bus_cost_type, 
     fieldNames: { label: 'dictLabel', value: 'dictValue' } 
   },

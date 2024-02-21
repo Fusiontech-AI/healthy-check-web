@@ -7,8 +7,8 @@
           <div class="flex text-[14px] text-[#141C28]">
             <span class="w-[120px] text-[#89919F] ml-[30px]">{{ item.label }}</span>
 
-            <span v-if="item.prop === 'isReview'" class="flex-1"
-              :class="basicInfoData?.[item.prop] == '1' ? 'text-#FF8400' : 'text-#09C268'">
+            <span v-if="item.prop === 'reviewResult'" class="flex-1"
+            :class="basicInfoData?.[item.prop] == '0' ? 'text-#FF8400' : basicInfoData?.[item.prop] == '1'?'text-#09C268':'text-#F75252'">
               {{ item.enum.find((val: any) => val.value == basicInfoData?.[item.prop])?.label }}
             </span>
 
