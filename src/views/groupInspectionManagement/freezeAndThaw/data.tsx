@@ -87,9 +87,9 @@ export const basicInfoColumnBasic = (bus_healthy_check_status: any, sys_user_sex
 // 表格行
 export const columnsBasic = [
   { type: 'selection', fixed: 'left', width: 70 },
-  { prop: 'healthyCheckCode', label: '体检号', fixed: 'left' },
-  { prop: 'recordCode', label: '档案号', width: 170, fixed: 'left' },
-  { prop: 'credentialNumber', label: '证件号', width: '170', fixed: 'left' },
+  { prop: 'healthyCheckCode', label: '体检号', fixed: 'left', align: 'left' },
+  { prop: 'recordCode', label: '档案号', width: 170, fixed: 'left', align: 'left' },
+  { prop: 'credentialNumber', label: '证件号', width: '170', fixed: 'left', align: 'left' },
   {
     prop: 'businessCategory',
     label: '业务类别',
@@ -97,7 +97,8 @@ export const columnsBasic = [
     enum: [
       { label: '个检', value: '1' },
       { label: '团检', value: '2' }
-    ]
+    ],
+    align: 'left'
   },
   {
     prop: 'physicalType',
@@ -110,9 +111,10 @@ export const columnsBasic = [
       { label: '老年人体检', value: 'LNRTJ' },
       { label: '入职体检', value: 'RZTJ' },
       { label: '学生体检', value: 'XSTJ' }
-    ]
+    ],
+    align: 'left'
   },
-  { prop: 'name', label: '姓名' },
+  { prop: 'name', label: '姓名', align: 'left' },
   {
     prop: 'marriageStatus',
     label: '婚否',
@@ -120,20 +122,23 @@ export const columnsBasic = [
       { label: '未婚', value: '0' },
       { label: '已婚', value: '1' },
       { label: '未知', value: '2' }
-    ]
+    ],
+    align: 'left'
   },
-  { prop: 'age', label: '年龄' },
-  { prop: 'phone', label: '电话', width: '120' },
-  { prop: 'healthyCheckTime', label: '体检日期', width: '120' },
+  { prop: 'age', label: '年龄', align: 'left' },
+  { prop: 'phone', label: '电话', width: '120', align: 'left' },
+  { prop: 'healthyCheckTime', label: '体检日期', width: '120', align: 'left' },
   {
     prop: 'guideSheetReceived',
     label: '回收',
-    render: (scope: any) => <>{scope.row.guideSheetReceived === '0' ? '是' : scope.row.guideSheetReceived === '1' ? '否' : ''}</>
+    render: (scope: any) => <>{scope.row.guideSheetReceived === '0' ? '是' : scope.row.guideSheetReceived === '1' ? '否' : ''}</>,
+    align: 'left'
   },
   {
     prop: 'freezeStatus',
     label: '冻结',
-    render: (scope: any) => <>{scope.row.freezeStatus === '0' ? '是' : scope.row.freezeStatus === '1' ? '否' : ''}</>
+    render: (scope: any) => <>{scope.row.freezeStatus === '0' ? '是' : scope.row.freezeStatus === '1' ? '否' : ''}</>,
+    align: 'left'
   },
   {
     prop: 'healthyCheckStatus',
@@ -158,13 +163,15 @@ export const columnsBasic = [
           )}
         </>
       );
-    }
+    },
+    align: 'left'
   },
   {
     prop: 'needGeneralReview',
     label: '需要总检',
     width: '120',
-    render: (scope: any) => <>{scope.row.needGeneralReview === '0' ? '是' : scope.row.needGeneralReview === '1' ? '否' : ''}</>
+    render: (scope: any) => <>{scope.row.needGeneralReview === '0' ? '是' : scope.row.needGeneralReview === '1' ? '否' : ''}</>,
+    align: 'left'
   },
   {
     prop: 'costType',
@@ -174,19 +181,20 @@ export const columnsBasic = [
     enums: [
       { label: '计费', value: '1' },
       { label: '全免', value: '2' }
-    ]
+    ],
+    align: 'left'
   },
-  { prop: 'teamAmount', label: '团费' },
-  { prop: 'personAmount', label: '个费' },
-  { prop: 'teamName', label: '单位', width: '120' },
-  { prop: 'groupName', label: '分组', width: '120' },
-  { prop: 'deptName', label: '部门' },
-  { prop: 'introducerName', label: '介绍人' },
-  { prop: 'createBy', label: '创建人' },
-  { prop: 'registerDoctorName', label: '报到人' },
-  { prop: 'generalReviewDoctorName', label: '总检医生', width: '100' },
-  { prop: 'generalReviewTime', label: '总检时间', width: '100' },
-  { prop: 'auditDoctor', label: '审核医生', width: '100' },
-  { prop: 'auditTime', label: '审核时间', width: '100' },
-  { prop: 'finishTime', label: '完成时间', width: '100' }
+  { prop: 'teamAmount', label: '团费', align: 'left' },
+  { prop: 'personAmount', label: '个费', align: 'left' },
+  { prop: 'teamName', label: '单位', width: '120', align: 'left' },
+  { prop: 'groupName', label: '分组', width: '120', align: 'left' },
+  { prop: 'deptName', label: '部门', align: 'left' },
+  { prop: 'introducerName', label: '介绍人', align: 'left' },
+  { prop: 'createBy', label: '创建人', align: 'left' },
+  { prop: 'registerDoctorName', label: '报到人', align: 'left' },
+  { prop: 'generalReviewDoctorName', label: '总检医生', width: '100', align: 'left' },
+  { prop: 'generalReviewTime', label: '总检时间', width: '100', align: 'left' },
+  { prop: 'auditDoctor', label: '审核医生', width: '100', align: 'left' },
+  { prop: 'auditTime', label: '审核时间', width: '100', align: 'left' },
+  { prop: 'finishTime', label: '完成时间', width: '100', align: 'left' }
 ];
