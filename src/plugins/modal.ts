@@ -51,11 +51,11 @@ export default {
     ElNotification.warning(content);
   },
   // 确认窗体
-  confirm(content: any, title: any = '系统提示'): Promise<MessageBoxData> {
+  confirm(content: any, title: any = '系统提示', type: any = 'warning'): Promise<MessageBoxData> {
     return ElMessageBox.confirm(content, title, {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
-      type: 'warning',
+      type,
       dangerouslyUseHTMLString: true
     });
   },

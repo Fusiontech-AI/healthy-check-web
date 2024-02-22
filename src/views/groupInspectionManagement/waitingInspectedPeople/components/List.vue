@@ -12,6 +12,7 @@
       :dataCallback="dataCallback"
       :search-param="queryParams"
       :reset="handleReset"
+      :requestAuto="false"
     >
       <template #teamId>
         <el-tree-select
@@ -20,38 +21,50 @@
           check-strictly
           :props="{label:'teamName', value:'id' }"
           filterable
-          clearable
+          :clearable="false"
+          default-expand-all
           @change="handleChange"
         />
+      </template>
+      <template #taskId>
+        <el-select v-model="queryParams.taskId" placeholder="请选择任务名称" filterable :clearable="false" @change="handleTaskChange">
+          <el-option v-for="item in teamTaskLists" :key="item.id" :label="item.taskName" :value="item.id" />
+        </el-select>
+      </template>
+      <template #teamGroupId>
+        <el-select v-model="queryParams.teamGroupId" placeholder="请选择分组" filterable>
+          <el-option v-for="item in searchGroupList" :key="item.id" :label="item.groupName" :value="item.id" />
+        </el-select>
       </template>
       <template #taskName="scope">
         <div class="text-[#5a9cf8] cursor-pointer" @click="handleDetail( scope.row)">{{ scope.row.taskName || '--' }}</div>
       </template>
       <template #tableHeader="scope">
-        <el-button type="primary" :disabled="!scope.isSelected" @click="batchChangeGroup(scope.selectedListIds)">批量换组 </el-button>
+        <el-button type="primary" :disabled="!scope.isSelected" @click="batchChangeGroup(scope.selectedListIds, scope.selectedList)">
+          批量换组
+        </el-button>
       </template>
       <template #operation="scope">
-        <el-button type="primary" link @click="changeGroup( scope.row)">换组</el-button>
+        <el-button type="primary" link @click="changeGroup(scope.row)">换组</el-button>
       </template>
     </ProTable>
 
+    <!-- 人员换组 -->
     <el-dialog v-model="showDialog" title="人员换组" width="35%" :before-close="handleClose">
       <SearchForm
-        ref="departFormRef"
+        ref="peopleFormRef"
         :search-param="formValue"
-        :columns="departColumn"
+        :columns="groupColumn"
         :searchCol="1"
-        :rules="departRules"
+        :rules="groupRules"
         style="background: transparent; padding: 18px 30px;"
       >
         <template #taskName>
-          <el-select v-model="formValue.taskName" placeholder="请选择" @change="handleTaskNameChange">
-            <el-option v-for="item in taskOption" :key="item.value" :label="item.label" :value="item.value" />
-          </el-select>
+          <el-input v-model="formValue.taskName" placeholder="请输入任务名称" :disabled="true" />
         </template>
         <template #groupName>
-          <el-select v-model="formValue.groupName" placeholder="请选择">
-            <el-option v-for="item in groupOption" :key="item.value" :label="item.label" :value="item.value" />
+          <el-select v-model="formValue.groupName" placeholder="请选择分组名称" filterable :clearable="false">
+            <el-option v-for="item in groupNameList" :key="item.id" :label="item.groupName" :value="item.id" />
           </el-select>
         </template>
       </SearchForm>
@@ -66,33 +79,56 @@
 <script setup name="projectCompletionStatus" lang="tsx">
 import { ref } from 'vue';
 import { changGroupColumnsBasic } from '../data'
+import { tableColumnsBasic } from './data'
 import { registerPage } from '@/api/groupInspectionManagement/freezeAndUnfreeze/index'
 import { teamInfoList, teamTaskList } from "@/api/groupInspection/inspectionclosing";
+import { teamGroupList, batchSwitchGroup } from '@/api/groupInspectionManagement/waitingInspectedPeople/index'
 
 const emits = defineEmits(['goTo'])
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
+const { bus_physical_type, sys_user_sex } = toRefs<any>(proxy?.useDict('bus_physical_type','sys_user_sex'))
+
+const peopleFormRef = ref<any>()
+const proTableRef = ref<any>()
 
 const initParam = {
+  physicalType:'JKTJ',
   teamId:null,
   taskId:null
 }
-const queryParams = ref<any>(initParam);
+const searchGroupList = ref<any>([]) //搜索条件分组list
+const queryParams = ref<any>(initParam); //查询条件
+const showDialog = ref<boolean>(false) //人员换组
+const formValue = ref<any>({}) //人员换组
+const groupColumn = ref<any>(changGroupColumnsBasic) //人员换组Column
 
-const showDialog = ref<boolean>(false)
+const groupRules = ref<any>({
+  taskName: { required: true, message: '请选择任务名称', trigger: ['blur', 'change'] },
+  groupName: { required: true, message: '请选择分组名称', trigger: ['blur', 'change'] },
+})
 
-const formValue = ref<any>({})
-const departColumn = ref<any>(changGroupColumnsBasic)
-const departRules = ref<any>([])
-
-const taskOption = ref<any>([{label:'1',value:'1'}]) //任务名称
-const groupOption = ref<any>([{label:'1',value:'1'}])//分组名称
-
+const selectIds = ref<any>([]) //批量换组选中Id
 const teamIdList = ref<any>([]) //单位列表
 const teamTaskLists = ref<any>([]) //任务列表
-const proTableRef = ref<any>()
+const groupNameList = ref<any>([]) //人员换组弹框分组名称列表
 
-const {bus_physical_type,sys_user_sex}  =toRefs<any>(proxy?.useDict('bus_physical_type','sys_user_sex'))
+onMounted(async() =>{
+  initData()
+})
 
+// 初始化默认数据
+const initData = async () =>{
+  await getTeamIdList() //获取体检单位
+  nextTick(async()=>{
+    queryParams.value.teamId = teamIdList.value?.[0]?.id //默认单位
+    await handleChange(queryParams.value.teamId) //查询任务名称
+    queryParams.value.taskId = teamTaskLists.value?.[0]?.id //默认任务
+    proTableRef.value.getTableList()
+    const { teamId, taskId } = queryParams.value
+    const {rows} = await teamGroupList({teamId,taskId}) //查询分组
+    searchGroupList.value = rows
+  })
+}
 
 // 获取单位-任务接口
 const getTeamIdList = async () => {
@@ -101,84 +137,84 @@ const getTeamIdList = async () => {
   teamIdList.value = proxy?.handleTree<any>(data)
   teamTaskLists.value = rows
 }
-getTeamIdList()
 
-const tableColumnsBasic = (teamTaskLists: any, bus_physical_type:any) =>[
-  { type: 'selection', fixed: 'left', width: 70 },
-  { prop: 'f1', label: '体检类型', search: { el: 'select' }, isShow: false, enum: bus_physical_type , fieldNames: { label: 'dictLabel', value: 'dictCode' }},
-  { prop: 'teamId', label: '体检单位', search: { el: 'select', }, isShow: false, slot:'teamId' },
-  { prop: 'taskId', label: '任务名称', search: { el: 'select'}, isShow: false, enum: teamTaskLists, fieldNames: { label: 'taskName', value: 'id' } },
-  { prop: 'f41', label: '分组', search: { el: 'select' }, isShow: false },
-  { prop: 'healthyCheckCode', label: '体检号/姓名', search: { el: 'input' }, isShow: false },
-  { prop: 'f5', label: '身份证', search: { el: 'input' }, isShow: false },
-  { prop: 'taskName', label: '任务名称', fixed: 'left' },
-  { prop: 'healthyCheckCode', label: '体检号' },
-  { prop: 'name', label: '姓名'},
-  { prop: 'gender', label: '性别',enum:[{label:'男',value:'0'},{label:'女',value:'1'},{label:'未知',value:'2'}] },
-  { prop: 'age', label: '年龄' },
-  { prop: 'credentialNumber', label: '身份证号' },
-  { prop: 'phone', label: '电话' },
-  { prop: 'physicalType', label: '体检类型',
-  enum: [
-      { label: '健康体检', value: 'JKTJ' },
-      { label: '职业健康体检', value: 'ZYJKTJ' },
-      { label: '放射体检', value: 'FSTJ' },
-      { label: '老年人体检', value: 'LNRTJ' },
-      { label: '入职体检', value: 'RZTJ' },
-      { label: '学生体检', value: 'XSTJ' }
-    ] },
-  { prop: 'teamName', label: '单位名称'},
-  { prop: 'groupName', label: '所属分组' },
-  { prop: 'operation', label: '操作', fixed: 'right', width: 100 }
-]
-const tableColumns = ref<any>(tableColumnsBasic(teamTaskLists, bus_physical_type))
+const tableColumns = ref<any>(tableColumnsBasic(teamTaskLists, bus_physical_type, sys_user_sex))
 
-// 单位改变
-const handleChange = async (val:any) =>{
-  const { rows } = await teamTaskList({teamId:val })
+// 体检单位改变-查询任务名称
+const handleChange = async (val: any) =>{
+  const { rows } = await teamTaskList({teamId:val }) //查询任务名称
   teamTaskLists.value = rows
-  tableColumns.value = tableColumnsBasic(teamTaskLists, bus_physical_type)
-  queryParams.value.taskId = null
+  tableColumns.value = tableColumnsBasic(teamTaskLists, bus_physical_type, sys_user_sex)
+  queryParams.value.taskId = rows?.[0]?.id
+  handleTaskChange(queryParams.value.taskId)
+  queryParams.value.teamGroupId = ''
+}
+
+// 任务名称改变-查询分组
+const handleTaskChange = async (taskId: any) => {
+  const { teamId } = queryParams.value
+  const {rows} = await teamGroupList({teamId,taskId}) //查询分组
+  searchGroupList.value = rows
 }
 
 const getTableList = async (params: any) =>{
   const data = await registerPage({...params,healthyCheckStatus:'0',...queryParams.value})
-  return {data}
-}
-
-const handleReset = ()=>{
-  queryParams.value.teamId = null
-  queryParams.value.teamId = null
-  queryParams.value.taskId = null
-  proTableRef.value.getTableList()
+  return { data }
 }
 
 // 批量换组
-const batchChangeGroup = (ids:any) => {
-  showDialog.value = true
+const batchChangeGroup = async (selectId:any, row:any) => {
+  const hasDifferentId = row?.some((item:any) => item.taskId!==row[0]?.taskId)
+  if(hasDifferentId){
+    return ElMessage.error('不能跨任务勾选！')
+  }else{
+    selectIds.value = selectId
+    showDialog.value = true
+    formValue.value.groupName = ''
+    peopleFormRef.value?.resetFields()
+    formValue.value.taskName =row[0]?.taskName
+    const { teamId, taskId } = row?.[0] as any
+    const {rows} = await teamGroupList({teamId,taskId})
+    groupNameList.value = rows
+  }
 }
 
 // 表格行换组
-const changeGroup = (ids) => {
+const changeGroup = async (row: any ) => {
   showDialog.value = true
+  peopleFormRef.value?.resetFields()
+  const { teamId, taskId, taskName, groupName} = row
+  const { rows } = await teamGroupList({teamId, taskId}) //根据任务获取分组信息
+  formValue.value.taskName = taskName
+  formValue.value.groupName = groupName
+  groupNameList.value = rows
+  selectIds.value = [row?.id]
 }
 
+// 关闭人员换组
 const handleClose = ()=> {
   showDialog.value = false
 }
 
-// 确定
-const handleSubmit = ()=>{
-
-}
-
-const handleTaskNameChange = ()=>{
-
+// 人员换组确定
+const handleSubmit = async () =>{
+  await batchSwitchGroup({id: selectIds.value, groupId: formValue.value.groupName})
+  ElMessage.success('换组成功')
+  proTableRef.value.getTableList()
+  showDialog.value = false
 }
 
 // 查看详情
 const handleDetail = (row:any)=>{
-    emits('goTo','Detail',{ teamId: row.teamId,teamName: row.teamName})
+  emits('goTo','Detail',{ teamId: row.teamId, teamName: row.teamName, teamGroupId: row.teamGroupId})
+}
+
+// 重置
+const handleReset = ()=>{
+  queryParams.value.physicalType = 'JKTJ'
+  initData()
+  queryParams.value.healthyCheckCode = null
+  queryParams.value.credentialNumber = null
 }
 
 const dataCallback = (data: any) => {
@@ -188,4 +224,3 @@ const dataCallback = (data: any) => {
   };
 };
 </script>
-<style scoped lang="scss"></style>
