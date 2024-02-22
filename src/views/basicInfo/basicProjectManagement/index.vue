@@ -7,12 +7,12 @@
             <div class="sample_title">项目科室分类</div>
             <div class="sample_choice">
               <span style="margin-right: 10px;">当前选择:</span>
-              <span style="color:#2879FF;margin-right: 10px;">{{ currentType.ksName }}</span>
-              <el-icon v-if="currentType.ksName" color="#2879FF" class="no-inherit" @click="cancelKS">
+              <span style="color:#2879FF;margin-right: 10px;">{{ currentType.ksName || '--' }}</span>
+              <el-icon v-if="currentType.ksName" color="#2879FF" class="align-middle" @click="cancelKS">
                 <CircleClose style="vertical-align: middle;" />
               </el-icon>
             </div>
-            <el-input v-model="inputType" @input="searchType" style="margin-bottom:10px" />
+            <el-input v-model="inputType" @input="searchType" placeholder="科室搜索" style="margin-bottom:10px" />
             <div v-for="(item, index) in TypeList" :key="'type' + index" style="cursor:pointer;" class="sample_list"
               @click="ksClick(item, index)" :class="{ 'active': index == activeKS }">{{ item.ksName }}</div>
           </div>
@@ -24,12 +24,16 @@
               <ProTable ref="proTable" :columns="columns" :request-api="basicProjectList" :init-param="initParam"
                 :searchCol="3" :height="500" :toolButton="false">
                 <template #tableHeader="scope">
+                  <el-button type="primary" @click="handleAdd(1)" round>新增</el-button>
+                  <el-button type="primary" round>同步</el-button>
                   <el-button type="danger" @click="batchDelete(scope.selectedListIds)" :disabled="!scope.isSelected"
                     round>批量删除</el-button>
-                  <el-button type="primary" round>同步</el-button>
-                  <el-button type="primary" @click="handleAdd(1)" round>新增</el-button>
                 </template>
 
+                <template #status="{ row }">
+                  <el-switch v-model="row.status" style="--el-switch-on-color: #2879FF; --el-switch-off-color: #dcdfe6"
+                    active-value="0" inactive-value="1" @click="changeStatus(row)" />
+                </template>
                 <template #operation="{ row }">
                   <div>
                     <el-button type="primary" text @click="handleAdd(2, row)">详情</el-button>
@@ -56,13 +60,13 @@
     <el-dialog v-model="operationDeter" width="30%" class="sealAccountClass">
       <template #header>
         <div class="my-header">
-          <el-icon color="#F75252" class="no-inherit" :size="20">
-            <WarningFilled></WarningFilled>
-          </el-icon>
           <span>{{ operationTitle }}</span>
         </div>
       </template>
       <div>
+        <el-icon color="#F75252" class="no-inherit" :size="20">
+          <WarningFilled></WarningFilled>
+        </el-icon> 
         {{ operationInfo }}
       </div>
       <template #footer>
@@ -316,6 +320,15 @@ const confirmClick = async (formEl) => {
   })
 
 }
+//编辑是否启用
+const changeStatus = async (params) => {
+  try {
+    await updataBasicProject({ ...params })
+    ElMessage.success('切换状态成功')
+  } finally {
+    proTable.value?.getTableList();
+  }
+}
 
 
 //配置项目抽屉
@@ -373,6 +386,7 @@ const handleDlete = (id) => {
 .sample_list {
   margin-bottom: 10px;
   font-size: 14px;
+  padding-left: 10px;
 }
 
 .active {
@@ -394,19 +408,23 @@ const handleDlete = (id) => {
   height: 176px;
   border-radius: 20px;
   background: linear-gradient(180deg, #CBDFFF 0%, #FFFFFF 27%);
+}
 
-  :deep(.el-dialog__header) {
-    border-bottom: none;
-  }
+:deep(.el-dialog__header) {
+  border-bottom: none;
+}
 
-  :deep(.el-dialog__headerbtn) {
-    top: 1px;
+:deep(.el-dialog__headerbtn) {
+  top: 1px;
 
-  }
 }
 
 :deep(.el-drawer) {
   background: linear-gradient(180deg, #CBDFFF 0%, #FFFFFF 12%);
   border-radius: 20px 0px 0px 20px;
+}
+.no-inherit {
+  vertical-align: middle;
+  margin-right: 5px;
 }
 </style>

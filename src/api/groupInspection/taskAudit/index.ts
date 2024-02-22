@@ -54,6 +54,17 @@ export const reviewTask = (data: any) => {
 };
 
 /**
+ * 团检任务退回
+ */
+export const returnTask = (data: any) => {
+  return request({
+    url: '/peis/teamTask/returnTask',
+    method: 'post',
+    data
+  });
+};
+
+/**
  * 保存人员信息
  */
 export const insertRegisterData = (data: any) => {
@@ -71,5 +82,26 @@ export const getRegisterById = (id: any) => {
   return request({
     url: `/peis/register/${id}`,
     method: 'get',
+  });
+};
+
+/**
+ * 删除任务体检人员信息
+ */
+export const deleteTaskRegister = (id: any) => {
+  return request({
+    url: `/peis/register/deleteTaskRegister/${id}`,
+    method: 'DELETE',
+  });
+};
+
+/**
+ * 团检任务导入人员列表
+ */
+export const queryTaskRegisterExportById = (params: any) => {
+  return request({
+    url: '/peis/teamTask/queryTaskRegisterExportById',
+    method: 'get',
+    params
   });
 };

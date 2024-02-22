@@ -29,7 +29,7 @@
           <ProTable ref="itemTable" :columns="itemColumns" :data="dataItemTable" :toolButton="false" :pagination="false"
             :height="400">
             <template #operation="{ row, $index }">
-              <el-button @click="itemDelete(row, $index)" text type="primary" :disabled="isPreview">删除</el-button>
+              <el-button @click="itemDelete(row, $index)" text type="danger" :disabled="isPreview">删除</el-button>
             </template>
           </ProTable>
         </div>

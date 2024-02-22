@@ -4,6 +4,7 @@ const {
   bus_duty_status,
   bus_group_type,
   bus_group_pay_type,
+  bus_gender,
   sys_user_sex,
   bus_healthy_check_status,
   bus_category,
@@ -17,6 +18,7 @@ const {
     'bus_duty_status',
     'bus_group_type',
     'bus_group_pay_type',
+    'bus_gender',
     'sys_user_sex',
     'bus_healthy_check_status',
     'bus_category',
@@ -64,17 +66,18 @@ export const basicInforColumns: any = [
   },
   {
     label: '审核状态：',
-    prop: 'isReview',
+    prop: 'reviewResult',
     enum: [
-      { label: '已审', value: '0' },
-      { label: '待审', value: '1' }
+      { label: '待审', value: '0' },
+      { label: '通过', value: '1' },
+      { label: '驳回', value: '2' }
     ]
   }
 ];
 // 任务分组Columns
 export const taskGroupingColumn: any = [
   { prop: 'groupName', label: '分组名称', width: 120, fixed: 'left' },
-  { prop: 'gender', label: '性别', enum: sys_user_sex, fieldNames: { label: 'dictLabel', value: 'dictValue' } },
+  { prop: 'gender', label: '性别', enum: bus_gender, fieldNames: { label: 'dictLabel', value: 'dictValue' } },
   { prop: 'marriage', label: '婚否', enum: bus_marriage_status, fieldNames: { label: 'dictLabel', value: 'dictValue' } },
   { prop: 'dutyStatus', label: '在岗类型', width: 120, enum: bus_duty_status, fieldNames: { label: 'dictLabel', value: 'dictValue' } },
   {
@@ -174,12 +177,14 @@ export const personColumn: any = [
   {
     label: '业务类别',
     prop: 'businessCategory',
+    search: {el: 'select'},
     enum: bus_category, 
     fieldNames: { label: 'dictLabel', value: 'dictValue' } 
   },
   {
     label: '体检类型',
     prop: 'physicalType',
+    search: {el: 'select'},
     enum: bus_physical_type, 
     fieldNames: { label: 'dictLabel', value: 'dictValue' } 
   },
@@ -190,6 +195,7 @@ export const personColumn: any = [
   {
     label: '婚否',
     prop: 'marriageStatus',
+    search: {el: 'select'},
     enum: bus_marriage_status, 
     fieldNames: { label: 'dictLabel', value: 'dictValue' } 
   },
@@ -208,18 +214,21 @@ export const personColumn: any = [
   {
     label: '体检状态',
     prop: 'healthyCheckStatus',
+    search: {el: 'select'},
     enum: bus_healthy_check_status, 
     fieldNames: { label: 'dictLabel', value: 'dictValue' } 
   },
   {
     label: '需要总检',
     prop: 'needGeneralReview',
+    search: {el: 'select'},
     enum: bus_need_general_review, 
     fieldNames: { label: 'dictLabel', value: 'dictValue' } 
   },
   {
     label: '人员费别',
     prop: 'costType',
+    search: {el: 'select'},
     enum: bus_cost_type, 
     fieldNames: { label: 'dictLabel', value: 'dictValue' } 
   },

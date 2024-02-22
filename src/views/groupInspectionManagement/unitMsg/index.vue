@@ -3,38 +3,25 @@
     <div class="unit-page-wrap">
       <el-row :gutter="8">
         <el-col :span="5">
-          <div class="flex justify-between mt-[10px]">
-            <div class="font-bold text-level-base">单位列表</div>
-            <el-tooltip class="box-item" content="新增单位" placement="top">
-              <div
-                class="rounded-full w-[24px] h-[24px] cursor-pointer bg-[#2879FF] flex items-center justify-center text-[14px]"
-                @click="handleAddUnit"
-              >
-                <el-icon color="#fff">
-                  <Plus />
-                </el-icon>
-              </div>
-            </el-tooltip>
-          </div>
-          <div class="my-[10px]">
-            <el-alert type="info" center :closable="false" :show-icon="false" style="border: none">
-              <div class="flex items-center">
-                <div class="text-[#3F4755] whitespace-nowrap">当前选择：</div>
-          <div class="ml-[10px]">
+          <div class="ml-[10px] mr-[2px]">
             <div class="flex justify-between mt-[10px]">
-              <div class="font-bold">单位列表</div>
+              <div class="font-bold text-level-base">单位列表</div>
               <el-tooltip class="box-item" content="新增单位" placement="top">
-                <div class="add-circle w-[24px] h-[24px] cursor-pointer bg-[#2879FF] flex items-center justify-center" @click="handleAddUnit">
+                <div
+                  class="rounded-full w-[24px] h-[24px] cursor-pointer bg-[#2879FF] flex items-center justify-center text-[14px]"
+                  @click="handleAddUnit"
+                >
                   <el-icon color="#fff">
                     <Plus />
                   </el-icon>
                 </div>
               </el-tooltip>
             </div>
+
             <div class="my-[10px]">
               <div class="flex alert-select">
-                <div class="text-[#3F4755]" style="white-space: nowrap">当前选择：</div>
-                <span class="text-[#2879FF]">{{ selectTreeNodeName || '--' }}</span>
+                <div class="text-[#3F4755] whitespace-nowrap">当前选择：</div>
+                <div :title="selectTreeNodeName" class="text-[#2879FF] text-ellipsis">{{ selectTreeNodeName || '--' }}</div>
                 <span v-if="selectTreeNodeName" @click="handleClearSelectTreeNodeName" class="flex items-center cursor-pointer px-[8px]">
                   <el-icon color="#2879FF">
                     <CircleClose />
@@ -53,6 +40,7 @@
                 :props="{ label: 'teamName' }"
                 node-key="id"
                 default-expand-all
+                :expand-on-click-node="false"
                 @node-click="handleNodeClick"
               />
             </div>
@@ -105,12 +93,12 @@ import UnitMsg from './components/UnitMsg.vue';
 import UnitDepartMsg from './components/UnitDepartMsg.vue';
 import {
   teamInfoList,
-  queryTeamInfoById,
   addTeamInfo,
   editTeamInfo,
   deleteTeamInfo,
 } from '@/api/groupInspectionManagement/unitMsg/index';
 import { to } from 'await-to-js';
+import { cloneDeep } from 'lodash'
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 
@@ -123,7 +111,8 @@ const unitName = ref<any>(); //单位搜索
 const selectTreeNodeName = ref(); //选中单位名称
 const selectTreeNodeId = ref(); //选中单位名称
 const selectTreeNodeRow = ref(); //选中单位名称
-const treeData = ref<any>([]); //单位列表数据
+const treeData = ref<any>([]); //单位列表树数据
+const originalUnitData = ref<any>([]); //单位列表原数据
 const treeRef = ref();
 
 const activeTab = ref<any>(0);
@@ -151,6 +140,7 @@ onMounted(() => {
 const getTeamInfoList = async () => {
   treeLoading.value = true;
   const { data } = await teamInfoList({});
+  originalUnitData.value = cloneDeep(data);
   lastTreeData.value = data?.[data.length - 1];
   treeData.value = proxy?.handleTree<any>(data);
   treeLoading.value = false;
@@ -167,16 +157,6 @@ const handleNodeClick = async (data: any) => {
   selectTreeNodeName.value = data.teamName;
   selectTreeNodeId.value = data?.id;
   selectTreeNodeRow.value = data;
-  // const { data: response } = await queryTeamInfoById(data?.id);
-  // unitFormData.value = {
-  //   ...response,
-  //   teamLevel: String(response?.teamLevel),
-  //   parentId: String(response?.parentId),
-  //   industryType: response?.industryType ? String(response?.industryType) : '',
-  //   regionCode: response?.regionCode ? String(response?.regionCode) : '',
-  //   economicType: response?.economicType ? String(response?.economicType) : '',
-  //   enterpriseSize: response?.enterpriseSize ? String(response?.enterpriseSize) : '',
-  // };
 };
 
 // 新增单位
@@ -195,6 +175,7 @@ const handleClearSelectTreeNodeName = () => {
 const resetUnitForm = () => {
   selectTreeNodeId.value = null;
   selectTreeNodeName.value = null;
+  unitName.value = null;
   treeRef.value?.setCurrentKey(null);
   unitFormData.value = {};
   nextTick(() => {
@@ -221,7 +202,8 @@ const handleDelete = async () => {
   const [err] = await to(
     proxy?.$modal.confirm(
       '删除后该单位不支持维护任务',
-      '是否确定删除该单位及下方单位？'
+      '是否确定删除该单位及下方单位？',
+      'error'
     ) as any
   );
   if (!err) {
@@ -243,11 +225,17 @@ const handleSave = async () => {
     await getTeamInfoList();
     editFlag.value = !editFlag.value;
     if (!unitFormData.id) {
+      // 新增节点-选中新增数据
       treeRef.value?.setCurrentKey(lastTreeData.value?.id);
       handleNodeClick(lastTreeData.value);
+      //更新当前选择字段
+      selectTreeNodeName.value = lastTreeData.value?.teamName
     } else {
+      // 编辑节点-选中当前数据
       treeRef.value?.setCurrentKey(selectTreeNodeId.value);
-      handleNodeClick(selectTreeNodeRow.value);
+      await handleNodeClick(selectTreeNodeRow.value);
+      //更新当前选择字段
+      selectTreeNodeName.value = originalUnitData.value?.filter((item:any) => item.id === selectTreeNodeId.value)?.[0]?.teamName
     }
   }
 };
@@ -256,6 +244,7 @@ const handleSave = async () => {
 const handleCancle = () => {
   editFlag.value = !editFlag.value;
   basciInfoRef.value?.clearValidate();
+  !selectTreeNodeId.value&&resetUnitForm();
 };
 
 const filterNode = (value: string, data: Tree) => {
@@ -266,10 +255,11 @@ const filterNode = (value: string, data: Tree) => {
 
 <style lang="scss" scoped>
 @import './index.scss';
-@import './index.scss';
 
-:deep(.el-alert__description) {
-  padding: 0;
-  margin: 0;
+.text-ellipsis {
+  width: 100%;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 }
 </style>

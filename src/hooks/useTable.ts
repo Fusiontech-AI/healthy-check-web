@@ -74,7 +74,7 @@ export const useTable = (
         const { pageNum, pageSize, total } = data;
         console.log('🚀 ~ getTableList ~ pageNum, pageSize, total:', pageNum, pageSize, total);
         console.log('🚀 ~ getTableList ~ total:', total);
-        updatePageable({ total });
+        updatePageable({ total, pageNum: pageNum ?? state.pageable.pageNum, pageSize: pageSize ?? state.pageable.pageSize });
       }
     } catch (error) {
       requestError && requestError(error);
@@ -96,7 +96,7 @@ export const useTable = (
         nowSearchParam[key] = state.searchParam[key];
       }
     }
-    Object.assign(state.totalParam, nowSearchParam, isPageable ? pageParam.value : {});
+    Object.assign(state.totalParam, state.searchParam, nowSearchParam, isPageable ? pageParam.value : {});
   };
 
   /**

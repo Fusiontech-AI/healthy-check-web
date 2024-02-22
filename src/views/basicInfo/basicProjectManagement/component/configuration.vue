@@ -19,14 +19,14 @@
         {{ row.careerReferStart }}-{{ row.careerReferEnd }}
       </template>
 
-      <template #operation="{ row }">
+      <template #operation="{ row, $index }">
         <div>
           <el-button type="primary" text @click="handleAdd(2, row)">详情</el-button>
-          <el-popover placement="bottom" :width="50" trigger="click">
+          <el-popover placement="bottom" :width="50" trigger="click" :ref="`popover${$index}`">
             <template #reference>
               <el-button type="primary" text>更多操作</el-button>
             </template>
-            <div class="more" @click="handleAdd(3, row)">编辑</div>
+            <div class="more" @click="handleAdd(3, row, $index)">编辑</div>
             <div class="more" style="margin-bottom: 0;color:#F75252 ;" @click="batchDelete(row.id, 2)">删除</div>
           </el-popover>
 
@@ -91,11 +91,11 @@
         </span>
       </template>
     </el-drawer>
-
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref, getCurrentInstance, ComponentInternalInstance } from 'vue'
 import ProTable from '@/components/TableSearchComponent/ProTable/index.vue'
 import { Search } from '@element-plus/icons-vue'
 import { basicProjectRefList, addBasicProjectRef, deleteBasicProjectRef } from '@/api/basicInfo/basicProjectManagement'
@@ -108,6 +108,7 @@ const { optionsUnit,
   optionsSuitSex,
   optionsEnterSummary,
   optionsEnterReport } = useOptions()
+const { proxy } = getCurrentInstance() as ComponentInternalInstance
 
 const props = defineProps({
   configurationInfo: {
@@ -164,9 +165,8 @@ const batchEditRules = ref({
   careerReferStart: [{ required: true, message: '请选择职业参考高值', trigger: 'blur' }],
   careerReferEnd: [{ required: true, message: '请选择职业参考低值', trigger: 'blur' }],
 })
-
 //新增配置
-const handleAdd = (type, row) => {
+const handleAdd = async (type, row, $index) => {
   batchEditDialog.value = true
   isPreview.value = false
   batchEditRef.value?.clearValidate()
@@ -180,6 +180,7 @@ const handleAdd = (type, row) => {
   } else {
     addTitle.value = '编辑'
     batchEditForm.value = { ...row }
+    proxy.$refs[`popover${$index}`].hide()
   }
 }
 const handleBatchEdit = async (formEl) => {

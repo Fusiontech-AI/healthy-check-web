@@ -25,3 +25,12 @@ export const teamSettleWaitTaskGroupTree = (id: any) => {
     method: 'get'
   });
 };
+
+//体检单位待检人员批量换组
+export const batchSwitchGroup = (data: any) => {
+  return request({
+    url: `/peis/teamWait/batchSwitchGroup`,
+    method: 'post',
+    data
+  });
+};

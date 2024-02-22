@@ -42,8 +42,18 @@ const tableColumns = ref<any>([
   { type: 'selection', },
   { prop: 'healthyCheckCode', label: '体检号', search: { el: 'input' }, isShow: false },
   { prop: 'name', label: '姓名', search: { el: 'input', }, isShow: false, slot: 'xm' },
-  { prop: 'healthyCheckTime', label: '体检日期', search: { el: 'date-picker', props: { type: 'daterange', valueFormat: "YYYY-MM-DD", format: "YYYY-MM-DD", clearable: true }}, isShow: false },
-  { prop: 'physicalType', label: '体检类型', search: { el: 'select' }, isShow: false },
+  { prop: 'healthyCheckTime', 
+    label: '体检日期', 
+    search: { el: 'date-picker', 
+      props: { type: 'daterange', 
+        valueFormat: "YYYY-MM-DD", 
+        format: "YYYY-MM-DD", 
+        clearable: true, 
+      }, 
+      defaultValue: [dayjs(new Date()).format("YYYY-MM-DD"), dayjs(new Date()).format("YYYY-MM-DD")] }, 
+    isShow: false,
+  },
+  { prop: 'physicalType', label: '体检类型', search: { el: 'select' },enum: bus_physical_type, fieldNames: { label: 'dictLabel', value: 'dictValue' }, isShow: false,  },
   { prop: 'businessCategory', label: '业务类别', search: { el: 'select' }, isShow: false },
   { prop: 'guideSheetReceived', label: '回收', enum: [{ label: '是', value: '0' }, { label: '否', value: '1' }], search: { el: 'select' }, isShow: false },
   { prop: 'recordCode', label: '档案号', search: { el: 'input' }, isShow: false },
@@ -87,6 +97,7 @@ const tableColumns = ref<any>([
   { prop: 'cancelRegisterTime', label: '取消登记时间', width: 120 },
 ])
 const proTableRef = ref()
+
 const searchParams = ref({
   name: '',
   gender: '',
@@ -98,7 +109,8 @@ const handleReRegister = (ids: any) => {
   ElMessageBox.confirm('请确认再次登记？', '警告', {
     cancelButtonText: '取消',
     confirmButtonText: '确定',
-    type: 'warning'
+    type: 'warning',
+    roundButton: true
   }).then(async () => {
     await reRegistration(ids)
     ElMessage({
@@ -115,7 +127,7 @@ const handleReRegister = (ids: any) => {
   })
 }
 const getTableList = async (params: any) => {
-  const { healthyCheckTime,chargeTime,generalReviewTime, ...p } = params
+  const { healthyCheckTime, chargeTime, generalReviewTime, ...p } = params
   const param = {
     status: '1',
     healthyCheckTimeStart: healthyCheckTime?.[0] || '',

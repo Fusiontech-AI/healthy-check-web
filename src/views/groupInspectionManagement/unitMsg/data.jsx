@@ -122,12 +122,12 @@ export const otherInfoColumnBasic = [
 // 单位部门信息维护
 export const departColumnsBasic = [
   { type: 'selection', fixed: 'left', width: 70 },
-  { prop: 'deptNo', label: '部门编码' },
-  { prop: 'deptName', label: '部门名称' },
-  { prop: 'deptManager', label: '部门负责人' },
-  { prop: 'teamName', label: '上级单位' },
-  { prop: 'updateTime', label: '更新时间' },
-  { prop: 'operation', label: '操作', fixed: 'right', width: 150 }
+  { prop: 'deptNo', label: '部门编码', align: 'left' },
+  { prop: 'deptName', label: '部门名称', align: 'left' },
+  { prop: 'deptManager', label: '部门负责人', align: 'left' },
+  { prop: 'teamName', label: '上级单位', align: 'left', width: 280 },
+  { prop: 'updateTime', label: '更新时间', align: 'left', width: 170 },
+  { prop: 'operation', label: '操作', fixed: 'right', width: 150, align: 'left' }
 ];
 
 export const departColumnBasic = [

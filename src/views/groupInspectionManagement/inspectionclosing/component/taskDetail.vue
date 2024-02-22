@@ -106,7 +106,6 @@ const columns = reactive([
     label: "体检状态",
     tag: true,
     enum: healthyCheckStatus,
-    fieldNames: { label: 'label', value: 'label' }
   },
   {
     prop: "needGeneralReview",

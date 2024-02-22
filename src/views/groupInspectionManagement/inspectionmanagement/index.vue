@@ -6,15 +6,15 @@
         <el-row :gutter="20">
           <el-col :span="6">
             <el-form-item label="单位名称" prop="teamId">
-              <el-tree-select v-model="ruleForm.teamId" :data="options" filterable clearable remote :loading="loading"
-                placeholder="请搜索单位名称" :remote-method="remoteMethod"
+              <el-tree-select v-model="ruleForm.teamId" :data="options" filterable clearable :loading="loading"
+                placeholder="请搜索单位名称" :filter-method="remoteMethod"
                 :props="{ value: 'value', label: 'label', children: 'children' }" value-key="id" check-strictly
                 @change="teamIdChange" />
             </el-form-item>
           </el-col>
           <el-col :span="6">
             <el-form-item label="任务名称" prop="teamTaskId">
-              <el-select v-model="ruleForm.teamTaskId" placeholder="请选择任务名称" v-loading="taskLoading"
+              <el-select v-model="ruleForm.teamTaskId" filterable clearable placeholder="请选择任务名称" v-loading="taskLoading"
                 @change="taskIdChange">
                 <el-option v-for="item in taskoptions" :key="item.value" :label="item.label" :value="item.value" />
               </el-select>
@@ -33,41 +33,46 @@
       <div class="title">
         <div>任务信息</div>
       </div>
-      <div class="payment">
-        <div class="task_btn">
-          <el-button type="primary" @click="taskDiscount" round>任务折扣</el-button>
-          <el-button type="primary" @click="sealAccount" v-if="!isSeal" round>封账</el-button>
-          <el-button type="primary" @click="releaseAccount" v-else round>解除封账</el-button>
-        </div>
-        <div class="task_info">
-          <el-row>
-            <el-col :span="6">
-              <div>累计人数:
-                <span class="num_color">{{ taskGroupStatistics.totalPeople }}</span>
-              </div>
-            </el-col>
-            <el-col :span="6">
-              <div>分组金额:
-                <span class="num_color">{{ taskGroupStatistics.groupAmount }}</span>
-              </div>
-            </el-col>
-            <el-col :span="6">
-              <div>加项金额:
-                <span class="num_color">{{ taskGroupStatistics.addAmount }}</span>
-              </div>
-            </el-col>
-            <el-col :span="6">
-              <div>单位应收金额:
-                <span class="num_color">{{ taskGroupStatistics.teamReceiveAmount }}</span>
-              </div>
-            </el-col>
-          </el-row>
-        </div>
-      </div>
       <ProTable ref="proTableTask" :columns="columnsTask" :request-api="getTableList" :data-callback="dataCallbackTask"
-        :requestAuto="false" :toolButton="false">
+        :height="200" :requestAuto="false" :toolButton="false">
         <!-- Expand -->
         <!-- 表格操作 -->
+        <template #tableHeader="scope">
+          <div class="payment">
+            <div class="task_btn">
+              <el-button type="primary" @click="taskDiscount" round>任务折扣</el-button>
+              <el-button type="primary" @click="sealAccount" v-if="!isSeal" round>封账</el-button>
+              <el-button type="primary" @click="releaseAccount" v-else round>解除封账</el-button>
+            </div>
+            <div class="task_info">
+              <el-row>
+                <el-col :span="5">
+                  <div>累计人数:
+                    <span class="num_color">{{ taskGroupStatistics.totalPeople || '--' }}</span>
+                  </div>
+                </el-col>
+                <el-col :span="5">
+                  <div>分组金额:
+                    <span class="num_color">{{ taskGroupStatistics.groupAmount || '--' }}</span>
+                  </div>
+                </el-col>
+                <el-col :span="8">
+                  <div>加项金额:
+                    <span class="num_color">{{ taskGroupStatistics.addAmount || '--' }}</span>
+                    <span> (个人{{ taskGroupStatistics.personAddAmount || '--' }}，单位{{ taskGroupStatistics.teamAddAmount ||
+                      '--'
+                    }})</span>
+                  </div>
+                </el-col>
+                <el-col :span="6">
+                  <div>单位应收金额:
+                    <span class="num_color">{{ taskGroupStatistics.teamReceiveAmount || '--' }}</span>
+                  </div>
+                </el-col>
+              </el-row>
+            </div>
+          </div>
+        </template>
         <template #operation="scope">
           <el-button type="primary" text @click="details('1', scope.row)">明细</el-button>
         </template>
@@ -79,7 +84,7 @@
       </div>
 
       <ProTable ref="proTableAccounts" :columns="columnsAccounts" :request-api="getTableListAccounts" :requestAuto="false"
-        :data-callback="dataCallbackAccounts" :toolButton="false">
+        :height="200" :data-callback="dataCallbackAccounts" :toolButton="false">
         <!-- 表格操作 -->
         <template #tableHeader="scope">
           <div class="payment">
@@ -93,12 +98,12 @@
               <el-row>
                 <el-col :span="12">
                   <div>已结金额:
-                    <span class="num_color">{{ teamSettleStatistics.settledAmount }}</span>
+                    <span class="num_color">{{ teamSettleStatistics.settledAmount || '--' }}</span>
                   </div>
                 </el-col>
                 <el-col :span="12">
                   <div>余额:
-                    <span class="num_color">{{ teamSettleStatistics.balance }}</span>
+                    <span class="num_color">{{ teamSettleStatistics.balance || '--' }}</span>
                   </div>
                 </el-col>
               </el-row>
@@ -114,9 +119,9 @@
               row.checkStatusName }}</span>
         </template>
         <template #operation="{ row }">
-          <el-button type="primary" text @click="details('2', row)">详情</el-button>
-          <el-button type="primary" text @click="cancellation(row)">作废</el-button>
-          <el-button type="primary" text @click="deleteInvoice(row)" :disabled="row.statusName != '废弃'">删除</el-button>
+          <el-button type="primary" text @click="details('2', row)" :disabled="row.status == 2">详情</el-button>
+          <el-button type="primary" text @click="cancellation(row)" :disabled="row.status == 2">作废</el-button>
+          <el-button type="danger" text @click="deleteInvoice(row)" :disabled="row.status != 2">删除</el-button>
         </template>
       </ProTable>
     </el-card>
@@ -175,13 +180,13 @@ height: 698px;">
     <el-dialog v-model="operationDeter" width="30%" class="sealAccountClass">
       <template #header>
         <div class="my-header">
-          <el-icon color="#F75252" class="no-inherit" :size="20">
-            <WarningFilled></WarningFilled>
-          </el-icon>
           <span>{{ operationTitle }}</span>
         </div>
       </template>
       <div>
+        <el-icon color="#F75252" class="no-inherit" :size="20">
+          <WarningFilled></WarningFilled>
+        </el-icon>
         {{ operationInfo }}
       </div>
       <template #footer>
@@ -192,9 +197,9 @@ height: 698px;">
           </el-button>
         </span>
         <span class="dialog-footer" v-else>
-          <el-button @click="handleRejectOrPass(false)" round>驳回</el-button>
+          <el-button @click="handleRejectOrPass(false)" round>取消</el-button>
           <el-button type="primary" @click="handleRejectOrPass(true)" round>
-            通过
+            确定
           </el-button>
         </span>
       </template>
@@ -567,16 +572,16 @@ const InvalidSettleId = ref([])
 // 删除id
 const deleteInvoiceId = ref('')
 // 结账审核id
-const closingAuditIds = ref('')
+const closingAuditIds = ref([])
 //结账审核
-const closingAudit = (params) => {
+const closingAudit = (params: any) => {
   operationDeter.value = true
-  operationTitle.value = '结账审核'
-  operationInfo.value = '请选择结账审核结果'
+  operationTitle.value = `是否确定审核通过选中的 ${params.length} 条记录？`
+  operationInfo.value = '审核通过后，无法撤销审核状态'
   operationType.value = 6
   closingAuditIds.value = [...params]
 }
-const handleRejectOrPass = async (type) => {
+const handleRejectOrPass = async (type: any) => {
   if (type) {
     await teamSettleCheckPass({ ...ruleForm, ids: closingAuditIds.value })
     ElMessage.success('审核通过 成功')
@@ -675,7 +680,7 @@ const optionsName = (arr, value) => {
   }
 
   .payment {
-    margin-bottom: 20px;
+    // margin-bottom: 20px;
     display: flex;
     justify-content: space-between;
 

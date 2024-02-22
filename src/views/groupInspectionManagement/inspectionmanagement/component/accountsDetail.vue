@@ -1,8 +1,9 @@
 <template>
   <div>
     <div class="mb-10px pb-10px">
-      <span @click="active = 1" class="mr-10px pb-10px" :class="{ 'active': active == 1 }">收费信息</span>
-      <span @click="handleTable" class="pb-10px" :class="{ 'active': active == 2 }">人员明细</span>
+      <span @click="active = 1" class="mr-10px pb-10px" :class="{ 'active': active == 1 }"
+        style="cursor:pointer">收费信息</span>
+      <span @click="handleTable" class="pb-10px" :class="{ 'active': active == 2 }" style="cursor:pointer">人员明细</span>
     </div>
     <div v-show="active == 1">
       <addForm :addForm="detailInfo" :preview="preview" :taskoptions="taskoptions"></addForm>
@@ -10,14 +11,11 @@
     <div v-show="active == 2">
       <ProTable ref="proTable" :columns="columns" :request-api="getTableList" :data-callback="dataCallback"
         :toolButton="false">
-        <template #姓名="scope">
+        <template #name="{ row }">
           <div class="name_info">
-            <span>{{ scope.row.username }}</span>
-            <span class="fujian">复</span>
+            <span>{{ row.name }}</span>
+            <span class="fujian" v-if="row.checkType == 21">复</span>
           </div>
-        </template>
-        <template #体检状态="scope">
-          <span class="check_state">{{ scope.row.username }}</span>
         </template>
       </ProTable>
     </div>
@@ -217,10 +215,11 @@ const optionsName = (arr, value) => {
 
 .fujian {
   position: absolute;
-  top: 4px;
-  right: -1px;
+  top: 0px;
+  right: 0px;
   width: 16px;
   height: 16px;
+  line-height: 1;
   border: 0.5px solid #F75252;
   border-radius: 2px;
   color: #F75252
