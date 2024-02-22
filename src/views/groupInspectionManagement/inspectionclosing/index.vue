@@ -58,7 +58,7 @@
           </el-row>
         </div>
       </div>
-      <ProTable ref="proTableTask" :columns="columnsTask" :request-api="getTableListTask" :data-callback="dataCallback"
+      <ProTable ref="proTableTask" :columns="columnsTask" :request-api="getTableListTask" :data-callback="dataCallback" :height="200"
         :requestAuto="false" :toolButton="false">
         <!-- Expand -->
         <!-- 表格操作 -->
@@ -71,7 +71,7 @@
         <div style="width: 200px;">结账信息</div>
       </div>
       <ProTable ref="proTableAccounts" :columns="columnsAccounts" :request-api="getTableListAccounts"
-        :data-callback="dataCallbackAccounts" :requestAuto="false" :toolButton="false">
+        :data-callback="dataCallbackAccounts" :height="200" :requestAuto="false" :toolButton="false">
         <!-- 表格操作 -->
         <template #tableHeader="scope">
           <div class="payment">
@@ -160,13 +160,13 @@ height: 698px;">
     <el-dialog v-model="operationDeter" width="30%" class="sealAccountClass">
       <template #header>
         <div class="my-header">
-          <el-icon color="#F75252" class="no-inherit" :size="20">
-            <WarningFilled></WarningFilled>
-          </el-icon>
           <span>{{ operationTitle }}</span>
         </div>
       </template>
       <div>
+        <el-icon color="#F75252" class="no-inherit" :size="20">
+          <WarningFilled></WarningFilled>
+        </el-icon>
         {{ operationInfo }}
       </div>
       <template #footer>
@@ -622,7 +622,7 @@ const optionsName = (arr, value) => {
   }
 
   .payment {
-    margin-bottom: 20px;
+    // margin-bottom: 20px;
     display: flex;
     justify-content: space-between;
 

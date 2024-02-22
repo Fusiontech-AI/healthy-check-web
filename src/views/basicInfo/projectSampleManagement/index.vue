@@ -58,13 +58,13 @@
     <el-dialog v-model="operationDeter" width="30%" class="sealAccountClass">
       <template #header>
         <div class="my-header">
-          <el-icon color="#F75252" class="no-inherit" :size="20">
-            <WarningFilled></WarningFilled>
-          </el-icon>
           <span>{{ operationTitle }}</span>
         </div>
       </template>
       <div>
+        <el-icon color="#F75252" class="no-inherit" :size="20">
+            <WarningFilled></WarningFilled>
+          </el-icon>
         {{ operationInfo }}
       </div>
       <template #footer>
@@ -451,6 +451,7 @@ const handleForbidden = (id) => {
 .sample_list {
   margin-bottom: 10px;
   font-size: 14px;
+  padding-left: 10px;
 }
 
 .active {

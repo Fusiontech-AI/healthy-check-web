@@ -57,14 +57,13 @@
     <el-dialog v-model="operationDeter" width="30%" class="sealAccountClass">
       <template #header>
         <div class="my-header">
-          <el-icon color="#F75252" class="align-middle" :size="20">
-            <WarningFilled></WarningFilled>
-          </el-icon>
           <span>{{ operationTitle }}</span>
         </div>
       </template>
       <div>
-        {{ operationInfo }}
+        <el-icon color="#F75252" class="align-middle" :size="20">
+          <WarningFilled></WarningFilled>
+        </el-icon> {{ operationInfo }}
       </div>
       <template #footer>
         <span class="dialog-footer">
@@ -373,6 +372,7 @@ const handleDlete = (id) => {
 .sample_list {
   margin-bottom: 10px;
   font-size: 14px;
+  padding-left: 10px;
 }
 
 .active {
@@ -394,19 +394,23 @@ const handleDlete = (id) => {
   height: 176px;
   border-radius: 20px;
   background: linear-gradient(180deg, #CBDFFF 0%, #FFFFFF 27%);
+}
 
-  :deep(.el-dialog__header) {
-    border-bottom: none;
-  }
+:deep(.el-dialog__header) {
+  border-bottom: none;
+}
 
-  :deep(.el-dialog__headerbtn) {
-    top: 1px;
+:deep(.el-dialog__headerbtn) {
+  top: 1px;
 
-  }
 }
 
 :deep(.el-drawer) {
   background: linear-gradient(180deg, #CBDFFF 0%, #FFFFFF 12%);
   border-radius: 20px 0px 0px 20px;
+}
+.no-inherit {
+  vertical-align: middle;
+  margin-right: 5px;
 }
 </style>

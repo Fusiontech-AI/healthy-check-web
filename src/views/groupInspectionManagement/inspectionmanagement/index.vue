@@ -33,43 +33,46 @@
       <div class="title">
         <div>任务信息</div>
       </div>
-      <div class="payment">
-        <div class="task_btn">
-          <el-button type="primary" @click="taskDiscount" round>任务折扣</el-button>
-          <el-button type="primary" @click="sealAccount" v-if="!isSeal" round>封账</el-button>
-          <el-button type="primary" @click="releaseAccount" v-else round>解除封账</el-button>
-        </div>
-        <div class="task_info">
-          <el-row>
-            <el-col :span="5">
-              <div>累计人数:
-                <span class="num_color">{{ taskGroupStatistics.totalPeople || '--' }}</span>
-              </div>
-            </el-col>
-            <el-col :span="5">
-              <div>分组金额:
-                <span class="num_color">{{ taskGroupStatistics.groupAmount || '--' }}</span>
-              </div>
-            </el-col>
-            <el-col :span="8">
-              <div>加项金额:
-                <span class="num_color">{{ taskGroupStatistics.addAmount || '--' }}</span>
-                <span> (个人{{ taskGroupStatistics.personAddAmount || '--' }}，单位{{ taskGroupStatistics.teamAddAmount || '--'
-                }})</span>
-              </div>
-            </el-col>
-            <el-col :span="6">
-              <div>单位应收金额:
-                <span class="num_color">{{ taskGroupStatistics.teamReceiveAmount || '--' }}</span>
-              </div>
-            </el-col>
-          </el-row>
-        </div>
-      </div>
       <ProTable ref="proTableTask" :columns="columnsTask" :request-api="getTableList" :data-callback="dataCallbackTask"
-        :requestAuto="false" :toolButton="false">
+        :height="200" :requestAuto="false" :toolButton="false">
         <!-- Expand -->
         <!-- 表格操作 -->
+        <template #tableHeader="scope">
+          <div class="payment">
+            <div class="task_btn">
+              <el-button type="primary" @click="taskDiscount" round>任务折扣</el-button>
+              <el-button type="primary" @click="sealAccount" v-if="!isSeal" round>封账</el-button>
+              <el-button type="primary" @click="releaseAccount" v-else round>解除封账</el-button>
+            </div>
+            <div class="task_info">
+              <el-row>
+                <el-col :span="5">
+                  <div>累计人数:
+                    <span class="num_color">{{ taskGroupStatistics.totalPeople || '--' }}</span>
+                  </div>
+                </el-col>
+                <el-col :span="5">
+                  <div>分组金额:
+                    <span class="num_color">{{ taskGroupStatistics.groupAmount || '--' }}</span>
+                  </div>
+                </el-col>
+                <el-col :span="8">
+                  <div>加项金额:
+                    <span class="num_color">{{ taskGroupStatistics.addAmount || '--' }}</span>
+                    <span> (个人{{ taskGroupStatistics.personAddAmount || '--' }}，单位{{ taskGroupStatistics.teamAddAmount ||
+                      '--'
+                    }})</span>
+                  </div>
+                </el-col>
+                <el-col :span="6">
+                  <div>单位应收金额:
+                    <span class="num_color">{{ taskGroupStatistics.teamReceiveAmount || '--' }}</span>
+                  </div>
+                </el-col>
+              </el-row>
+            </div>
+          </div>
+        </template>
         <template #operation="scope">
           <el-button type="primary" text @click="details('1', scope.row)">明细</el-button>
         </template>
@@ -81,7 +84,7 @@
       </div>
 
       <ProTable ref="proTableAccounts" :columns="columnsAccounts" :request-api="getTableListAccounts" :requestAuto="false"
-        :data-callback="dataCallbackAccounts" :toolButton="false">
+        :height="200" :data-callback="dataCallbackAccounts" :toolButton="false">
         <!-- 表格操作 -->
         <template #tableHeader="scope">
           <div class="payment">
@@ -177,13 +180,13 @@ height: 698px;">
     <el-dialog v-model="operationDeter" width="30%" class="sealAccountClass">
       <template #header>
         <div class="my-header">
-          <el-icon color="#F75252" class="no-inherit" :size="20">
-            <WarningFilled></WarningFilled>
-          </el-icon>
           <span>{{ operationTitle }}</span>
         </div>
       </template>
       <div>
+        <el-icon color="#F75252" class="no-inherit" :size="20">
+          <WarningFilled></WarningFilled>
+        </el-icon>
         {{ operationInfo }}
       </div>
       <template #footer>
@@ -677,7 +680,7 @@ const optionsName = (arr, value) => {
   }
 
   .payment {
-    margin-bottom: 20px;
+    // margin-bottom: 20px;
     display: flex;
     justify-content: space-between;
 
