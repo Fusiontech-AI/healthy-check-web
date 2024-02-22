@@ -4,6 +4,7 @@ const {
   bus_duty_status,
   bus_group_type,
   bus_group_pay_type,
+  bus_gender,
   sys_user_sex,
   bus_healthy_check_status,
   bus_category,
@@ -17,6 +18,7 @@ const {
     'bus_duty_status',
     'bus_group_type',
     'bus_group_pay_type',
+    'bus_gender',
     'sys_user_sex',
     'bus_healthy_check_status',
     'bus_category',
@@ -75,7 +77,7 @@ export const basicInforColumns: any = [
 // 任务分组Columns
 export const taskGroupingColumn: any = [
   { prop: 'groupName', label: '分组名称', width: 120, fixed: 'left' },
-  { prop: 'gender', label: '性别', enum: sys_user_sex, fieldNames: { label: 'dictLabel', value: 'dictValue' } },
+  { prop: 'gender', label: '性别', enum: bus_gender, fieldNames: { label: 'dictLabel', value: 'dictValue' } },
   { prop: 'marriage', label: '婚否', enum: bus_marriage_status, fieldNames: { label: 'dictLabel', value: 'dictValue' } },
   { prop: 'dutyStatus', label: '在岗类型', width: 120, enum: bus_duty_status, fieldNames: { label: 'dictLabel', value: 'dictValue' } },
   {

@@ -304,7 +304,7 @@ const getTeamTaskData = async () => {
   try {
     teamTaskLoading.value = true
     const { rows } = await getTeamTaskList({
-      pagesize: -1,
+      pageSize: -1,
       taskName: taskName.value,
       signBeginDate: dateValue.value?.[0],
       signEndDate: dateValue.value?.[1],

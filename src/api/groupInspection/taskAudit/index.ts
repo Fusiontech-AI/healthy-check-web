@@ -94,3 +94,14 @@ export const deleteTaskRegister = (id: any) => {
     method: 'DELETE',
   });
 };
+
+/**
+ * 团检任务导入人员列表
+ */
+export const queryTaskRegisterExportById = (params: any) => {
+  return request({
+    url: '/peis/teamTask/queryTaskRegisterExportById',
+    method: 'get',
+    params
+  });
+};

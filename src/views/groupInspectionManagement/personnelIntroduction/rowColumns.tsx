@@ -323,11 +323,11 @@ export const importColumn = [
     width: 60,
     fixed: 'left'
   },
-  {
-    prop: 'serialNumber',
-    label: '流水号',
-    fixed: 'left'
-  },
+  // {
+  //   prop: 'serialNumber',
+  //   label: '流水号',
+  //   fixed: 'left'
+  // },
   {
     prop: 'name',
     label: '姓名',
@@ -364,7 +364,7 @@ export const importColumn = [
     width: 120
   },
   {
-    prop: 'teamGroupId',
+    prop: 'groupName',
     label: '所属分组',
     width: 120
   }

@@ -109,7 +109,8 @@ const handleReRegister = (ids: any) => {
   ElMessageBox.confirm('请确认再次登记？', '警告', {
     cancelButtonText: '取消',
     confirmButtonText: '确定',
-    type: 'warning'
+    type: 'warning',
+    roundButton: true
   }).then(async () => {
     await reRegistration(ids)
     ElMessage({

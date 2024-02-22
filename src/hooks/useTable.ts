@@ -62,7 +62,7 @@ export const useTable = (
       let { rows, data, total } = await api({ ...state.searchInitParam, ...state.totalParam });
       rows && (data = rows);
       rows && (data.list = rows);
-      if(total || total === 0) {
+      if (total || total === 0) {
         data.total = total
       }
       dataCallBack && (data = dataCallBack(data));
@@ -72,7 +72,7 @@ export const useTable = (
         const { pageNum, pageSize, total } = data;
         console.log('🚀 ~ getTableList ~ pageNum, pageSize, total:', pageNum, pageSize, total);
         console.log('🚀 ~ getTableList ~ total:', total);
-        updatePageable({ total });
+        updatePageable({ total, pageNum: pageNum ?? state.pageable.pageNum, pageSize: pageSize ?? state.pageable.pageSize });
       }
     } catch (error) {
       requestError && requestError(error);

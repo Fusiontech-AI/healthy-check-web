@@ -2,7 +2,7 @@
   <div v-if="columns.length" class="card form-search">
     <el-form ref="formRef" :model="searchParam" label-position="left" labelWidth="auto" v-bind="$attrs">
       <Grid ref="gridRef" :collapsed="collapsed" :gap="[20, 0]" :cols="searchCol">
-        <GridItem v-for="(item, index) in columns" :key="item.prop" v-bind="getResponsive(item)" :index="index">
+        <GridItem v-for="(item, index) in columnsFunc" :key="item.prop" v-bind="getResponsive(item)" :index="index">
           <slot :name="item.prop + 'Component'">
             <slot :name="'search' + item.slot">
               <el-form-item :prop="item.prop" v-bind="item.search">
@@ -75,6 +75,10 @@ const props = withDefaults(defineProps<ProTableProps>(), {
   actionOption: {},
   preview: false
 });
+
+const columnsFunc = computed(()=> {
+  return props.columns.filter(item=> item.isShowSearch??true)
+})
 
 const RenderFormValue = (item: any) => {
   return <div>{{

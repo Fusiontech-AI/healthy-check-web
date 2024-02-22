@@ -7,7 +7,7 @@
             <el-tree-select
               v-model="searchParam.teamId"
               class="w-full"
-              placeholder="请搜索"
+              placeholder="请输入单位"
               filterable
               clearable
               :data="teamIdList"
@@ -58,10 +58,9 @@
                   </div>
                   <div class="flex justify-between items-center text-[12px] text-[#89919F]">
                     <span>{{ item.signDate }}</span>
-                    <span :class="item?.reviewResult == '1' ? 'text-#09C268' : 'text-#F75252'"
-                      >{{
-                      item.reviewResult == '1' ? '通过' : '未通过' }}
-                    </span>
+                    <span v-if="item.reviewResult == '0'" class="text-#FF8400">待审</span>
+                    <span v-if="item.reviewResult == '1'" class="text-#09C268">通过</span>
+                    <span v-if="item.reviewResult == '2'" class="text-#F75252">驳回</span>
                   </div>
                 </el-card>
               </template>
@@ -95,7 +94,7 @@
                 ref="proTableRef"
                 :columns="tableColumns"
                 :toolButton="false"
-                :request-api="queryTaskReviewRegister"
+                :request-api="queryTaskRegisterExportById"
                 :init-param="initParam"
                 :request-auto="false"
               >
@@ -144,7 +143,7 @@ import _ from 'lodash';
 import { formInfoColumns, tableColumn, personColumn } from './rowColumns'
 import AddDrawer from './components/AddDrawer.vue'
 import BatchImport from './components/BatchImport.vue'
-import { getRegisterById, getTeamTaskList, queryTaskReviewRegister, deleteTaskRegister } from '@/api/groupInspection/taskAudit';
+import { getRegisterById, getTeamTaskList, queryTaskReviewRegister, deleteTaskRegister, queryTaskRegisterExportById } from '@/api/groupInspection/taskAudit';
 import { teamInfoList } from '@/api/groupInspection/inspectionclosing';
 import { RefreshRight } from '@element-plus/icons-vue';
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
@@ -173,11 +172,12 @@ const viewPersonDetail = async(row:any) => {
 }
 
 // 删除
-const handleDel = (row:any) => {
+const handleDel = async(row:any) => {
   ElMessageBox.confirm('请确认是否删除？', '警告', {
     cancelButtonText: '取消',
     confirmButtonText: '确定',
-    type: 'warning'
+    type: 'warning',
+    roundButton: true
   }).then(async () => {
     await deleteTaskRegister(row.id)
     ElMessage({
@@ -194,7 +194,7 @@ const handleDel = (row:any) => {
 }
 /** 批量导出 */
 const batchExport = () => {
-
+  
 }
 /** 下载模板操作 */
 const importTemplate = () => {
