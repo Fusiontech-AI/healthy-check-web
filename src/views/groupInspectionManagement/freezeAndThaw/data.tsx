@@ -85,7 +85,7 @@ export const basicInfoColumnBasic = (bus_healthy_check_status: any, sys_user_sex
 ];
 
 // 表格行
-export const columnsBasic = [
+export const columnsBasic = (bus_healthy_check_status: any) => [
   { type: 'selection', fixed: 'left', width: 70 },
   { prop: 'healthyCheckCode', label: '体检号', fixed: 'left', align: 'left' },
   { prop: 'recordCode', label: '档案号', width: 170, fixed: 'left', align: 'left' },
@@ -104,14 +104,7 @@ export const columnsBasic = [
     prop: 'physicalType',
     label: '体检类型',
     width: '100',
-    enum: [
-      { label: '健康体检', value: 'JKTJ' },
-      { label: '职业健康体检', value: 'ZYJKTJ' },
-      { label: '放射体检', value: 'FSTJ' },
-      { label: '老年人体检', value: 'LNRTJ' },
-      { label: '入职体检', value: 'RZTJ' },
-      { label: '学生体检', value: 'XSTJ' }
-    ],
+    enum: bus_healthy_check_status,
     align: 'left'
   },
   { prop: 'name', label: '姓名', align: 'left' },

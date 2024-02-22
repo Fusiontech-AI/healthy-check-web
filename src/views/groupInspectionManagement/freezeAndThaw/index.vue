@@ -20,6 +20,7 @@
             filterable
             clearable
             default-expand-all
+            placeholder="请选择单位"
             @change="handleChange"
           />
         </template>
@@ -80,7 +81,8 @@ const basicSearchFormRef = ref()
 const proTableRef = ref<any>()
 
 const {bus_healthy_check_status,sys_user_sex}  =toRefs<any>(proxy?.useDict('bus_healthy_check_status','sys_user_sex'))
-const basicInfoColumn = ref<any>(basicInfoColumnBasic(bus_healthy_check_status,sys_user_sex,teamIdList,teamTaskLists))
+// const basicInfoColumn = ref<any>(basicInfoColumnBasic(bus_healthy_check_status,sys_user_sex,teamIdList,teamTaskLists))
+const basicInfoColumn = ref<any>(basicInfoColumnBasic(bus_healthy_check_status,sys_user_sex,teamIdList,[]))
 
 const activeTab = ref<any>('1')
 const tabList = markRaw<any>([
@@ -88,7 +90,7 @@ const tabList = markRaw<any>([
   { label: '冻结', key: '0' },
 ])
 
-const columns = reactive<any>(columnsBasic);
+const columns = reactive<any>(columnsBasic(bus_healthy_check_status));
 
 const initFormData = {
   pageNum: 1,
@@ -144,7 +146,7 @@ const handleReset = () => {
   queryParams.value.pageNum = 1;
   basicSearchFormRef.value?.resetFields()
   proTableRef.value?.getTableList()
-  // teamTaskLists.value = []
+  teamTaskLists.value = []
 }
 
 // 冻结
