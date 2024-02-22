@@ -44,9 +44,8 @@
                   @click="clickTeamTask(item)"
                 >
                   <div class="flex items-center">
-                    <el-checkbox v-model="item.checked" size="large" @click.stop>
-                      <span class="text-[#141C28] font-normal">{{ item?.signDate }}</span>
-                    </el-checkbox>
+                    <el-checkbox v-model="item.checked" size="large" @click.stop />
+                    <span class="ml-2 text-[#141C28] font-normal">{{ item?.signDate }}</span>
                     <span class="ml-auto px-[3px] rounded-[2px] font-bold text-[#fff] bg-[#FFA81C]">{{
                       bus_physical_type?.find((val: any) => val.dictValue == item.physicalType)?.label?.substring(0,
                         1)
@@ -54,12 +53,9 @@
                   </div>
                   <div class="flex justify-between items-center text-[12px] mt-[8px]">
                     <span class="text-[#89919F] flex-1">{{ item?.taskName }}</span>
-                    <span v-if="isReview == '1'" :class="item?.isReview == '0' ? 'text-#09C268' : 'text-#FF8400'" class="ml-1">
-                      {{ item?.isReview == '0' ? '已审' : '待审' }}
-                    </span>
-                    <span v-else :class="item?.reviewResult == '1' ? 'text-#09C268' : 'text-#F75252'">
-                      {{ item?.reviewResult == '1' ? '通过' : '驳回' }}
-                    </span>
+                    <span v-if="item.reviewResult == '0'" class="text-#FF8400">待审</span>
+                    <span v-if="item.reviewResult == '1'" class="text-#09C268">通过</span>
+                    <span v-if="item.reviewResult == '2'" class="text-#F75252">驳回</span>
                   </div>
                 </el-card>
               </template>
@@ -73,7 +69,7 @@
           <div class="content" v-loading="rightLoading">
             <div class="flex justify-end">
               <el-button round>委托协议预览</el-button>
-              <el-button round type="primary" @click="showDrawer = true">任务审核</el-button>
+              <el-button round :disabled="isReview == '0'" type="primary" @click="showDrawer = true">任务审核</el-button>
             </div>
             <div class="divider"></div>
             <div>
@@ -91,13 +87,13 @@
                   <GridItem :span="1" v-for="item in basicInforColumn" :key="item.prop">
                     <div class="flex text-[14px] text-[#141C28]">
                       <span class="w-[120px] text-[#89919F] ml-[30px]">{{ item.label }}</span>
-                      <span
-                        v-if="item.prop === 'isReview'"
+                      <div
+                        v-if="item.prop === 'reviewResult'"
                         class="flex-1"
-                        :class="basicInfoData?.[item.prop] == '1' ? 'text-#FF8400' : 'text-#09C268'"
+                        :class="basicInfoData?.[item.prop] == '0' ? 'text-#FF8400' : basicInfoData?.[item.prop] == '1'?'text-#09C268':'text-#F75252'"
                       >
                         {{ item.enum.find((val: any) => val.value == basicInfoData?.[item.prop])?.label }}
-                      </span>
+                      </div>
                       <div v-else>
                         <span v-if="!item.enum" class="flex-1">
                           {{ basicInfoData?.[item.prop] }}
@@ -171,7 +167,7 @@
     </el-dialog>
     <el-dialog title="人员信息详情" v-model="showPersonDialog" width="45%">
       <el-scrollbar height="550px" class="no-card">
-        <SearchForm ref="formRef" :columns="personColumns" :search-param="personInfo" :search-col="2"></SearchForm>
+        <SearchForm ref="formRef" :columns="personColumns" :search-param="personInfo" :search-col="2" :preview="true"></SearchForm>
         <!-- <Grid ref="gridRef" :gap="20" :cols="2">
           <GridItem :span="1" v-for="item in personColumns " :key="item.label">
             <div class="flex text-[14px] text-[#141C28] ml-4">
@@ -197,7 +193,7 @@ import Grid from "@/components/Grid/index.vue";
 import GridItem from "@/components/Grid/components/GridItem.vue";
 import GroupDetails from "./components/GroupDetails.vue";
 import { basicInforColumns, taskGroupingColumn, personnelListColumn, personColumn } from './rowColumns'
-import { getTeamTaskList, getRegisterById, queryTaskReviewGroup, queryTaskReviewRegister, reviewTask } from "@/api/groupInspection/taskAudit/index";
+import { getTeamTaskList, getRegisterById, queryTaskReviewGroup, queryTaskReviewRegister, reviewTask, returnTask } from "@/api/groupInspection/taskAudit/index";
 
 import dayjs from "dayjs";
 const { proxy } = getCurrentInstance() as ComponentInternalInstance
@@ -217,7 +213,8 @@ const personnelListColumns = ref<any>(personnelListColumn) // 人员列表Column
 const personInfo = ref({})
 const viewPersonDetail = async(row:any) => {
   showPersonDialog.value = true
-  // const {data} = await getRegisterById(row.id)
+  const {data} = await getRegisterById(row.id)
+  personInfo.value = data
 }
 // 批量审核
 const allChecked = ref(false)
@@ -254,11 +251,15 @@ const handleBatchAudit = (type:any) => {
     }
   )
     .then(async () => {
-      await reviewTask({ idList: ids, reviewResult: auditValue.value })
+      if(type == '1') {
+        await reviewTask({ idList: ids, reviewResult: auditValue.value })
+      }else {
+        await returnTask(ids)
+      }
       getTeamTaskData()
       ElMessage({
         type: 'success',
-        message: '审核成功',
+        message: type == '1'?'审核成功':'操作成功',
       })
     })
     .catch(() => {
@@ -303,6 +304,7 @@ const getTeamTaskData = async () => {
   try {
     teamTaskLoading.value = true
     const { rows } = await getTeamTaskList({
+      pageSize: -1,
       taskName: taskName.value,
       signBeginDate: dateValue.value?.[0],
       signEndDate: dateValue.value?.[1],

@@ -139,7 +139,8 @@ const handleDel = (ids: any) => {
   ElMessageBox.confirm('请确认是否删除？', '警告', {
     cancelButtonText: '取消',
     confirmButtonText: '确定',
-    type: 'warning'
+    type: 'warning',
+    roundButton: true
   }).then(async () => {
     await batchDeleteByIds(ids)
     ElMessage({
