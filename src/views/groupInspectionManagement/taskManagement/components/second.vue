@@ -75,11 +75,26 @@ const basicInfoColumnZYB = ref([
   },
 ])
 watch(() => props.formSecond, async (newV) => {
-  props.formSecond.forEach((item => {
+  newV.forEach((item => {
     const { groupType, price, groupPayType, addPayType, itemDiscount, addDiscount, groupItemList, standardPrice, actualPrice, } = item
     item.groupFlag = '1'
     item.amountCalGroupBo = { groupType, price, groupPayType, addPayType, itemDiscount, addDiscount }
-    item.defaultItemList = groupItemList
+    item.defaultItemList = groupItemList.map((item, i) => {
+      return {
+        sort: i + 1,
+        payType: '1',//变更类型(0个人 1单位 2混合支付)
+        payStatus: '0',//缴费状态（0：未缴费，1：已缴费，2：申请退费中，3：已退费，）
+        tcFlag: item.include,//是否套餐'0'是'1'否
+        teamAmount: 0,//单位应收金额
+        personAmount: item.actualPrice,//个人应收金额
+        combinProjectCode: item.combinProjectCode,
+        combinProjectName: item.itemName,
+        standardAmount: item.standardPrice,
+        discount: item.discount,
+        receivableAmount: item.actualPrice,
+        id: item.itemId
+      }
+    })
     item.standardAmount = standardPrice
     item.receivableAmount = actualPrice
   }))
@@ -153,8 +168,6 @@ const getIndex = (name) => {
   return index
 }
 const itemChange = (val, item) => {
-  console.log(123);
-
   const { rightTableData } = val
   item.groupItemList = rightTableData.map(item => {
     return {

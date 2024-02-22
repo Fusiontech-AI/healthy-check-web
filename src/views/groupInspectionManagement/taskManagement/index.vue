@@ -312,10 +312,11 @@ const handleJY2 = async () => {
       itemList: groupItemList.map(item => item.itemId)
     }
   })
-  if (arr1.length == 0) return
-  const { data } = await teamTaskVerifyGroupPackageData(arr1)
-  if (data.isPrompt) {
-    await proxy?.$modal.confirm(data.promptMessage)
+  if (arr1.length != 0) {
+    const { data } = await teamTaskVerifyGroupPackageData(arr1)
+    if (data.isPrompt) {
+      await proxy?.$modal.confirm(data.promptMessage)
+    }
   }
 }
 //上一步
