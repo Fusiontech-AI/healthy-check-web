@@ -77,10 +77,6 @@ const props = withDefaults(defineProps<ProTableProps>(), {
   preview: false
 });
 
-const columnsFunc = computed(()=> {
-  return props.columns.filter(item=> item.isShowSearch??true)
-})
-
 const RenderFormValue = (item: any) => {
   return <div>{{
     default: () => {

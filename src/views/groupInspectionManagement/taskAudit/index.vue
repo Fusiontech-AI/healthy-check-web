@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="text-[14px]">
     <el-row>
       <el-col :span="5">
         <div class="bg-[#fff]">
