@@ -1,20 +1,3 @@
-enum healthyCheckStatusColorEnum {
-  '预约' = '#2175FF',
-  '登记' = '#FFA81C',
-  '科室分检' = '#8A7AFF',
-  '分检完成' = '#21CDE4',
-  '待总检' = '#F96E6E',
-  '已终检' = '#38D497'
-}
-enum healthyCheckStatusBgEnum {
-  '预约' = '#E1ECFF',
-  '登记' = '#FFF3E0',
-  '科室分检' = '#FFF3E0',
-  '分检完成' = '#DEF9FC',
-  '待总检' = '#E2FFF1',
-  '已终检' = '#FFEBEB'
-}
-
 const healthyCheckStatusMap = {
   '0': {
     label: '预约',
@@ -71,7 +54,11 @@ export const basicInfoColumnBasic = (bus_healthy_check_status: any, sys_user_sex
   {
     prop: 'registerTime',
     label: '报道日期',
-    search: { el: 'date-picker', props: { type: 'daterange', valueFormat: 'YYYY-MM-DD' } }
+    search: {
+      el: 'date-picker',
+      props: { type: 'daterange', valueFormat: 'YYYY-MM-DD' }
+      // defaultValue: [moment().format('YYYY-MM-DD'), moment().format('YYYY-MM-DD')]
+    }
   },
   {
     prop: 'healthyCheckStatus',
@@ -101,7 +88,7 @@ export const basicInfoColumnBasic = (bus_healthy_check_status: any, sys_user_sex
 export const columnsBasic = [
   { type: 'selection', fixed: 'left', width: 70 },
   { prop: 'healthyCheckCode', label: '体检号', fixed: 'left' },
-  { prop: 'recordCode', label: '档案号', width: '120', fixed: 'left' },
+  { prop: 'recordCode', label: '档案号', width: 170, fixed: 'left' },
   { prop: 'credentialNumber', label: '证件号', width: '170', fixed: 'left' },
   {
     prop: 'businessCategory',
