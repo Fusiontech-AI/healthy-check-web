@@ -9,6 +9,7 @@
       :rules="rules"
       :disabled="disabledForm"
       label-width="135px"
+      class="ml-[16px]"
     >
       <template #teamLevel>
         <el-select v-model="formValue.teamLevel" placeholder="请选择单位级别" clearable @change="handleChangeTeamLevel">
@@ -33,6 +34,7 @@
       :disabled="disabledForm"
       label-width="135px"
       :rules="otherInfoRules"
+      class="ml-[16px]"
     >
       <template #regionCode>
         <el-select
@@ -62,6 +64,8 @@ import {
 } from '@/api/groupInspectionManagement/unitMsg/index';
 import { getFirstLetter } from '@/utils/pinyin';
 import { listData } from '@/api/system/dict/data';
+import { basciInfoRules } from './data';
+
 defineEmits(['getData']);
 const props = defineProps({
   data: {
@@ -153,6 +157,8 @@ watch(()=>props.id, async (id) =>{
       const param = { dictType: 'bus_area', dictValue: data?.regionCode } as any;
       const { data: res } = await selectDictByTypeAndValue(param);
       regionOptions.value = [res];
+    }else{
+      regionOptions.value = []
     }
     loadingForm.value = false;
   }else{
@@ -227,27 +233,20 @@ const getListType = async () => {
     }
   });
 };
-// 手机号码校验
-var validatePhone = (rule, value, callback) => {
-  const pattern = /^1[34578][0-9]{9}$/;
-  if (!value) {
-    callback();
-  }
-  if (!pattern.test(value)) {
-    callback(new Error('请输入正确的电话号码'));
-  }
-  callback();
-};
 
 const submitData = async () => {
-  let validForm = false;
-  await basicRef.value.validate(async (valid: any) => {
-    validForm = valid;
-  });
-  await basicOtherRef.value.validate(async (valid: any) => {
-    validForm = valid;
-  });
-  return validForm ? formValue.value : false;
+  let p1 = new Promise((resolve) => {
+    basicRef.value.validate(async (valid: any) => {
+    resolve(valid)
+   });
+  })
+  let p2 = new Promise((resolve) => {
+    basicOtherRef.value.validate(async (valid: any) => {
+    resolve(valid)
+   });
+  })
+ const [v1,v2] = await Promise.all([p1, p2])
+ return v1&&v2 ? formValue.value : false;
 };
 
 const clearValidate = () => {
@@ -262,14 +261,20 @@ const resetFields = () => {
   });
 };
 
-const rules = ref<any>({
-  teamLevel: { required: true, message: '请选择单位级别', trigger: ['blur', 'change'] },
-  parentId: { required: true, message: '请选择关联上级单位', trigger: ['blur', 'change'] },
-  teamNo: { required: true, message: '请输入单位编号', trigger: ['blur', 'change'] },
-  teamName: { required: true, message: '请输入单位名称', trigger: ['blur', 'change'] },
-  phoneticCode: { required: true, message: '请输入拼音简码', trigger: ['blur', 'change'] },
-  contactPhone: { required: false, trigger: ['blur', 'change'], validator: validatePhone },
-});
+const rules = ref<any>(basciInfoRules) //单位基础信息
+
+// 职工总人数校验
+var validateEmployeeTotalNum = (_:any, value:any, callback:any) => {
+  if (!value) {
+    callback();
+  }
+  const {femaleEmployeeNum = 0, productTotalNum = 0, affectedTotalNum = 0} = formValue.value
+  const sum = femaleEmployeeNum + productTotalNum + affectedTotalNum
+  if(formValue.value.employeeTotalNum && sum > value){
+    callback(new Error('其他人数总和不得大于职工总人数'))
+  }
+  callback();
+};
 
 // 女职工总人数校验
 var validateFemaleEmployeeNum = (_:any, value:any, callback:any) => {
@@ -339,7 +344,8 @@ var validateFemaleProductNum = (_:any, value:any, callback:any) => {
 };
 
 const otherInfoRules = ref<any>({
-  femaleEmployeeNum: { validator: validateFemaleEmployeeNum,trigger: ['blur', 'change'] },//女职工总人数
+  employeeTotalNum:  { validator: validateEmployeeTotalNum,trigger: ['blur', 'change']},//职工总人数
+  femaleEmployeeNum: { validator: validateFemaleEmployeeNum,trigger: ['blur', 'change']},//女职工总人数
   productTotalNum: { validator: validatProductTotalNum,trigger: ['blur', 'change'] },//生产工人数
   femaleProductNum: { validator: validateFemaleProductNum,trigger: ['blur', 'change'] },//生产女职工人数
   affectedTotalNum: { validator: validateAffectedTotalNum,trigger: ['blur', 'change'] },//接害工人数

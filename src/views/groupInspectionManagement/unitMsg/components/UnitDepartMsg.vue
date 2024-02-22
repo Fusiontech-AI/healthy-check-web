@@ -101,6 +101,9 @@ watch(
     } else {
       proTableRef.value?.getTableList();
     }
+    nextTick(() => {
+      proTableRef.value?.clearSelection();
+    })
   },
   {
     immediate: true,
@@ -119,7 +122,8 @@ const handleDelete = async (row: any) => {
   const [err] = await to(
     proxy?.$modal.confirm(
       '删除后该部门不支持维护任务',
-      '是否确定删除该单位下方部门？'
+      '是否确定删除该单位下方部门？',
+      'error',
     ) as any
   );
   if(!err){
