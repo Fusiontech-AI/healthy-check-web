@@ -85,37 +85,36 @@ export const basicInfoColumnBasic = (bus_healthy_check_status: any, sys_user_sex
 ];
 
 // 表格行
-export const columnsBasic = (bus_healthy_check_status: any) => [
+export const columnsBasic = (
+  bus_healthy_check_status: any,
+  bus_physical_type: any,
+  bus_personnel_marriage_status: any,
+  bus_cost_type: any,
+  bus_category: any
+) => [
   { type: 'selection', fixed: 'left', width: 70 },
   { prop: 'healthyCheckCode', label: '体检号', fixed: 'left', align: 'left' },
-  { prop: 'recordCode', label: '档案号', width: 170, fixed: 'left', align: 'left' },
+  { prop: 'recordCode', label: '档案号', width: 130, fixed: 'left', align: 'left' },
   { prop: 'credentialNumber', label: '证件号', width: '170', fixed: 'left', align: 'left' },
   {
     prop: 'businessCategory',
     label: '业务类别',
     width: '100',
-    enum: [
-      { label: '个检', value: '1' },
-      { label: '团检', value: '2' }
-    ],
+    enum: bus_category,
     align: 'left'
   },
   {
     prop: 'physicalType',
     label: '体检类型',
     width: '100',
-    enum: bus_healthy_check_status,
+    enum: bus_physical_type,
     align: 'left'
   },
   { prop: 'name', label: '姓名', align: 'left' },
   {
     prop: 'marriageStatus',
     label: '婚否',
-    enum: [
-      { label: '未婚', value: '0' },
-      { label: '已婚', value: '1' },
-      { label: '未知', value: '2' }
-    ],
+    enum: bus_personnel_marriage_status,
     align: 'left'
   },
   { prop: 'age', label: '年龄', align: 'left' },
@@ -170,11 +169,7 @@ export const columnsBasic = (bus_healthy_check_status: any) => [
     prop: 'costType',
     label: '人员费别',
     width: '120',
-    render: (scope: any) => <>{scope.row.needGeneralReview === '1' ? '计费' : scope.row.needGeneralReview === '2' ? '全免' : '--'}</>,
-    enums: [
-      { label: '计费', value: '1' },
-      { label: '全免', value: '2' }
-    ],
+    enum: bus_cost_type,
     align: 'left'
   },
   { prop: 'teamAmount', label: '团费', align: 'left' },

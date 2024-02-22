@@ -80,7 +80,7 @@ const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 const basicSearchFormRef = ref()
 const proTableRef = ref<any>()
 
-const {bus_healthy_check_status,sys_user_sex}  =toRefs<any>(proxy?.useDict('bus_healthy_check_status','sys_user_sex'))
+const {bus_healthy_check_status, sys_user_sex, bus_physical_type, bus_personnel_marriage_status, bus_cost_type, bus_category}  =toRefs<any>(proxy?.useDict('bus_healthy_check_status','sys_user_sex','bus_physical_type','bus_personnel_marriage_status','bus_cost_type','bus_category'))
 // const basicInfoColumn = ref<any>(basicInfoColumnBasic(bus_healthy_check_status,sys_user_sex,teamIdList,teamTaskLists))
 const basicInfoColumn = ref<any>(basicInfoColumnBasic(bus_healthy_check_status,sys_user_sex,teamIdList,[]))
 
@@ -90,7 +90,7 @@ const tabList = markRaw<any>([
   { label: '冻结', key: '0' },
 ])
 
-const columns = reactive<any>(columnsBasic(bus_healthy_check_status));
+const columns = reactive<any>(columnsBasic(bus_healthy_check_status, bus_physical_type, bus_personnel_marriage_status, bus_cost_type, bus_category));
 
 const initFormData = {
   pageNum: 1,
