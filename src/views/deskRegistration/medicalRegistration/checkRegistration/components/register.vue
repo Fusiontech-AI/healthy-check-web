@@ -39,8 +39,9 @@
           </template>
           <template #reserveTimeArr>
             <el-time-picker v-model="formValue.reserveTimeArr" is-range arrow-control range-separator="至"
-              start-placeholder="开始时间" end-placeholder="结束时间" v-if="!preview" />
-            <span v-if="preview">{{ formValue.reserveStartTime }} 至 {{ formValue.reserveEndTime }}</span>
+              start-placeholder="开始时间" end-placeholder="结束时间" v-if="!preview" value-format='HH:mm:ss' />
+            <span v-if="preview && formValue.reserveStartTime">{{ formValue.reserveStartTime }} 至 {{
+              formValue.reserveEndTime }}</span>
           </template>
         </SearchForm>
       </el-card>
@@ -158,9 +159,7 @@ const getDetail = async () => {
   const { data } = await registerInfo({ id: id.value })
   formValue.value = data
   if (data.reserveStartTime && data.reserveEndTime) {
-    const reserveStartTime = data.reserveStartTime.split(':')
-    const reserveEndTime = data.reserveStartTime.split(':')
-    formValue.value.reserveTimeArr = [new Date(2020, 10, 10, Number(reserveStartTime[0]), Number(reserveStartTime[1])), new Date(2020, 10, 10, Number(reserveEndTime[0]), Number(reserveEndTime[1]))]
+    formValue.value.reserveTimeArr = [data.reserveStartTime, data.reserveEndTime]
   }
   detailInfo.paidTotalAmount = data.paidTotalAmount
   detailInfo.totalStandardAmount = data.totalStandardAmount
@@ -354,14 +353,18 @@ const selectionChange = (val) => {
 
 //编辑保存
 const handleBC = async () => {
-  formValue.value.businessCategory = '1'
-  formValue.value.occupationalType = '1'
-  formValue.value.healthyCheckTime = proxy?.$moment().format('YYYY-MM-DD HH:mm:ss')
-  formValue.value.reserveStartTime = formValue.value.reserveTimeArr[0]
-  formValue.value.reserveEndTime = formValue.value.reserveTimeArr[1]
-  await registerUpdate(formValue.value)
-  proxy?.$modal.msgSuccess("修改成功");
-  preview.value = true
+  formRef.value.validate(async (valid, fields) => {
+    if (valid) {
+      formValue.value.businessCategory = '1'
+      formValue.value.occupationalType = '1'
+      formValue.value.healthyCheckTime = proxy?.$moment().format('YYYY-MM-DD HH:mm:ss')
+      formValue.value.reserveStartTime = formValue.value.reserveTimeArr?.[0]
+      formValue.value.reserveEndTime = formValue.value.reserveTimeArr?.[1]
+      await registerUpdate(formValue.value)
+      proxy?.$modal.msgSuccess("修改成功");
+      preview.value = true
+    }
+  })
 }
 </script>
 <style scoped lang="scss">
