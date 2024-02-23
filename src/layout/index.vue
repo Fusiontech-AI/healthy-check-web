@@ -81,7 +81,6 @@ const ConteinerWidth = computed(() => {
   }
 
 });
-console.log(ConteinerWidth.value,'==ConteinerWidth')
 
 // onMounted(() => {
 //   nextTick(() => {
