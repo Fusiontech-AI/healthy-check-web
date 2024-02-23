@@ -11,7 +11,8 @@ const {
   bus_pay_type,
   bus_pay_status,
   bus_pay_mode,
-  bus_combination_project_type
+  bus_combination_project_type,
+  bus_nation
 } = toRefs<any>(
   useDict(
     'bus_physical_type',
@@ -25,10 +26,11 @@ const {
     'bus_pay_type',
     'bus_pay_status',
     'bus_pay_mode',
-    'bus_combination_project_type'
+    'bus_combination_project_type',
+    'bus_nation'
   )
 );
-const formInfoColumns = [
+const formInfoColumns = (teamIdList) => [
   {
     slot: 'credentialImage',
     search: { span: 24 }
@@ -45,7 +47,7 @@ const formInfoColumns = [
     enum: bus_credential_type
   },
   {
-    prop: 'visitSerialNo1',
+    prop: 'recordCode',
     label: '档案号',
     search: { el: 'input', disabled: true }
   },
@@ -55,7 +57,7 @@ const formInfoColumns = [
     search: { el: 'input' }
   },
   {
-    prop: 'visitSerialNo',
+    prop: 'healthyCheckCode',
     label: '体检号',
     search: { el: 'input', disabled: true }
   },
@@ -72,7 +74,8 @@ const formInfoColumns = [
   {
     prop: 'nation',
     label: '民族',
-    search: { el: 'select' }
+    search: { el: 'select' },
+    enum: bus_nation
   },
   {
     prop: 'age',
@@ -146,9 +149,20 @@ const formInfoColumns = [
     search: { el: 'date-picker', props: { type: 'date', valueFormat: 'YYYY-MM-DD' } }
   },
   {
-    prop: 'healthyReserveTime1',
+    prop: 'reserveTimeArr',
     label: '预约时间',
-    search: { el: 'date-picker', props: { type: 'date', valueFormat: 'YYYY-MM-DD' } }
+    search: {
+      el: 'time-picker',
+      props: {
+        'is-range': true,
+        'range-separator': '至',
+        'start-placeholder': '开始时间',
+        'end-placeholder': '结束时间',
+        valueFormat: 'HH:mm:ss',
+        format: 'HH:mm'
+      }
+    },
+    slot: 'reserveTimeArr'
   },
   {
     prop: 'birthday1',
@@ -164,8 +178,8 @@ const formInfoColumns = [
   {
     prop: 'teamId',
     label: '单位',
-    search: { el: 'tree-select', props: { checkStrictly: true, label: 'teamName', value: 'id' }, span: 24 },
-    slot: 'teamId'
+    enum: teamIdList,
+    search: { el: 'tree-select', props: { checkStrictly: true, label: 'teamName', value: 'id' }, span: 24 }
   },
   {
     prop: 'contactAddress',

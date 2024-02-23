@@ -78,6 +78,7 @@ watch(() => props.formSecond, async (newV) => {
   newV.forEach((item => {
     const { groupType, price, groupPayType, addPayType, itemDiscount, addDiscount, groupItemList, standardPrice, actualPrice, } = item
     item.groupFlag = '1'
+    item.regType = '2'
     item.amountCalGroupBo = { groupType, price, groupPayType, addPayType, itemDiscount, addDiscount }
     item.defaultItemList = groupItemList.map((item, i) => {
       return {
@@ -199,6 +200,7 @@ const handleHY = async () => {
   const { data } = await teamGroupInfo({ id })
   const { groupType, price, groupPayType, addPayType, itemDiscount, addDiscount, groupItemList, standardPrice, actualPrice, } = data
   data.groupFlag = '1'
+  data.regType = '2'
   data.amountCalGroupBo = { groupType, price, groupPayType, addPayType, itemDiscount, addDiscount }
   data.defaultItemList = groupItemList
   data.standardAmount = standardPrice

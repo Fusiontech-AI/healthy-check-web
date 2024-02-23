@@ -89,6 +89,7 @@ let tableColumns = reactive([])
 let tableData = reactive([])
 const dataSource = ref([])
 const handleDrawerChange = async () => {
+
   formValue.defaultItemList = props.detailInfo.dataSource.map((item, i) => {
     return {
       sort: i + 1,
@@ -102,7 +103,7 @@ const handleDrawerChange = async () => {
       standardAmount: item.standardAmount,
       discount: item.discount,
       receivableAmount: item.receivableAmount,
-      id: item.combinationProjectId
+      id: item.combinationProjectId || item.id //回显取combinationProjectId 新选的取id
     }
   })
   formValue.standardAmount = props.detailInfo.totalStandardAmount

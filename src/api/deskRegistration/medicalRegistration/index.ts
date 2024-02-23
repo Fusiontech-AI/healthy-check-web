@@ -48,3 +48,13 @@ export const queryRegCombinProjectList = (params: any) => {
     params
   });
 };
+/**
+ * 修改体检人员登记信息
+ */
+export const registerUpdate = (params: any) => {
+  return request({
+    url: `/peis/register`,
+    method: 'PUT',
+    data: params
+  });
+};

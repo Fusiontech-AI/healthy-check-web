@@ -140,7 +140,7 @@ const handleSelected = async (row, index, changeType, inputType) => {
   const sort = changeType ? index + 1 : 1
   const p = {
     groupFlag: props.formValue.groupFlag,   //有无分组标志(1有分组)
-    regType: props.isRw ? '2' : '1',
+    regType: props.formValue.regType || '1',//1个检 2团检
     changeType,
     inputType,
     haveAmountCalculationItemBos: rightTableData.value, ////存量
@@ -209,10 +209,12 @@ const handleSelected = async (row, index, changeType, inputType) => {
   }
   //没有已选项时总折扣和总应收额不触发
   if (changeType == '2' && rightTableData.value.length == 0) return
+
+  //传实际金额折扣和折后金额
   for (const key in queryObj) {
     p[key] = props.formValue[key]
   }
-  const { data } = await commonDynamicBilling({ ...p })
+  const { data } = await commonDynamicBilling(p)
   rightTableData.value = data.amountCalculationItemVos
   for (const key in queryObj) {
     props.formValue[key] = data[key]
