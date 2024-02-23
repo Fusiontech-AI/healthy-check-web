@@ -181,7 +181,18 @@ const getDetail = async () => {
 //获得需要回显的项目
 const getXm = async () => {
   const { rows } = await packageInfoList({ packageId: id })
-  formValue.defaultItemList = rows
+  formValue.defaultItemList = rows.map((item, i) => {
+    return {
+      sort: i + 1,
+      payType: '1',//变更类型(0个人 1单位 2混合支付)
+      payStatus: '0',//缴费状态（0：未缴费，1：已缴费，2：申请退费中，3：已退费，）
+      tcFlag: '1',//是否套餐'0'是'1'否
+      teamAmount: 0,//单位应收金额
+      personAmount: item.standardAmount,//个人应收金额
+      ...item,
+      id: item.combinProjectId
+    }
+  })
   TransferFilterComplexRef.value.defaultItems()
 }
 id && getDetail()
@@ -223,6 +234,18 @@ const itemChange = (val) => {
 const handleBlur = (type) => {
   TransferFilterComplexRef.value.handleSelected({}, '', '2', type)
 }
+//健康和职业病的类型切换
+watch(() => formValue.tjType, (newV) => {
+  formColumns.value.forEach(item => {
+    if (item.isShowSearch != undefined) {
+      if (newV == 'ZYJKTJ') {
+        item.isShowSearch = true
+      } else {
+        item.isShowSearch = false
+      }
+    }
+  })
+})
 </script>
 <style scoped lang="scss">
 .title {

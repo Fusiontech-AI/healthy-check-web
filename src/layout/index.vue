@@ -5,8 +5,7 @@
       <!-- <div v-if="device === 'mobile' && sidebar.opened" class="drawer-bg" @click="handleClickOutside" /> -->
       <Menus />
 
-      <div :class="{ hasTagsView: needTagsView, sidebarHide: sidebar.hide }" class="main-container flex-1"
-        :style="{ width: ConteinerWidth }">
+      <div :class="{ hasTagsView: needTagsView, sidebarHide: sidebar.hide }" class="flex-1 main-container" :style="{ width: ConteinerWidth }">
         <tags-view v-if="needTagsView" />
         <app-main />
       </div>
@@ -74,8 +73,9 @@ const settingRef = ref(Settings);
 
 const ConteinerWidth = computed(() => {
   if (sidebar.value.opened) {
-    const width = variables.sideBarWidth + variables.menuWidth
-    return `calc(100vh - ${width})`
+    // const width = variables.sideBarWidth + variables.menuWidth
+    const width = Number(variables.sideBarWidth.replace('px','')) + Number(variables.menuWidth.replace('px',''))
+    return `calc(100vh - ${width + 'px'})`
   } else {
     return `calc(100vh - ${variables.menuWidth})`
   }

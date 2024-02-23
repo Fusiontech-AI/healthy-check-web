@@ -10,7 +10,7 @@ export const tableColumnsWaitingUserBasic = (sys_user_sex: any) => [
     }
   },
   { prop: 'healthyCheckCode', label: '体检编号' },
-  { prop: 'f1', label: '体检次数' },
+  { prop: 'peTimes', label: '体检次数' },
   { prop: 'healthyCheckTime', label: '体检日期' },
   { prop: 'groupName', label: '分组名称' },
   { prop: 'name', label: '姓名' },
@@ -32,7 +32,7 @@ export const tableColumnsBasic = (teamTaskLists: any, bus_physical_type: any, sy
   {
     prop: 'physicalType',
     label: '体检类型',
-    search: { el: 'select', props: { clearable: false } },
+    search: { el: 'select' },
     isShow: false,
     enum: bus_physical_type,
     fieldNames: { label: 'dictLabel', value: 'dictValue' }

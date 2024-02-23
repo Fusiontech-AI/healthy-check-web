@@ -5,12 +5,14 @@ import { reactive, computed, toRefs } from 'vue';
  * @description table 页面操作方法封装
  * @param {Function} api 获取表格数据 api 方法 (必传)
  * @param {Object} initParam 获取数据初始化参数 (非必传，默认为{})
+ * @param {Object} queryParams 获取数据插槽参数 (非必传，默认为{})
  * @param {Boolean} isPageable 是否有分页 (非必传，默认为true)
  * @param {Function} dataCallBack 对后台返回的数据进行处理的方法 (非必传)
  * */
 export const useTable = (
   api?: (params: any) => Promise<any>,
   initParam: object = {},
+  queryParams: object = {},
   isPageable: boolean = true,
   dataCallBack?: (data: any) => any,
   requestError?: (error: any) => void
@@ -59,11 +61,11 @@ export const useTable = (
     try {
       // 先把初始化参数和分页参数放到总参数里面
       Object.assign(state.totalParam, initParam, isPageable ? pageParam.value : {});
-      let { rows, data, total } = await api({ ...state.searchInitParam, ...state.totalParam });
+      let { rows, data, total } = await api({ ...state.searchInitParam, ...state.totalParam, ...queryParams.params });
       rows && (data = rows);
       rows && (data.list = rows);
       if (total || total === 0) {
-        data.total = total
+        data.total = total;
       }
       dataCallBack && (data = dataCallBack(data));
       state.tableData = isPageable ? data.list : data;
@@ -124,6 +126,7 @@ export const useTable = (
     state.pageable.pageNum = 1;
     // 重置搜索表单的时，如果有默认搜索参数，则重置默认的搜索参数
     state.searchParam = { ...state.searchInitParam };
+    queryParams.params = {};
     updatedTotalParam();
     getTableList();
   };

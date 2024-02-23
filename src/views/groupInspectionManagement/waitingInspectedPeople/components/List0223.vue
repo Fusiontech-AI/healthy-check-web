@@ -21,13 +21,13 @@
           check-strictly
           :props="{label:'teamName', value:'id' }"
           filterable
-          :clearable="true"
+          :clearable="false"
           default-expand-all
           @change="handleChange"
         />
       </template>
       <template #taskId>
-        <el-select v-model="queryParams.taskId" placeholder="请选择任务名称" filterable :clearable="true" @change="handleTaskChange">
+        <el-select v-model="queryParams.taskId" placeholder="请选择任务名称" filterable :clearable="false" @change="handleTaskChange">
           <el-option v-for="item in teamTaskLists" :key="item.id" :label="item.taskName" :value="item.id" />
         </el-select>
       </template>
@@ -92,9 +92,9 @@ const peopleFormRef = ref<any>()
 const proTableRef = ref<any>()
 
 const initParam = {
-  physicalType: null,
-  teamId: null,
-  taskId: null
+  physicalType:'JKTJ',
+  teamId:null,
+  taskId:null
 }
 const searchGroupList = ref<any>([]) //搜索条件分组list
 const queryParams = ref<any>(initParam); //查询条件
@@ -120,10 +120,9 @@ onMounted(async() =>{
 const initData = async () =>{
   await getTeamIdList() //获取体检单位
   nextTick(async()=>{
-    // queryParams.value.teamId = teamIdList.value?.[0]?.id //默认单位
+    queryParams.value.teamId = teamIdList.value?.[0]?.id //默认单位
     await handleChange(queryParams.value.teamId) //查询任务名称
-    // queryParams.value.taskId = teamTaskLists.value?.[0]?.id //默认任务
-    queryParams.value.taskId = null
+    queryParams.value.taskId = teamTaskLists.value?.[0]?.id //默认任务
     proTableRef.value.getTableList()
     const { teamId, taskId } = queryParams.value
     const {rows} = await teamGroupList({teamId,taskId}) //查询分组
@@ -208,17 +207,15 @@ const handleSubmit = async () =>{
 
 // 查看详情
 const handleDetail = (row:any)=>{
-  emits('goTo','Detail',{ teamId: row.teamId, taskName: row.taskName, teamGroupId: row.teamGroupId, taskId: row.taskId})
+  emits('goTo','Detail',{ teamId: row.teamId, teamName: row.teamName, teamGroupId: row.teamGroupId})
 }
 
 // 重置
 const handleReset = ()=>{
+  queryParams.value.physicalType = 'JKTJ'
   initData()
-  queryParams.value.teamId = null
   queryParams.value.healthyCheckCode = null
   queryParams.value.credentialNumber = null
-  queryParams.value.physicalType = null
-  proTableRef.value?.clearSelection()
 }
 
 const dataCallback = (data: any) => {

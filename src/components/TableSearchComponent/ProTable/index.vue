@@ -67,7 +67,7 @@
       <!-- 插入表格最后一行之后的插槽 -->
       <template #append>
         <slot name="append" />
-      </template> 
+      </template>
       <!-- 无数据 -->
       <template #empty>
         <div class="table-empty">
@@ -113,6 +113,7 @@ export interface ProTableProps {
   title?: string; // 表格标题 ==> 非必传
   pagination?: boolean; // 是否需要分页组件 ==> 非必传（默认为true）
   initParam?: any; // 初始化请求参数 ==> 非必传（默认为{}）
+  queryParams?: any; // 页面插槽参数 ==> 非必传（默认为{}）
   border?: boolean; // 是否带有纵向边框 ==> 非必传（默认为true）
   toolButton?: ("refresh" | "setting" | "search")[] | boolean; // 是否显示表格功能按钮 ==> 非必传（默认为true）
   rowKey?: string; // 行数据的 Key，用来优化 Table 的渲染，当表格数据多选时，所指定的 id ==> 非必传（默认为 id）
@@ -127,6 +128,7 @@ const props = withDefaults(defineProps<ProTableProps>(), {
   requestAuto: true,
   pagination: true,
   initParam: {},
+  queryParams: {},
   border: false,
   toolButton: true,
   rowKey: "id",
@@ -157,7 +159,7 @@ const { selectionChange, selectedList, selectedListIds, isSelected } = useSelect
 
 // 表格操作 Hooks
 const { tableData, pageable, searchParam, searchInitParam, getTableList, search, reset, handleSizeChange, handleCurrentChange } =
-  useTable(props.requestApi, props.initParam, props.pagination, props.dataCallback, props.requestError);
+  useTable(props.requestApi, props.initParam, props.queryParams, props.pagination, props.dataCallback, props.requestError);
 
 // 清空选中数据列表
 const clearSelection = () => tableRef.value!.clearSelection();
@@ -178,7 +180,6 @@ const processTableData = computed(() => {
     pageable.value.pageSize * pageable.value.pageNum
   );
 });
-console.log(props.initParam, 'props.initParam');
 
 // 监听页面 initParam 改化，重新获取表格数据
 watch(() => props.initParam, getTableList, { deep: true });

@@ -19,6 +19,8 @@
             :props="{label:'teamName', value:'id' }"
             filterable
             clearable
+            default-expand-all
+            placeholder="请选择单位"
             @change="handleChange"
           />
         </template>
@@ -69,6 +71,7 @@ import { getCurrentInstance, ComponentInternalInstance, ref } from 'vue';
 import { basicInfoColumnBasic,columnsBasic } from './data';
 import {registerUnfreeze,registerFreeze,registerPage} from '@/api/groupInspectionManagement/freezeAndUnfreeze/index'
 import { teamInfoList, teamTaskList } from "@/api/groupInspection/inspectionclosing";
+import moment from 'moment'
 
 const teamIdList = ref<any>([]) //单位列表
 const teamTaskLists = ref<any>([]) //任务列表
@@ -77,8 +80,9 @@ const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 const basicSearchFormRef = ref()
 const proTableRef = ref<any>()
 
-const {bus_healthy_check_status,sys_user_sex}  =toRefs<any>(proxy?.useDict('bus_healthy_check_status','sys_user_sex'))
-const basicInfoColumn = ref<any>(basicInfoColumnBasic(bus_healthy_check_status,sys_user_sex,teamIdList,teamTaskLists))
+const {bus_healthy_check_status, sys_user_sex, bus_physical_type, bus_personnel_marriage_status, bus_cost_type, bus_category}  =toRefs<any>(proxy?.useDict('bus_healthy_check_status','sys_user_sex','bus_physical_type','bus_personnel_marriage_status','bus_cost_type','bus_category'))
+// const basicInfoColumn = ref<any>(basicInfoColumnBasic(bus_healthy_check_status,sys_user_sex,teamIdList,teamTaskLists))
+const basicInfoColumn = ref<any>(basicInfoColumnBasic(bus_healthy_check_status,sys_user_sex,teamIdList,[]))
 
 const activeTab = ref<any>('1')
 const tabList = markRaw<any>([
@@ -86,7 +90,7 @@ const tabList = markRaw<any>([
   { label: '冻结', key: '0' },
 ])
 
-const columns = reactive<any>(columnsBasic);
+const columns = reactive<any>(columnsBasic(bus_healthy_check_status, bus_physical_type, bus_personnel_marriage_status, bus_cost_type, bus_category));
 
 const initFormData = {
   pageNum: 1,
@@ -99,6 +103,7 @@ const initFormData = {
   name: '',
   gender: '',
   idCard: '',
+  registerTime: [moment().format('YYYY-MM-DD'), moment().format('YYYY-MM-DD')]
 };
 const queryParams = ref<any>(initFormData);
 
@@ -146,6 +151,7 @@ const handleReset = () => {
 
 // 冻结
 const handleFreeze =async (ids:any) => {
+  await proxy?.$modal.confirm('是否冻结所选数据？','操作确认');
   await registerFreeze(ids)
   ElMessage.success('冻结成功')
   nextTick(() =>{
@@ -155,6 +161,7 @@ const handleFreeze =async (ids:any) => {
 }
 // 解冻
 const handleUnfreeze =async (ids:any)=>{
+  await proxy?.$modal.confirm('是否解冻所选数据？','操作确认');
   await registerUnfreeze(ids)
   ElMessage.success('解冻成功')
   nextTick(() =>{

@@ -1,6 +1,6 @@
 import { parseTime } from '@/utils/ruoyi';
-import { isArray } from "@/utils/is";
-import { FieldNamesProps } from "@/components/ProTable/interface";
+import { isArray } from '@/utils/is';
+import { FieldNamesProps } from '@/components/ProTable/interface';
 
 /**
  * 表格时间格式化
@@ -326,8 +326,8 @@ export const isExternal = (path: string) => {
  * */
 export function formatValue(callValue: any) {
   // 如果当前值为数组，使用 / 拼接（根据需求自定义）
-  if (isArray(callValue)) return callValue.length ? callValue.join(" / ") : "--";
-  return callValue ?? "--";
+  if (isArray(callValue)) return callValue.length ? callValue.join(' / ') : '--';
+  return callValue ?? '--';
 }
 
 /**
@@ -337,8 +337,8 @@ export function formatValue(callValue: any) {
  * @returns {*}
  * */
 export function handleRowAccordingToProp(row: { [key: string]: any }, prop: string) {
-  if (!prop.includes(".")) return row[prop] ?? "--";
-  prop.split(".").forEach(item => (row = row[item] ?? "--"));
+  if (!prop.includes('.')) return row[prop] ?? '--';
+  prop.split('.').forEach((item) => (row = row[item] ?? '--'));
   return row;
 }
 
@@ -348,7 +348,7 @@ export function handleRowAccordingToProp(row: { [key: string]: any }, prop: stri
  * @returns {String}
  * */
 export function handleProp(prop: string) {
-  const propArr = prop.split(".");
+  const propArr = prop.split('.');
   if (propArr.length == 1) return prop;
   return propArr[propArr.length - 1];
 }
@@ -361,18 +361,18 @@ export function handleProp(prop: string) {
  * @param {String} type 过滤类型（目前只有 tag）
  * @returns {String}
  * */
-export function filterEnum(callValue: any, enumData?: any, fieldNames?: FieldNamesProps, type?: "tag") {
-  const value = fieldNames?.value ?? "value";
-  const label = fieldNames?.label ?? "label";
-  const children = fieldNames?.children ?? "children";
+export function filterEnum(callValue: any, enumData?: any, fieldNames?: FieldNamesProps, type?: 'tag') {
+  const value = fieldNames?.value ?? 'value';
+  const label = fieldNames?.label ?? 'label';
+  const children = fieldNames?.children ?? 'children';
   let filterData: { [key: string]: any } = {};
   // 判断 enumData 是否为数组
   if (Array.isArray(enumData)) filterData = findItemNested(enumData, callValue, value, children);
   // 判断是否输出的结果为 tag 类型
-  if (type == "tag") {
-    return filterData?.tagType ? filterData.tagType : "";
+  if (type == 'tag') {
+    return filterData?.tagType ? filterData.tagType : '';
   } else {
-    return filterData ? filterData[label] : "--";
+    return filterData ? filterData[label] : '--';
   }
 }
 
@@ -385,4 +385,24 @@ export function findItemNested(enumData: any, callValue: any, value: string, chi
     if (current[value] == callValue) return current;
     if (current[children]) return findItemNested(current[children], callValue, value, children);
   }, null);
+}
+
+//减法函数
+export function accSub(arg1, arg2) {
+  var r1, r2, m, n;
+  try {
+    r1 = arg1.toString().split('.')[1].length;
+  } catch (e) {
+    r1 = 0;
+  }
+  try {
+    r2 = arg2.toString().split('.')[1].length;
+  } catch (e) {
+    r2 = 0;
+  }
+  m = Math.pow(10, Math.max(r1, r2));
+  //last modify by deeka
+  //动态控制精度长度
+  n = r1 >= r2 ? r1 : r2;
+  return ((arg2 * m - arg1 * m) / m).toFixed(n);
 }

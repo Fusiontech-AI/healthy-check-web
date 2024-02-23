@@ -244,7 +244,7 @@ const handleSave = async () => {
 const handleCancle = () => {
   editFlag.value = !editFlag.value;
   basciInfoRef.value?.clearValidate();
-  resetUnitForm();
+  !selectTreeNodeId.value&&resetUnitForm();
 };
 
 const filterNode = (value: string, data: Tree) => {
