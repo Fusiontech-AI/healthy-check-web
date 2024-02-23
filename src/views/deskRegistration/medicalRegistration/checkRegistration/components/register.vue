@@ -7,8 +7,8 @@
             <div>
               体检人员信息（第n次）
             </div>
-            <el-button round @click="formValue = {}" v-if="!id">清空</el-button>
             <div>
+              <el-button round @click="formValue = {}" v-if="!id">清空</el-button>
               <el-button round @click="preview = false" v-if="id && preview" type="primary">编辑</el-button>
               <el-button round @click="getDetail" v-if="id && !preview">取消</el-button>
               <el-button round @click="handleBC" v-if="id && !preview" type="primary">保存</el-button>

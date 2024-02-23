@@ -117,7 +117,7 @@ const formColumn = ref<any[]>([
   {
     label: '团检单位',
     prop: 'teamId',
-    search: { el: 'tree-select' },
+    search: { el: 'tree-select', checkStrictly: true, },
     enum: teamIdList,
     fieldNames: { label: 'teamName', value: 'id' }
   },
@@ -215,7 +215,7 @@ const basicInfoColumn = reactive<any[]>([
   {
     prop: 'teamId',
     label: '',
-    search: { el: 'tree-select' },
+    search: { el: 'tree-select', placeholder: '请选择单位', checkStrictly: true, },
     enum: teamIdList,
     fieldNames: { label: 'teamName', value: 'id' }
   },
@@ -335,6 +335,7 @@ const handleS1 = () => {
 }
 //详情
 const handleClickItem = async (row: any) => {
+  searchFormRef.value.resetFields()
   activeName.value = 'first'
   activeKey.value = row.id
   const { data } = await teamTaskDetail(row)

@@ -50,7 +50,7 @@
         </div>
       </template>
       <template #healthyCheckCode="{ row }">
-        <el-button type="primary" link>{{ row.healthyCheckCode }}</el-button>
+        <el-button type="primary" link @click="handleXQ(row)">{{ row.healthyCheckCode }}</el-button>
       </template>
       <template #operation="{ row }">
         <el-button type="primary" link @click="handleXQ(row)">详情</el-button>
@@ -155,7 +155,12 @@ const handleTj = () => {
 
 //详情
 const handleXQ = (row) => {
-  router.push(`/deskRegistration/medicalRegistration-childPage/checkRegistration?id=${row.id}`);
+  if (row.businessCategory == 1) {
+    router.push(`/deskRegistration/medicalRegistration-childPage/checkRegistration?id=${row.id}`);
+  }
+  if (row.businessCategory == 2) {
+    router.push(`/deskRegistration/medicalRegistration-childPage/groupRegistration?id=${row.id}`);
+  }
 }
 
 // 单位改变
