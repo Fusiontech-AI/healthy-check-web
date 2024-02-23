@@ -48,7 +48,8 @@ export const tableColumnsBasic = (teamTaskLists: any, bus_physical_type: any, sy
     slot: 'taskId'
   },
   { prop: 'teamGroupId', label: '分组', search: { el: 'select' }, isShow: false, slot: 'teamGroupId' },
-  { prop: 'healthyCheckCode', label: '体检号/姓名', search: { el: 'input' }, isShow: false },
+  { prop: 'healthyCheckCode', label: '体检号', search: { el: 'input' }, isShow: false },
+  { prop: 'name', label: '姓名', search: { el: 'input' }, isShow: false },
   { prop: 'credentialNumber', label: '身份证号', search: { el: 'input' }, isShow: false },
   { prop: 'taskName', label: '任务名称', fixed: 'left' },
   { prop: 'healthyCheckCode', label: '体检号' },

@@ -22,6 +22,7 @@
           :props="{label:'teamName', value:'id' }"
           filterable
           :clearable="true"
+          placeholder="请选择体检单位"
           default-expand-all
           @change="handleChange"
         />
@@ -218,6 +219,7 @@ const handleReset = ()=>{
   queryParams.value.healthyCheckCode = null
   queryParams.value.credentialNumber = null
   queryParams.value.physicalType = null
+  queryParams.value.name = null
   proTableRef.value?.clearSelection()
 }
 
