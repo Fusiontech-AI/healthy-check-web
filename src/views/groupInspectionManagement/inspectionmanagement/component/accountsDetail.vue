@@ -193,16 +193,14 @@ const getTableList = async (params: any) => {
   return teamSettleDetailList(newParams)
 };
 
-const optionsName = (arr, value) => {
-  let TypeName = ''
-  arr.forEach(item => {
-    if (item.value == value) {
-      TypeName = item.label
-    }
-  })
-  return TypeName
+//父组件调用获取表格数据方法
+const getTableData = () => {
+  active.value = 1
+  proTable.value?.getTableList()
 }
 
+
+defineExpose({ getTableData })
 
 
 

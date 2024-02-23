@@ -63,8 +63,8 @@
       </template>
       <div>
         <el-icon color="#F75252" class="no-inherit" :size="20">
-            <WarningFilled></WarningFilled>
-          </el-icon>
+          <WarningFilled></WarningFilled>
+        </el-icon>
         {{ operationInfo }}
       </div>
       <template #footer>
@@ -94,7 +94,7 @@
     </el-drawer>
 
     <!-- 项目配置 -->
-    <el-drawer v-model="configurationDrawer" v-if="configurationDrawer" title="配置项目" direction="rtl" :size="1100">
+    <el-drawer v-model="configurationDrawer" title="配置项目" direction="rtl" :size="1100">
       <configuration ref="configurationRef" :configurationInfo="configurationInfo"></configuration>
       <template #footer>
         <div style="flex: auto">
@@ -295,6 +295,7 @@ const batchDisable = (ids) => {
 
 //操作确定
 const operationSure = async () => { //批量禁用1,禁用2
+  operationDeter.value = false
   switch (operationType.value) {
     case 1: {
       //代码块; 
@@ -312,7 +313,7 @@ const operationSure = async () => { //批量禁用1,禁用2
       break;
     }
   }
-  operationDeter.value = false
+
 }
 
 //批量修改类别
@@ -327,9 +328,9 @@ const handleBatchEdit = async (formEl) => {
   if (!formEl) return
   await formEl.validate(async (valid, fields) => {
     if (valid) {
+      batchEditDialog.value = false
       await batchUpdateCategory({ ids: batchList.value, sampleCategory: batchEditForm.value.sampleCategory })
       ElMessage.success('批量修改分类成功')
-      batchEditDialog.value = false
       proTable.value?.clearSelection()
       proTable.value?.getTableList();
     } else {
@@ -407,6 +408,8 @@ const configurationRef = ref(null)
 const handleConfiguration = async (row) => {
   configurationDrawer.value = true
   configurationInfo.value = { ...row }
+  await nextTick()
+  configurationRef.value?.getItemList()
 }
 const saveClick = async () => {
   await updateCombinProjectBySampleId({ id: configurationInfo.value.id, sampleInfoListVos: configurationRef.value?.dataItemTable })

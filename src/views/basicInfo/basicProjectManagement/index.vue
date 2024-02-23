@@ -66,7 +66,7 @@
       <div>
         <el-icon color="#F75252" class="no-inherit" :size="20">
           <WarningFilled></WarningFilled>
-        </el-icon> 
+        </el-icon>
         {{ operationInfo }}
       </div>
       <template #footer>
@@ -96,7 +96,7 @@
     </el-drawer>
 
     <!-- 项目配置 -->
-    <el-drawer v-model="configurationDrawer" v-if="configurationDrawer" title="配置项目" direction="rtl" :size="858">
+    <el-drawer v-model="configurationDrawer" title="配置项目" direction="rtl" :size="858">
       <configuration ref="configurationRef" :configurationInfo="configurationInfo"></configuration>
       <template #footer>
         <div style="flex: auto">
@@ -256,6 +256,7 @@ const batchDelete = (ids) => {
 
 //操作确定
 const operationSure = async () => { //批量禁用1,禁用2
+  operationDeter.value = false
   switch (operationType.value) {
     case 1: {
       //代码块; 
@@ -272,7 +273,7 @@ const operationSure = async () => { //批量禁用1,禁用2
       break;
     }
   }
-  operationDeter.value = false
+
 }
 
 
@@ -339,6 +340,8 @@ const configurationRef = ref(null)
 const handleConfiguration = async (row) => {
   configurationDrawer.value = true
   configurationInfo.value = { ...row }
+  await nextTick()
+  configurationRef.value?.getTabledata()
 }
 
 //删除
@@ -423,6 +426,7 @@ const handleDlete = (id) => {
   background: linear-gradient(180deg, #CBDFFF 0%, #FFFFFF 12%);
   border-radius: 20px 0px 0px 20px;
 }
+
 .no-inherit {
   vertical-align: middle;
   margin-right: 5px;

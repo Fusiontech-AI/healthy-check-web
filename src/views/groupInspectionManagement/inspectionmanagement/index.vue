@@ -127,15 +127,15 @@
     </el-card>
 
     <!-- 详情 -->
-    <el-dialog v-model="dialogVisible" v-if="dialogVisible" :title="dialogTitle" style="width: 900px;
+    <el-dialog v-model="dialogVisible" :title="dialogTitle" style="width: 900px;
 height: 698px;">
       <!-- 任务信息分组明细 -->
-      <taskDetail v-if="dialogTitle == '分组明细'" :detailInfo="detailInfo" :taskoptions="taskoptions" :ruleForm="ruleForm"
-        :preview="isPreview">
+      <taskDetail v-if="dialogTitle == '分组明细' && dialogVisible" :detailInfo="detailInfo" :taskoptions="taskoptions"
+        :ruleForm="ruleForm" :preview="isPreview">
       </taskDetail>
       <!-- 结账信息人员明细 -->
-      <accountsDetail v-else :detailInfo="detailInfo" :taskoptions="taskoptions" :ruleForm="ruleForm"
-        :preview="isPreview">
+      <accountsDetail v-if="dialogTitle == '团检收费详情'" ref="accountsDetailRef" :detailInfo="detailInfo"
+        :taskoptions="taskoptions" :ruleForm="ruleForm" :preview="isPreview">
       </accountsDetail>
       <template #footer>
         <span class="dialog-footer">
@@ -156,7 +156,7 @@ height: 698px;">
         <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item label="实收金额">
-              <el-input v-model="discountForm.taskReceived" />
+              <el-input v-model="discountForm.taskReceived" placeholder="请输入实收金额" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -168,7 +168,7 @@ height: 698px;">
       </el-form>
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="discountCancle" round>取消</el-button>
+          <el-button @click="dialogDiscount = false" round>取消</el-button>
           <el-button type="primary" @click="discountSure" round>
             确定
           </el-button>
@@ -390,14 +390,12 @@ const taskDiscount = () => {
   dialogDiscount.value = true
   discountForm.value = {}
 }
-const discountCancle = () => {
-  dialogDiscount.value = false
-}
+//确认设置团检折扣
 const discountSure = async () => {
+  dialogDiscount.value = false
   await teamTaskDiscount({ ...discountForm.value, teamId: ruleForm.teamId, id: ruleForm.teamTaskId })
   ElMessage.success('设置任务折扣成功!')
   proTableTask.value?.getTableList()
-  dialogDiscount.value = false
 }
 
 const taskDiscountAmount = computed(() => {  //计算优惠金额
@@ -412,6 +410,7 @@ const operationType = ref(-1)   //封账1,解封2,结账作废3,作废4,删除5
 
 //操作确定
 const operationSure = async () => {//封账1,解封2,结账作废3,作废4,删除5
+  operationDeter.value = false
   switch (operationType.value) {
     case 1: {
       //代码块; 
@@ -454,9 +453,8 @@ const operationSure = async () => {//封账1,解封2,结账作废3,作废4,删�
       proTableAccounts.value?.getTableList()
       break;
     }
-
   }
-  operationDeter.value = false
+
 }
 
 //封账
@@ -582,6 +580,7 @@ const closingAudit = (params: any) => {
   closingAuditIds.value = [...params]
 }
 const handleRejectOrPass = async (type: any) => {
+  operationDeter.value = false
   if (type) {
     await teamSettleCheckPass({ ...ruleForm, ids: closingAuditIds.value })
     ElMessage.success('审核通过 成功')
@@ -589,7 +588,6 @@ const handleRejectOrPass = async (type: any) => {
     await teamSettleCheckReject({ ...ruleForm, ids: closingAuditIds.value })
     ElMessage.success('审核驳回成功')
   }
-  operationDeter.value = false
   proTableAccounts.value?.clearSelection()
   proTableAccounts.value?.getTableList()
 }
@@ -617,48 +615,23 @@ const deleteInvoice = (row: any) => {
   operationType.value = 5
   deleteInvoiceId.value = [row.id]
 }
-//
-
 
 //详情弹框
 const dialogVisible = ref(false)
 const dialogTitle = ref('')
-const dialogIndex = ref(-1)
 const isPreview = ref(false)
-const details = (title: any, row: any) => {
+const accountsDetailRef = ref(null)  //结账信息详情
+const details = async (title: any, row: any) => {
   detailInfo.value = row
   dialogVisible.value = true
   isPreview.value = true
   if (title == '1') {
     dialogTitle.value = "分组明细"
-    dialogIndex.value = 2
-
   } else {
     dialogTitle.value = "团检收费详情"
-    dialogIndex.value = 1
+    accountsDetailRef.value?.getTableData()
   }
 }
-
-
-//获取名字
-const optionsName = (arr, value) => {
-  let TypeName = ''
-  arr.forEach(item => {
-    if (item.value == value) {
-      TypeName = item.label
-    }
-  })
-  return TypeName
-}
-
-
-
-
-
-
-
-
-
 
 </script>
 

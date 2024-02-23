@@ -11,8 +11,9 @@
           <span v-if="(item.component == 'Input' || item.component == 'Textarea') && isPreview"> {{ model[item.name]
           }}</span>
 
-          <el-select v-model="model[item.name]" :multiple="item.multiple" :filterable="item.filterable" clearable
-            :disabled="item.disabled" :placeholder="'请选择' + item.label" v-if="item.component == 'Select' && !isPreview">
+          <el-select v-model="model[item.name]" :multiple="item.multiple" :filterable="item.filterable"
+            :clearable="item.clearable ?? true" :disabled="item.disabled" :placeholder="'请选择' + item.label"
+            v-if="item.component == 'Select' && !isPreview">
             <el-option v-for="dictitem in item.dict" :key="dictitem.value" :label="dictitem.label"
               :value="dictitem.value">
             </el-option>
@@ -51,8 +52,9 @@
                 <span v-if="(item.component == 'Input' || item.component == 'Textarea') && isPreview"> {{ model[item.name]
                 }}</span>
 
-                <el-select v-model="model[item.name]" :multiple="item.multiple" :filterable="item.filterable" clearable
-                  :placeholder="'请选择' + item.label" v-if="item.component == 'Select' && !isPreview">
+                <el-select v-model="model[item.name]" :multiple="item.multiple" :filterable="item.filterable"
+                  :clearable="item.clearable ?? true" :placeholder="'请选择' + item.label"
+                  v-if="item.component == 'Select' && !isPreview">
                   <el-option v-for="dictitem in item.dict" :key="dictitem.value" :label="dictitem.label"
                     :value="dictitem.value">
                   </el-option>
@@ -133,7 +135,7 @@ onMounted(() => {
 
 })
 
-const show = ref(false)
+const show = ref(true)
 const fromRef = ref(null)
 
 const validate = async () => {

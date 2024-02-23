@@ -208,16 +208,13 @@ const batchDelete = async (ids, type) => { //type=1是批量,type=2是单项删�
   proTable.value?.getTableList();
 }
 
-//计算属性
-const optionsSuitSexName = computed(() => {
-  let TypeName = ''
-  optionsSuitSex.value.forEach(item => {
-    if (item.value == batchEditForm.value.sex) {
-      TypeName = item.label
-    }
-  })
-  return TypeName
-})
+//父组件调用方法,刷新列表
+const getTabledata = () => {
+  proTable.value?.getTableList();
+}
+
+
+defineExpose({ getTabledata })
 
 </script>
 

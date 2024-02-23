@@ -204,6 +204,12 @@ const optionsName = (arr, value) => {
   return TypeName
 }
 
+//父组件调用获取表格数据方法
+const getTableData = () => {
+  active.value = 1
+  proTable.value?.getTableList()
+}
+defineExpose({ getTableData })
 
 
 

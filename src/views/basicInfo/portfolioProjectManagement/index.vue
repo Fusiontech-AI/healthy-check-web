@@ -77,7 +77,7 @@
     </el-dialog>
 
     <!-- 新增抽屉 -->
-    <el-drawer v-model="addDrawer" v-if="addDrawer" :title="addTitle" direction="rtl" :size="1100">
+    <el-drawer v-model="addDrawer" :title="addTitle" direction="rtl" :size="1100">
       <div class="title_bord">项目基础信息</div>
       <addForm :addInfo="addInfo" ref="formRef" :isPreview="isPreview"></addForm>
       <template #footer>
@@ -259,6 +259,7 @@ const batchDelete = (ids) => {
 
 //操作确定
 const operationSure = async () => { //批量禁用1,禁用2
+  operationDeter.value = false
   switch (operationType.value) {
     case 1: {
       //代码块; 
@@ -275,7 +276,7 @@ const operationSure = async () => { //批量禁用1,禁用2
       break;
     }
   }
-  operationDeter.value = false
+
 }
 
 
@@ -287,22 +288,29 @@ const addInfo = ref({})
 //新增表单
 const formRef = ref(null)
 
-const handleAdd = (type, row) => { //type=1是新增,2是查看,3是编辑
+//新增弹框显示
+const handleAdd = async (type, row) => { //type=1是新增,2是查看,3是编辑
   addDrawer.value = true
   isPreview.value = false
   formRef.value?.addInfoRef.clearValidate()
+  await nextTick()
   if (type == 1) {
     addTitle.value = '新增'
-    addInfo.value = { privacyFlag: '1', guideFlag: '0', workerFlag: '0' }
+    addInfo.value = { privacyFlag: '1', guideFlag: '0', workerFlag: '0', suitSex: '2', projectType: '0', specimenType: '0', financialType: '0', status: '0' }
+    formRef.value?.getAllListSon()
   } else if (type == 2) {
     addTitle.value = '详情'
     isPreview.value = true
     addInfo.value = { ...row }
+    formRef.value?.getAllListSon()
   } else {
     addTitle.value = '编辑'
     addInfo.value = { ...row }
+    formRef.value?.getAllListSon()
   }
 }
+
+//弹框确认新增按钮
 const confirmClick = async (formEl) => {
   if (!formEl) return
   const flag = await formEl.validate()
@@ -409,6 +417,7 @@ const handleDlete = (id) => {
   background: linear-gradient(180deg, #CBDFFF 0%, #FFFFFF 12%);
   border-radius: 20px 0px 0px 20px;
 }
+
 .no-inherit {
   vertical-align: middle;
   margin-right: 5px;

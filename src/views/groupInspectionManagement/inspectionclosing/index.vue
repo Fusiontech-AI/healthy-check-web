@@ -58,8 +58,8 @@
           </el-row>
         </div>
       </div>
-      <ProTable ref="proTableTask" :columns="columnsTask" :request-api="getTableListTask" :data-callback="dataCallback" :height="200"
-        :requestAuto="false" :toolButton="false">
+      <ProTable ref="proTableTask" :columns="columnsTask" :request-api="getTableListTask" :data-callback="dataCallback"
+        :height="200" :requestAuto="false" :toolButton="false">
         <!-- Expand -->
         <!-- 表格操作 -->
         <template #operation="scope">
@@ -119,15 +119,15 @@
     </el-card>
 
     <!-- 详情 -->
-    <el-dialog v-model="dialogVisible" v-if="dialogVisible" :title="dialogTitle" style="width: 900px;
+    <el-dialog v-model="dialogVisible" :title="dialogTitle" style="width: 900px;
 height: 698px;">
       <!-- 任务信息分组明细 -->
-      <taskDetail v-if="dialogTitle == '分组明细'" :detailInfo="detailInfo" :taskoptions="taskoptions" :ruleForm="ruleForm"
-        :preview="isPreview">
+      <taskDetail v-if="dialogTitle == '分组明细' && dialogVisible" :detailInfo="detailInfo" :taskoptions="taskoptions"
+        :ruleForm="ruleForm" :preview="isPreview">
       </taskDetail>
       <!-- 结账信息人员明细 -->
-      <accountsDetail v-else :detailInfo="detailInfo" :taskoptions="taskoptions" :ruleForm="ruleForm"
-        :preview="isPreview">
+      <accountsDetail v-if="dialogTitle == '团检收费详情'" ref="accountsDetailRef" :detailInfo="detailInfo"
+        :taskoptions="taskoptions" :ruleForm="ruleForm" :preview="isPreview">
       </accountsDetail>
       <template #footer>
         <span class="dialog-footer">
@@ -150,7 +150,7 @@ height: 698px;">
       </template>
       <template #footer>
         <div style="flex: auto">
-          <el-button @click="cancelClick(addRef.addFormRef)" round>取消</el-button>
+          <el-button @click="drawer = false" round>取消</el-button>
           <el-button type="primary" @click="confirmClick(addRef.addFormRef)" round>确定</el-button>
         </div>
       </template>
@@ -460,22 +460,16 @@ const Add = async (formEl) => {
   })
 
 }
-//取消新增结账
-const cancelClick = async (Ref: any) => {
-  drawer.value = false
-}
+
 //确定新增结账
 const confirmClick = async (Ref: any) => {
   if (!Ref) return
   await Ref.validate(async (valid: any, fields: any) => {
     if (valid) { //校验通过
-      drawer.value = false
       await addTeamSettle({ ...addForm.value })
       ElMessage.success('新增成功')
       drawer.value = false
       proTableAccounts.value?.getTableList()
-    } else {
-
     }
   })
 }
@@ -490,10 +484,11 @@ const InvalidSettleIds = ref([])
 // 作废id
 const InvalidSettleId = ref([])
 // 删除id
-const deleteInvoiceId = ref('')
+const deleteInvoiceId = ref([])
 
 //操作确定
 const operationSure = async () => { //结账作废1,作废2,删除3
+  operationDeter.value = false
   switch (operationType.value) {
     case 1: {
       //代码块;
@@ -519,7 +514,7 @@ const operationSure = async () => { //结账作废1,作废2,删除3
       break;
     }
   }
-  operationDeter.value = false
+
 }
 //开票(表格上方)
 const handelInvoice = async (params) => {
@@ -546,7 +541,7 @@ const cancellationAccount = (params) => {
 
 //开票
 const makeInvoice = async (row: any) => {
-  await teamInvoice({ ids: row.id, ...ruleForm })
+  await teamInvoice({ ids: [row.id], ...ruleForm })
   ElMessage.success('开票成功')
   proTableAccounts.value?.clearSelection()
   proTableAccounts.value?.getTableList()
@@ -573,7 +568,8 @@ const deleteInvoice = (row: any) => {
 //明细弹框
 const dialogVisible = ref(false)
 const dialogTitle = ref('')
-const details = (title: any, row: any) => {
+const accountsDetailRef = ref(null)  //结账信息详情
+const details = async (title: any, row: any) => {
   detailInfo.value = row
   dialogVisible.value = true
   isPreview.value = true
@@ -581,19 +577,12 @@ const details = (title: any, row: any) => {
     dialogTitle.value = "分组明细"
   } else {
     dialogTitle.value = "团检收费详情"
+    await nextTick()
+    accountsDetailRef.value?.getTableData()
   }
+
 }
 
-//获取名字
-const optionsName = (arr, value) => {
-  let TypeName = ''
-  arr.forEach(item => {
-    if (item.value == value) {
-      TypeName = item.label
-    }
-  })
-  return TypeName
-}
 </script>
 
 <style scoped lang="scss">

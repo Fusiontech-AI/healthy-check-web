@@ -6,7 +6,7 @@
         <div>
           <div class="head_search">
             <div class="head_title">项目检索</div>
-            <el-input v-model="inputValue" class="head_input" :disabled="isPreview">
+            <el-input v-model="inputValue" class="head_input" :disabled="isPreview" clearable>
               <template #suffix>
                 <el-icon class="el-input__icon" @click="searchProject">
                   <search />
@@ -65,6 +65,12 @@ const inputValue = ref('')
 const initParam = reactive({ basicProjectName: null })
 const searchProject = async () => {
   initParam.basicProjectName = inputValue.value
+}
+
+//获取项目列表及所选项目列表数据
+const getAllList = () => {
+  getList()
+  getItemList()
 }
 
 const filterProject = (arr1, arr2) => {
@@ -199,7 +205,7 @@ const itemDelete = (row, $index) => {
   dataItemTable.value.splice($index, 1)
 }
 
-defineExpose({ dataItemTable })
+defineExpose({ dataItemTable, getAllList })
 
 </script>
 

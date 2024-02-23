@@ -82,6 +82,7 @@ const addFileds = ref([
   {
     label: '所属标本',
     name: 'specimenType',
+    clearable: false,
     component: 'Select',
     dict: optionsSpecimenType
   },
@@ -133,18 +134,21 @@ const collapse = ref([
     label: '适应性别',
     name: 'suitSex',
     component: 'Select',
+    clearable: false,
     dict: optionsSuitSex
   },
   {
     label: '项目类型',
     name: 'projectType',
     component: 'Select',
+    clearable: false,
     dict: optionsProjectType
   },
   {
     label: '财务类别',
     name: 'financialType',
     component: 'Select',
+    clearable: false,
     dict: optionsFinancialType
   },
   {
@@ -167,18 +171,21 @@ const collapse = ref([
     label: '是否进入隐私报告',
     name: 'privacyFlag',
     component: 'Select',
+    clearable: false,
     dict: optionsOutFlag
   },
   {
     label: '是否进入指引单',
     name: 'guideFlag',
     component: 'Select',
+    clearable: false,
     dict: optionsOutFlag
   },
   {
     label: '是否进入工作站',
     name: 'workerFlag',
     component: 'Select',
+    clearable: false,
     dict: optionsOutFlag
   },
   {
@@ -245,7 +252,12 @@ watch(() => props.addInfo.outFlag, (newVal) => {
   immediate: true
 })
 
-defineExpose({ addInfoRef, configurationRef })
+const getAllListSon = async () => {
+  await nextTick()
+  configurationRef.value.getAllList()
+}
+
+defineExpose({ addInfoRef, configurationRef, getAllListSon })
 
 
 

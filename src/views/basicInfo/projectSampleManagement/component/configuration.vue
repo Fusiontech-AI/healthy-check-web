@@ -148,14 +148,14 @@ const getItemList = async () => {
   await proTable.value?.getTableList()
   loading.value = false
 }
-getItemList()
+// getItemList()
 
 const itemDelete = (row, $index) => {
   dataTableList.value.push({ ...row })
   dataItemTable.value.splice($index, 1)
 }
 
-defineExpose({ dataItemTable })
+defineExpose({ dataItemTable, getItemList })
 
 </script>
 
