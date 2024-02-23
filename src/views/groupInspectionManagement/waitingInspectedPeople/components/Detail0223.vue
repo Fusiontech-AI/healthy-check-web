@@ -3,7 +3,7 @@
     <el-row :gutter="8">
       <el-col :span="5">
         <el-card>
-          <template #header> {{ taskName }} </template>
+          <template #header> {{ teamName }} </template>
           <div class="mb-[5px]"><el-input v-model="searchKey" placeholder="请输入搜索关键词" clearable /></div>
           <div class="left-card">
             <el-tree
@@ -13,9 +13,8 @@
               :data="treeData"
               node-key="id"
               default-expand-all
-              :props="{ label: 'groupName'}"
+              :props="{ label: 'name'}"
               :filter-node-method="filterNode"
-              :expand-on-click-node="false"
               @node-click="handleNodeClick"
             />
           </div>
@@ -25,40 +24,27 @@
         <div>
           <el-card class="mb-[10px]">
             <div class="flex items-center justify-between">
-              <div>{{ currentClickNode?.groupName }}</div>
+              <div>{{ currentClickNode?.name }}</div>
               <div><el-button type="primary" @click="$router.back()">返回</el-button></div>
             </div>
           </el-card>
           <div class="waiting-right-detail">
             <el-card class="mb-[8px]">
-              <template #header>
-                <div class="flex justify-between">
-                  <div>套餐名称</div>
-                  <div>
-                    <el-button link class="mr-2" @click="packageListShow = !packageListShow" :icon="packageListShow ? ArrowUpBold : ArrowDownBold" />
-                  </div>
-                </div>
-              </template>
-              <el-collapse-transition>
-                <div v-if="packageListShow">
-                  <ProTable
-                    v-show="packageListShow"
-                    ref="packageProTableRef"
-                    :columns="tableColumns"
-                    :toolButton="false"
-                    :data="packageTableDataSource"
-                    label-position="right"
-                    :searchCol="4"
-                    :highlight-current-row="true"
-                    row-key="id"
-                    :pagination="false"
-                    :dataCallback="dataCallback"
-                  >
-                  </ProTable>
-                  <SearchForm v-show="packageListShow" ref="deptFormRef" :search-param="searchParam" :columns="packageFormColumn" :searchCol="4">
-                  </SearchForm>
-                </div>
-              </el-collapse-transition>
+              <template #header> 套餐名称： </template>
+              <ProTable
+                ref="packageProTableRef"
+                :columns="tableColumns"
+                :toolButton="false"
+                :data="packageTableDataSource"
+                label-position="right"
+                :searchCol="4"
+                :highlight-current-row="true"
+                row-key="id"
+                :pagination="false"
+                :dataCallback="dataCallback"
+              >
+              </ProTable>
+              <SearchForm ref="deptFormRef" :search-param="searchParam" :columns="packageFormColumn" :searchCol="4"> </SearchForm>
             </el-card>
 
             <el-card>
@@ -114,17 +100,16 @@
 <script setup name="projectCompletionStatusDetail" lang="tsx">
 import {ref} from 'vue'
 import { registerPage } from '@/api/groupInspectionManagement/freezeAndUnfreeze/index'
-import { teamGroupList, teamGroupItem, batchSwitchGroup} from '@/api/groupInspectionManagement/waitingInspectedPeople/index'
+import { teamGroupList, teamGroupItem, teamSettleWaitTaskGroupTree, batchSwitchGroup} from '@/api/groupInspectionManagement/waitingInspectedPeople/index'
 import { tableColumnsWaitingUserBasic, changGroupColumnsBasic, packageColumnsBasic, packageFormColumnBasic } from './data'
 import { useRoute } from 'vue-router'
-import { ArrowUpBold, ArrowDownBold } from "@element-plus/icons-vue";
 
 interface Tree {
   [key: string]: any;
 }
 
 const route = useRoute()
-const { teamId, taskName, taskId } = route?.query as any
+const { teamId, teamName, teamGroupId } = route?.query as any
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 const { sys_user_sex } = toRefs<any>(proxy?.useDict('sys_user_sex'))
@@ -141,7 +126,6 @@ const treeData = ref<any>([])
 const formValue = ref<any>({})
 const showDialog = ref<boolean>(false)
 const groupNameList = ref<any>([])
-const packageListShow = ref<any>(true)
 
 const currentClickNode = ref<any>({}) //当前选中节点
 const selectIds = ref<any>([]) //待检用户选中ID
@@ -168,8 +152,15 @@ const getPackageTableList =async ()=>{
 
 // 获取待检用户列表
 const getWaitingUserTableList = async () =>{
-  const { rows } = await registerPage({healthyCheckStatus:'0', taskId, teamId, teamGroupId:currentClickNode.value?.id})
-  waitingUserTableDataSource.value = rows
+  // 选中任务
+  if(currentClickNode.value?.parentId === 0){
+    const { rows } = await registerPage({healthyCheckStatus:'0', taskId: currentClickNode.value?.id,teamId})
+    waitingUserTableDataSource.value = rows
+  }else{
+    // 选中任务下分组
+    const { rows } = await registerPage({healthyCheckStatus:'0', taskId: currentClickNode.value?.parentId, teamGroupId: currentClickNode.value?.id,teamId})
+    waitingUserTableDataSource.value = rows
+  }
 }
 
 onMounted(() =>{
@@ -177,11 +168,11 @@ onMounted(() =>{
 })
 
 const getTreeData = async () =>{
-  const { rows } = await teamGroupList({teamId, taskId})
-  treeData.value = rows;
-  currentClickNode.value = rows?.[0]
+  const { data } = await teamSettleWaitTaskGroupTree(teamId) //获取树数据
+  treeData.value = proxy?.handleTree<any>(data);
+  currentClickNode.value = data?.filter((item: any) =>item.id === Number(teamGroupId))?.[0]
   nextTick(async() =>{
-    await treeRef.value?.setCurrentKey(rows?.[0]?.id);
+    await treeRef.value?.setCurrentKey(teamGroupId);
     getPackageTableList()
     getWaitingUserTableList()
   })
@@ -191,10 +182,12 @@ const getTreeData = async () =>{
 const batchChangeGroup = async (ids:any)=> {
   selectIds.value = ids
   showDialog.value = true
-  formValue.value.groupName = currentClickNode.value?.id
+  formValue.value.groupName = ''
   peopleFormRef.value?.resetFields()
-  formValue.value.taskName = taskName
-  const { rows } = await teamGroupList({teamId, taskId})
+  const { parentId, name, id } = currentClickNode.value
+  // parentId=0 选中任务 parentId!=0 选中分组
+  formValue.value.taskName = parentId===0 ? name: treeData.value?.filter((item:any) =>item.id === parentId)?.[0]?.name
+  const { rows } = await teamGroupList({teamId, taskId: parentId===0 ? id: parentId})
   groupNameList.value = rows
 }
 
@@ -239,7 +232,7 @@ watchEffect(() =>{
 
 const filterNode = (value: string, data: Tree) => {
   if (!value) return true;
-  return data.groupName.includes(value);
+  return data.name.includes(value);
 };
 
 const groupRules = ref<any>({
@@ -265,8 +258,6 @@ const dataCallback = (data: any) => {
 }
 
 ::v-deep(.unit-tree .el-tree-node.is-current>.el-tree-node__content){
-    color:#2879FF !important;
-    background: #f0f1f3 !important;
-    border-radius: 2px;
+    color:#2879FF !important
 }
 </style>
