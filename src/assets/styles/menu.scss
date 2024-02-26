@@ -34,6 +34,32 @@
   height: calc(100vh - $base-header-height);
   padding: 32px 8px;
   box-shadow: $base-menu-shadow;
+
+  .el-menu {
+    border-right: none;
+
+    .el-menu-item,
+    .el-sub-menu__title {
+      padding: 8px 12px;
+      height: auto;
+      line-height: 1;
+      border-radius: 4px;
+      color: $text-color-two;
+      font-size: 14px;
+      margin-bottom: 4px;
+      transition: all .6s;
+
+      &:hover {
+        color: $--color-primary;
+        background: #ddebfb;
+      }
+
+      &.is-active {
+        color: $--color-primary;
+        background: #ddebfb;
+      }
+    }
+  }
 }
 
 .menus-sub_item {
@@ -109,6 +135,31 @@
       width: 100%;
       padding: 12px 8px;
       font-size: 12px;
+    }
+    .el-menu {
+      border-right: none;
+  
+      .el-menu-item,
+      .el-sub-menu__title {
+        // padding: 8px 12px;
+        height: 32px;
+        line-height: 1;
+        border-radius: 4px;
+        color: $text-color-two;
+        font-size: 14px;
+        margin-bottom: 4px;
+        transition: all .6s;
+  
+        &:hover {
+          color: $--color-primary;
+          background: #ddebfb;
+        }
+  
+        &.is-active {
+          color: $--color-primary;
+          background: #ddebfb;
+        }
+      }
     }
   }
 }
