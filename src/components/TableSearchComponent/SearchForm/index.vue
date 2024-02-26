@@ -55,6 +55,7 @@ import Grid from "@/components/Grid/index.vue";
 import GridItem from "@/components/Grid/components/GridItem.vue";
 import FormAction from '@/components/TableSearchComponent/SearchForm/components/FormAction.vue'
 import { useTable } from "@/hooks/useTable";
+import { array } from "vue-types";
 
 interface ProTableProps {
   columns?: ColumnProps[]; // 搜索配置列
@@ -86,9 +87,26 @@ const RenderFormValue = (item: any) => {
       if (props.searchParam[item.prop] && item.enum && item?.search?.el == 'switch') {
         return item.enum?.find((val: { value: any; }) => val?.value == props.searchParam[item.prop])?.label || props.searchParam[item.prop]
       }
+      if (props.searchParam[item.prop] && item.enum && item?.search?.el == 'tree-select') {
+        return recursion(item.enum, props.searchParam[item.prop])
+      }
       return props.searchParam[item.prop]
     }
   }}</div>
+}
+
+//递归找出单位需要回显的值
+const recursion = (arr, val) => {
+  let txt = ''
+  arr.map(item => {
+    if (item.id == val) {
+      txt = item.teamName
+      return
+    } else {
+      item.children && recursion(item.children)
+    }
+  })
+  return txt
 }
 
 const formRef = ref<any>(null)
@@ -110,8 +128,8 @@ async function resetFields() {
 }
 
 // 控制表单列显示与隐藏
-const columnsFunc = computed(()=> {
-  return props.columns.filter(item => item.isShowSearch??true)
+const columnsFunc = computed(() => {
+  return props.columns.filter(item => item.isShowSearch ?? true)
 })
 
 // 输出组件的方法，让外部组件可以调用

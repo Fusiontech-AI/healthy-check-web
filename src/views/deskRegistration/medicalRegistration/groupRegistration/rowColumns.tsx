@@ -4,7 +4,6 @@ const {
   sys_user_sex,
   bus_check_status,
   bus_credential_type,
-  bus_personnel_marriage_status,
   bus_tj_check_type,
   bus_cost_type,
   bus_person_category,
@@ -25,7 +24,6 @@ const {
     'sys_user_sex',
     'bus_check_status',
     'bus_credential_type',
-    'bus_personnel_marriage_status',
     'bus_tj_check_type',
     'bus_cost_type',
     'bus_person_category',
@@ -42,7 +40,7 @@ const {
     'bus_job_code'
   )
 );
-const formInfoColumns = (teamIdList) => [
+const formInfoColumns = (teamIdList, taskList, groupList) => [
   {
     slot: 'credentialImage',
     search: { span: 24 }
@@ -56,27 +54,31 @@ const formInfoColumns = (teamIdList) => [
   {
     prop: 'taskId',
     label: '任务',
-    search: { el: 'select' }
+    enum: taskList,
+    search: { el: 'select' },
+    fieldNames: { label: 'taskName', value: 'id' }
   },
   {
     prop: 'teamGroupId',
     label: '分组',
-    search: { el: 'select' }
+    enum: groupList,
+    search: { el: 'select' },
+    fieldNames: { label: 'groupName', value: 'id' }
   },
   {
-    prop: 'name',
+    prop: 'fzje',
     label: '分组金额',
     search: { el: 'input', disabled: true }
   },
   {
-    prop: 'name',
+    prop: 'fzzk',
     label: '分组折扣',
     search: { el: 'input', disabled: true }
   },
   {
     prop: 'patientId',
     label: '患者ID',
-    search: { el: 'input' }
+    search: { el: 'input', disabled: true }
   },
   {
     prop: 'credentialType',
@@ -272,6 +274,18 @@ const formInfoColumns = (teamIdList) => [
     search: { el: 'input', span: 24 }
   }
 ];
+
+const validatePhone = (rule, value, callback) => {
+  var isMobilePhone = /^1\d{10}$/;
+  var isFixMob = /^\d{3,4}-\d{7,8}$/;
+  if (!value) {
+    callback();
+  } else if (isMobilePhone.test(value) || isFixMob.test(value)) {
+    callback();
+  } else {
+    callback(new Error('请输入正确电话号码'));
+  }
+};
 const formRules = {
   teamId: [{ required: true, message: '请选择单位', trigger: 'change' }],
   taskId: [{ required: true, message: '请选择任务', trigger: 'change' }],
@@ -283,7 +297,20 @@ const formRules = {
   gender: [{ required: true, message: '请选择性别', trigger: 'change' }],
   physicalType: [{ required: true, message: '请选择体检类型', trigger: 'change' }],
   checkType: [{ required: true, message: '请选择检查类型', trigger: 'change' }],
-  phone: [{ required: true, message: '请输入联系电话', trigger: 'blur' }]
+  phone: [
+    { required: true, message: '请输入联系电话', trigger: 'blur' },
+    { validator: validatePhone, trigger: 'change' }
+  ],
+  dutyStatus: [{ required: true, message: '请选择在岗状态', trigger: 'change' }],
+  tjRegisterZybHazardBos: [{ required: true, message: '请选择危害因素', trigger: 'change' }],
+  illuminationSource: [{ required: true, message: '请选择照射源', trigger: 'change' }],
+  jobIlluminationType: [{ required: true, message: '请选择职业照射种类', trigger: 'change' }],
+  caseCardType: [{ required: true, message: '请选择个案卡类别', trigger: 'change' }],
+  jobCode: [{ required: true, message: '请选择工种名称', trigger: 'change' }],
+  contactSeniorityYear: [{ required: true, message: '请输入年份', trigger: 'blur' }],
+  contactSeniorityMonth: [{ required: true, message: '请输入月份', trigger: 'blur' }],
+  seniorityYear: [{ required: true, message: '请输入年份', trigger: 'blur' }],
+  seniorityMonth: [{ required: true, message: '请输入月份', trigger: 'blur' }]
 };
 
 const tableColumns = [

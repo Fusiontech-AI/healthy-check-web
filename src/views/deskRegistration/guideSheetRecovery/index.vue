@@ -306,7 +306,11 @@ const tableColumns = reactive([
 ])
 //体检号查询
 const handleCx = async () => {
+  if (!value.value) return proxy?.$modal.msgWarning("请输入体检号")
   const { data } = await registerGetSingleInfo({ healthyCheckCode: value.value })
+  if (!data) {
+    return proxy?.$modal.msgWarning("暂无此人信息")
+  }
   await getTableList()
   formValue.value = data
   modelValue.value = [{ url: data.userImage }]

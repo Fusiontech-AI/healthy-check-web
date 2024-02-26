@@ -9,9 +9,9 @@
     </div>
     <ProTable ref="proTableRef" :columns="tableColumns" :toolButton="false" :request-api="queryTaskReviewRegister"
       :init-param="initParam" :request-auto="true">
-      <template #operation="scope">
-        <el-button type="primary" link @click="showPersonDialog = true" :disabled="preview">查看</el-button>
-        <el-button type="danger" link :disabled="preview">删除</el-button>
+      <template #operation="{ row }">
+        <el-button type="primary" link :disabled="preview" @click="viewPersonDetail(row)">查看</el-button>
+        <el-button type="danger" link :disabled="preview" @click="handleDel(row)">删除</el-button>
       </template>
     </ProTable>
     <el-dialog title="批量导入" v-model="batchImportDialog" width="55%">
@@ -19,16 +19,18 @@
         @close-dialog="batchImportDialog = false; proTableRef?.getTableList()"></batch-import>
     </el-dialog>
     <el-dialog title="人员信息详情" v-model="showPersonDialog" width="45%">
-      <div class="h-[550px] overflow-auto">
-        <Grid ref="gridRef" :gap="20" :cols="2">
+      <el-scrollbar height="550px" class="no-card">
+        <SearchForm ref="formRef" :columns="personColumns" :search-param="personInfo" :search-col="2" :preview="true">
+        </SearchForm>
+        <!-- <Grid ref="gridRef" :gap="20" :cols="2">
           <GridItem :span="1" v-for="item in personColumns " :key="item.label">
             <div class="flex text-[14px] text-[#141C28] ml-4">
               <span class="w-[120px] text-[#89919F]">{{ item.label }}：</span>
               <span class="flex-1">{{ item.value }}</span>
             </div>
           </GridItem>
-        </Grid>
-      </div>
+        </Grid> -->
+      </el-scrollbar>
       <div class="flex justify-end mt-4">
         <el-button round @click="showPersonDialog = false">取消</el-button>
         <el-button round type="primary" @click="showPersonDialog = false">确定</el-button>
@@ -38,7 +40,7 @@
 </template>
 
 <script setup lang="tsx" name="third">
-import { queryTaskReviewRegister } from '@/api/groupInspection/taskAudit';
+import { queryTaskReviewRegister, deleteTaskRegister, getRegisterById } from '@/api/groupInspection/taskAudit';
 import BatchImport from '@/views/groupInspectionManagement/personnelIntroduction/components/BatchImport.vue'
 import { tableColumn, personColumn } from '@/views/groupInspectionManagement/personnelIntroduction/rowColumns'
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
@@ -49,11 +51,29 @@ const props = defineProps(['form', 'preview'])
 const initParam = reactive({ taskId: props.form.taskId })
 const tableColumns = ref<any>(tableColumn)
 const proTableRef = ref(null)
+const personInfo = ref({})
 /** 下载模板操作 */
 const importTemplate = () => {
   proxy?.download("/peis/teamTask/exportRegisterTemplate", {
     taskId: props.form.id,
     templateType: props.form.physicalType
   }, `人员导入模版.xlsx`);
+}
+// 查看人员详情
+const viewPersonDetail = async (row: any) => {
+  showPersonDialog.value = true
+  const { data } = await getRegisterById(row.id)
+  personInfo.value = data
+}
+// 删除
+const handleDel = async (row: any) => {
+  await proxy?.$modal.confirm('是否删除此条数据？')
+  await deleteTaskRegister(row.id)
+  ElMessage({
+    message: '删除成功',
+    type: 'success',
+  })
+  proTableRef.value?.getTableList()
+
 }
 </script>

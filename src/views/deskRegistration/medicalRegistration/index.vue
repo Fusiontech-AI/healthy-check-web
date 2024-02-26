@@ -93,17 +93,17 @@ const tableColumns = reactive([
   { prop: 'healthyCheckCode', label: '体检号', search: { el: 'input' }, isShow: false },
   { prop: 'name', label: '姓名', search: { el: 'input', }, isShow: false, slot: 'xm' },
   // { prop: 'gender', label: '性别', search: { el: 'select' }, enum: sys_user_sex, isShow: false },
-  { prop: 'healthyCheckTimeArr', label: '体检日期', search: { el: 'date-picker', props: { type: 'daterange' } }, isShow: false },
+  { prop: 'healthyCheckTimeArr', label: '体检日期', search: { el: 'date-picker', props: { type: 'daterange', valueFormat: 'YYYY-MM-DD' } }, isShow: false },
   { prop: 'physicalType', label: '体检类型', search: { el: 'select' }, isShow: false, enum: bus_physical_type },
   { prop: 'businessCategory', label: '业务类别', search: { el: 'select' }, isShow: false, enum: bus_category },
   { prop: 'recordCode', label: '档案号', search: { el: 'input' }, isShow: false },
   { prop: 'teamId', label: '体检单位', search: { el: 'select', }, isShow: false, slot: 'teamId' },
-  { prop: 'generalReviewTimeArr', label: '终检日期', search: { el: 'date-picker', props: { type: 'daterange' } }, isShow: false },
+  { prop: 'generalReviewTimeArr', label: '终检日期', search: { el: 'date-picker', props: { type: 'daterange', valueFormat: 'YYYY-MM-DD' } }, isShow: false },
   { prop: 'healthyCheckStatus', label: '体检状态', search: { el: 'select' }, isShow: false, enum: bus_healthy_check_status },
   { prop: 'personCategory', label: '人员类别', search: { el: 'select' }, isShow: false, enum: bus_person_category },
   { prop: 'credentialNumber', label: '身份证号', search: { el: 'input' }, isShow: false },
   { prop: 'taskId', label: '任务名称', search: { el: 'select' }, isShow: false, enum: teamTaskLists, fieldNames: { label: 'taskName', value: 'id' } },
-  { prop: 'chargeTimeArr', label: '支付日期', search: { el: 'date-picker', props: { type: 'daterange' } }, isShow: false },
+  { prop: 'chargeTimeArr', label: '支付日期', search: { el: 'date-picker', props: { type: 'daterange', valueFormat: 'YYYY-MM-DD' } }, isShow: false },
   { prop: 'createByName', label: '创建人', search: { el: 'input' }, isShow: false },
   { prop: 'guideSheetReceived', label: '回收', search: { el: 'select' }, isShow: false, enum: [{ value: '0', label: '是' }, { value: '1', label: '否' }] },
   { prop: 'healthyCheckCode', label: '体检号' },
@@ -186,6 +186,7 @@ const selectionChange = (val) => {
   checkedList.value = []
   checkedList.value = val.map(item => item.id)
 }
+
 </script>
 <style scoped lang="scss">
 .color_ydy {

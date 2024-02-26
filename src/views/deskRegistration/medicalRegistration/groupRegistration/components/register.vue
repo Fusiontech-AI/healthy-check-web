@@ -9,7 +9,7 @@
             </div>
             <div>
               <el-button round type="primary">新增</el-button>
-              <el-button round>清空</el-button>
+              <el-button round @click="formValue = {}" v-if="!id">清空</el-button>
             </div>
           </div>
         </template>
@@ -37,18 +37,38 @@
           </template>
           <template #jhgl>
             <div class="flex">
-              <el-input v-model="formValue['contactSeniorityYear']" clearable :placeholder="`请输入`"></el-input>
-              <span class="mx20px">年</span>
-              <el-input v-model="formValue['contactSeniorityMonth']" clearable :placeholder="`请输入`"></el-input>
-              <span class="mx20px">月</span>
+              <el-form-item label="" prop="contactSeniorityYear">
+                <div class="flex">
+                  <el-input v-model="formValue['contactSeniorityYear']" clearable :placeholder="`请输入`"></el-input>
+                  <span class="mx20px">年</span>
+                </div>
+              </el-form-item>
+
+              <el-form-item label="" prop="contactSeniorityMonth">
+                <div class="flex">
+                  <el-input v-model="formValue['contactSeniorityMonth']" clearable :placeholder="`请输入`"></el-input>
+                  <span class="mx20px">月</span>
+                </div>
+              </el-form-item>
+
             </div>
           </template>
           <template #zgl>
             <div class="flex">
-              <el-input v-model="formValue['seniorityYear']" clearable :placeholder="`请输入`"></el-input>
-              <span class="mx20px">年</span>
-              <el-input v-model="formValue['seniorityMonth']" clearable :placeholder="`请输入`"></el-input>
-              <span class="mx20px">月</span>
+              <el-form-item label="" prop="seniorityYear">
+                <div class="flex">
+                  <el-input v-model="formValue['seniorityYear']" clearable :placeholder="`请输入`"></el-input>
+                  <span class="mx20px">年</span>
+                </div>
+              </el-form-item>
+
+              <el-form-item label="" prop="seniorityMonth">
+                <div class="flex">
+                  <el-input v-model="formValue['seniorityMonth']" clearable :placeholder="`请输入`"></el-input>
+                  <span class="mx20px">月</span>
+                </div>
+              </el-form-item>
+
             </div>
           </template>
           <template #reserveTimeArr>
@@ -121,6 +141,8 @@ import ImageUpload from '@/components/ImageUpload'
 import { formInfoColumns, formRules, tableColumns } from '@/views/deskRegistration/medicalRegistration/groupRegistration/rowColumns.tsx'
 import { teamInfoList } from "@/api/groupInspection/inspectionclosing";
 import { registerAdd, registerChangeRegCombin, registerInfo, queryRegCombinProjectList, registerUpdate } from '@/api/deskRegistration/medicalRegistration'
+import { teamGroupList } from '@/api/leadershipCockpit/overviewMedicalExaminers'
+import { getTeamTaskList } from '@/api/groupInspection/taskAudit'
 import { commonDynamicBilling } from '@/api/peis/projectPort'
 import { accSub } from '@/utils'
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
@@ -135,7 +157,9 @@ const formValue = ref<any>({
   reserveTimeArr: []
 }) // 基本信息绑定的值
 const teamIdList = ref<any>([]) //单位列表
-const formColumns = ref<any>(formInfoColumns(teamIdList))
+const taskList = ref<any>([]) //任务列表
+const groupList = ref<any>([]) //分组列表
+const formColumns = ref<any>(formInfoColumns(teamIdList, taskList, groupList))
 const value = ref('')
 const options = reactive([])
 const checkedList = ref([])
@@ -382,6 +406,23 @@ const handleBC = async () => {
     }
   })
 }
+
+//根据所选单位查任务
+watch(() => formValue.value.teamId, async (newV) => {
+  taskList.value = []
+  formValue.value.taskId = ''
+  formValue.value.teamGroupId = ''
+  const { rows } = await getTeamTaskList({ teamId: newV, pagesize: -1, reviewResult: 1 }) // 根据单位带出任务列表
+  taskList.value = rows
+})
+//根据所选任务查分组
+watch(() => formValue.value.taskId, async (newV) => {
+  groupList.value = []
+  formValue.value.teamGroupId = ''
+  const { rows } = await teamGroupList({ taskId: newV, pagesize: -1, filterProject: 0 }) // 根据任务带出分组列表
+  groupList.value = rows
+})
+//根据选择的分组显示分组金额和折扣
 </script>
 <style scoped lang="scss">
 :deep(.el-upload--picture-card) {

@@ -115,3 +115,19 @@ export const teamGroupInfo = (params: any) => {
     method: 'GET'
   });
 };
+// 获取tab套餐信息
+export const getTaskItemGroupInfoInfo = (params: any) => {
+  return request({
+    url: `/peis/teamTask/getTaskItemGroupInfo`,
+    method: 'GET',
+    params
+  });
+};
+// 删除团检分组信息
+export const teamGroupDel = (params: any) => {
+  return request({
+    url: `/peis/teamGroup/${params.ids}`,
+    method: 'GET',
+    data: params
+  });
+};
