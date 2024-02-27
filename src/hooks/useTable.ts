@@ -163,6 +163,7 @@ export const useTable = (
     reset,
     handleSizeChange,
     handleCurrentChange,
-    updatedTotalParam
+    updatedTotalParam,
+    updatePageable
   };
 };

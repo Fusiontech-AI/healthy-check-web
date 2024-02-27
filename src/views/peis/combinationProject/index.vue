@@ -96,8 +96,8 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
 import ProTable from '@/components/TableSearchComponent/ProTable/index.vue'
-import addForm from './component/addForm.vue'
-import configuration from "./component/configuration.vue";
+import addForm from './components/addForm.vue'
+import configuration from "./components/configuration.vue";
 import { tjksList, addBasicProject, updataBasicProject, deleteBasicProject, combinationProjectList, addCombinationProject, updataCombinationProject, deleteCombinationProject } from '@/api/basicInfo/basicProjectManagement'
 import { optionsKS, optionsSuitSex, optionsSampleType, getList, getTypeList, optionsFinancialType } from "./hooks/useOptions";
 

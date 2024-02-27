@@ -138,8 +138,8 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
 import ProTable from '@/components/TableSearchComponent/ProTable/index.vue'
-import addForm from './component/addForm.vue'
-import configuration from "./component/configuration.vue";
+import addForm from './components/addForm.vue'
+import configuration from "./components/configuration.vue";
 import { systemList, sampleList, addSample, updataSample, batchUpdateCategory, batchDisableApi, getCombinProjectBySampleId, updateCombinProjectBySampleId } from '@/api/basicInfo/basicProjectManagement'
 import useOptions from "./hooks/useOptions";
 const { optionsType, optionsSample, optionsCode, optionsPrint, optionsApply, itemType } = useOptions()

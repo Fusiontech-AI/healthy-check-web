@@ -6,7 +6,7 @@
         <el-row :gutter="20">
           <el-col :span="6">
             <el-form-item label="单位名称" prop="teamId">
-              <el-tree-select v-model="ruleForm.teamId" :data="options" filterable clearable :loading="loading"
+              <el-tree-select v-model="ruleForm.teamId" :data="options" filterable :loading="loading"
                 placeholder="请搜索单位名称" :filter-method="remoteMethod"
                 :props="{ value: 'value', label: 'label', children: 'children' }" value-key="id" check-strictly
                 @change="teamIdChange" />
@@ -14,7 +14,7 @@
           </el-col>
           <el-col :span="6">
             <el-form-item label="任务名称" prop="teamTaskId">
-              <el-select v-model="ruleForm.teamTaskId" filterable clearable placeholder="请选择任务名称" v-loading="taskLoading"
+              <el-select v-model="ruleForm.teamTaskId" filterable placeholder="请选择任务名称" v-loading="taskLoading"
                 @change="taskIdChange">
                 <el-option v-for="item in taskoptions" :key="item.value" :label="item.label" :value="item.value" />
               </el-select>
@@ -33,16 +33,17 @@
       <div class="title">
         <div>任务信息</div>
       </div>
-      <ProTable ref="proTableTask" :columns="columnsTask" :request-api="getTableList" :data-callback="dataCallbackTask"
-        :height="200" :requestAuto="false" :toolButton="false">
+      <ProTable ref="proTableTask" :columns="columnsTask" :request-api="getTableList" :data="tableListTask"
+        :pagination="tableListTask.length > 0" :height="200" :requestAuto="false" :toolButton="false">
         <!-- Expand -->
         <!-- 表格操作 -->
         <template #tableHeader="scope">
           <div class="payment">
             <div class="task_btn">
-              <el-button type="primary" @click="taskDiscount" round>任务折扣</el-button>
-              <el-button type="primary" @click="sealAccount" v-if="!isSeal" round>封账</el-button>
-              <el-button type="primary" @click="releaseAccount" v-else round>解除封账</el-button>
+              <el-button type="primary" :disabled="isTaskDiscountEnable" @click="taskDiscount" round>任务折扣</el-button>
+              <el-button type="primary" :disabled="isButtonEnable" @click="sealAccount" v-if="!isSeal"
+                round>封账</el-button>
+              <el-button type="primary" :disabled="isButtonEnable" @click="releaseAccount" v-else round>解除封账</el-button>
             </div>
             <div class="task_info">
               <el-row>
@@ -83,8 +84,9 @@
         <div style="width: 200px;">结账信息</div>
       </div>
 
-      <ProTable ref="proTableAccounts" :columns="columnsAccounts" :request-api="getTableListAccounts" :requestAuto="false"
-        :height="200" :data-callback="dataCallbackAccounts" :toolButton="false">
+      <ProTable ref="proTableAccounts" :columns="columnsAccounts" :request-api="getTableListAccounts"
+        :data="tableListAccountsData" :pagination="tableListAccountsData.length > 0" :requestAuto="false" :height="200"
+        :toolButton="false">
         <!-- 表格操作 -->
         <template #tableHeader="scope">
           <div class="payment">
@@ -317,6 +319,12 @@ const searchForm = async (formEl: any) => {
 const resetForm = (formEl: any) => {
   if (!formEl) return
   formEl.resetFields()
+  //将两个表格数据清空
+  proTableAccounts.value?.clearSelection()
+  tableListTask.value = []
+  taskGroupStatistics.value = {}
+  tableListAccountsData.value = []
+  teamSettleStatistics.value = {}
 }
 
 
@@ -367,20 +375,19 @@ const columnsTask = reactive([
   },
 
 ]);
-const dataCallbackTask = (data: any) => {
-  return {
-    list: data.list,
-    total: data.total,
-    pageNum: data.pageNum,
-    pageSize: data.pageSize
-  };
-};
+// 任务信息列表数据
+let tableListTask = ref([])
+
 //获取任务信息列表
 const getTableList = async (params: any) => {
   let newParams = { ...params }
   ruleForm.teamId && (newParams.teamId = ruleForm.teamId);
   ruleForm.teamTaskId && (newParams.teamTaskId = ruleForm.teamTaskId);
-  return teamSettleTaskGroupList(newParams)
+  // return teamSettleTaskGroupList(newParams)
+  const { total, rows } = await teamSettleTaskGroupList(newParams)
+  tableListTask.value = rows
+  await nextTick()
+  proTableTask.value?.updatePageable({ total });
 };
 //任务折扣弹框
 const dialogDiscount = ref(false)
@@ -401,6 +408,23 @@ const discountSure = async () => {
 const taskDiscountAmount = computed(() => {  //计算优惠金额
   discountForm.value.taskDiscount = discountForm.value.taskReceived && (taskGroupStatistics.value.teamReceiveAmount - discountForm.value.taskReceived)
   return discountForm.value.taskReceived && (taskGroupStatistics.value.teamReceiveAmount - discountForm.value.taskReceived)
+})
+
+//计算属性,看按钮是否能用
+const isButtonEnable = computed(() => {
+  if (ruleForm.teamId && ruleForm.teamTaskId) {
+    return false
+  } else {
+    return true
+  }
+})
+// 任务折扣按钮是否能用
+const isTaskDiscountEnable = computed(() => {
+  if (ruleForm.teamId && ruleForm.teamTaskId && (taskGroupStatistics.value.teamReceiveAmount || taskGroupStatistics.value.teamReceiveAmount == 0)) {
+    return false
+  } else {
+    return true
+  }
 })
 
 const operationDeter = ref(false)
@@ -478,8 +502,8 @@ const releaseAccount = () => {
 
 //结账信息ProTable 实例
 const proTableAccounts = ref();
-// 表格配置项
-const accountsInfo = ref({})
+//结账信息列表数据
+const tableListAccountsData = ref([])
 
 const columnsAccounts = reactive([
   { type: "selection", fixed: "left", width: 70 },
@@ -546,21 +570,16 @@ const columnsAccounts = reactive([
     label: "操作",
   },
 ]);
-const dataCallbackAccounts = (data: any) => {
-  accountsInfo.value = data
-  return {
-    list: data.list,
-    total: data.total,
-    pageNum: data.pageNum,
-    pageSize: data.pageSize
-  };
-};
 //获取结账信息列表
 const getTableListAccounts = async (params: any) => {
   let newParams = { ...params }
   ruleForm.teamId && (newParams.teamId = ruleForm.teamId);
   ruleForm.teamTaskId && (newParams.teamTaskId = ruleForm.teamTaskId);
-  return teamSettleList(newParams)
+  // return teamSettleList(newParams)
+  const { total, rows } = await teamSettleList(newParams)
+  tableListAccountsData.value = rows
+  await nextTick()
+  proTableAccounts.value?.updatePageable({ total });
 };
 
 // 结账作废ids
