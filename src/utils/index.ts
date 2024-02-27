@@ -406,3 +406,58 @@ export function accSub(arg1, arg2) {
   n = r1 >= r2 ? r1 : r2;
   return ((arg2 * m - arg1 * m) / m).toFixed(n);
 }
+
+/**
+ * 身份证截取生日字段
+ * @param {*} id
+ * @returns
+ */
+export function getBirthday(id) {
+  return id.substr(6, 4) + '-' + id.substr(10, 2) + '-' + id.substr(12, 2);
+}
+
+/**
+ * 通过出生日期获取当前年龄
+ * @param strBirthday：指的是出生日期，格式为"1990-01-01",字符串类型
+ */
+export function getCurrentAgeByBirthDate(birthday) {
+  //根据日期算年龄
+  birthday = birthday.split('-');
+  // 新建日期对象
+  let date = new Date();
+  // 今天日期，数组，同 birthday
+  let today = [date.getFullYear(), date.getMonth() + 1, date.getDate()];
+  // 分别计算年月日差值
+  let age = today.map((val, index) => {
+    return val - birthday[index];
+  });
+  // 当天数为负数时，月减 1，天数加上月总天数
+  if (age[2] < 0) {
+    // 简单获取上个月总天数的方法，不会错
+    let lastMonth = new Date(today[0], today[1], 0);
+    age[1]--;
+    age[2] += lastMonth.getDate();
+  }
+  // 当月数为负数时，年减 1，月数加上 12
+  if (age[1] < 0) {
+    age[0]--;
+    age[1] += 12;
+  }
+  return age[0];
+}
+
+/**
+ * 身份证获取性别
+ * @param {*} id
+ * @returns
+ */
+export function getSex(id, type) {
+  // 获取性别 1-男 2-女
+  if (parseInt(id.substr(16, 1)) % 2 == 1) {
+    return type === 'num' ? '0' : '男';
+  } else if (parseInt(id.substr(16, 1)) % 2 == 0) {
+    return type === 'num' ? '1' : '女';
+  } else {
+    return type === 'num' ? '2' : '未知';
+  }
+}

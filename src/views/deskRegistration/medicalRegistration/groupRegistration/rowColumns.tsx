@@ -10,6 +10,7 @@ const {
   bus_pay_type,
   bus_pay_status,
   bus_pay_mode,
+  bus_personnel_marriage_status,
   bus_combination_project_type,
   bus_nation,
   bus_duty_status,
@@ -30,6 +31,7 @@ const {
     'bus_pay_type',
     'bus_pay_status',
     'bus_pay_mode',
+    'bus_personnel_marriage_status',
     'bus_combination_project_type',
     'bus_nation',
     'bus_duty_status',
@@ -40,7 +42,7 @@ const {
     'bus_job_code'
   )
 );
-const formInfoColumns = (teamIdList, taskList, groupList) => [
+const formInfoColumns = (teamIdList, taskList, groupList, zjhInput, zjlxChange, teamGroupIdChange, dwChange, rwChange) => [
   {
     slot: 'credentialImage',
     search: { span: 24 }
@@ -49,29 +51,33 @@ const formInfoColumns = (teamIdList, taskList, groupList) => [
     prop: 'teamId',
     label: '单位',
     enum: teamIdList,
-    search: { el: 'tree-select', props: { checkStrictly: true, label: 'teamName', value: 'id' }, span: 24 }
+    search: { el: 'tree-select', checkStrictly: true, span: 24 },
+    fieldNames: { label: 'teamName', value: 'id' },
+    change: dwChange
   },
   {
     prop: 'taskId',
     label: '任务',
     enum: taskList,
     search: { el: 'select' },
-    fieldNames: { label: 'taskName', value: 'id' }
+    fieldNames: { label: 'taskName', value: 'id' },
+    change: rwChange
   },
   {
     prop: 'teamGroupId',
     label: '分组',
     enum: groupList,
     search: { el: 'select' },
-    fieldNames: { label: 'groupName', value: 'id' }
+    fieldNames: { label: 'groupName', value: 'id' },
+    change: teamGroupIdChange
   },
   {
-    prop: 'fzje',
+    prop: 'actualPrice',
     label: '分组金额',
     search: { el: 'input', disabled: true }
   },
   {
-    prop: 'fzzk',
+    prop: 'itemDiscount',
     label: '分组折扣',
     search: { el: 'input', disabled: true }
   },
@@ -84,7 +90,8 @@ const formInfoColumns = (teamIdList, taskList, groupList) => [
     prop: 'credentialType',
     label: '证件类型',
     search: { el: 'select' },
-    enum: bus_credential_type
+    enum: bus_credential_type,
+    change: zjlxChange
   },
   {
     prop: 'recordCode',
@@ -94,7 +101,8 @@ const formInfoColumns = (teamIdList, taskList, groupList) => [
   {
     prop: 'credentialNumber',
     label: '证件号',
-    search: { el: 'input' }
+    search: { el: 'input' },
+    change: zjhInput
   },
   {
     prop: 'healthyCheckCode',
@@ -102,14 +110,14 @@ const formInfoColumns = (teamIdList, taskList, groupList) => [
     search: { el: 'input', disabled: true }
   },
   {
-    prop: 'birthday',
-    label: '出生日期',
-    search: { el: 'date-picker', props: { type: 'date', valueFormat: 'YYYY-MM-DD' } }
-  },
-  {
     prop: 'name',
     label: '姓名',
     search: { el: 'input' }
+  },
+  {
+    prop: 'birthday',
+    label: '出生日期',
+    search: { el: 'date-picker', props: { type: 'date', valueFormat: 'YYYY-MM-DD' }, disabled: true }
   },
   {
     prop: 'nation',
@@ -120,7 +128,7 @@ const formInfoColumns = (teamIdList, taskList, groupList) => [
   {
     prop: 'age',
     label: '年龄',
-    search: { el: 'input' }
+    search: { el: 'input', disabled: true }
   },
   {
     prop: 'personCategory',
@@ -131,7 +139,7 @@ const formInfoColumns = (teamIdList, taskList, groupList) => [
   {
     prop: 'gender',
     label: '性别',
-    search: { el: 'select' },
+    search: { el: 'select', disabled: true },
     enum: sys_user_sex
   },
   {
@@ -141,10 +149,10 @@ const formInfoColumns = (teamIdList, taskList, groupList) => [
     enum: bus_physical_type
   },
   {
-    prop: 'physicalType',
-    label: '体检类型',
+    prop: 'marriageStatus',
+    label: '婚否',
     search: { el: 'select' },
-    enum: bus_physical_type
+    enum: bus_personnel_marriage_status
   },
   {
     prop: 'phone',
@@ -213,48 +221,56 @@ const formInfoColumns = (teamIdList, taskList, groupList) => [
     prop: 'dutyStatus',
     label: '在岗状态',
     enum: bus_duty_status,
-    search: { el: 'select', span: 24 }
+    search: { el: 'select', span: 24 },
+    isShowSearch: false
   },
   {
     prop: 'tjRegisterZybHazardBos',
     label: '危害因素',
     enum: tj_register_zyb_hazard,
-    search: { el: 'select', span: 24 }
+    search: { el: 'select', span: 24 },
+    isShowSearch: false
   },
   {
     prop: 'illuminationSource',
     label: '照射源',
     enum: bus_shine_source,
-    search: { el: 'select' }
+    search: { el: 'select' },
+    isShowSearch: false
   },
   {
     prop: 'jobIlluminationType',
     label: '职业照射种类',
     enum: bus_job_illumination_source,
-    search: { el: 'select' }
+    search: { el: 'select' },
+    isShowSearch: false
   },
   {
     prop: 'caseCardType',
     label: '个案卡类别',
     enum: bus_case_card_type,
-    search: { el: 'select' }
+    search: { el: 'select' },
+    isShowSearch: false
   },
   {
     prop: 'jobCode',
     label: '工种名称',
     enum: bus_job_code,
-    search: { el: 'select' }
+    search: { el: 'select' },
+    isShowSearch: false
   },
   {
     prop: 'contactSeniorityYear',
     label: '接害工龄',
     search: { el: 'select', span: 24 },
+    isShowSearch: false,
     slot: 'jhgl'
   },
   {
     prop: 'seniorityYear',
     label: '总工龄',
     search: { el: 'select', span: 24 },
+    isShowSearch: false,
     slot: 'zgl'
   },
   {
@@ -278,19 +294,27 @@ const formInfoColumns = (teamIdList, taskList, groupList) => [
 const validatePhone = (rule, value, callback) => {
   var isMobilePhone = /^1\d{10}$/;
   var isFixMob = /^\d{3,4}-\d{7,8}$/;
-  if (!value) {
-    callback();
-  } else if (isMobilePhone.test(value) || isFixMob.test(value)) {
-    callback();
-  } else {
-    callback(new Error('请输入正确电话号码'));
+  if (!isMobilePhone.test(value) && !isFixMob.test(value)) {
+    return callback(new Error('请输入正确联系电话'));
   }
+  callback();
+};
+const checkIDCard = (rule, value, callback) => {
+  const IDCardReg = /^[1-9]\d{5}(18|19|20)\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])\d{3}[\dXx]$/;
+  if (!IDCardReg.test(value)) {
+    return callback(new Error('身份证号格式不正确'));
+  }
+  callback();
 };
 const formRules = {
   teamId: [{ required: true, message: '请选择单位', trigger: 'change' }],
   taskId: [{ required: true, message: '请选择任务', trigger: 'change' }],
   credentialType: [{ required: true, message: '请选择证件类型', trigger: 'change' }],
-  credentialNumber: [{ required: true, message: '请输入证件号', trigger: 'blur' }],
+  credentialNumber: [
+    { required: true, message: '请输入证件号', trigger: 'blur' },
+    { validator: checkIDCard, trigger: 'change' },
+    { validator: checkIDCard, trigger: 'blur' }
+  ],
   birthday: [{ required: true, message: '请选择出生日期', trigger: 'change' }],
   name: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
   age: [{ required: true, message: '请输入年龄', trigger: 'blur' }],
@@ -299,7 +323,8 @@ const formRules = {
   checkType: [{ required: true, message: '请选择检查类型', trigger: 'change' }],
   phone: [
     { required: true, message: '请输入联系电话', trigger: 'blur' },
-    { validator: validatePhone, trigger: 'change' }
+    { validator: validatePhone, trigger: 'change' },
+    { validator: validatePhone, trigger: 'blur' }
   ],
   dutyStatus: [{ required: true, message: '请选择在岗状态', trigger: 'change' }],
   tjRegisterZybHazardBos: [{ required: true, message: '请选择危害因素', trigger: 'change' }],
@@ -326,4 +351,32 @@ const tableColumns = [
   { prop: 'checkStatus', label: '检查状态', enum: bus_check_status },
   { prop: 'operation', label: '操作' }
 ];
-export { formInfoColumns, formRules, tableColumns };
+
+//预登记弹窗Columns
+const tableColumnsYDJ = (teamIdList) => [
+  {
+    prop: 'teamId',
+    label: '单位名称',
+    enum: teamIdList,
+    search: { el: 'tree-select', props: { checkStrictly: true, label: 'teamName', value: 'id' } },
+    isShow: false
+  },
+  {
+    prop: 'createTime',
+    label: '创建时间',
+    search: { el: 'date-picker', props: { type: 'date', valueFormat: 'YYYY-MM-DD HH:mm:ss' } },
+    isShow: false
+  },
+
+  { type: 'radio' },
+  { type: 'index', label: '序列', width: 60 },
+  { prop: 'teamName', label: '单位名称' },
+  { prop: 'physicalType', label: '体检类型', enum: bus_physical_type },
+  { prop: 'taskId', label: '任务名称', enum: bus_physical_type },
+  { prop: 'teamGroupId', label: '分组名称', enum: bus_physical_type },
+  // { prop: 'standardAmount', label: '在岗状态' },
+  { prop: 'payStatus', label: '结算状态', enum: bus_pay_status },
+  { prop: 'createBy', label: '创建人' },
+  { prop: 'createTime', label: '创建时间' }
+];
+export { formInfoColumns, formRules, tableColumns, tableColumnsYDJ };

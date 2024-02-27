@@ -106,20 +106,51 @@ import { formInfoColumns, formRules, tableColumns } from '@/views/deskRegistrati
 import { teamInfoList } from "@/api/groupInspection/inspectionclosing";
 import { registerAdd, registerChangeRegCombin, registerInfo, queryRegCombinProjectList, registerUpdate } from '@/api/deskRegistration/medicalRegistration'
 import { commonDynamicBilling } from '@/api/peis/projectPort'
-import { accSub } from '@/utils'
+import { accSub, getBirthday, getCurrentAgeByBirthDate, getSex } from '@/utils'
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 import type { TabsPaneContext } from 'element-plus'
 const formValue = ref<any>({
-  credentialNumber: '420117199507186555',
-  phone: '18571714455',
+  // credentialNumber: '420117199507186555',
+  // phone: '18571714455',
   credentialType: '0',
-  name: '123',
-  birthday: '2000-07-15',
-  checkType: '11',
-  reserveTimeArr: []
+  // name: '123',
+  // birthday: '2000-07-15',
+  // checkType: '11',
+  // reserveTimeArr: []
 }) // 基本信息绑定的值
 const teamIdList = ref<any>([]) //单位列表
-const formColumns = ref<any>(formInfoColumns(teamIdList))
+
+//证件类型change事件
+const zjlxChange = (val) => {
+  formValue.value.birthday = ''
+  formValue.value.age = ''
+  formValue.value.gender = ''
+  formColumns.value.forEach(item => {
+    if (val == '0') {
+      if (item.label == '出生日期' || item.label == '年龄' || item.label == '性别') {
+        item.search.disabled = true
+      }
+    } else {
+      if (item.label == '出生日期' || item.label == '年龄' || item.label == '性别') {
+        item.search.disabled = false
+      }
+    }
+  })
+}
+//证件号型zjhInput事件
+const zjhInput = (val) => {
+  formValue.value.birthday = ''
+  formValue.value.age = ''
+  formValue.value.gender = ''
+  if (formValue.value.credentialType == '0') {
+    formValue.value.birthday = getBirthday(val)
+    if (getBirthday(val).length === 10) {
+      formValue.value.age = getCurrentAgeByBirthDate(formValue.value.birthday)
+      formValue.value.gender = getSex(val, 'num')
+    }
+  }
+}
+const formColumns = ref<any>(formInfoColumns(teamIdList, zjlxChange, zjhInput))
 const value = ref('')
 const options = reactive([])
 const checkedList = ref([])
@@ -219,7 +250,8 @@ const handleSC = async (i) => {
   if (i === '' && checkedList.value.length == 0) {
     return proxy?.$modal.msgWarning("请选择项目");
   }
-  await proxy?.$modal.confirm('<span style="font-weight:bold">是否确定删除选中的x个项目？</span><br/> 删除项目后，该记录将不可恢复')
+  const txt = i === '' ? `${checkedList.value.length}个` : ''
+  await proxy?.$modal.confirm(`<span style="font-weight:bold">是否确定删除选中的${txt}项目？</span><br/> 删除项目后，该记录将不可恢复`)
   const haveAmountCalculationItemBos = detailInfo.dataSource.map((item, i) => {
     return {
       sort: i + 1,
@@ -366,6 +398,7 @@ const handleBC = async () => {
     }
   })
 }
+
 </script>
 <style scoped lang="scss">
 :deep(.el-upload--picture-card) {
