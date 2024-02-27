@@ -1,39 +1,36 @@
 <template>
   <div v-if="!item.hidden">
-    <template v-if="hasOneShowingChild(item, item.children) && (!onlyOneChild.children || onlyOneChild.noShowingChildren) && !item.alwaysShow">
+    <transition name="el-fade-in-linear">
+      <template v-if="hasOneShowingChild(item, item.children) && (!onlyOneChild.children || onlyOneChild.noShowingChildren) && !item.alwaysShow">
+        <div class="menu-item" :class="{ 'menu-item_active': activeRouter }" @click="clickMenuItem(item)" @mouseenter="mouseenterMenuItem(item)">
+          <app-link v-if="onlyOneChild.meta" :to="resolvePath(onlyOneChild.path, onlyOneChild.query)">
+            <div class="menu-item_icon">
+              <svg-icon :icon-class="onlyOneChild.meta.icon || (item.meta && item.meta.icon)" />
+            </div>
+            <span class="menu-title" v-if="appStore.sidebar.opened" :title="hasTitle(onlyOneChild.meta.title)">{{ onlyOneChild.meta.title }}</span>
+          </app-link>
+        </div>
+      </template>
+
       <div
+        v-else
         class="menu-item"
-        :class="{ 'menu-item_active': isActiveRouter(onlyOneChild) }"
+        :class="{ 'menu-item_active': activeRouter, 'menu-item-closed': !appStore.sidebar.opened  }"
         @click="clickMenuItem(item)"
         @mouseenter="mouseenterMenuItem(item)"
       >
-        <app-link v-if="onlyOneChild.meta" :to="resolvePath(onlyOneChild.path, onlyOneChild.query)">
-          <div class="menu-item_icon">
-            <svg-icon :icon-class="onlyOneChild.meta.icon || (item.meta && item.meta.icon)" />
-          </div>
-          <span class="menu-title" v-if="appStore.sidebar.opened" :title="hasTitle(onlyOneChild.meta.title)">{{ onlyOneChild.meta.title }}</span>
-        </app-link>
+        <!-- @mouseleave="showMenuChild = false" -->
+        <div class="menu-item_icon">
+          <svg-icon :icon-class="item.meta ? item.meta.icon : ''" />
+        </div>
+        <span class="menu-title" v-if="appStore.sidebar.opened" :title="hasTitle(item.meta?.title)">{{ item.meta?.title }}</span>
       </div>
-    </template>
-
-    <div
-      v-else
-      class="menu-item"
-      :class="{ 'menu-item_active': isActiveRouter(item), 'menu-item-closed': !appStore.sidebar.opened  }"
-      @click="clickMenuItem(item)"
-      @mouseenter="mouseenterMenuItem(item)"
-    >
-      <!-- @mouseleave="showMenuChild = false" -->
-      <div class="menu-item_icon">
-        <svg-icon :icon-class="item.meta ? item.meta.icon : ''" />
-      </div>
-      <span class="menu-title" v-if="appStore.sidebar.opened" :title="hasTitle(item.meta?.title)">{{ item.meta?.title }}</span>
-    </div>
+    </transition>
   </div>
 </template>
 
 <script setup lang="ts">
-// import AppLink from './Link.vue'
+import AppLink from './Link.vue'
 import useAppStore from '@/store/modules/app';
 import { getNormalPath } from '@/utils/ruoyi'
 import { isExternal } from '@/utils/validate'
@@ -114,6 +111,13 @@ const hasTitle = (title: string | undefined): string => {
   }
   return title;
 }
+const activeRouter = computed(()=> {
+  const route = useRoute()
+  if( props.item.path == '/' + route.path.split('/')[1] || props.item.redirect == '/' + route.path.split('/')[1] ) {
+    return true
+  }
+  return false
+})
 
 const isActiveRouter = (item: any) => {
   const route = useRoute()
@@ -143,6 +147,7 @@ const mouseenterMenuItem = (item: RouteOption) => {
   background: #FFFFFF;
   color: #89919F;
   cursor: pointer;
+  transition: all .5s;
   // box-shadow: 0px 4px 8px 0px rgba(40, 121, 255, 0.2);
 
   &:hover {

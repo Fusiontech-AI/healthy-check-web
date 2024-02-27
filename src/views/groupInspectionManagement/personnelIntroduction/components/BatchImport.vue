@@ -94,7 +94,7 @@
         <div class="mt-[100px] flex flex-col justify-center items-center" v-if="steps == 4">
           <img src="/src/assets/icons/svg/import.svg" width="100" />
           <div class="w-full text-center text-[18px] text-[#141C28] font-medium">数据导入完成</div>
-          <div class="mt-1 w-full text-center text-[#89919F]">成功导入人员数量100条</div>
+          <div class="mt-1 w-full text-center text-[#89919F]">成功导入人员数量{{successList.length}}条</div>
         </div>
       </div>
       <div class="flex justify-end">
@@ -138,10 +138,10 @@ const handleNextStep = async() => {
       percentage.value = 50
       percentage.value = 100
       const params = {
-      taskId: props.teamTaskInfo.id,
-      physicalType: props.teamTaskInfo.physicalType,
-      registerList: successList.value
-    }
+        taskId: props.teamTaskInfo.id,
+        physicalType: props.teamTaskInfo.physicalType,
+        registerList: successList.value
+      }
     await insertRegisterData(params)
     } catch (error) {
 

@@ -1,0 +1,283 @@
+:root {
+  --primaryColor: #2879ff;
+  --textColor: #141c28;
+  --menuOpenWidth: 160px;
+  --menuCloseWidth: 80px;
+  --menuBg: #fff;
+  --menuColor: #bfcbd9;
+  --menuActiveText: #f4f4f5;
+  --menuHover: #f1f5fb;
+  --subMenuBg: #1f2d3d;
+  --subMenuActiveText: #f4f4f5;
+  --subMenuHover: #001528;
+  --subMenuTitleHover: #f1f5fb;
+  --fixedHeaderBg: #f2f7fc;
+  --tableHeaderBg: #f2f7fc;
+  --tableHeaderTextColor: #3f4755;
+  --el-tree-text-color: #141c28;
+  --el-text-color-primary: #141c28;
+  --el-text-color-regular: #3f4755;
+  --el-disabled-text-color: #bfc7d9;
+}
+
+html.dark {
+  --defaultTextColor: #fff;
+  --menuBg: #fff;
+  --menuColor: #bfcbd9;
+  --menuActiveText: #f4f4f5;
+  --menuHover: #f1f5fb;
+  --subMenuBg: #1d1e1f;
+  --subMenuActiveText: #1d1e1f;
+  --subMenuHover: #f1f5fb;
+  --subMenuTitleHover: #f1f5fb;
+  --fixedHeaderBg: #f1f5fb;
+  --tableHeaderBg: var(--el-bg-color);
+  --tableHeaderTextColor: var(--el-text-color);
+}
+
+html.dark .el-tree-node__content {
+  --el-color-primary-light-9: #262727;
+}
+
+:export {
+  menuWidth: 80px;
+  menuColor: var(--menuColor);
+  menuLightColor: rgba(0, 0, 0, 0.7);
+  menuColorActive: var(--menuActiveText);
+  menuBackground: var(--menuBg);
+  menuLightBackground: #ffffff;
+  subMenuBackground: var(--subMenuBg);
+  subMenuHover: var(--subMenuHover);
+  sideBarWidth: 160px;
+  logoTitleColor: #ffffff;
+  logoLightTitleColor: #001529;
+  primaryColor: #2879ff;
+  successColor: #09c268;
+  dangerColor: #f75252;
+  infoColor: #909399;
+  warningColor: #ff8400;
+}
+
+.el-drawer {
+  border-radius: 20px 0px 0px 20px;
+  background: linear-gradient(180deg, #cbdfff 0%, #ffffff 12%);
+}
+
+.el-drawer .el-drawer__header {
+  border-bottom: 1px solid #e8e8e8 !important;
+}
+
+.el-drawer .el-drawer__title {
+  font-size: 18px;
+  font-weight: 500;
+  color: #141c28;
+}
+
+.el-message-box {
+  border-radius: 20px !important;
+  background: linear-gradient(180deg, #cbdfff 0%, #ffffff 27%);
+}
+
+.el-message-box .el-message-box__title {
+  font-size: 18px;
+  font-weight: 500;
+  color: #141c28;
+}
+
+.el-dialog {
+  border-radius: 20px !important;
+  background: linear-gradient(180deg, #cbdfff 0%, #ffffff 27%) !important;
+}
+
+.el-dialog .el-dialog__title {
+  font-size: 18px;
+  font-weight: 500;
+  color: #141c28;
+}
+
+.text-level-base {
+  color: #141c28;
+}
+
+.text-level-1 {
+  color: #141c28;
+}
+
+.text-level-2 {
+  color: #3f4755;
+}
+
+.text-level-3 {
+  color: #89919f;
+}
+
+.text-level-4 {
+  color: #bfc7d9;
+}
+
+.openSidebar .scrollbar-sub-wrapper {
+  width: 160px !important;
+}
+
+.hideSidebar .scrollbar-sub-wrapper {
+  width: 0 !important;
+}
+
+.menus-container {
+  position: relative;
+  box-shadow: 0px 0px 16px 0px rgba(128, 146, 181, 0.1);
+  display: flex;
+}
+
+.menus-list {
+  width: 80px;
+  box-shadow: 0px 0px 16px 0px rgba(128, 146, 181, 0.1);
+}
+
+.menus-list .menus-list_wrapper {
+  width: 100%;
+  height: calc(100vh - $base-header-height);
+  padding: 12px 8px;
+  font-size: 12px;
+}
+
+.menus-sub-wrapper {
+  width: 160px;
+  height: calc(100vh - $base-header-height);
+  padding: 32px 8px;
+  box-shadow: 0px 0px 16px 0px rgba(128, 146, 181, 0.1);
+}
+
+.menus-sub-wrapper .el-menu {
+  border-right: none;
+}
+
+.menus-sub-wrapper .el-menu .el-menu-item,
+.menus-sub-wrapper .el-menu .el-sub-menu__title {
+  padding: 8px 12px;
+  height: auto;
+  line-height: 1;
+  border-radius: 4px;
+  color: #3f4755;
+  font-size: 14px;
+  margin-bottom: 4px;
+  transition: all .6s;
+}
+
+.menus-sub-wrapper .el-menu .el-menu-item:hover,
+.menus-sub-wrapper .el-menu .el-sub-menu__title:hover {
+  color: #2879ff;
+  background: #ddebfb;
+}
+
+.menus-sub-wrapper .el-menu .el-menu-item.is-active,
+.menus-sub-wrapper .el-menu .el-sub-menu__title.is-active {
+  color: #2879ff;
+  background: #ddebfb;
+}
+
+.menus-sub_item {
+  display: block;
+  white-space: nowrap;
+  padding: 8px 12px;
+  border-radius: 4px;
+  color: #3f4755;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.menus-sub_item:hover {
+  color: #2879ff;
+  background: #ddebfb;
+}
+
+.router-link-active {
+  color: #2879ff;
+  background: #ddebfb;
+}
+
+.menu-collapse {
+  width: 30px;
+  height: 30px;
+  box-shadow: 0px 0px 16px 0px rgba(128, 146, 181, 0.1);
+  position: absolute;
+  z-index: 100;
+  top: 4px;
+  right: 0%;
+  transform: translate(50%, 0);
+  border-radius: 100%;
+  font-size: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #fff;
+  cursor: pointer;
+}
+
+.menu-collapse .menu-collapse_circle {
+  width: 20px;
+  height: 20px;
+  background: #f0f4fa;
+  border-radius: 100%;
+  box-shadow: 0px 0px 16px 0px rgba(128, 146, 181, 0.1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.menu-collapse .menu-collapse_circle .search-icon {
+  color: #000;
+}
+
+#menu-hover_wrapper {
+  background-color: transparent;
+  position: fixed;
+  left: calc($base-menu-width - 2px);
+  z-index: 1000;
+}
+
+#menu-hover_wrapper .menu-hover_wrapper {
+  width: 160px;
+  padding: 10px;
+  border-radius: 4px;
+  background: #ffffff;
+  box-shadow: 0px 0px 16px 0px rgba(128, 146, 181, 0.2);
+}
+
+#menu-hover_wrapper .menu-hover_wrapper .menus-sub_item {
+  display: inline-block;
+  width: 100%;
+  padding: 12px 8px;
+  font-size: 12px;
+}
+
+#menu-hover_wrapper .menu-hover_wrapper .el-menu {
+  border-right: none;
+}
+
+#menu-hover_wrapper .menu-hover_wrapper .el-menu .el-menu-item,
+#menu-hover_wrapper .menu-hover_wrapper .el-menu .el-sub-menu__title {
+  height: 32px;
+  line-height: 1;
+  border-radius: 4px;
+  color: #3f4755;
+  font-size: 14px;
+  margin-bottom: 4px;
+  transition: all .6s;
+}
+
+#menu-hover_wrapper .menu-hover_wrapper .el-menu .el-menu-item:hover,
+#menu-hover_wrapper .menu-hover_wrapper .el-menu .el-sub-menu__title:hover {
+  color: #2879ff;
+  background: #ddebfb;
+}
+
+#menu-hover_wrapper .menu-hover_wrapper .el-menu .el-menu-item.is-active,
+#menu-hover_wrapper .menu-hover_wrapper .el-menu .el-sub-menu__title.is-active {
+  color: #2879ff;
+  background: #ddebfb;
+}
+
+.scrollbar-sub-wrapper {
+  transition: all 0.3s ease-in-out;
+}

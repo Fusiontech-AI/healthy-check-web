@@ -166,6 +166,7 @@ watch(()=>props.id, async (id) =>{
     basicRef.value?.resetFields();
     formValue.value = {};
     basicOtherRef.value?.resetFields();
+    regionOptions.value = []
   }
 },{
     immediate: true,

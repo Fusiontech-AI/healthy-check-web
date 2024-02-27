@@ -4,7 +4,7 @@
       <el-col :span="5">
         <el-card>
           <template #header> {{ taskName }} </template>
-          <div class="mb-[5px]"><el-input v-model="searchKey" placeholder="请输入搜索关键词" clearable /></div>
+          <div class="mb-[5px]"><el-input v-model="searchKey" placeholder="请输入分组名称搜索" clearable /></div>
           <div class="left-card">
             <el-tree
               v-loading="treeLoading"

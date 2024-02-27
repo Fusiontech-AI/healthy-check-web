@@ -95,6 +95,10 @@ export const useTable = (
       if (state.searchParam[key] || state.searchParam[key] === false || state.searchParam[key] === 0) {
         nowSearchParam[key] = state.searchParam[key];
       }
+      if (key.includes('TimeArr')) {
+        nowSearchParam[key.split('TimeArr')[0] + 'TimeStart'] = nowSearchParam[key][0];
+        nowSearchParam[key.split('TimeArr')[0] + 'TimeEnd'] = nowSearchParam[key][1];
+      }
     }
     Object.assign(state.totalParam, state.searchParam, nowSearchParam, isPageable ? pageParam.value : {});
   };

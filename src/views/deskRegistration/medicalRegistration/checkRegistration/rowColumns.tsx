@@ -192,6 +192,17 @@ const formInfoColumns = (teamIdList) => [
     search: { el: 'input', span: 24 }
   }
 ];
+const validatePhone = (rule, value, callback) => {
+  var isMobilePhone = /^1\d{10}$/;
+  var isFixMob = /^\d{3,4}-\d{7,8}$/;
+  if (!value) {
+    callback();
+  } else if (isMobilePhone.test(value) || isFixMob.test(value)) {
+    callback();
+  } else {
+    callback(new Error('请输入正确电话号码'));
+  }
+};
 const formRules = {
   credentialType: [{ required: true, message: '请选择证件类型', trigger: 'change' }],
   credentialNumber: [{ required: true, message: '请输入证件号', trigger: 'blur' }],
@@ -201,7 +212,10 @@ const formRules = {
   gender: [{ required: true, message: '请选择性别', trigger: 'change' }],
   physicalType: [{ required: true, message: '请选择体检类型', trigger: 'change' }],
   checkType: [{ required: true, message: '请选择检查类型', trigger: 'change' }],
-  phone: [{ required: true, message: '请输入联系电话', trigger: 'blur' }]
+  phone: [
+    { required: true, message: '请输入联系电话', trigger: 'blur' },
+    { validator: validatePhone, trigger: 'change' }
+  ]
 };
 
 const tableColumns = [

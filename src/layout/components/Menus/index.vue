@@ -16,28 +16,43 @@
       </el-scrollbar>
     </div>
 
-    <el-scrollbar wrap-class="scrollbar-sub-wrapper" v-if="appStore.sidebar.opened">
-      <!-- <transition :enter-active-class="proxy?.animate.menuSearchAnimate.enter" mode="out-in"> -->
-      <div class="menus-sub-wrapper" :style="{ width: MenuWidth }">
-        <template v-for="(item, index) in menuChildrens?.children" :key="index">
-          <router-link class="menus-sub_item" :to="resolvePath(item, menuChildrens)" exact-active-class="router-link-active">
-            {{ item.meta?.title }}
-          </router-link>
-        </template>
-      </div>
-      <!-- </transition> -->
+    <el-scrollbar wrap-class="scrollbar-sub-wrapper">
+      <transition :enter-active-class="proxy?.animate.menuSearchAnimate.enter" mode="out-in">
+        <div class="menus-sub-wrapper" :style="{ width: MenuWidth }" v-if="appStore.sidebar.opened">
+          <el-menu :default-active="activeMenu" :collapse="false" :unique-opened="true" :collapse-transition="true" mode="vertical">
+            <sub-menu-item
+              v-for="(route, index) in menuChildrens?.children"
+              :key="route.path + index"
+              :item="route"
+              :base-path="menuChildrens?.path + '/'+route.path"
+            />
+          </el-menu>
+        </div>
+      </transition>
     </el-scrollbar>
 
     <teleport to="body">
-      <div id="menu-hover_wrapper" class="px-2 bg-transparent" v-if="!appStore.sidebar.opened && showMenuChild" @mouseleave="showMenuChild = false">
-        <div class="menu-hover_wrapper">
-          <template v-for="(childItem, index) in menuChildrens?.children" :key="index">
-            <router-link class="menus-sub_item" :to="resolvePath(childItem, menuChildrens)" exact-active-class="router-link-active">
-              {{ childItem.meta?.title }}
-            </router-link>
-          </template>
+      <transition name="el-zoom-in-left">
+        <div id="menu-hover_wrapper" class="px-2 bg-transparent" v-if="!appStore.sidebar.opened && showMenuChild" @mouseleave="showMenuChild = false">
+          <div class="menu-hover_wrapper">
+            <el-menu
+              @select="showMenuChild = false"
+              :default-active="activeMenu"
+              :collapse="false"
+              :unique-opened="true"
+              :collapse-transition="true"
+              mode="vertical"
+            >
+              <sub-menu-item
+                v-for="(route, index) in menuChildrens?.children"
+                :key="route.path + index"
+                :item="route"
+                :base-path="menuChildrens?.path + '/'+route.path"
+              />
+            </el-menu>
+          </div>
         </div>
-      </div>
+      </transition>
     </teleport>
 
     <!-- 折叠、收起 -->
@@ -55,7 +70,7 @@ import variables from '@/assets/styles/variables.module.scss'
 import usePermissionStore from '@/store/modules/permission'
 import { isExternal } from '@/utils/validate';
 import { getNormalPath } from '@/utils/ruoyi'
-
+import SubMenuItem from './SubMenuItem.vue';
 
 const appStore = useAppStore();
 const permissionStore = usePermissionStore()
@@ -63,7 +78,7 @@ const settingsStore = useSettingsStore()
 const menuChildrens = ref<RouteOption | null>(null)
 const showMenuChild = ref<boolean>(false);
 
-// const { proxy } = getCurrentInstance() as ComponentInternalInstance;
+const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 
 const sidebarRouters = computed<RouteOption[]>(() => permissionStore.sidebarRouters);
 
@@ -72,6 +87,16 @@ const sideTheme = computed(() => settingsStore.sideTheme);
 const bgColor = computed(() => sideTheme.value === 'theme-dark' ? variables.menuBackground : variables.menuLightBackground);
 
 const MenuWidth = computed(() => appStore.sidebar.opened ? variables.sideBarWidth : variables.menuWidth);
+
+const route = useRoute();
+const activeMenu = computed(():string => {
+    const { meta, path }:any = route;
+    // if set path, the sidebar will highlight the path you set
+    if (meta.activeMenu) {
+        return meta.activeMenu;
+    }
+    return path;
+})
 
 const resolvePath = (item: RouteOption, parentMenu: any): any => {
   const { path, query } = parentMenu
@@ -85,13 +110,13 @@ const resolvePath = (item: RouteOption, parentMenu: any): any => {
 }
 
 const toggleSideBar = () => {
-  appStore.toggleSideBar(false);
-  if(!appStore.sidebar.opened){
-    menuChildrens.value = null
-    showMenuChild.value = false
-  } else {
-    menuChildrens.value = sidebarRouters.value.filter(i => !i.hidden)[0]
-  }
+  appStore.toggleSideBar(!appStore.sidebar.opened);
+  // if(!appStore.sidebar.opened){
+  //   // menuChildrens.value = null
+  //   showMenuChild.value = false
+  // } else {
+  //   menuChildrens.value = sidebarRouters.value.filter(i => !i.hidden)[0]
+  // }
 }
 
 const clickMenuItem = (menuItem: RouteOption) => {
@@ -125,7 +150,12 @@ const enterMenuItem = (menuItem: RouteOption, index: number) => {
 watch(
   ()=> appStore.sidebar.opened,
   ()=> {
-    if(appStore.sidebar.opened && !menuChildrens.value) {
+    // if(appStore.sidebar.opened && !menuChildrens.value) {
+    //   menuChildrens.value = sidebarRouters.value.filter(i => !i.hidden)[0]
+    // }
+
+    menuChildrens.value = sidebarRouters.value.filter((item)=> !item.hidden && item.path == '/' + route.path.split('/')[1])[0]
+    if(!menuChildrens.value) {
       menuChildrens.value = sidebarRouters.value.filter(i => !i.hidden)[0]
     }
   },

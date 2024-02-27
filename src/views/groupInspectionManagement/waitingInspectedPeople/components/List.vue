@@ -22,6 +22,7 @@
           :props="{label:'teamName', value:'id' }"
           filterable
           :clearable="true"
+          placeholder="请选择体检单位"
           default-expand-all
           @change="handleChange"
         />
@@ -124,10 +125,11 @@ const initData = async () =>{
     await handleChange(queryParams.value.teamId) //查询任务名称
     // queryParams.value.taskId = teamTaskLists.value?.[0]?.id //默认任务
     queryParams.value.taskId = null
+    searchGroupList.value = []
     proTableRef.value.getTableList()
-    const { teamId, taskId } = queryParams.value
-    const {rows} = await teamGroupList({teamId,taskId}) //查询分组
-    searchGroupList.value = rows
+    // const { teamId, taskId } = queryParams.value
+    // const {rows} = await teamGroupList({teamId,taskId}) //查询分组
+    // searchGroupList.value = rows
   })
 }
 
@@ -146,13 +148,16 @@ const handleChange = async (val: any) =>{
   const { rows } = await teamTaskList({teamId:val }) //查询任务名称
   teamTaskLists.value = rows
   tableColumns.value = tableColumnsBasic(teamTaskLists, bus_physical_type, sys_user_sex)
-  queryParams.value.taskId = rows?.[0]?.id
-  handleTaskChange(queryParams.value.taskId)
-  queryParams.value.teamGroupId = ''
+  // queryParams.value.taskId = rows?.[0]?.id
+  queryParams.value.taskId = null
+  // handleTaskChange(queryParams.value.taskId)
+  queryParams.value.teamGroupId = null
+  searchGroupList.value = []
 }
 
 // 任务名称改变-查询分组
 const handleTaskChange = async (taskId: any) => {
+  queryParams.value.teamGroupId = null
   const { teamId } = queryParams.value
   const {rows} = await teamGroupList({teamId,taskId}) //查询分组
   searchGroupList.value = rows
@@ -218,6 +223,7 @@ const handleReset = ()=>{
   queryParams.value.healthyCheckCode = null
   queryParams.value.credentialNumber = null
   queryParams.value.physicalType = null
+  queryParams.value.name = null
   proTableRef.value?.clearSelection()
 }
 

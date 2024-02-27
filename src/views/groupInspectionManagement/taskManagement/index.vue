@@ -35,15 +35,16 @@
       <div class="rwtitle">
         <span>任务详情</span>
         <div>
-          <el-button class="button" type="primary" v-if="form.id && preview" @click="preview = false" round
-            plain>编辑任务</el-button>
-          <el-button class="button" type="" v-if="form.id && !preview" @click="preview = true" round
-            plain>取消编辑</el-button>
-          <el-button class="button" type="primary" @click="handleBCRW" round plain>保存任务</el-button>
+          <el-button class="button" type="primary" v-if="form.id && preview"
+            @click="preview = false; activeName = 'first'" round plain>编辑任务</el-button>
+          <el-button class="button" type="" v-if="form.id && !preview"
+            @click="preview = true; handleClickItem(form); activeName = 'first'" round plain>取消编辑</el-button>
+          <el-button class="button" type="primary" @click="handleBCRW" round plain
+            v-if="!preview && (activeName == 'first' || activeName == 'second')">保存任务</el-button>
           <el-button class="button" type="primary" v-if="form.id" @click="handleSCRW" round plain>删除任务</el-button>
           <el-button class="button" type="primary" @click="handleS1" v-if="activeName != 'first'" round
             plain>上一步</el-button>
-          <el-button class="button" type="primary" @click="handleX1" v-if="activeName != 'fourth'" round
+          <el-button class="button" type="primary" @click="handleX1(false)" v-if="activeName != 'fourth'" round
             plain>下一步</el-button>
         </div>
       </div>
@@ -53,7 +54,7 @@
         :rules="rules" :preview="preview">
       </SearchForm>
       <div><span>体检项目信息</span></div>
-      <el-tabs v-model="activeName" @tab-click="handleClick">
+      <el-tabs v-model="activeName" @tab-click="handleClick" :class="{ 'tabsClass': !preview }">
         <el-tab-pane label="分组管理" name="first">
           <Frist :form="form" :preview="preview" />
         </el-tab-pane>
@@ -73,7 +74,7 @@
 
 <script setup lang="tsx" name="taskManagement">
 import { debounce, cloneDeep } from 'lodash'
-import { teamTaskList, teamInfoList, peisTeamTask, peisTeamTaskUpdate, teamTaskDetail, updateGroupProjectInfo, teamTaskDel, teamTaskVerifyGroupData, teamTaskVerifyGroupPackageData } from '@/api/groupInspectionManagement/taskManagement'
+import { teamTaskList, teamInfoList, peisTeamTask, peisTeamTaskUpdate, teamTaskDetail, updateGroupProjectInfo, teamTaskDel, teamTaskVerifyGroupData, teamTaskVerifyGroupPackageData, getTaskItemGroupInfoInfo, teamGroupDel } from '@/api/groupInspectionManagement/taskManagement'
 import type { TabsPaneContext } from 'element-plus'
 import { RefreshRight } from '@element-plus/icons-vue'
 import Frist from '@/views/groupInspectionManagement/taskManagement/components/frist.vue'
@@ -117,7 +118,7 @@ const formColumn = ref<any[]>([
   {
     label: '团检单位',
     prop: 'teamId',
-    search: { el: 'tree-select' },
+    search: { el: 'tree-select', checkStrictly: true, },
     enum: teamIdList,
     fieldNames: { label: 'teamName', value: 'id' }
   },
@@ -149,6 +150,21 @@ const formColumn = ref<any[]>([
     search: { el: 'select' },
   },
   {
+    label: '联系人姓名',
+    prop: 'contactName',
+    search: { el: 'input' },
+  },
+  {
+    label: '体检人联系电话',
+    prop: 'contactPhone',
+    search: { el: 'input' },
+  },
+  {
+    label: '编制人',
+    prop: 'preparedName',
+    search: { el: 'input' },
+  },
+  {
     label: '销售负责人',
     prop: 'saleHead',
     search: { el: 'input' },
@@ -170,6 +186,17 @@ const formColumn = ref<any[]>([
   },
 ]);
 
+const validatePhone = (rule, value, callback) => {
+  var isMobilePhone = /^1\d{10}$/
+  var isFixMob = /^\d{3,4}-\d{7,8}$/
+  if (!value) {
+    callback()
+  } else if (isMobilePhone.test(value) || isFixMob.test(value)) {
+    callback()
+  } else {
+    callback(new Error('请输入正确电话号码'))
+  }
+}
 const rules = ref({
   taskName: [
     { required: true, message: '请输入任务名称', trigger: 'blur' },
@@ -188,6 +215,10 @@ const rules = ref({
   ],
   isReview: [
     { required: true, message: '请选择是否审核', trigger: 'change' },
+  ],
+  contactPhone: [
+    { required: false, message: '', trigger: 'blur' },
+    { validator: validatePhone, trigger: 'change' }
   ],
 })
 //获得单位
@@ -215,7 +246,7 @@ const basicInfoColumn = reactive<any[]>([
   {
     prop: 'teamId',
     label: '',
-    search: { el: 'tree-select' },
+    search: { el: 'tree-select', placeholder: '请选择单位', checkStrictly: true, },
     enum: teamIdList,
     fieldNames: { label: 'teamName', value: 'id' }
   },
@@ -231,8 +262,11 @@ const basicInfoColumn = reactive<any[]>([
     slot: 'gjc'
   },
 ])
+
 const handleClick = (tab: TabsPaneContext, event: Event) => {
-  console.log(tab, event)
+  if (tab.props.name == 'second') {
+    getSecondDetail()
+  }
 }
 //重置
 const handleCz = () => {
@@ -240,8 +274,10 @@ const handleCz = () => {
   queryParams.times = []
   queryParams.taskName = ''
 }
+
+//bloo判断是否需要跳到下一步,区分保存任务
 //下一步
-const handleX1 = async () => {
+const handleX1 = async (bloo) => {
   searchFormRef.value.validate(async (valid: any, fields: any) => {
     if (valid) {
       if (activeName.value == 'first') {
@@ -257,11 +293,13 @@ const handleX1 = async () => {
           await handleJY1()
           const { data } = await peisTeamTaskUpdate({ ...form.value, id: form.value.taskId })
           formSecond.value = data
-          activeName.value = 'second'
+          !bloo && (activeName.value = 'second')
+          bloo && (proxy?.$modal.msgSuccess("操作成功"))
         } else {
           const { data } = await peisTeamTask(form.value)
           formSecond.value = data
-          activeName.value = 'second'
+          !bloo && (activeName.value = 'second')
+          bloo && (proxy?.$modal.msgSuccess("操作成功"))
           form.value.taskId = data[0].taskId
         }
         formSecondClone.value = cloneDeep(formSecond.value)
@@ -274,8 +312,8 @@ const handleX1 = async () => {
         //调用校验接口
         await handleJY2()
         await updateGroupProjectInfo(formSecond.value)
-        activeName.value = 'third'
-
+        !bloo && (activeName.value = 'third')
+        bloo && (proxy?.$modal.msgSuccess("操作成功"))
         return
       }
       if (activeName.value == 'third') {
@@ -326,6 +364,10 @@ const handleS1 = () => {
     return
   }
   if (activeName.value == 'third') {
+    if (preview) {
+      getSecondDetail()
+      return
+    }
     activeName.value = 'second'
     return
   }
@@ -335,6 +377,7 @@ const handleS1 = () => {
 }
 //详情
 const handleClickItem = async (row: any) => {
+  searchFormRef.value.resetFields()
   activeName.value = 'first'
   activeKey.value = row.id
   const { data } = await teamTaskDetail(row)
@@ -351,13 +394,7 @@ const handleClickItem = async (row: any) => {
 }
 //保存任务
 const handleBCRW = async () => {
-  await searchFormRef.value.validate(async (valid, fields) => {
-    if (valid) {
-      await updateGroupProjectInfo(formSecond.value)
-      proxy?.$modal.msgSuccess("操作成功");
-      getTaskList()
-    }
-  })
+  handleX1(true)
 }
 //删除任务
 const handleSCRW = async () => {
@@ -369,7 +406,7 @@ const handleSCRW = async () => {
 }
 //新增任务
 const handleXZRW = async () => {
-  await proxy?.$modal.confirm('<span style="font-weight:bold">当前任务未保存，是否确认切换/新增任务？</span><br/> 切换/新增任务后，当前编辑内容将被清空')
+  (form.value.id && !preview.value) && await proxy?.$modal.confirm('<span style="font-weight:bold">当前任务未保存，是否确认切换/新增任务？</span><br/> 切换/新增任务后，当前编辑内容将被清空')
   handleGSH()
 }
 //数据格式化
@@ -378,6 +415,13 @@ const handleGSH = () => {
   form.value = formObj
   activeName.value = 'first'
   searchFormRef.value.resetFields()
+}
+//当为详情查看时点击操作上一步或者下一步触发的套餐详情接口
+const getSecondDetail = async () => {
+  const { data } = await getTaskItemGroupInfoInfo({ id: form.value.id, physicalType: form.value.physicalType })
+  formSecond.value = data
+  form.value.taskId = data[0].taskId
+  activeName.value = 'second'
 }
 </script>
 
@@ -410,7 +454,9 @@ const handleGSH = () => {
   padding: 0;
 }
 
-:deep(.el-tabs__item) {
-  pointer-events: none !important;
+.tabsClass {
+  :deep(.el-tabs__item) {
+    pointer-events: none !important;
+  }
 }
 </style>
