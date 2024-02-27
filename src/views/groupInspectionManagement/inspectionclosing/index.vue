@@ -6,7 +6,7 @@
         <el-row :gutter="20">
           <el-col :span="6">
             <el-form-item label="单位名称" prop="teamId">
-              <el-tree-select v-model="ruleForm.teamId" :data="options" filterable clearable :loading="loading"
+              <el-tree-select v-model="ruleForm.teamId" :data="options" filterable :loading="loading"
                 placeholder="请搜索单位名称" :filter-method="remoteMethod"
                 :props="{ value: 'value', label: 'label', children: 'children' }" value-key="id" check-strictly
                 @change="teamIdChange" />
@@ -14,7 +14,7 @@
           </el-col>
           <el-col :span="6">
             <el-form-item label="任务名称" prop="teamTaskId">
-              <el-select v-model="ruleForm.teamTaskId" placeholder="请选择任务名称" filterable clearable v-loading="taskLoading">
+              <el-select v-model="ruleForm.teamTaskId" placeholder="请选择任务名称" filterable v-loading="taskLoading">
                 <el-option v-for="item in taskoptions" :key="item.value" :label="item.label" :value="item.value" />
               </el-select>
             </el-form-item>
@@ -58,8 +58,8 @@
           </el-row>
         </div>
       </div>
-      <ProTable ref="proTableTask" :columns="columnsTask" :request-api="getTableListTask" :data-callback="dataCallback"
-        :height="200" :requestAuto="false" :toolButton="false">
+      <ProTable ref="proTableTask" :columns="columnsTask" :data="tableListTask" :request-api="getTableListTask"
+        :pagination="tableListTask.length > 0" :height="200" :requestAuto="false" :toolButton="false">
         <!-- Expand -->
         <!-- 表格操作 -->
         <template #operation="scope">
@@ -70,13 +70,14 @@
       <div class="title">
         <div style="width: 200px;">结账信息</div>
       </div>
-      <ProTable ref="proTableAccounts" :columns="columnsAccounts" :request-api="getTableListAccounts"
-        :data-callback="dataCallbackAccounts" :height="200" :requestAuto="false" :toolButton="false">
+      <ProTable ref="proTableAccounts" :columns="columnsAccounts" :data="tableListAccountsData"
+        :request-api="getTableListAccounts" :pagination="tableListAccountsData.length > 0" :height="200"
+        :requestAuto="false" :toolButton="false">
         <!-- 表格操作 -->
         <template #tableHeader="scope">
           <div class="payment">
             <div class="payment_btn">
-              <el-button type="primary" @click="Add(ruleFormRef)" round>新增结账</el-button>
+              <el-button type="primary" :disabled="isButtonEnable" @click="Add(ruleFormRef)" round>新增结账</el-button>
               <el-button type="primary" :disabled="!scope.isSelected" @click="handelInvoice(scope.selectedListIds)"
                 round>开票</el-button>
               <el-button type="primary" :disabled="!scope.isSelected" @click="ticketInvalid(scope.selectedListIds)"
@@ -222,6 +223,17 @@ const taskoptions = ref([])  //任务下拉列表,联动单位名称
 const taskGroupStatistics = ref({})   //任务信息总计数据
 const teamSettleStatistics = ref({})   //体检单位结账金额统计
 
+
+//计算属性,看按钮是否能用
+const isButtonEnable = computed(() => {
+  if (ruleForm.teamId && ruleForm.teamTaskId) {
+    return false
+  } else {
+    return true
+  }
+
+})
+
 /** 查询单位名称下拉树结构 */
 const getTreeselect = async (data) => {
   options.value = []
@@ -280,6 +292,12 @@ const searchForm = async (formEl: any) => {
 const resetForm = (formEl: any) => {
   if (!formEl) return
   formEl.resetFields()
+  //将两个表格数据清空
+  proTableAccounts.value?.clearSelection()
+  tableListTask.value = []
+  taskGroupStatistics.value = {}
+  tableListAccountsData.value = []
+  teamSettleStatistics.value = {}
 }
 
 
@@ -330,31 +348,31 @@ const columnsTask = reactive([
   },
 
 ]);
-const dataCallback = (data: any) => {
-  return {
-    list: data,
-    total: data.total,
-    pageNum: data.pageNum,
-    pageSize: data.pageSize
-  };
-};
+// 任务信息列表数据
+let tableListTask = ref([])
+
 //获取任务信息列表
 const getTableListTask = async (params: any) => {
   let newParams = { ...params }
   ruleForm.teamId && (newParams.teamId = ruleForm.teamId);
   ruleForm.teamTaskId && (newParams.teamTaskId = ruleForm.teamTaskId);
-  return teamSettleTaskGroupList(newParams)
+  // return teamSettleTaskGroupList(newParams)
+  const { total, rows } = await teamSettleTaskGroupList(newParams)
+  tableListTask.value = rows
+  await nextTick()
+  proTableTask.value?.updatePageable({ total });
 };
+
 
 
 
 
 //结账信息ProTable 实例
 const proTableAccounts = ref();
-// 表格配置项
-const accountsInfo = ref({})
+//结账信息列表数据
+const tableListAccountsData = ref([])
 
-const columnsAccounts = reactive([
+const columnsAccounts = reactive<any>([
   { type: "selection", fixed: "left", width: 70 },
   {
     prop: "chargeNumber",
@@ -421,21 +439,16 @@ const columnsAccounts = reactive([
   },
 
 ]);
-const dataCallbackAccounts = (data: any) => {
-  accountsInfo.value = data
-  return {
-    list: data,
-    total: data.total,
-    pageNum: data.pageNum,
-    pageSize: data.pageSize
-  };
-};
+
 //获取结账信息列表
 const getTableListAccounts = async (params: any) => {
   let newParams = { ...params }
   ruleForm.teamId && (newParams.teamId = ruleForm.teamId);
   ruleForm.teamTaskId && (newParams.teamTaskId = ruleForm.teamTaskId);
-  return teamSettleList(newParams)
+  const { total, rows } = await teamSettleList(newParams)
+  tableListAccountsData.value = rows
+  await nextTick()
+  proTableAccounts.value?.updatePageable({ total });
 };
 
 // 新增抽屉
