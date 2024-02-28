@@ -369,7 +369,6 @@ export function filterEnum(callValue: any, enumData?: any, fieldNames?: FieldNam
   // 判断 enumData 是否为数组
   if (Array.isArray(enumData)) filterData = findItemNested(enumData, callValue, value, children);
   // 判断是否输出的结果为 tag 类型
-  const ccc = 'bg-[#FFF3E0] text-[#38D497] px-[8px] py-[4px] rounded-[2px]';
   if (type == 'tag') {
     return filterData?.tagType ? filterData.tagType : '';
   } else {
@@ -377,7 +376,7 @@ export function filterEnum(callValue: any, enumData?: any, fieldNames?: FieldNam
     return (
       <span>
         {filterData ? (
-          <span>{filterData['cssClass'] ? <span class={filterData['cssClass']}>{filterData[label]}</span> : filterData[label]}</span>
+          <span>{filterData['cssClass'] ? <span style={filterData['cssClass']}>{filterData[label]}</span> : filterData[label]}</span>
         ) : (
           <>--</>
         )}
