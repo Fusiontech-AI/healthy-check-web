@@ -369,10 +369,20 @@ export function filterEnum(callValue: any, enumData?: any, fieldNames?: FieldNam
   // 判断 enumData 是否为数组
   if (Array.isArray(enumData)) filterData = findItemNested(enumData, callValue, value, children);
   // 判断是否输出的结果为 tag 类型
+  const ccc = 'bg-[#FFF3E0] text-[#38D497] px-[8px] py-[4px] rounded-[2px]';
   if (type == 'tag') {
     return filterData?.tagType ? filterData.tagType : '';
   } else {
-    return filterData ? filterData[label] : '--';
+    // return filterData ? filterData[label] : '--';
+    return (
+      <span>
+        {filterData ? (
+          <span>{filterData['cssClass'] ? <span class={filterData['cssClass']}>{filterData[label]}</span> : filterData[label]}</span>
+        ) : (
+          <>--</>
+        )}
+      </span>
+    );
   }
 }
 
@@ -389,7 +399,7 @@ export function findItemNested(enumData: any, callValue: any, value: string, chi
 
 //减法函数
 export function accSub(arg1, arg2) {
-  var r1, r2, m, n;
+  let r1, r2, m, n;
   try {
     r1 = arg1.toString().split('.')[1].length;
   } catch (e) {
@@ -424,17 +434,17 @@ export function getCurrentAgeByBirthDate(birthday) {
   //根据日期算年龄
   birthday = birthday.split('-');
   // 新建日期对象
-  let date = new Date();
+  const date = new Date();
   // 今天日期，数组，同 birthday
-  let today = [date.getFullYear(), date.getMonth() + 1, date.getDate()];
+  const today = [date.getFullYear(), date.getMonth() + 1, date.getDate()];
   // 分别计算年月日差值
-  let age = today.map((val, index) => {
+  const age = today.map((val, index) => {
     return val - birthday[index];
   });
   // 当天数为负数时，月减 1，天数加上月总天数
   if (age[2] < 0) {
     // 简单获取上个月总天数的方法，不会错
-    let lastMonth = new Date(today[0], today[1], 0);
+    const lastMonth = new Date(today[0], today[1], 0);
     age[1]--;
     age[2] += lastMonth.getDate();
   }
