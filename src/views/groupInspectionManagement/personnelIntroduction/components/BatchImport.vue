@@ -1,5 +1,5 @@
 <template>
-  <div class="h-[610px]">
+  <div>
     <div class="h-full flex flex-col justify-between">
       <div class="px-8">
         <el-steps :active="steps" process-status="wait">
@@ -8,6 +8,8 @@
           <el-step title="执行导入" description="数据导入至服务器" />
           <el-step title="导入成功" description="完成数据批量导入" />
         </el-steps>
+      </div>
+      <el-scrollbar height="calc(100vh - 290px)" class="p-10px">
         <div v-if="steps == 1">
           <div class="mt-4" v-if="errorList.length==0">
             <div class="box mb-4">
@@ -84,7 +86,13 @@
         </div>
 
         <div class="mt-4 no-card" v-if="steps == 2">
-          <ProTable :columns="importColumns" :toolButton="false" :data="successList" :pagination="false" height="450"></ProTable>
+          <ProTable :columns="importColumns" :toolButton="false" :data="successList" :pagination="false" height="450">
+            <template #teamGroupId="{row}">
+              <el-select v-model="row.teamGroupId" placeholder="请选择">
+                <el-option v-for="item in groupList" :key="item.id" :label="item.groupName" :value="item.id"></el-option>
+              </el-select>
+            </template>
+          </ProTable>
         </div>
         <div class="mt-[130px] flex flex-col justify-center items-center" v-if="steps == 3">
           <img src="/src/assets/icons/svg/file.svg" width="50" />
@@ -96,7 +104,7 @@
           <div class="w-full text-center text-[18px] text-[#141C28] font-medium">数据导入完成</div>
           <div class="mt-1 w-full text-center text-[#89919F]">成功导入人员数量{{successList.length}}条</div>
         </div>
-      </div>
+      </el-scrollbar>
       <div class="flex justify-end">
         <template v-if="steps < 3">
           <el-button round @click="handleCancelReupload(1)" v-if="steps == 1 && errorList.length == 0 ">取消</el-button>
@@ -118,6 +126,7 @@ import { globalHeaders } from "@/utils/request";
 import { insertRegisterData } from '@/api/groupInspection/taskAudit';
 import { genFileId } from 'element-plus'
 import type { UploadInstance, UploadProps, UploadRawFile } from 'element-plus'
+import { teamGroupList } from '@/api/leadershipCockpit/overviewMedicalExaminers';
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 const props = defineProps<{
   isShowDialog: boolean,
@@ -130,9 +139,18 @@ const uploadRef = ref()
 const successList = ref<any>([]) // 上传成功的数据
 const errorList = ref<any>([]) // 上传失败的数据
 const percentage = ref<any>(0) // 保存导入文件时的进度条
+const groupList = ref<any>([]) // 任务分组下拉数据
+
+watch(()=>props.teamTaskInfo.id, async(newV)=> {
+  const {rows} = await teamGroupList({taskId: props.teamTaskInfo.id, pagesize: -1, filterProject: 0}) // 根据任务带出分组列表
+  console.log(rows, 'rowsrows');
+  groupList.value = rows
+}, {immediate: true})
+
 // 点击下一步
 const handleNextStep = async() => {
   steps.value++
+  emits('get-steps', steps.value)
    if(steps.value === 3) {
     try {
       percentage.value = 50
@@ -143,9 +161,7 @@ const handleNextStep = async() => {
         registerList: successList.value
       }
     await insertRegisterData(params)
-    } catch (error) {
-
-    }
+    } catch (error) {}
    }
 }
 /*** 用户导入参数 */
@@ -169,10 +185,12 @@ const handleFileRemove = () => {
   successList.value = []
   errorList.value = []
 }
+
 /**文件上传中处理 */
 const handleFileUploadProgress = () => {
   upload.isUploading = true;
 }
+
 /** 文件上传成功处理 */
 const handleFileSuccess = ({data}: any, file: UploadFile) => {
   if(file.response.code !== 200) {
@@ -192,14 +210,13 @@ const importTemplate = (templateType: any) => {
   }, `人员导入模版.xlsx`);
 }
 
-const emits = defineEmits(['close-dialog'])
-const handleClose = () => {
-  emits('close-dialog')
-}
+const emits = defineEmits(['close-dialog', 'get-steps'])
+
 const handleCancelReupload = (type:any) => {
   // type == 1 取消；type == 2 重新上传
   if(type == 1) {
     emits('close-dialog')
+    steps.value == 4 && ElMessage.success('导入成功！')
   }else {
     uploadRef.value?.clearFiles()
     steps.value = 1
@@ -211,6 +228,7 @@ watch(() => props.isShowDialog, (newVal) => {
   // 打开弹框时
   if (newVal) {
     steps.value = 1
+    emits('get-steps', steps.value)
     upload.uploadParams = {
       templateType: props.teamTaskInfo.physicalType,
       taskId: props.teamTaskInfo.id,

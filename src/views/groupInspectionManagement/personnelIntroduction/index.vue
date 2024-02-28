@@ -41,14 +41,13 @@
                   v-for="item in teamTaskList"
                   :key="item"
                   class="card_item"
-                  :class="isActiveId == item.id ? 'active' : ''"
+                  :class="{'active': isActiveId == item.id}"
                   @click="clickTeamTask(item)"
                 >
                   <div class="flex justify-between items-center">
                     <span class="tetx-[#141C28]">{{ item.taskName }}</span>
                     <div class="flex">
-                      <!-- <span class="ml-auto px-[3px] rounded-[2px] font-bold text-[#fff] bg-[#2175FF]">放</span> -->
-                      <span class="ml-1 px-[3px] rounded-[2px] font-bold text-[#fff] bg-[#FFA81C]">{{
+                      <span class="ml-1 px-[3px] rounded-[2px] font-bold text-white" :class="item.physicalType">{{
                         bus_physical_type?.find((val: any) => val.dictValue == item.physicalType)?.label?.substring(0,1)
                       }}</span>
                     </div>
@@ -70,52 +69,62 @@
         </div>
       </el-col>
       <el-col :span="19">
-        <el-card class="content">
-          <div class="flex justify-end">
+        <div class="content">
+          <div class="flex justify-end p-10px">
             <el-button round type="primary" plain @click="importTemplate">下载模板</el-button>
-            <el-button round type="primary" plain @click="batchExport">批量导出</el-button>
+            <!-- :disabled="proTableRef.pageable.total == 0" -->
+            <el-button round type="primary" plain @click="batchExport" :disabled="proTableRef?.pageable.total == 0">批量导出</el-button>
             <el-button round type="primary" plain @click="batchImportDialog = true">批量导入</el-button>
             <el-button round type="primary" style="padding: 5px 40px; " @click="handleAdd()">新增</el-button>
           </div>
-          <div class="no-card">
-            <div class="my-2 ">
-              <div class="font-bold card_title"><span></span>基本信息</div>
-            </div>
-            <SearchForm ref="formRef" :columns="formColumns" :search-param="activeTeamTaskInfo" :search-col="3" :disabled="true"></SearchForm>
-          </div>
-          <div class="divider"></div>
-          <div>
-            <div class="my-2">
-              <div class="font-bold card_title"><span></span>人员信息</div>
-            </div>
-            <div class="my-2"><span class="text-red">*</span> 请根据当前任务所选体检类型，下载对应模板后再上传</div>
+          <el-scrollbar height="calc(100vh - 178px)" class="p-10px">
             <div class="no-card">
-              <ProTable
-                ref="proTableRef"
-                :columns="tableColumns"
-                :toolButton="false"
-                :request-api="queryTaskRegisterExportById"
-                :init-param="initParam"
-                :request-auto="false"
-              >
-                <template #operation="{row}">
-                  <el-button type="primary" link @click="viewPersonDetail(row)">查看</el-button>
-                  <el-button type="danger" link @click="handleDel(row)">删除</el-button>
-                </template>
-              </ProTable>
+              <div class="my-2 ">
+                <div class="font-bold card_title"><span></span>基本信息</div>
+              </div>
+              <SearchForm ref="formRef" :columns="formColumns" :search-param="activeTeamTaskInfo" :search-col="3" :disabled="true"></SearchForm>
             </div>
-          </div>
-        </el-card>
+            <div class="divider"></div>
+            <div>
+              <div class="my-2">
+                <div class="font-bold card_title"><span></span>人员信息</div>
+              </div>
+              <div class="my-2"><span class="text-red">*</span> 请根据当前任务所选体检类型，下载对应模板后再上传</div>
+              <div class="no-card">
+                <ProTable
+                  ref="proTableRef"
+                  :columns="tableColumns"
+                  :toolButton="false"
+                  :request-api="queryTaskRegisterExportById"
+                  :init-param="initParam"
+                  :request-auto="false"
+                >
+                  <template #operation="{row}">
+                    <el-button type="primary" link @click="viewPersonDetail(row)">查看</el-button>
+                    <el-button type="danger" link @click="handleDel(row)">删除</el-button>
+                  </template>
+                </ProTable>
+              </div>
+            </div>
+          </el-scrollbar>
+        </div>
       </el-col>
     </el-row>
     <el-drawer v-model="addDrawer" title="新增团检人员" size="60%">
       <add-drawer @closeDialog="addDrawer = false" :teamIdList="teamIdList"></add-drawer>
     </el-drawer>
-    <el-dialog title="批量导入" v-model="batchImportDialog" width="55%">
+    <el-dialog
+      title="批量导入"
+      v-model="batchImportDialog"
+      width="55%"
+      :show-close="!(importSteps=='3'||importSteps=='4')"
+      :close-on-click-modal="!(importSteps=='3'||importSteps=='4')"
+    >
       <batch-import
         :is-show-dialog="batchImportDialog"
         :team-task-info="activeTeamTaskInfo"
         @close-dialog="batchImportDialog = false; proTableRef?.getTableList()"
+        @get-steps="(val)=>importSteps = val"
       ></batch-import>
     </el-dialog>
     <el-dialog title="人员信息详情" v-model="showPersonDialog" width="45%">
@@ -149,6 +158,7 @@ import { RefreshRight } from '@element-plus/icons-vue';
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 const {bus_physical_type} = toRefs<any>(proxy?.useDict('bus_physical_type'))
 const proTableRef = ref()
+const importSteps = ref('1')    
 const formColumns = ref<any>(formInfoColumns)
 const tableColumns = ref<any>(tableColumn)
 const personColumns = ref<any>(personColumn)
@@ -194,7 +204,9 @@ const handleDel = async(row:any) => {
 }
 /** 批量导出 */
 const batchExport = () => {
-  
+  proxy?.download('/peis/teamTask/export', {
+    taskId: isActiveId.value
+  }, `${new Date().getTime()}.xlsx`)
 }
 /** 下载模板操作 */
 const importTemplate = () => {
@@ -296,12 +308,33 @@ getteamIdList()
     .el-checkbox.el-checkbox--large {
       height: auto;
     }
+    .JKTJ {
+      background: #5AD8A6;
+    }
+    .ZYJKTJ {
+      background: #FFA81C;
+    }
+    .FSTJ {
+      background: #2175FF;
+    }
+    .LNRTJ {
+      background: #3F77F7;
+    }
+    .RZTJ {
+      background: #F96E6E;
+    }
+    .XSTJ {
+      background: #29D9F0;
+    }
   }
 }
 
 .content {
-  height: calc(100vh - 105px);
-  overflow: auto;
+  // height: calc(100vh - 105px);
+  // overflow: auto;
+  font-size: 14px;
+  background: #fff;
+  border-left: 1px solid #E8E8E8;
 }
 
 .card_title {

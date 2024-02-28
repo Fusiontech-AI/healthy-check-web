@@ -80,7 +80,7 @@
     </el-table>
     <!-- 分页组件 -->
     <slot name="pagination">
-      <TablePagination v-if="pagination" :pageable="pageable" :handle-size-change="handleSizeChange"
+      <TablePagination v-if="pagination && pageable.total !== 0" :pageable="pageable" :handle-size-change="handleSizeChange"
         :handle-current-change="handleCurrentChange" />
     </slot>
   </div>

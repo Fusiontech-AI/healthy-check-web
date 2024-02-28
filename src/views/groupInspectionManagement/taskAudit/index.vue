@@ -32,7 +32,7 @@
               >
             </div>
           </div>
-          <el-scrollbar class="left_list" height="calc(100vh - 294px)">
+          <el-scrollbar class="left_list" height="calc(100vh - 295px)">
             <div v-loading="teamTaskLoading">
               <template v-if="teamTaskList && teamTaskList.length !== 0">
                 <el-card
@@ -46,7 +46,7 @@
                   <div class="flex items-center">
                     <el-checkbox v-model="item.checked" size="large" @click.stop />
                     <span class="ml-2 text-[#141C28] font-normal">{{ item?.signDate }}</span>
-                    <span class="ml-auto px-[3px] rounded-[2px] font-bold text-[#fff] bg-[#FFA81C]">{{
+                    <span class="ml-auto px-[3px] rounded-[2px] font-bold text-[#fff]" :class="item.physicalType">{{
                       bus_physical_type?.find((val: any) => val.dictValue == item.physicalType)?.label?.substring(0,
                         1)
                     }}</span>
@@ -65,13 +65,13 @@
         </div>
       </el-col>
       <el-col :span="19">
-        <el-scrollbar height="calc(100vh - 105px)">
-          <div class="content" v-loading="rightLoading">
-            <div class="flex justify-end">
-              <el-button round>委托协议预览</el-button>
-              <el-button round :disabled="isReview == '0'" type="primary" @click="showDrawer = true">任务审核</el-button>
-            </div>
-            <div class="divider"></div>
+        <div class="content" v-loading="rightLoading">
+          <div class="flex justify-end pt-10px pr-10px">
+            <el-button round>委托协议预览</el-button>
+            <el-button round :disabled="basicInfoData.isReview == '0'" type="primary" @click="showDrawer = true">任务审核</el-button>
+          </div>
+          <div class="divider"></div>
+          <el-scrollbar height="calc(100vh - 185px)" class="p-10px">
             <div>
               <div class="my-2 flex justify-between items-center">
                 <div class="card_title"><span></span>任务基础信息</div>
@@ -116,6 +116,7 @@
               <el-collapse-transition>
                 <div v-show="taskGroupShow" class="no-card">
                   <ProTable
+                    ref="taskTableRef"
                     :columns="taskGroupingColumns"
                     :toolButton="false"
                     :request-api="queryTaskReviewGroup"
@@ -138,6 +139,7 @@
               <el-collapse-transition>
                 <div v-show="personListShow" class="no-card">
                   <ProTable
+                    ref="personTableRef"
                     :columns="personnelListColumns"
                     :toolButton="false"
                     :request-api="queryTaskReviewRegister"
@@ -151,8 +153,8 @@
                 </div>
               </el-collapse-transition>
             </div>
-          </div>
-        </el-scrollbar>
+          </el-scrollbar>
+        </div>
       </el-col>
     </el-row>
     <el-drawer v-model="showDrawer" title="任务审核" size="50%" @handleClose="auditValue = '1'">
@@ -198,7 +200,8 @@ import { getTeamTaskList, getRegisterById, queryTaskReviewGroup, queryTaskReview
 import dayjs from "dayjs";
 const { proxy } = getCurrentInstance() as ComponentInternalInstance
 const { bus_physical_type } = toRefs<any>(proxy?.useDict('bus_physical_type'))
-
+const taskTableRef = ref()
+const personTableRef = ref()
 const showDrawer = ref(false) // 审核任务抽屉
 const basicTaskInforShow = ref(true) // 基础任务信息折叠展示
 const taskGroupShow = ref(true) // 任务分组折叠展示
@@ -393,6 +396,24 @@ const updateTabs = (val: string) => {
     .el-checkbox.el-checkbox--large {
       height: auto;
     }
+    .JKTJ {
+      background: #5AD8A6;
+    }
+    .ZYJKTJ {
+      background: #FFA81C;
+    }
+    .FSTJ {
+      background: #2175FF;
+    }
+    .LNRTJ {
+      background: #3F77F7;
+    }
+    .RZTJ {
+      background: #F96E6E;
+    }
+    .XSTJ {
+      background: #29D9F0;
+    }
   }
 }
 
@@ -401,7 +422,7 @@ const updateTabs = (val: string) => {
   // overflow: auto;
   font-size: 14px;
   background: #fff;
-  padding: 10px;
+  // padding: 10px;
   border-left: 1px solid #E8E8E8;
 
   .card_title {
