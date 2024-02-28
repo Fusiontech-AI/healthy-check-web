@@ -38,7 +38,7 @@ watch(()=> formValue.value.teamId, (newVal)=> {
     if(newVal) {
       // 任务下拉
       if(item.prop == 'taskId') {
-        const {rows:taskList} = await getTeamTaskList({teamId: newVal, pagesize: -1, reviewResult: 1}) // 根据单位带出任务列表
+        const {rows:taskList} = await getTeamTaskList({teamId: newVal, pagesize: -1, isAccord: 0}) // 根据单位带出任务列表
         item.enum = taskList
       }
     }else {
