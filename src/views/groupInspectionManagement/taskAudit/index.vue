@@ -232,14 +232,14 @@ const disabledBatchAudit = computed(()=> {
 })
 
 const handleBatchAudit = (type:any) => {
-  // type == '1' 待审核==>审核操作 type == '0' 已审核==>退回操作
+  // type == '0' 待审核==>审核操作 type == '1' 已审核==>退回操作
   const ids = teamTaskList.value.filter((item: any) => item.checked).map((item: any) => item.id)
   auditValue.value = '1'
   ElMessageBox(
     {
-      title: type == '1'?`是否确定审核所选的${ids.length}条数据？`: '确认提示',
+      title: type == '0'?`是否确定审核所选的${ids.length}条数据？`: '确认提示',
       message: () => {
-        return type == '1' ?
+        return type == '0' ?
         <>
           <div>审核结论：<el-radio-group v-model={auditValue.value} class="ml-4">
             <el-radio label="1" size="large">通过</el-radio>
@@ -254,7 +254,7 @@ const handleBatchAudit = (type:any) => {
     }
   )
     .then(async () => {
-      if(type == '1') {
+      if(type == '0') {
         await reviewTask({ idList: ids, reviewResult: auditValue.value })
       }else {
         await returnTask(ids)
@@ -262,7 +262,7 @@ const handleBatchAudit = (type:any) => {
       getTeamTaskData()
       ElMessage({
         type: 'success',
-        message: type == '1'?'审核成功':'操作成功',
+        message: type == '0'?'审核成功':'操作成功',
       })
     })
     .catch(() => {
