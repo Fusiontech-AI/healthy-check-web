@@ -121,10 +121,10 @@ export const personnelListColumn: any = [
     ]
   },
   { prop: 'healthyCheckStatus', label: '体检状态', enum: bus_healthy_check_status, fieldNames: { label: 'dictLabel', value: 'dictValue' } },
-  { prop: '1', label: '部门' },
-  { prop: '1', label: '开票部门' },
-  { prop: '1', label: '其他' },
-  { prop: '1', label: '职务' },
+  { prop: 'deptName', label: '部门' },
+  // { prop: '1', label: '开票部门'},
+  // { prop: '1', label: '其他' },
+  // { prop: '1', label: '职务' },
   { prop: 'businessCategory', label: '体检类别', enum: bus_category, fieldNames: { label: 'dictLabel', value: 'dictValue' } },
   { prop: '1', label: '人员类别' },
   { prop: 'operation', label: '操作', width: 80, fixed: 'right' }

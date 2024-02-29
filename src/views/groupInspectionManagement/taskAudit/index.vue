@@ -16,19 +16,19 @@
             />
             <el-input class="mt-2" placeholder="请输入任务名称" v-model="taskName" @input="updateInput"></el-input>
             <div class="tabs">
-              <span :class="isReview == '1' ? 'active' : ''" @click="updateTabs('1')">待审批</span>
-              <span :class="isReview == '0' ? 'active' : ''" @click="updateTabs('0')">已审批</span>
+              <span :class="pendingReview == '0' ? 'active' : ''" @click="updateTabs('0')">待审批</span>
+              <span :class="pendingReview == '1' ? 'active' : ''" @click="updateTabs('1')">已审批</span>
             </div>
             <div class="divider"></div>
             <div class="flex justify-between items-center">
               <el-checkbox v-model="allChecked" size="large" @change="handleCheckAllChange">全选</el-checkbox>
               <el-button
-                :type="isReview == '1'?'primary':'danger'"
+                :type="pendingReview == '0'?'primary':'danger'"
                 round
                 size="small"
                 :disabled="disabledBatchAudit"
-                @click="handleBatchAudit(isReview)"
-                >{{isReview == '1'?'批量审核':'批量退回'}}</el-button
+                @click="handleBatchAudit(pendingReview)"
+                >{{pendingReview == '0'?'批量审核':'批量退回'}}</el-button
               >
             </div>
           </div>
@@ -68,7 +68,7 @@
         <div class="content" v-loading="rightLoading">
           <div class="flex justify-end pt-10px pr-10px">
             <el-button round>委托协议预览</el-button>
-            <el-button round :disabled="basicInfoData.isReview == '0'" type="primary" @click="showDrawer = true">任务审核</el-button>
+            <el-button round :disabled="basicInfoData.reviewResult !== '0'" type="primary" @click="showDrawer = true">任务审核</el-button>
           </div>
           <div class="divider"></div>
           <el-scrollbar height="calc(100vh - 185px)" class="p-10px">
@@ -232,14 +232,14 @@ const disabledBatchAudit = computed(()=> {
 })
 
 const handleBatchAudit = (type:any) => {
-  // type == '1' 待审核==>审核操作 type == '0' 已审核==>退回操作
+  // type == '0' 待审核==>审核操作 type == '1' 已审核==>退回操作
   const ids = teamTaskList.value.filter((item: any) => item.checked).map((item: any) => item.id)
   auditValue.value = '1'
   ElMessageBox(
     {
-      title: type == '1'?`是否确定审核所选的${ids.length}条数据？`: '确认提示',
+      title: type == '0'?`是否确定审核所选的${ids.length}条数据？`: '确认提示',
       message: () => {
-        return type == '1' ?
+        return type == '0' ?
         <>
           <div>审核结论：<el-radio-group v-model={auditValue.value} class="ml-4">
             <el-radio label="1" size="large">通过</el-radio>
@@ -254,7 +254,7 @@ const handleBatchAudit = (type:any) => {
     }
   )
     .then(async () => {
-      if(type == '1') {
+      if(type == '0') {
         await reviewTask({ idList: ids, reviewResult: auditValue.value })
       }else {
         await returnTask(ids)
@@ -262,7 +262,7 @@ const handleBatchAudit = (type:any) => {
       getTeamTaskData()
       ElMessage({
         type: 'success',
-        message: type == '1'?'审核成功':'操作成功',
+        message: type == '0'?'审核成功':'操作成功',
       })
     })
     .catch(() => {
@@ -286,7 +286,7 @@ const viewGrounDetail = (row: any) => {
 const dateValue = ref<any>([dayjs(new Date()).format("YYYY-MM-DD"), dayjs(new Date()).format("YYYY-MM-DD")]) //时间
 // const dateValue = ref<any>([]) //时间
 const taskName = ref() // 任务名称
-const isReview = ref('1') // 是否审核
+const pendingReview = ref('0') // 是否审核
 const teamTaskList = ref<any>([])
 const teamTaskLoading = ref(false)
 const isActiveId = ref<any>()
@@ -311,7 +311,8 @@ const getTeamTaskData = async () => {
       taskName: taskName.value,
       signBeginDate: dateValue.value?.[0],
       signEndDate: dateValue.value?.[1],
-      isReview: isReview.value
+      pendingReview: pendingReview.value,
+      isReview: '0'
     })
     teamTaskList.value = rows
     teamTaskList.value.forEach((item: any) => { item.checked = false })
@@ -328,7 +329,7 @@ getTeamTaskData()
 const updateInput = _.debounce(getTeamTaskData, 200) // 防抖
 // 切换审核状态
 const updateTabs = (val: string) => {
-  isReview.value = val
+  pendingReview.value = val
   getTeamTaskData()
 }
 </script>
