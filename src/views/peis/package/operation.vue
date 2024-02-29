@@ -15,7 +15,7 @@
         套餐项目
       </div>
       <TransferFilterComplex ref="TransferFilterComplexRef" :tableHeader="tableHeader" @itemChange="itemChange"
-        :disabled="!!look" :formValue="formValue" :tableColumns="tableColumns">
+        :disabled="!!look" :formValue="formValue" :tableColumns="tableColumns" :leftHegiht="450" :rightHeight="385">
         <template #TcWh>
           <div class="mt10px">套餐金额 {{ formValue.standardAmount }}元
             <span class="ml10px">整体折扣：</span>

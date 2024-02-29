@@ -1,5 +1,5 @@
 <template>
-  <el-drawer v-model="drawerVisible" :title="title" direction="rtl" size="70%">
+  <el-drawer v-model="drawerVisible" :title="title" direction="rtl" size="70%" :append-to-body="true">
     <div class="flex justify-between mb10px">
       <div class="flex">
         <span class="mt3px">实际金额 ：{{ formValue.standardAmount }}</span>
@@ -21,16 +21,17 @@
       </div>
     </div>
     <TransferFilterComplex @itemChange="itemChange" :disabled="false" :formValue="formValue" :tableHeader="tableHeader"
-      ref="TransferFilterComplexRef" :isRw="true" :tableColumns="isTuanJian ? tableColumnsTj : tableColumnsGj">
+      ref="TransferFilterComplexRef" :isRw="true" :tableColumns="isTuanJian ? tableColumnsTj : tableColumnsGj"
+      :title="title" :leftHegiht="301" :rightHeight="640" @handleHY="handleHY">
       <template #yiShanChu>
         <el-card shadow="hover" class="mt10px">
-          <div class="mb6px">已删除项目（共13项）</div>
-          <el-table :data="tableData" style="width: 100%" height="280">
-            <el-table-column prop="date" label="项目编码" />
-            <el-table-column prop="date" label="项目名称" />
-            <el-table-column prop="date" label="原金额" />
-            <el-table-column prop="date" label="折扣" />
-            <el-table-column prop="date" label="实际金额" />
+          <div class="mb6px">已删除项目（共{{ tableData.length }}项）</div>
+          <el-table :data="tableData" style="width: 100%" height="304">
+            <el-table-column prop="combinationProjectId" label="项目编码" />
+            <el-table-column prop="combinProjectName" label="项目名称" />
+            <el-table-column prop="standardAmount" label="原金额" />
+            <el-table-column prop="discount" label="折扣" />
+            <el-table-column prop="receivableAmount" label="实际金额" />
           </el-table>
         </el-card>
       </template>
@@ -71,7 +72,9 @@ const formValue = reactive({
   standardAmount: 0,
   discount: 0,
   receivableAmount: 0,
-  defaultItemList: []
+  defaultItemList: [],
+  packageId: '',
+  packageName: ""
 })
 const props = defineProps({
   // title
@@ -87,6 +90,10 @@ const props = defineProps({
     type: Boolean,
     default: () => false,
   },
+  detailInfoClone: {//表示回显的项目
+    type: Object,
+    default: () => { },
+  },
 })
 
 const dialogVisible = ref(false)
@@ -96,6 +103,7 @@ const tableColumnsTj =
     {
       prop: 'tcFlag',
       label: '项目类型',
+      minWidth: 90,
       enum: [
         {
           label: '套餐',
@@ -110,17 +118,19 @@ const tableColumnsTj =
     {
       prop: 'combinProjectName',
       label: '项目名称',
+      minWidth: 90,
       isShow: true
     },
     {
       prop: 'standardAmount',
       label: '原金额',
+      minWidth: 70,
       isShow: true
     },
     {
       prop: 'discount',
       label: '折扣',
-      minWidth: 100,
+      minWidth: 90,
       isShow: true
     },
     {
@@ -132,14 +142,19 @@ const tableColumnsTj =
     {
       prop: 'personAmount',
       label: '个费',
-      minWidth: 100,
+      minWidth: 90,
       isShow: true
     },
     {
       prop: 'teamAmount',
       label: '团费',
-      minWidth: 100,
+      minWidth: 90,
       isShow: true
+    },
+    {
+      label: '操作',
+      minWidth: 60,
+      prop: 'cz'
     },
   ]
 const tableColumnsGj = [
@@ -178,7 +193,10 @@ const tableColumnsGj = [
     prop: 'cz'
   },
 ]
-let tableData = reactive([])
+const tableData = computed(() => {
+  const arr = dataSource.value.map(item => item.id)
+  return props.detailInfoClone.dataSource.filter(item => !arr.includes(item.combinationProjectId))
+})
 const dataSource = ref([])
 const handleDrawerChange = async () => {
 
@@ -195,12 +213,16 @@ const handleDrawerChange = async () => {
       standardAmount: item.standardAmount,
       discount: item.discount,
       receivableAmount: item.receivableAmount,
-      id: item.combinationProjectId || item.id //回显取combinationProjectId 新选的取id
+      id: item.combinationProjectId || item.id, //回显取combinationProjectId 新选的取id
+      addFlag: item.addFlag
     }
   })
+
   formValue.standardAmount = props.detailInfo.totalStandardAmount
   formValue.receivableAmount = props.detailInfo.totalAmount
   formValue.discount = props.detailInfo.discount
+  formValue.packageId = props.detailInfo.packageId
+  formValue.packageName = props.detailInfo.packageName
   drawerVisible.value = true
   await nextTick()
   TransferFilterComplexRef.value.defaultItems()
@@ -212,6 +234,8 @@ const confirmClick = () => {
   props.detailInfo.totalAmount = formValue.receivableAmount
   props.detailInfo.totalStandardAmount = formValue.standardAmount
   props.detailInfo.discount = formValue.discount
+  props.detailInfo.packageId = formValue.packageId
+  props.detailInfo.packageName = formValue.packageName
   drawerVisible.value = false
 }
 
@@ -272,9 +296,13 @@ const handleFzXzr = () => {
 
 const itemChange = (val) => {
   val.rightTableData.forEach(item => {
-    item.projectType = item.tcFlag
-    item.payMode = '0'
+    item.projectType = item.tcFlag//项目类型（1：套餐项目，2：加项项目
+    item.payMode = item.payMode ?? (props.title == '个人加项' ? '0' : "1")
     item.checkStatus = '0'
+    item.addFlag = item.addFlag ?? (props.title == '个人加项' ? '1' : '2') //addFlag	加项标识:1个人加项 2团队加项
+    if (item.projectType == 0) {
+      item.packageId = formValue.packageId
+    }
   })
   dataSource.value = val.rightTableData
 }
@@ -282,6 +310,34 @@ const itemChange = (val) => {
 //整体折扣和折后应收失焦
 const handleBlur = (type) => {
   TransferFilterComplexRef.value.handleSelected({}, '', '2', type)
+}
+
+//还原
+const handleHY = () => {
+  formValue.defaultItemList = props.detailInfoClone.dataSource.map((item, i) => {
+    return {
+      sort: i + 1,
+      payType: item.payMode,//变更类型(0个人 1单位 2混合支付)
+      payStatus: item.payStatus,//缴费状态（0：未缴费，1：已缴费，2：申请退费中，3：已退费，）
+      tcFlag: item.projectType,//是否套餐'0'是'1'否
+      teamAmount: 0,//单位应收金额
+      personAmount: item.receivableAmount,//个人应收金额
+      combinProjectCode: '',
+      combinProjectName: item.combinProjectName,
+      standardAmount: item.standardAmount,
+      discount: item.discount,
+      receivableAmount: item.receivableAmount,
+      id: item.combinationProjectId || item.id, //回显取combinationProjectId 新选的取id
+      addFlag: item.addFlag
+    }
+  })
+
+  formValue.standardAmount = props.detailInfoClone.totalStandardAmount
+  formValue.receivableAmount = props.detailInfoClone.totalAmount
+  formValue.discount = props.detailInfoClone.discount
+  formValue.packageId = props.detailInfoClone.packageId
+  formValue.packageName = props.detailInfoClone.packageName
+  TransferFilterComplexRef.value.defaultItems()
 }
 defineExpose({ handleDrawerChange })
 </script>

@@ -51,7 +51,7 @@ const formInfoColumns = (teamIdList, taskList, groupList, zjhInput, zjlxChange, 
     prop: 'teamId',
     label: '单位',
     enum: teamIdList,
-    search: { el: 'tree-select', checkStrictly: true, span: 24 },
+    search: { el: 'tree-select', checkStrictly: true, span: 24, disabled: true },
     fieldNames: { label: 'teamName', value: 'id' },
     change: dwChange
   },
@@ -59,7 +59,7 @@ const formInfoColumns = (teamIdList, taskList, groupList, zjhInput, zjlxChange, 
     prop: 'taskId',
     label: '任务',
     enum: taskList,
-    search: { el: 'select' },
+    search: { el: 'select', disabled: true },
     fieldNames: { label: 'taskName', value: 'id' },
     change: rwChange
   },
@@ -102,7 +102,7 @@ const formInfoColumns = (teamIdList, taskList, groupList, zjhInput, zjlxChange, 
     prop: 'credentialNumber',
     label: '证件号',
     search: { el: 'input' },
-    change: zjhInput
+    input: zjhInput
   },
   {
     prop: 'healthyCheckCode',
@@ -145,7 +145,7 @@ const formInfoColumns = (teamIdList, taskList, groupList, zjhInput, zjlxChange, 
   {
     prop: 'physicalType',
     label: '体检类型',
-    search: { el: 'select' },
+    search: { el: 'select', disabled: true },
     enum: bus_physical_type
   },
   {

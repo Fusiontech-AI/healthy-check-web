@@ -7,7 +7,7 @@
         </SearchForm>
         <TransferFilterComplex ref="TransferFilterComplexRef" :tableHeader="tableHeader"
           @itemChange="(val) => itemChange(val, item)" :isRw="true" :formValue="item" :disabled="preview"
-          @handleHY="handleHY" :tableColumns="tableColumns" />
+          @handleHY="handleHY" :tableColumns="tableColumns" :leftHegiht="350" :rightHeight="326" />
         <SearchForm :search-param="item" :columns="basicInfoColumn" :searchCol="4" :show-action-group="false"
           class="mt10px" :rules="rules" :disabled="preview">
         </SearchForm>

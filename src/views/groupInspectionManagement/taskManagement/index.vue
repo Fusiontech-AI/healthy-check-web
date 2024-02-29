@@ -82,6 +82,9 @@ import Second from '@/views/groupInspectionManagement/taskManagement/components/
 import Third from '@/views/groupInspectionManagement/taskManagement/components/third.vue'
 import Fourth from '@/views/groupInspectionManagement/taskManagement/components/fourth.vue'
 import CardItem from './components/CardItem.vue';
+import {
+  teamDeptList
+} from '@/api/groupInspectionManagement/unitMsg/index';
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 
 const queryParams = reactive({
@@ -100,6 +103,7 @@ const formObj = {
 const form = ref(formObj);
 const searchFormRef = ref()
 const teamIdList = ref<any[]>([])
+const deptList = ref<any[]>([])
 const formSecond = ref([])
 const formSecondClone = ref([])
 const teamTaskLists = ref([])
@@ -120,7 +124,19 @@ const formColumn = ref<any[]>([
     prop: 'teamId',
     search: { el: 'tree-select', checkStrictly: true, },
     enum: teamIdList,
-    fieldNames: { label: 'teamName', value: 'id' }
+    fieldNames: { label: 'teamName', value: 'id' },
+    change: async (val) => {
+      form.value.teamDeptId = ''
+      const { rows } = await teamDeptList({ teamId: val, pagesize: -1 })
+      deptList.value = rows
+    }
+  },
+  {
+    label: '部门',
+    prop: 'teamDeptId',
+    search: { el: 'select' },
+    enum: deptList,
+    fieldNames: { label: 'deptName', value: 'id' },
   },
   {
     label: '体检类型',

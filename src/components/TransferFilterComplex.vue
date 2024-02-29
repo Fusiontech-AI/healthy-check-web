@@ -9,7 +9,7 @@
               :disabled="props.disabled" />
           </div>
           <div>
-            <el-table :data="tableData" style="width: 100%" :height="props.isRw ? 350 : 450"
+            <el-table :data="tableData" style="width: 100%" :height="leftHegiht"
               v-el-table-infinite-scroll="handleTableScroll" :infinite-scroll-distance="50"
               :infinite-scroll-disabled="false">
               <el-table-column :prop="item.prop" :label="item.label" v-for="item in props.tableHeader" />
@@ -22,6 +22,8 @@
             </el-table>
           </div>
         </el-card>
+        <slot name="yiShanChu"></slot>
+
       </el-col>
       <el-col :span="14">
         <el-card shadow="hover" style="margin-left: 10px;">
@@ -36,36 +38,38 @@
           </div>
           <div>
             <ProTable ref="proTableRef" :columns="tableColumns" :toolButton="false" :data="rightTableData"
-              label-position="right" :pagination="false" :height="props.isRw ? 326 : 385">
+              label-position="right" :pagination="false" :height="rightHeight">
               <template #discount="{ row, $index }">
                 <el-input v-model="row.discount" placeholder="请输入" @blur="handleSelected(row, $index, '1', '1')"
                   oninput="value=value.replace(/[^\d.]/g, '').replace(/\.{2,}/g, '.').replace('.', '$#$').replace(/\./g, '').replace('$#$', '.').replace(/^(\-)*(\d+)\.(\d\d).*$/, '$1$2.$3').replace(/^\./g, '')"
-                  :disabled="props.disabled" />
+                  :disabled="props.disabled || (title == '团体加项' && row.addFlag == '1') || (title == '个人加项' && row.addFlag == '2')" />
               </template>
               <template #receivableAmount="{ row, $index }">
                 <el-input v-model="row.receivableAmount" placeholder="请输入" @blur="handleSelected(row, $index, '1', '2')"
                   oninput="value=value.replace(/[^\d.]/g, '').replace(/\.{2,}/g, '.').replace('.', '$#$').replace(/\./g, '').replace('$#$', '.').replace(/^(\-)*(\d+)\.(\d\d).*$/, '$1$2.$3').replace(/^\./g, '')"
                   :disabled="props.disabled" />
               </template>
+              <!-- 个费 -->
               <template #personAmount="{ row, $index }">
                 <el-input v-model="row.personAmount" placeholder="请输入" @blur="handleSelected(row, $index, '1', '2')"
                   oninput="value=value.replace(/[^\d.]/g, '').replace(/\.{2,}/g, '.').replace('.', '$#$').replace(/\./g, '').replace('$#$', '.').replace(/^(\-)*(\d+)\.(\d\d).*$/, '$1$2.$3').replace(/^\./g, '')"
-                  :disabled="props.disabled" />
+                  :disabled="props.disabled || (title == '团体加项' && row.addFlag == '1') || (title == '个人加项' && row.addFlag == '2')" />
               </template>
+              <!-- 团费 -->
               <template #teamAmount="{ row, $index }">
                 <el-input v-model="row.teamAmount" placeholder="请输入" @blur="handleSelected(row, $index, '1', '2')"
                   oninput="value=value.replace(/[^\d.]/g, '').replace(/\.{2,}/g, '.').replace('.', '$#$').replace(/\./g, '').replace('$#$', '.').replace(/^(\-)*(\d+)\.(\d\d).*$/, '$1$2.$3').replace(/^\./g, '')"
-                  :disabled="props.disabled" />
+                  :disabled="props.disabled || row.addFlag == '1' || (title == '团体加项' && row.addFlag == '1') || (title == '个人加项' && row.addFlag == '2')" />
               </template>
               <template #payMode="{ row, $index }">
                 <el-select v-model="row.payMode" placeholder="请选择" class="left-select" clearable
-                  :disabled="props.disabled">
+                  :disabled="props.disabled || row.addFlag == '1' || (title == '团体加项' && row.addFlag == '1') || (title == '个人加项' && row.addFlag == '2')">
                   <el-option v-for="item in bus_pay_mode" :key="item.value" :label="item.label" :value="item.value" />
                 </el-select>
               </template>
               <template #cz="{ row, $index }">
                 <el-button class="button" @click="handleSelected(row, $index, '4')" type="primary" link
-                  :disabled="props.disabled">删除</el-button>
+                  :disabled="props.disabled || (title == '团体加项' && row.addFlag == '1') || (title == '个人加项' && row.addFlag == '2')">删除</el-button>
               </template>
             </ProTable>
             <!-- <el-table :data="rightTableData" style="width: 100%" :height="props.isRw ? 350 : 408" v-bind="$attrs">
@@ -122,7 +126,7 @@ import type { TabsPaneContext } from 'element-plus'
 import { combinationProjectList, commonDynamicBilling, queryPackageAndProjectPages, queryProjectByPackageId } from '@/api/peis/projectPort'
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 const { bus_pay_mode } = toRefs<any>(proxy?.useDict('bus_pay_mode'));
-const props = defineProps(['tableHeader', 'disabled', 'isRw', 'formValue', 'tableColumns'])
+const props = defineProps(['tableHeader', 'disabled', 'isRw', 'formValue', 'tableColumns', 'title', 'leftHegiht', 'rightHeight'])
 const emit = defineEmits(['itemChange', 'handleHY'])
 const tableData = ref([])
 const tableDataClone = ref([])
@@ -139,6 +143,7 @@ const form = reactive({
   pageNum: 1,
   total: 0,
 })
+
 //获得左侧列表数据
 const getLeftProject = async () => {
   let row = []
@@ -193,7 +198,14 @@ const handleSelected = async (row, index, changeType, inputType) => {
   //说明是清空全部的
   if (changeType == '5') {
     p.changeType = '4'
-    p.amountCalculationItemBos = rightTableData.value
+    if (props.title == '个人加项') {
+      p.amountCalculationItemBos = rightTableData.value.filter(item => item.addFlag == 1)
+    } else if (props.title == '团体加项') {
+      p.amountCalculationItemBos = rightTableData.value.filter(item => item.addFlag == 2)
+    } else {
+      p.amountCalculationItemBos = rightTableData.value
+
+    }
   } else if (changeType == '3' || changeType == '4') {
     if (props.isRw && type == 1) {
       //为套餐查子项
@@ -229,7 +241,7 @@ const handleSelected = async (row, index, changeType, inputType) => {
       //第一次选的则为套餐后面的则为加项
       if (isEmpty(tcObj.value)) {
         //记录套餐 和子项
-        tcObj.value = { ...row, zxList }
+        tcObj.value = { ...row, packageName: row.name, zxList }
       }
 
     } else {
@@ -290,6 +302,7 @@ const handleTableScroll = () => {
 watch(() => rightTableData.value, (newV) => {
   filterList()
   props.formValue.packageId = tcObj.value.id
+  props.formValue.packageName = tcObj.value.packageName
   emit('itemChange', { rightTableData: newV })
 })
 watch(() => form.input, (newVal) => {
@@ -299,11 +312,15 @@ watch(() => form.input, (newVal) => {
 
 //回显
 const defaultItems = () => {
-  const { packageId, defaultItemList } = props.formValue
+  const { packageId, defaultItemList, packageName } = props.formValue
   const zxList = defaultItemList.map(item => {
+    //套餐的放一起
+    if (item.tcFlag == '0') {
+      return item.id
+    }
     return item.itemId
   })
-  tcObj.value = { id: packageId, zxList }
+  tcObj.value = { id: packageId, packageName, zxList }
   rightTableData.value = defaultItemList
 }
 
