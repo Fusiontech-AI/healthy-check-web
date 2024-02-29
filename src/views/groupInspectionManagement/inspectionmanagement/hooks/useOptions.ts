@@ -55,12 +55,6 @@ export default function useOption() {
       item.label = item.dictLabel
       item.value = item.dictValue
     });
-    if (params == 'bus_healthy_check_status') {
-      rows.forEach(item => {
-        if (item.label == '已终检')
-          item.tagType = 'success'
-      });
-    }
     return rows
   }
 

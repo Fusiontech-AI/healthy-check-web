@@ -19,3 +19,14 @@ export const reRegistration = (ids: any) => {
     method: 'PUT',
   });
 };
+
+/**
+ * 合并档案
+ */
+export const mergeArchives = (data: any) => {
+  return request({
+    url: `/peis/register/mergeArchives`,
+    method: 'POST',
+    data
+  });
+};
