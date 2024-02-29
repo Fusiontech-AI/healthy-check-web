@@ -104,12 +104,6 @@
         <template #statusName="{ row }">
           <span :class="{ abandon: row.statusName == '废弃' }">{{ row.statusName }}</span>
         </template>
-        <template #checkStatusName="{ row }">
-          <span
-            :class="[{ 'to_reviewed': row.checkStatusName == '待审核' }, { 'reviewed': row.checkStatusName == '已审核' }]">{{
-              row.checkStatusName
-            }}</span>
-        </template>
         <template #operation="{ row }">
           <el-button type="primary" text @click="details('详情', row)">详情</el-button>
           <el-button type="primary" text @click="makeInvoice(row)" :disabled="row.status == 2">开票</el-button>
@@ -427,9 +421,9 @@ const columnsAccounts = reactive<any>([
     // enum: statusList
   },
   {
-    prop: "checkStatusName",
+    prop: "checkStatus",
     label: "审核状态",
-    // enum: checkStatusList
+    enum: checkStatusList
   },
   {
     prop: "operation",

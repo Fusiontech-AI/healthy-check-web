@@ -104,7 +104,6 @@ const columns = reactive([
   {
     prop: "healthyCheckStatus",
     label: "体检状态",
-    tag: true,
     enum: healthyCheckStatus,
   },
   {
