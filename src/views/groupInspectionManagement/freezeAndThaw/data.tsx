@@ -136,26 +136,27 @@ export const columnsBasic = (
     prop: 'healthyCheckStatus',
     label: '体检状态',
     width: '120',
-    render: (scope: any) => {
-      return (
-        <>
-          {scope.row.healthyCheckStatus ? (
-            <span
-              style={{
-                color: healthyCheckStatusMap[scope.row.healthyCheckStatus].color,
-                background: healthyCheckStatusMap[scope.row.healthyCheckStatus].bg,
-                padding: '4px 8px',
-                borderRadius: '2px'
-              }}
-            >
-              {healthyCheckStatusMap[scope.row.healthyCheckStatus].label}
-            </span>
-          ) : (
-            <span>{scope.row.healthyCheckStatus}</span>
-          )}
-        </>
-      );
-    },
+    enum: bus_healthy_check_status,
+    // render: (scope: any) => {
+    //   return (
+    //     <>
+    //       {scope.row.healthyCheckStatus ? (
+    //         <span
+    //           style={{
+    //             color: healthyCheckStatusMap[scope.row.healthyCheckStatus].color,
+    //             background: healthyCheckStatusMap[scope.row.healthyCheckStatus].bg,
+    //             padding: '4px 8px',
+    //             borderRadius: '2px'
+    //           }}
+    //         >
+    //           {healthyCheckStatusMap[scope.row.healthyCheckStatus].label}
+    //         </span>
+    //       ) : (
+    //         <span>{scope.row.healthyCheckStatus}</span>
+    //       )}
+    //     </>
+    //   );
+    // },
     align: 'left'
   },
   {

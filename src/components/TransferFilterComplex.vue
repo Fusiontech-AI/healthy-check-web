@@ -25,7 +25,7 @@
       </el-col>
       <el-col :span="14">
         <el-card shadow="hover" style="margin-left: 10px;">
-          <div style="display: flex;align-items: center;justify-content: space-between;margin-bottom:6px ; ">
+          <div style="display: flex;align-items: center;justify-content: space-between; ">
             <div> <span v-if="tcObj.name">套餐名称: ({{ tcObj.name }})</span> 已选项目（共{{ rightTableData.length }}项）</div>
             <div>
               <el-button type="danger" round @click="handleSelected({}, '', '5')" :disabled="props.disabled">清空
@@ -35,24 +35,66 @@
             </div>
           </div>
           <div>
-            <el-table :data="rightTableData" style="width: 100%" :height="props.isRw ? 350 : 408">
-              <el-table-column prop="tcFlag" label="项目类型" v-if="props.isRw">
+            <ProTable ref="proTableRef" :columns="tableColumns" :toolButton="false" :data="rightTableData"
+              label-position="right" :pagination="false" :height="props.isRw ? 326 : 385">
+              <template #discount="{ row, $index }">
+                <el-input v-model="row.discount" placeholder="请输入" @blur="handleSelected(row, $index, '1', '1')"
+                  oninput="value=value.replace(/[^\d.]/g, '').replace(/\.{2,}/g, '.').replace('.', '$#$').replace(/\./g, '').replace('$#$', '.').replace(/^(\-)*(\d+)\.(\d\d).*$/, '$1$2.$3').replace(/^\./g, '')"
+                  :disabled="props.disabled" />
+              </template>
+              <template #receivableAmount="{ row, $index }">
+                <el-input v-model="row.receivableAmount" placeholder="请输入" @blur="handleSelected(row, $index, '1', '2')"
+                  oninput="value=value.replace(/[^\d.]/g, '').replace(/\.{2,}/g, '.').replace('.', '$#$').replace(/\./g, '').replace('$#$', '.').replace(/^(\-)*(\d+)\.(\d\d).*$/, '$1$2.$3').replace(/^\./g, '')"
+                  :disabled="props.disabled" />
+              </template>
+              <template #personAmount="{ row, $index }">
+                <el-input v-model="row.personAmount" placeholder="请输入" @blur="handleSelected(row, $index, '1', '2')"
+                  oninput="value=value.replace(/[^\d.]/g, '').replace(/\.{2,}/g, '.').replace('.', '$#$').replace(/\./g, '').replace('$#$', '.').replace(/^(\-)*(\d+)\.(\d\d).*$/, '$1$2.$3').replace(/^\./g, '')"
+                  :disabled="props.disabled" />
+              </template>
+              <template #teamAmount="{ row, $index }">
+                <el-input v-model="row.teamAmount" placeholder="请输入" @blur="handleSelected(row, $index, '1', '2')"
+                  oninput="value=value.replace(/[^\d.]/g, '').replace(/\.{2,}/g, '.').replace('.', '$#$').replace(/\./g, '').replace('$#$', '.').replace(/^(\-)*(\d+)\.(\d\d).*$/, '$1$2.$3').replace(/^\./g, '')"
+                  :disabled="props.disabled" />
+              </template>
+              <template #payMode="{ row, $index }">
+                <el-select v-model="row.payMode" placeholder="请选择" class="left-select" clearable
+                  :disabled="props.disabled">
+                  <el-option v-for="item in bus_pay_mode" :key="item.value" :label="item.label" :value="item.value" />
+                </el-select>
+              </template>
+              <template #cz="{ row, $index }">
+                <el-button class="button" @click="handleSelected(row, $index, '4')" type="primary" link
+                  :disabled="props.disabled">删除</el-button>
+              </template>
+            </ProTable>
+            <!-- <el-table :data="rightTableData" style="width: 100%" :height="props.isRw ? 350 : 408" v-bind="$attrs">
+
+              <template v-for="item in tableColumns" :key="item.prop">
+                <TableColumn :column="item">
+                  <template v-for="slot in Object.keys($slots)" #[slot]="scope">
+                    <slot :name="slot" v-bind="scope" />
+                  </template>
+                </TableColumn>
+              </template>
+
+              <el-table-column prop="tcFlag" label="项目类型" v-if="props.isRw && !tableColumns">
                 <template #default="{ row, $index }">
                   <span v-if="row.tcFlag == 0">套餐</span>
                   <span v-if="row.tcFlag == 1">项目</span>
                 </template>
               </el-table-column>
-              <el-table-column prop="combinProjectCode" label="项目编码" v-else />
-              <el-table-column prop="combinProjectName" label="项目名称" />
-              <el-table-column prop="standardAmount" label="金额" />
-              <el-table-column prop="discount" label="折扣">
+              <el-table-column prop="combinProjectCode" label="项目编码" v-if="!props.isRw && !tableColumns" />
+              <el-table-column prop="combinProjectName" label="项目名称" v-if="!tableColumns" />
+              <el-table-column prop="standardAmount" label="金额" v-if="!tableColumns" />
+              <el-table-column prop="discount" label="折扣" v-if="!tableColumns">
                 <template #default="{ row, $index }">
                   <el-input v-model="row.discount" placeholder="请输入" @blur="handleSelected(row, $index, '1', '1')"
                     oninput="value=value.replace(/[^\d.]/g, '').replace(/\.{2,}/g, '.').replace('.', '$#$').replace(/\./g, '').replace('$#$', '.').replace(/^(\-)*(\d+)\.(\d\d).*$/, '$1$2.$3').replace(/^\./g, '')"
                     :disabled="props.disabled" />
                 </template>
               </el-table-column>
-              <el-table-column prop="receivableAmount" label="折后金额">
+              <el-table-column prop="receivableAmount" label="折后金额" v-if="!tableColumns">
                 <template #default="{ row, $index }">
                   <el-input v-model="row.receivableAmount" placeholder="请输入" @blur="handleSelected(row, $index, '1', '2')"
                     oninput="value=value.replace(/[^\d.]/g, '').replace(/\.{2,}/g, '.').replace('.', '$#$').replace(/\./g, '').replace('$#$', '.').replace(/^(\-)*(\d+)\.(\d\d).*$/, '$1$2.$3').replace(/^\./g, '')"
@@ -65,7 +107,7 @@
                     :disabled="props.disabled">删除</el-button>
                 </template>
               </el-table-column>
-            </el-table>
+            </el-table> -->
           </div>
           <slot name="TcWh"></slot>
 
@@ -78,7 +120,9 @@
 import { debounce, isEmpty } from 'lodash'
 import type { TabsPaneContext } from 'element-plus'
 import { combinationProjectList, commonDynamicBilling, queryPackageAndProjectPages, queryProjectByPackageId } from '@/api/peis/projectPort'
-const props = defineProps(['tableHeader', 'disabled', 'isRw', 'formValue'])
+const { proxy } = getCurrentInstance() as ComponentInternalInstance;
+const { bus_pay_mode } = toRefs<any>(proxy?.useDict('bus_pay_mode'));
+const props = defineProps(['tableHeader', 'disabled', 'isRw', 'formValue', 'tableColumns'])
 const emit = defineEmits(['itemChange', 'handleHY'])
 const tableData = ref([])
 const tableDataClone = ref([])
@@ -95,7 +139,6 @@ const form = reactive({
   pageNum: 1,
   total: 0,
 })
-
 //获得左侧列表数据
 const getLeftProject = async () => {
   let row = []

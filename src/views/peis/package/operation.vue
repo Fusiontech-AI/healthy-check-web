@@ -15,7 +15,7 @@
         套餐项目
       </div>
       <TransferFilterComplex ref="TransferFilterComplexRef" :tableHeader="tableHeader" @itemChange="itemChange"
-        :disabled="!!look" :formValue="formValue">
+        :disabled="!!look" :formValue="formValue" :tableColumns="tableColumns">
         <template #TcWh>
           <div class="mt10px">套餐金额 {{ formValue.standardAmount }}元
             <span class="ml10px">整体折扣：</span>
@@ -60,6 +60,32 @@ const tableHeader = ref([
     label: '金额'
   },
 ])
+const tableColumns = [
+  {
+    label: '项目编码',
+    prop: 'combinProjectCode'
+  },
+  {
+    label: '项目名称',
+    prop: 'combinProjectName'
+  },
+  {
+    label: '金额',
+    prop: 'standardAmount'
+  },
+  {
+    label: '折扣',
+    prop: 'discount'
+  },
+  {
+    label: '折后金额',
+    prop: 'receivableAmount'
+  },
+  {
+    label: '操作',
+    prop: 'cz'
+  },
+]
 const { proxy } = getCurrentInstance() as ComponentInternalInstance
 const { bus_physical_type, bus_gender } = toRefs<any>(proxy?.useDict('bus_physical_type', 'bus_gender'))
 const formColumns = ref([

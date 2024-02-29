@@ -1,5 +1,5 @@
 <template>
-  <el-drawer v-model="drawerVisible" :title="title" direction="rtl" size="60%">
+  <el-drawer v-model="drawerVisible" :title="title" direction="rtl" size="70%">
     <div class="flex justify-between mb10px">
       <div class="flex">
         <span class="mt3px">实际金额 ：{{ formValue.standardAmount }}</span>
@@ -21,7 +21,7 @@
       </div>
     </div>
     <TransferFilterComplex @itemChange="itemChange" :disabled="false" :formValue="formValue" :tableHeader="tableHeader"
-      ref="TransferFilterComplexRef" :isRw="true">
+      ref="TransferFilterComplexRef" :isRw="true" :tableColumns="isTuanJian ? tableColumnsTj : tableColumnsGj">
       <template #yiShanChu>
         <el-card shadow="hover" class="mt10px">
           <div class="mb6px">已删除项目（共13项）</div>
@@ -62,8 +62,9 @@
   </el-drawer>
 </template>
 
-<script setup name="selectXmItem" lang="ts">
+<script setup name="selectXmItem" lang="tsx">
 import TransferFilterComplex from '@/components/TransferFilterComplex'
+
 const drawerVisible = ref(false)
 const TransferFilterComplexRef = ref(null)
 const formValue = reactive({
@@ -82,10 +83,101 @@ const props = defineProps({
     type: Object,
     default: () => { },
   },
+  isTuanJian: {
+    type: Boolean,
+    default: () => false,
+  },
 })
 
 const dialogVisible = ref(false)
 let tableColumns = reactive([])
+const tableColumnsTj =
+  [
+    {
+      prop: 'tcFlag',
+      label: '项目类型',
+      enum: [
+        {
+          label: '套餐',
+          value: '0'
+        },
+        {
+          label: '项目',
+          value: '1'
+        },
+      ]
+    },
+    {
+      prop: 'combinProjectName',
+      label: '项目名称',
+      isShow: true
+    },
+    {
+      prop: 'standardAmount',
+      label: '原金额',
+      isShow: true
+    },
+    {
+      prop: 'discount',
+      label: '折扣',
+      minWidth: 100,
+      isShow: true
+    },
+    {
+      prop: 'payMode',
+      label: '支付方式',
+      minWidth: 120,
+      isShow: true
+    },
+    {
+      prop: 'personAmount',
+      label: '个费',
+      minWidth: 100,
+      isShow: true
+    },
+    {
+      prop: 'teamAmount',
+      label: '团费',
+      minWidth: 100,
+      isShow: true
+    },
+  ]
+const tableColumnsGj = [
+  {
+    label: '项目类型',
+    prop: 'tcFlag',
+    enum: [
+      {
+        label: '套餐',
+        value: '0'
+      },
+      {
+        label: '项目',
+        value: '1'
+      },
+    ]
+  },
+  {
+    label: '项目名称',
+    prop: 'combinProjectName'
+  },
+  {
+    label: '金额',
+    prop: 'standardAmount'
+  },
+  {
+    label: '折扣',
+    prop: 'discount'
+  },
+  {
+    label: '折后金额',
+    prop: 'receivableAmount'
+  },
+  {
+    label: '操作',
+    prop: 'cz'
+  },
+]
 let tableData = reactive([])
 const dataSource = ref([])
 const handleDrawerChange = async () => {

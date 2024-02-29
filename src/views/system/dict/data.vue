@@ -49,8 +49,16 @@
         <el-table-column label="字典编码" align="center" prop="dictCode" v-if="false" />
         <el-table-column label="字典标签" align="center" prop="dictLabel">
           <template #default="scope">
-            <span v-if="(scope.row.listClass === '' || scope.row.listClass === 'default') && (scope.row.cssClass === '' || scope.row.cssClass == null)">{{ scope.row.dictLabel }}</span>
-            <el-tag v-else :type="(scope.row.listClass === 'primary' || scope.row.listClass === 'default') ? '' : scope.row.listClass" :class="scope.row.cssClass">{{ scope.row.dictLabel }}</el-tag>
+            <span
+              v-if="(scope.row.listClass === '' || scope.row.listClass === 'default') && (scope.row.cssClass === '' || scope.row.cssClass == null)"
+              >{{ scope.row.dictLabel }}</span
+            >
+            <el-tag
+              v-else
+              :type="(scope.row.listClass === 'primary' || scope.row.listClass === 'default') ? '' : scope.row.listClass"
+              :class="scope.row.cssClass"
+              >{{ scope.row.dictLabel }}</el-tag
+            >
           </template>
         </el-table-column>
         <el-table-column label="字典键值" align="center" prop="dictValue" />
@@ -76,8 +84,8 @@
       <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize" @pagination="getList" />
     </el-card>
     <!-- 添加或修改参数配置对话框 -->
-    <el-dialog :title="dialog.title" v-model="dialog.visible" width="500px" append-to-body>
-      <el-form ref="dataFormRef" :model="form" :rules="rules" label-width="80px">
+    <el-dialog :title="dialog.title" v-model="dialog.visible" width="600px" append-to-body>
+      <el-form ref="dataFormRef" :model="form" :rules="rules" label-width="85px">
         <el-form-item label="字典类型">
           <el-input v-model="form.dictType" :disabled="true" />
         </el-form-item>
@@ -87,8 +95,23 @@
         <el-form-item label="数据键值" prop="dictValue">
           <el-input v-model="form.dictValue" placeholder="请输入数据键值" />
         </el-form-item>
+        <el-form-item prop="cssClass">
+          <template #label>
+            <div class="flex items-center">
+              获取样式
+              <el-tooltip class="box-item" effect="dark" content="点击示例获取代码，自动填充到样式属性">
+                <el-icon class="cursor-pointer"><QuestionFilled /> </el-icon>
+              </el-tooltip>
+            </div>
+          </template>
+          <div class="flex gap-2">
+            <div v-for="(item,index) in dictSampleList" :key="index" class="cursor-pointer">
+              <div :style="item.style" @click="handleGetStyle(item)">{{ item.title }}</div>
+            </div>
+          </div>
+        </el-form-item>
         <el-form-item label="样式属性" prop="cssClass">
-          <el-input v-model="form.cssClass" placeholder="请输入样式属性" />
+          <el-input type="textarea" v-model="form.cssClass" placeholder="请输入样式属性" />
         </el-form-item>
         <el-form-item label="显示排序" prop="dictSort">
           <el-input-number v-model="form.dictSort" controls-position="right" :min="0" />
@@ -123,6 +146,7 @@ import { optionselect as getDictOptionselect, getType } from "@/api/system/dict/
 import { listData, getData, delData, addData, updateData } from "@/api/system/dict/data";
 import { DictTypeVO } from '@/api/system/dict/type/types';
 import { DictDataForm, DictDataQuery, DictDataVO } from "@/api/system/dict/data/types";
+import { dictSampleList } from './data'
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance
 const route = useRoute();
@@ -286,4 +310,9 @@ onMounted(() => {
   getTypes(route.params && route.params.dictId as string);
   getTypeList();
 })
+
+// 获取样式代码自动填充
+const handleGetStyle = (value: any) =>{
+  form.value.cssClass = value?.style
+}
 </script>

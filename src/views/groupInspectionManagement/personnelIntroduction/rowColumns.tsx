@@ -97,9 +97,9 @@ export const tableColumn: any = [
   { prop: 'gender', label: '性别', enum: sys_user_sex, fieldNames: { label: 'dictLabel', value: 'dictValue' } },
   { prop: 'age', label: '年龄' },
   { prop: 'credentialNumber', label: '身份证号', width: 170 },
-  { prop: 'groupName', label: '项目分组' },
-  { prop: 'dutyStatus', label: '在岗类型', enum: bus_duty_status, fieldNames: { label: 'dictLabel', value: 'dictValue' } },
-  { prop: 'healthyCheckStatus', label: '体检状态', enum: bus_healthy_check_status, fieldNames: { label: 'dictLabel', value: 'dictValue' } },
+  { prop: 'groupName', label: '项目分组', width: 120  },
+  { prop: 'dutyStatus', label: '在岗类型',width: 120, enum: bus_duty_status, fieldNames: { label: 'dictLabel', value: 'dictValue' } },
+  { prop: 'healthyCheckStatus', label: '体检状态', width: 120, enum: bus_healthy_check_status, fieldNames: { label: 'dictLabel', value: 'dictValue' } },
   { prop: 'operation', label: '操作', width: 120, fixed: 'right' }
 ];
 
@@ -364,7 +364,7 @@ export const importColumn = [
     width: 120
   },
   {
-    prop: 'groupName',
+    prop: 'teamGroupId',
     label: '所属分组',
     width: 120
   }

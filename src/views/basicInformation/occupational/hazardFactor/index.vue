@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-#fff">
+  <div class="bg-#fff" >
     <Grid ref="gridRef" :cols="5">
       <GridItem :span="1">
         <div class="left_box">
@@ -8,7 +8,7 @@
             <el-input v-model="searchTreeValue" class="mt-2" placeholder="请输入关键字" @input="getTreeData"
               clearable></el-input>
           </div>
-          <el-scrollbar class="px-10px" height="calc(100vh - 205px)">
+          <el-scrollbar class="px-10px pb-10px" height="calc(100vh - 200px)">
             <el-tree v-loading="treeLoading" class="tree_root" highlight-current :data="treeData"
               :default-expanded-keys="['all']" node-key="code" :props="defaultProps" @node-click="handleNodeClick">
             </el-tree>
@@ -385,7 +385,6 @@ const defaultProps = {
 
 <style scoped lang="scss">
 .left_box {
-  height: calc(100vh - 105px);
   // margin-right: 10px;
   background: #fff;
   border-right: 1px solid #E8E8E8;
@@ -408,7 +407,6 @@ const defaultProps = {
 }
 
 ::v-deep {
-
   .el-select__tags {
     max-height: 100px;
     overflow: auto;

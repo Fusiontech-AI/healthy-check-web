@@ -7,7 +7,7 @@
         </SearchForm>
         <TransferFilterComplex ref="TransferFilterComplexRef" :tableHeader="tableHeader"
           @itemChange="(val) => itemChange(val, item)" :isRw="true" :formValue="item" :disabled="preview"
-          @handleHY="handleHY" />
+          @handleHY="handleHY" :tableColumns="tableColumns" />
         <SearchForm :search-param="item" :columns="basicInfoColumn" :searchCol="4" :show-action-group="false"
           class="mt10px" :rules="rules" :disabled="preview">
         </SearchForm>
@@ -34,6 +34,42 @@ const tableHeader = ref([
     label: '折后金额'
   },
 ])
+const tableColumns = [
+  {
+    label: '项目类型',
+    prop: 'tcFlag',
+    enum: [
+      {
+        label: '套餐',
+        value: '0'
+      },
+      {
+        label: '项目',
+        value: '1'
+      },
+    ]
+  },
+  {
+    label: '项目名称',
+    prop: 'combinProjectName'
+  },
+  {
+    label: '金额',
+    prop: 'standardAmount'
+  },
+  {
+    label: '折扣',
+    prop: 'discount'
+  },
+  {
+    label: '折后金额',
+    prop: 'receivableAmount'
+  },
+  {
+    label: '操作',
+    prop: 'cz'
+  },
+]
 const TransferFilterComplexRef = ref(null)
 const activeName = ref('')
 const basicInfoColumn = ref([

@@ -95,15 +95,14 @@ const RenderFormValue = (item: any) => {
   }}</div>
 }
 
+let txt = ''
 //递归找出单位需要回显的值
 const recursion = (arr, val) => {
-  let txt = ''
-  arr.map(item => {
+  arr.forEach(item => {
     if (item.id == val) {
       txt = item.teamName
-      return
     } else {
-      item.children && recursion(item.children)
+      item.children && recursion(item.children, val)
     }
   })
   return txt

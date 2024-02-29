@@ -30,7 +30,7 @@ const {
     'bus_nation'
   )
 );
-const formInfoColumns = (teamIdList) => [
+const formInfoColumns = (teamIdList, zjlxChange, zjhInput) => [
   {
     slot: 'credentialImage',
     search: { span: 24 }
@@ -44,7 +44,8 @@ const formInfoColumns = (teamIdList) => [
     prop: 'credentialType',
     label: '证件类型',
     search: { el: 'select' },
-    enum: bus_credential_type
+    enum: bus_credential_type,
+    change: zjlxChange
   },
   {
     prop: 'recordCode',
@@ -54,7 +55,8 @@ const formInfoColumns = (teamIdList) => [
   {
     prop: 'credentialNumber',
     label: '证件号',
-    search: { el: 'input' }
+    search: { el: 'input' },
+    input: zjhInput
   },
   {
     prop: 'healthyCheckCode',
@@ -62,14 +64,14 @@ const formInfoColumns = (teamIdList) => [
     search: { el: 'input', disabled: true }
   },
   {
-    prop: 'birthday',
-    label: '出生日期',
-    search: { el: 'date-picker', props: { type: 'date', valueFormat: 'YYYY-MM-DD' } }
-  },
-  {
     prop: 'name',
     label: '姓名',
     search: { el: 'input' }
+  },
+  {
+    prop: 'birthday',
+    label: '出生日期',
+    search: { el: 'date-picker', props: { type: 'date', valueFormat: 'YYYY-MM-DD' }, disabled: true }
   },
   {
     prop: 'nation',
@@ -80,7 +82,7 @@ const formInfoColumns = (teamIdList) => [
   {
     prop: 'age',
     label: '年龄',
-    search: { el: 'input' }
+    search: { el: 'input', disabled: true }
   },
   {
     prop: 'personCategory',
@@ -91,7 +93,7 @@ const formInfoColumns = (teamIdList) => [
   {
     prop: 'gender',
     label: '性别',
-    search: { el: 'select' },
+    search: { el: 'select', disabled: true },
     enum: sys_user_sex
   },
   {
@@ -179,7 +181,8 @@ const formInfoColumns = (teamIdList) => [
     prop: 'teamId',
     label: '单位',
     enum: teamIdList,
-    search: { el: 'tree-select', props: { checkStrictly: true, label: 'teamName', value: 'id' }, span: 24 }
+    search: { el: 'tree-select', checkStrictly: true, span: 24 },
+    fieldNames: { label: 'teamName', value: 'id' }
   },
   {
     prop: 'contactAddress',
@@ -195,17 +198,25 @@ const formInfoColumns = (teamIdList) => [
 const validatePhone = (rule, value, callback) => {
   var isMobilePhone = /^1\d{10}$/;
   var isFixMob = /^\d{3,4}-\d{7,8}$/;
-  if (!value) {
-    callback();
-  } else if (isMobilePhone.test(value) || isFixMob.test(value)) {
-    callback();
-  } else {
-    callback(new Error('请输入正确电话号码'));
+  if (!isMobilePhone.test(value) && !isFixMob.test(value)) {
+    return callback(new Error('请输入正确联系电话'));
   }
+  callback();
+};
+const checkIDCard = (rule, value, callback) => {
+  const IDCardReg = /^[1-9]\d{5}(18|19|20)\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])\d{3}[\dXx]$/;
+  if (!IDCardReg.test(value)) {
+    return callback(new Error('身份证号格式不正确'));
+  }
+  callback();
 };
 const formRules = {
   credentialType: [{ required: true, message: '请选择证件类型', trigger: 'change' }],
-  credentialNumber: [{ required: true, message: '请输入证件号', trigger: 'blur' }],
+  credentialNumber: [
+    { required: true, message: '请输入证件号', trigger: 'blur' },
+    { validator: checkIDCard, trigger: 'change' },
+    { validator: checkIDCard, trigger: 'blur' }
+  ],
   birthday: [{ required: true, message: '请选择出生日期', trigger: 'change' }],
   name: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
   age: [{ required: true, message: '请输入年龄', trigger: 'blur' }],
@@ -214,7 +225,8 @@ const formRules = {
   checkType: [{ required: true, message: '请选择检查类型', trigger: 'change' }],
   phone: [
     { required: true, message: '请输入联系电话', trigger: 'blur' },
-    { validator: validatePhone, trigger: 'change' }
+    { validator: validatePhone, trigger: 'change' },
+    { validator: validatePhone, trigger: 'blur' }
   ]
 };
 
