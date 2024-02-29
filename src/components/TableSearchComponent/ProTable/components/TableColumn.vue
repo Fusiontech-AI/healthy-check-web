@@ -6,6 +6,7 @@
 import { inject, ref, useSlots } from "vue";
 import { ColumnProps, RenderScope, HeaderRenderScope } from "@/components/TableSearchComponent/ProTable/interface";
 import { filterEnum, formatValue, handleProp, handleRowAccordingToProp } from "@/utils";
+import { tableColumnStyleObj, stylePropArr } from '../styleConfig'
 
 defineProps<{ column: ColumnProps }>();
 
@@ -40,6 +41,26 @@ const RenderTableColumn = (item: ColumnProps) => {
               if (item.render) return item.render(scope);
               if (slots[handleProp(item.prop!)]) return slots[handleProp(item.prop!)]!(scope);
               if (item.tag) return <el-tag type={getTagType(item, scope)}>{renderCellData(item, scope)}</el-tag>;
+              if (stylePropArr.includes(item.prop!)) return (
+                <>
+                  {
+                    scope.row[item.prop!] ? (
+                      <span
+                        style={{
+                          color: tableColumnStyleObj[item.prop!][scope.row[item.prop!]].color,
+                          background: tableColumnStyleObj[item.prop!][scope.row[item.prop!]].background,
+                          padding: '4px',
+                          borderRadius: '2px'
+                        }}
+                      >
+                        {tableColumnStyleObj[item.prop!][scope.row[item.prop!]].label}
+                      </span>
+                    ) : (
+                      <span>{scope.row[item.prop!]}</span>
+                    )
+                  }
+                </>
+              );
               return renderCellData(item, scope);
             },
             header: (scope: HeaderRenderScope<any>) => {

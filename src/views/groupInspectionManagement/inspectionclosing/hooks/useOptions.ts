@@ -70,11 +70,6 @@ export default function useOption() {
     physicalType.value = await getOption('bus_physical_type')
     marriageStatus.value = await getOption('bus_marriage_status')
     const healthyList = await getOption('bus_healthy_check_status')
-    healthyList.forEach(item => {
-      if (item.value == 5) {
-        item.tagType = 'success'
-      }
-    })
     healthyCheckStatus.value = healthyList
     needGeneralReview.value = await getOption('bus_need_general_review')
 
