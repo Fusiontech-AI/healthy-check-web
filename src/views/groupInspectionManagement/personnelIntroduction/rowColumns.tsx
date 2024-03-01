@@ -127,7 +127,7 @@ export const tableColumn: any = [
 ];
 
 // 新增团检人员
-export const unitGroupColumn = ({ teamIdList, physicalType }: any) => {
+export const unitGroupColumn = ({ teamIdList, teamGroupList = [], physicalType, updateCredentialType }: any) => {
   return [
     {
       prop: 'groupTitle',
@@ -136,7 +136,7 @@ export const unitGroupColumn = ({ teamIdList, physicalType }: any) => {
       search: { span: 3, props: { disabled: true } }
     },
     {
-      prop: 'teamId',
+      prop: 'teamName',
       label: '单位名称',
       enum: teamIdList,
       fieldNames: { label: 'teamName', value: 'id' },
@@ -157,7 +157,7 @@ export const unitGroupColumn = ({ teamIdList, physicalType }: any) => {
       search: { el: 'select', props: { filterable: true, disabled: true } }
     },
     {
-      prop: 'taskId',
+      prop: 'taskName',
       label: '任务名称',
       enum: [],
       fieldNames: { label: 'taskName', value: 'id' },
@@ -171,10 +171,7 @@ export const unitGroupColumn = ({ teamIdList, physicalType }: any) => {
       label: '体检类型',
       search: {
         el: 'select',
-        props: { disabled: false },
-        onChange(val: any) {
-          console.log(val);
-        }
+        props: { disabled: true }
       },
       enum: bus_physical_type,
       fieldNames: { label: 'dictLabel', value: 'dictValue' }
@@ -182,7 +179,7 @@ export const unitGroupColumn = ({ teamIdList, physicalType }: any) => {
     {
       prop: 'teamGroupId',
       label: '分组名称',
-      enum: [],
+      enum: teamGroupList,
       fieldNames: { label: 'groupName', value: 'id' },
       search: { el: 'select' }
     },
@@ -266,14 +263,19 @@ export const unitGroupColumn = ({ teamIdList, physicalType }: any) => {
     {
       prop: 'credentialType',
       label: '证件类型',
-      search: { el: 'select' },
       enum: bus_credential_type,
-      fieldNames: { label: 'dictLabel', value: 'dictValue' }
+      fieldNames: { label: 'dictLabel', value: 'dictValue' },
+      search: {
+        el: 'select',
+        onChange: updateCredentialType
+      },
     },
     {
       prop: 'credentialNumber',
       label: '证件号',
-      search: { el: 'input' }
+      search: {
+        el: 'input'
+      }
     },
     {
       prop: 'gender',
@@ -285,7 +287,7 @@ export const unitGroupColumn = ({ teamIdList, physicalType }: any) => {
     {
       prop: 'birthday',
       label: '出生日期',
-      search: { el: 'date-picker' }
+      search: { el: 'date-picker', props: { type: 'date', valueFormat: 'YYYY-MM-DD' } }
     },
     {
       prop: 'age',
@@ -327,10 +329,13 @@ export const unitGroupColumn = ({ teamIdList, physicalType }: any) => {
       search: {
         el: 'time-picker',
         props: {
-          valueFormat: 'hh-mm',
+          valueFormat: 'HH:mm',
           'is-range': true,
+          // 'disabled-seconds': (start: number, end: number)=> {
+          //   if(start || end) return Array.from({ length: 59 }, (_, i) => i + 1)
+          // },
           'start-placeholder': '开始时间',
-          'end-placeholder': '结束时间',
+          'end-placeholder': '结束时间'
         }
       }
     },
@@ -387,7 +392,21 @@ export const unitGroupColumn = ({ teamIdList, physicalType }: any) => {
     }
   ];
 };
-
+const validatePhone = (_rule: any, value: any, callback: any) => {
+  var isMobilePhone = /^1\d{10}$/;
+  var isFixMob = /^\d{3,4}-\d{7,8}$/;
+  if (!isMobilePhone.test(value) && !isFixMob.test(value)) {
+    return callback(new Error('请输入正确联系电话'));
+  }
+  callback();
+};
+const checkIDCard = (_rule: any, value: any, callback: any) => {
+  const IDCardReg = /^[1-9]\d{5}(18|19|20)\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])\d{3}[\dXx]$/;
+  if (!IDCardReg.test(value)) {
+    return callback(new Error('身份证号格式不正确'));
+  }
+  callback();
+};
 export const rules = {
   teamId: [{ required: true, message: '请选择单位名称', trigger: 'change' }],
   taskId: [{ required: true, message: '请选择任务名称', trigger: 'change' }],
@@ -404,20 +423,26 @@ export const rules = {
   jobIlluminationType: [{ required: true, message: '请选择职业照射种类', trigger: 'change' }],
   name: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
   credentialType: [{ required: true, message: '请选择证件类型', trigger: 'change' }],
-  credentialNumber: [{ required: true, message: '请输入证件号', trigger: 'blur' }],
+  credentialNumber: [
+    { required: true, message: '请输入证件号', trigger: 'blur' },
+    { validator: checkIDCard, trigger: ['change', 'blur'] }
+  ],
   gender: [{ required: true, message: '请选择性别', trigger: 'change' }],
   birthday: [{ required: true, message: '请选择出生日期', trigger: 'change' }],
   age: [{ required: true, message: '请输入年龄', trigger: 'blur' }],
   marriageStatus: [{ required: true, message: '请选择婚否', trigger: 'change' }],
   nation: [{ required: false, message: '请输入民族', trigger: 'blur' }],
-  phone: [{ required: true, message: '请输入联系电话', trigger: 'blur' }],
+  phone: [
+    { required: true, message: '请输入联系电话', trigger: 'blur' },
+    { validator: validatePhone, trigger: ['change', 'blur'] }
+  ],
   contactAddress: [{ required: false, message: '请输入联系地址', trigger: 'blur' }],
   contactEmail: [{ required: false, message: '请输入联系邮箱', trigger: 'blur' }],
   caseCardType: [{ required: true, message: '请选择个案卡类别', trigger: 'change' }],
   jobCode: [{ required: true, message: '请选择工种名称', trigger: 'change' }],
   otherJobName: [{ required: true, message: '请输入其他工种名称', trigger: 'blur' }],
-  contactSeniorityYear:  [{ required: true, message: '请输入接害工龄年', trigger: 'blur' }],
-  contactSeniorityMonth:  [{ required: true, message: '请输入接害工龄月', trigger: 'blur' }],
+  contactSeniorityYear: [{ required: true, message: '请输入接害工龄年', trigger: 'blur' }],
+  contactSeniorityMonth: [{ required: true, message: '请输入接害工龄月', trigger: 'blur' }],
   seniorityYear: [{ required: true, message: '请输入总工龄年', trigger: 'blur' }],
   seniorityMonth: [{ required: true, message: '请输入总工龄月', trigger: 'blur' }],
   checkType: [{ required: true, message: '请选择检查类型', trigger: 'change' }]
@@ -604,7 +629,7 @@ export const personColumn: any = [
   },
   {
     label: '预约日期',
-    prop: 'healthyCheckTime'
+    prop: 'healthyReserveTime'
   },
   {
     label: '完成时间',

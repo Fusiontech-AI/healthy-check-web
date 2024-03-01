@@ -10,7 +10,7 @@
         </template>
         <template #credentialNumberSlot>
           <div class="flex">
-            <el-input v-model="formValue.credentialNumberSlot" placeholder="请输入证件号"></el-input>
+            <el-input v-model="formValue.credentialNumber" @input="updateCredentialNum" placeholder="请输入证件号" clearable></el-input>
             <el-button class="ml-1" round type="primary" style="padding: 5px 8px;">读取</el-button>
           </div>
         </template>
@@ -67,31 +67,64 @@
 import { getTeamTaskList, insertRegisterData } from '@/api/groupInspection/taskAudit'
 import { unitGroupColumn, rules } from '../rowColumns'
 import { teamGroupList } from '@/api/leadershipCockpit/overviewMedicalExaminers'
-const props = defineProps<{
+import { registerAdd } from '@/api/deskRegistration/medicalRegistration';
+import { dayjs } from 'element-plus';
+import { getBirthday, getCurrentAgeByBirthDate, getSex } from '@/utils';
+
+const props = defineProps({
+  addShowDrawer: {
+    type: Boolean,
+    default: false
+  },
   teamIdList: {
-    type: any,
-    default: []
+    type: Array,
+    default: () => []
   },
   activeTeamTaskInfo: {
-    [x: string]: any
-    type: object,
-    default: {}
+    type: Object,
+    default: () => ({})
   }
-}>()
+});
+
+// 证件类型change事件
+const updateCredentialType = (val:any)=> {
+  formValue.value.birthday = ''
+  formValue.value.age = ''
+  formValue.value.gender = ''
+  if(val == '0') {
+    updateCredentialNum(formValue.value.credentialNumber)
+  }
+  unitGroupColumns.value.forEach((item:any) => {
+    if (val == '0') {
+      if (item.label == '出生日期' || item.label == '年龄' || item.label == '性别') {
+        item.search.disabled = true
+      }
+    } else {
+      if (item.label == '出生日期' || item.label == '年龄' || item.label == '性别') {
+        item.search.disabled = false
+      }
+    }
+  })
+}
+const unitGroupColumns = ref<any>(unitGroupColumn({teamIdList: props.teamIdList, physicalType: '', updateCredentialType}))
 const formValue = ref<any>({})
-
-const unitGroupColumns = ref<any>(unitGroupColumn({teamIdList: props.teamIdList, physicalType: ''}))
 const formRef = ref()
+const teamGroupData = ref([]) // 分组数据
 
-watch(()=> props.activeTeamTaskInfo, async(newV)=> {
-  formValue.value = {
-    teamId: newV?.teamName,
-    taskId: newV?.taskName,
-    physicalType: newV?.physicalType,
-    hazardFactor: []
+// 证件号change事件
+const updateCredentialNum = (val:any) => {
+  if(!val) return
+  formValue.value.birthday = ''
+  formValue.value.age = ''
+  formValue.value.gender = ''
+  if (formValue.value.credentialType == '0') {
+    formValue.value.birthday = getBirthday(val)
+    if (getBirthday(val).length === 10) {
+      formValue.value.age = getCurrentAgeByBirthDate(formValue.value.birthday)
+      formValue.value.gender = getSex(val, 'num')
+    }
   }
-  unitGroupColumns.value = unitGroupColumn({teamIdList: props.teamIdList, physicalType: newV?.physicalType})
-},{immediate: true})
+}
 
 watch(()=> formValue.value.hazardFactor, (newV)=> {
   unitGroupColumns.value.forEach((item:any)=> {
@@ -100,15 +133,54 @@ watch(()=> formValue.value.hazardFactor, (newV)=> {
     }
   })
 })
-watch(()=> formValue.value.physicalType, (newV)=> {
-  unitGroupColumns.value = unitGroupColumn({teamIdList: props.teamIdList, physicalType: newV})
-  console.log(formValue.value, 'formValue.value');
-})
+
+watch(()=> props.activeTeamTaskInfo, async(newV)=> {
+  // 分组列表
+  const {rows} = await teamGroupList({taskId: newV?.id, pagesize: -1, filterProject: 0})
+  teamGroupData.value = rows
+  // 根据体检状态调整字段的显示或隐藏🫥
+  unitGroupColumns.value = unitGroupColumn({teamIdList: props.teamIdList, teamGroupList: rows, physicalType: newV?.physicalType, updateCredentialType})
+}, {immediate: true})
+
+// 打开弹窗和关闭弹窗
+watch(()=>props.addShowDrawer, (newV)=> {
+  if(newV) {
+    formValue.value = {
+      teamName: props.activeTeamTaskInfo?.teamName,
+      teamId: props.activeTeamTaskInfo?.teamId,
+      deptName: props.activeTeamTaskInfo?.deptName,
+      taskName: props.activeTeamTaskInfo?.taskName,
+      taskId: props.activeTeamTaskInfo?.id,
+      physicalType: props.activeTeamTaskInfo?.physicalType,
+      gender: '',
+      hazardFactor: []
+    }
+    updateCredentialType('')
+  }else {
+    formRef.value?.clearValidate()
+    formRef.value?.resetFields()
+  }
+}, {immediate: true})
 
 // 保存提交
 const hanldeSubmit = async() => {
-  // const {data} = await insertRegisterData(formValue.value)
-  console.log(formRef.value);
+  formRef.value.validate(async(valid:any)=> {
+    if(valid) {
+      try {
+        const {reserveTime, ...p } = formValue.value
+        await registerAdd({
+          reserveStartTime: reserveTime?.[0],
+          reserveEndTime: reserveTime?.[1],
+          businessCategory: '1', // 团检
+          occupationalType: formValue.value.physicalType == 'ZYJKTJ'||formValue.value.physicalType == 'FSTJ' ?'0':'1', // 是否职业病
+          healthyCheckTime: dayjs(new Date()).format('YYYY-MM-DD HH:mm:ss'), // 体检日期
+          ...p
+        })
+        ElMessage.success('新增成功！')
+        emit('closeDialog')
+      } catch (error) { }
+    }
+  })
 }
 
 const emit = defineEmits<{

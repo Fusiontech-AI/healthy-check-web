@@ -110,8 +110,8 @@
         </div>
       </el-col>
     </el-row>
-    <el-drawer v-model="addDrawer" title="新增团检人员" size="70%">
-      <add-drawer @closeDialog="addDrawer = false" :teamIdList="teamIdList" :activeTeamTaskInfo="activeTeamTaskInfo"></add-drawer>
+    <el-drawer v-model="addShowDrawer" title="新增团检人员" size="70%">
+      <add-drawer @closeDialog="addShowDrawer = false;proTableRef.getTableList()" :addShowDrawer="addShowDrawer" :teamIdList="teamIdList" :activeTeamTaskInfo="activeTeamTaskInfo"></add-drawer>
     </el-drawer>
     <el-dialog
       title="批量导入"
@@ -161,7 +161,7 @@ const searchParam = ref<any>({
 })
 const isActiveId = ref('')
 const formRef = ref<any>(null)
-const addDrawer = ref<boolean>(false) // 新增弹框显示隐藏
+const addShowDrawer = ref<boolean>(false) // 新增弹框显示隐藏
 const showPersonDialog = ref<boolean>(false) // 人员信息弹窗显示隐藏
 const batchImportDialog = ref<boolean>(false) // 批量导入弹框显示隐藏
 const personInfo = ref({})
@@ -211,7 +211,7 @@ const importTemplate = () => {
 
 // 新增打开抽屉弹框
 const handleAdd = () => {
-  addDrawer.value = true
+  addShowDrawer.value = true
 }
 const reset = () => {
   searchParam.value = {}

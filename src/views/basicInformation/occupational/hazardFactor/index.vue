@@ -168,7 +168,7 @@ const updateColumns = (tab: string, sortCode: string) => {
   options.value = unref(option?.[tab]) || []
   columns.value = tableColumns({ bus_duty_status, bus_shine_source, bus_job_illumination_source, tab, sortCode })
   if (tab === '1' || tab === '2' || tab === '3') {
-    fields.value = formFields({ bus_duty_status, options: option?.[tab] || [], basicProjectOption, tab, sortCode })
+    fields.value = formFields({ bus_duty_status, options: option?.[tab] || [], tab, sortCode })
   } else if (tab === '7') {
     fields.value = pjFields()
   } else {

@@ -2,8 +2,13 @@
   <div v-if="columns.length" class="card form-search">
     <el-form ref="formRef" :model="searchParam" label-position="left" labelWidth="auto" v-bind="$attrs">
       <Grid ref="gridRef" :collapsed="collapsed" :gap="[20, 0]" :cols="searchCol">
-        <GridItem v-for="(item, index) in columnsFunc" :key="item.prop" v-bind="getResponsive(item)" :index="index"
-          :class="{ 'notLabel': !item.label }">
+        <GridItem
+          v-for="(item, index) in columnsFunc"
+          :key="item.prop"
+          v-bind="getResponsive(item)"
+          :index="index"
+          :class="{ 'notLabel': !item.label }"
+        >
           <slot :name="item.prop + 'Component'">
             <slot :name="'search' + item.slot">
               <el-form-item :prop="item.prop" v-bind="item.search">
@@ -18,8 +23,7 @@
                 </template>
                 <slot :name="item.prop + 'Slot'">
                   <template v-if="item.slot">
-                    <slot :name="item.slot" :field="item.prop" :model="searchParam" :value="searchParam[item.prop]">
-                    </slot>
+                    <slot :name="item.slot" :field="item.prop" :model="searchParam" :value="searchParam[item.prop]"> </slot>
                   </template>
                   <RenderFormValue v-else-if="preview" v-bind="item"></RenderFormValue>
                   <SearchFormItem v-else :column="item" :search-param="searchParam" v-on="{ ...item }" />
@@ -188,4 +192,3 @@ const showCollapse = computed(() => {
 
 }
 </style>
-
