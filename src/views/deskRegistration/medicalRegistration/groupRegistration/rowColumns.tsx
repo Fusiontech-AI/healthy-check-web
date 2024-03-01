@@ -67,7 +67,7 @@ const formInfoColumns = (teamIdList, taskList, groupList, zjhInput, zjlxChange, 
     prop: 'teamGroupId',
     label: '分组',
     enum: groupList,
-    search: { el: 'select' },
+    search: { el: 'select', disabled: true },
     fieldNames: { label: 'groupName', value: 'id' },
     change: teamGroupIdChange
   },

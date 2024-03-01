@@ -176,7 +176,7 @@ const info = {
   packageName: '',
 }
 const detailInfo = reactive(info)
-const detailInfoClone = ref({})
+const detailInfoClone = ref({ ...info })
 const {
   bus_pay_status,
 } = toRefs<any>(proxy?.
@@ -292,7 +292,6 @@ const handleSC = async (i) => {
     inputType: undefined,
     haveAmountCalculationItemBos, ////存量
     amountCalculationItemBos, ////增量或者减量都传这个
-    amountCalGroupBo: {}, //团检分组信息对象
     standardAmount: detailInfo.totalStandardAmount,
     discount: detailInfo.discount,
     receivableAmount: detailInfo.totalAmount
@@ -388,7 +387,7 @@ const handleUpdate = async (type) => {
     paidPersonAmount: formValue.value.paidTotalAmount ?? 0,
     paidTeamAmount: 0,
     tjRegCombinItemBos,
-    packageId: detailInfo.value.packageId
+    packageId: detailInfo.packageId
   }
   await registerChangeRegCombin(p)
   id.value && proxy?.$modal.msgSuccess("保存成功");

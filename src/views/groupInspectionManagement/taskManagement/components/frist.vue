@@ -25,7 +25,7 @@
       <el-table-column prop="gender" label="性别" width="100">
         <template #default="{ row }">
           <el-select v-model="row.gender" placeholder="请选择" class="left-select" clearable :disabled="preview">
-            <el-option v-for="item in sys_user_sex" :key="item.value" :label="item.label" :value="item.value" />
+            <el-option v-for="item in bus_gender" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </template>
       </el-table-column>
@@ -96,7 +96,7 @@
 <script setup lang="tsx" name="first">
 import { teamGroupDel } from '@/api/groupInspectionManagement/taskManagement'
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-const { bus_duty_status, bus_group_type, bus_marriage_status, sys_user_sex, bus_group_pay_type } = toRefs<any>(proxy?.useDict("bus_duty_status", 'bus_group_type', 'bus_marriage_status', 'sys_user_sex', 'bus_group_pay_type'));
+const { bus_duty_status, bus_group_type, bus_marriage_status, bus_gender, bus_group_pay_type } = toRefs<any>(proxy?.useDict("bus_duty_status", 'bus_group_type', 'bus_marriage_status', 'bus_gender', 'bus_group_pay_type'));
 const props = defineProps(['form', 'preview'])
 //新增一行
 const handleAdd = () => {

@@ -51,19 +51,21 @@
               </template>
               <!-- 个费 -->
               <template #personAmount="{ row, $index }">
-                <el-input v-model="row.personAmount" placeholder="请输入" @blur="handleSelected(row, $index, '1', '2')"
+                <el-input v-model="row.personAmount" placeholder="请输入" @blur="handleSelected(row, $index, '1', '4')"
                   oninput="value=value.replace(/[^\d.]/g, '').replace(/\.{2,}/g, '.').replace('.', '$#$').replace(/\./g, '').replace('$#$', '.').replace(/^(\-)*(\d+)\.(\d\d).*$/, '$1$2.$3').replace(/^\./g, '')"
                   :disabled="props.disabled || (title == '团体加项' && row.addFlag == '1') || (title == '个人加项' && row.addFlag == '2')" />
               </template>
               <!-- 团费 -->
               <template #teamAmount="{ row, $index }">
-                <el-input v-model="row.teamAmount" placeholder="请输入" @blur="handleSelected(row, $index, '1', '2')"
+                <el-input v-model="row.teamAmount" placeholder="请输入" @blur="handleSelected(row, $index, '1', '5')"
                   oninput="value=value.replace(/[^\d.]/g, '').replace(/\.{2,}/g, '.').replace('.', '$#$').replace(/\./g, '').replace('$#$', '.').replace(/^(\-)*(\d+)\.(\d\d).*$/, '$1$2.$3').replace(/^\./g, '')"
-                  :disabled="props.disabled || row.addFlag == '1' || (title == '团体加项' && row.addFlag == '1') || (title == '个人加项' && row.addFlag == '2')" />
+                  :disabled="props.disabled || row.addFlag == '1' || (title == '团体加项' && row.addFlag == '1') || (title == '个人加项' && row.addFlag == '2') || row.payType == '0'" />
               </template>
-              <template #payMode="{ row, $index }">
-                <el-select v-model="row.payMode" placeholder="请选择" class="left-select" clearable
-                  :disabled="props.disabled || row.addFlag == '1' || (title == '团体加项' && row.addFlag == '1') || (title == '个人加项' && row.addFlag == '2')">
+              <!-- 支付方式 -->
+              <template #payType="{ row, $index }">
+                <el-select v-model="row.payType" placeholder="请选择" class="left-select" clearable
+                  :disabled="props.disabled || row.addFlag == '1' || (title == '团体加项' && row.addFlag == '1') || (title == '个人加项' && row.addFlag == '2')"
+                  @change="handleSelected(row, $index, '1', '3')">
                   <el-option v-for="item in bus_pay_mode" :key="item.value" :label="item.label" :value="item.value" />
                 </el-select>
               </template>
@@ -179,15 +181,22 @@ const handleClick = (tab: TabsPaneContext, event: Event) => {
  * @param inputType 输入类型(1折扣 2应收金额 3收费方式 4个人应收额 5单位应收额 6分组或加项折扣)
  */
 const handleSelected = async (row, index, changeType, inputType) => {
+  if (!row.payType) {
+    if (props.title == '个人加项') {
+      row.payType = '0'
+    } else {
+      row.payType = '1'
+    }
+  }
   //体检套餐维护和选择套餐单项的不一样所以这里字段要转一下
   row.combinProjectName = row.name ?? row.combinProjectName
   row.combinProjectCode = row.pySimpleCode ?? row.combinProjectCode
-  const { standardAmount, discount, combinProjectCode, combinProjectName, id, type } = row
+  const { standardAmount, discount, combinProjectCode, combinProjectName, id, type, addFlag, payType } = row
   //changeType  //1单项 2总计项 3新增 4删除 5删除全部
   //inputType  //输入类型(1折扣 2应收金额 3收费方式 4个人应收额 5单位应收额)
   const sort = changeType ? index + 1 : 1
   const p = {
-    groupFlag: props.formValue.groupFlag,   //有无分组标志(1有分组)
+    groupFlag: props.formValue?.amountCalGroupBo ? '1' : undefined,   //有无分组标志(1有分组)
     regType: props.formValue.regType || '1',//1个检 2团检
     changeType,
     inputType,
@@ -195,6 +204,7 @@ const handleSelected = async (row, index, changeType, inputType) => {
     amountCalculationItemBos: [], ////增量或者减量都传这个
     amountCalGroupBo: props.formValue?.amountCalGroupBo  //团检分组信息对象
   }
+
   //说明是清空全部的
   if (changeType == '5') {
     p.changeType = '4'
@@ -204,9 +214,9 @@ const handleSelected = async (row, index, changeType, inputType) => {
       p.amountCalculationItemBos = rightTableData.value.filter(item => item.addFlag == 2)
     } else {
       p.amountCalculationItemBos = rightTableData.value
-
     }
   } else if (changeType == '3' || changeType == '4') {
+    //新增还是删除
     if (props.isRw && type == 1) {
       //为套餐查子项
       const { data } = await queryProjectByPackageId({ packageId: id })
@@ -222,6 +232,7 @@ const handleSelected = async (row, index, changeType, inputType) => {
           pySimpleCode,
           receivableAmount,
           standardAmount,
+          addFlag,
         } = item
         const tcFlag = isEmpty(tcObj.value) ? "0" : '1'
         zxList.push(id)
@@ -231,19 +242,19 @@ const handleSelected = async (row, index, changeType, inputType) => {
           sort: i + 1,
           standardAmount,
           discount, combinProjectCode: pySimpleCode, combinProjectName: name, receivableAmount,
-          payType: '1',
+          payType,//变更类型(0个人 1单位 2混合支付)
           payStatus: '0',
           tcFlag,
-          teamAmount: 0,
-          personAmount: standardAmount
+          teamAmount: payType != '0' ? receivableAmount : 0,
+          personAmount: payType == '0' ? receivableAmount : 0,
+          addFlag
         })
       })
       //第一次选的则为套餐后面的则为加项
       if (isEmpty(tcObj.value)) {
         //记录套餐 和子项
-        tcObj.value = { ...row, packageName: row.name, zxList }
+        tcObj.value = { ...row, zxList }
       }
-
     } else {
       p.amountCalculationItemBos.push({
         id,
@@ -251,11 +262,12 @@ const handleSelected = async (row, index, changeType, inputType) => {
         standardAmount,
         discount, combinProjectCode, combinProjectName,
         receivableAmount: standardAmount,
-        payType: '1',
+        payType,//变更类型(0个人 1单位 2混合支付)
         payStatus: '0',
         tcFlag: '1',
-        teamAmount: 0,
-        personAmount: standardAmount
+        teamAmount: payType != '0' ? standardAmount : 0,
+        personAmount: payType == '0' ? standardAmount : 0,
+        addFlag
       })
     }
 
@@ -301,8 +313,10 @@ const handleTableScroll = () => {
 
 watch(() => rightTableData.value, (newV) => {
   filterList()
-  props.formValue.packageId = tcObj.value.id
-  props.formValue.packageName = tcObj.value.packageName
+  if (props.isRw) {
+    props.formValue.packageId = tcObj.value.id
+    props.formValue.packageName = tcObj.value.name
+  }
   emit('itemChange', { rightTableData: newV })
 })
 watch(() => form.input, (newVal) => {
@@ -320,7 +334,7 @@ const defaultItems = () => {
     }
     return item.itemId
   })
-  tcObj.value = { id: packageId, packageName, zxList }
+  tcObj.value = { id: packageId, name: packageName, zxList }
   rightTableData.value = defaultItemList
 }
 

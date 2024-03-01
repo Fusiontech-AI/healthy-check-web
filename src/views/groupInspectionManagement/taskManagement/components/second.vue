@@ -113,7 +113,6 @@ const basicInfoColumnZYB = ref([
 watch(() => props.formSecond, async (newV) => {
   newV.forEach((item => {
     const { groupType, price, groupPayType, addPayType, itemDiscount, addDiscount, groupItemList, standardPrice, actualPrice, } = item
-    item.groupFlag = '1'
     item.regType = '2'
     item.amountCalGroupBo = { groupType, price, groupPayType, addPayType, itemDiscount, addDiscount }
     item.defaultItemList = groupItemList.map((item, i) => {
@@ -122,8 +121,8 @@ watch(() => props.formSecond, async (newV) => {
         payType: '1',//变更类型(0个人 1单位 2混合支付)
         payStatus: '0',//缴费状态（0：未缴费，1：已缴费，2：申请退费中，3：已退费，）
         tcFlag: item.include,//是否套餐'0'是'1'否
-        teamAmount: 0,//单位应收金额
-        personAmount: item.actualPrice,//个人应收金额
+        teamAmount: item.actualPrice,//单位应收金额
+        personAmount: 0,//个人应收金额
         combinProjectCode: item.combinProjectCode,
         combinProjectName: item.itemName,
         standardAmount: item.standardPrice,
@@ -235,7 +234,6 @@ const handleHY = async () => {
   })
   const { data } = await teamGroupInfo({ id })
   const { groupType, price, groupPayType, addPayType, itemDiscount, addDiscount, groupItemList, standardPrice, actualPrice, } = data
-  data.groupFlag = '1'
   data.regType = '2'
   data.amountCalGroupBo = { groupType, price, groupPayType, addPayType, itemDiscount, addDiscount }
   data.defaultItemList = groupItemList
@@ -258,9 +256,11 @@ const handleHY = async () => {
   border: none;
 }
 
-.tabs {
-  :deep(.el-tabs__item) {
-    pointer-events: auto !important;
+.tabsClass {
+  .tabs {
+    :deep(.el-tabs__item) {
+      pointer-events: auto !important;
+    }
   }
 }
 </style>

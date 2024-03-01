@@ -109,7 +109,7 @@ const formSecondClone = ref([])
 const teamTaskLists = ref([])
 const activeName = ref('first')
 const preview = ref(false)
-const activeKey = ref<number>()
+const activeKey = ref()
 
 const { bus_physical_type, bus_charge_type } = toRefs<any>(proxy?.useDict("bus_physical_type", 'bus_charge_type'));
 

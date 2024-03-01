@@ -169,6 +169,7 @@
 import { cloneDeep } from 'lodash'
 import SelectXmItem from '@/views/deskRegistration/medicalRegistration/components/selectXmItem.vue'
 import ImageUpload from '@/components/ImageUpload'
+import { teamGroupInfo } from '@/api/groupInspectionManagement/taskManagement'
 import { registerPage } from '@/api/deskRegistration/medicalRegistration'
 import { formInfoColumns, formRules, tableColumns, tableColumnsYDJ } from '@/views/deskRegistration/medicalRegistration/groupRegistration/rowColumns.tsx'
 import { teamInfoList } from "@/api/groupInspection/inspectionclosing";
@@ -181,15 +182,18 @@ const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 import type { TabsPaneContext } from 'element-plus'
 const formObj = {
   credentialNumber: '420117199507186555',
-  phone: '18571714455',
+  // phone: '18571714455',
+  // name: '123',
+  // checkType: '11',
+  // reserveTimeArr: [],
+  // birthday: '1995-07-18 00:00:00',
+  // age: 28,
+  // gender: '0',
+  // physicalType: 'JKTJ',
   credentialType: '0',
-  name: '123',
+  payType: '1',
+  marriageStatus: '2',
   checkType: '11',
-  reserveTimeArr: [],
-  birthday: '1995-07-18 00:00:00',
-  age: 28,
-  gender: '0',
-  physicalType: 'JKTJ',
 }
 const formValue = ref<any>(formObj) // 基本信息绑定的值
 const teamIdList = ref<any>([]) //单位列表
@@ -241,7 +245,8 @@ const zjhInput = async (val) => {
   }
 }
 //根据选择的分组显示分组金额和折扣
-const teamGroupIdChange = (val) => {
+const teamGroupIdChange = async (val) => {
+  detailInfo.value = { ...info }
   formValue.value.actualPrice = ''
   formValue.value.itemDiscount = ''
   groupList.value.forEach(item => {
@@ -250,12 +255,22 @@ const teamGroupIdChange = (val) => {
       formValue.value.itemDiscount = item.itemDiscount
     }
   })
+  if (!val) return
+  const { data } = await teamGroupInfo({ id: val })
+  //有分组就要传amountCalGroupBo
+  const { groupType, price, groupPayType, addPayType, itemDiscount, addDiscount, groupItemList, standardPrice, actualPrice, packageId } = data
+  detailInfo.value.packageId = packageId
+  detailInfo.value.amountCalGroupBo = { groupType, price, groupPayType, addPayType, itemDiscount, addDiscount }
+  handleChangeGroup(data)
 }
 //单位change事件
 const dwChange = async (val) => {
   taskList.value = []
   formValue.value.taskId = ''
   formValue.value.teamGroupId = ''
+  formValue.value.actualPrice = ''
+  formValue.value.itemDiscount = ''
+  detailInfo.value = { ...info }
   const { rows } = await getTeamTaskList({ teamId: val, pagesize: -1, isAccord: 0 }) // 根据单位带出任务列表
   rows.forEach(item => {
     item.label = item.groupName
@@ -265,8 +280,16 @@ const dwChange = async (val) => {
 }
 //任务change事件
 const rwChange = async (val) => {
+  //体检类型由任务带出
+  formValue.value.physicalType = ''
+  taskList.value.forEach(item => {
+    if (item.id == val) {
+      formValue.value.physicalType = item.physicalType
+    }
+  })
   groupList.value = []
   formValue.value.teamGroupId = ''
+  detailInfo.value = { ...info }
   const { rows } = await teamGroupList({ taskId: val, pagesize: -1, filterProject: 0 }) // 根据任务带出分组列表
   rows.forEach(item => {
     item.label = item.taskName
@@ -304,9 +327,10 @@ const info = {
   discount: 0,
   packageId: '',
   packageName: '',
+  amountCalGroupBo: null
 }
 const detailInfo = ref({ ...info })
-const detailInfoClone = ref({})
+const detailInfoClone = ref({ ...info })
 const {
   bus_pay_status,
 } = toRefs<any>(proxy?.
@@ -384,8 +408,9 @@ const handleDJ = () => {
       formValue.value.packageId = detailInfo.value.packageId
       const { data } = await registerAdd(formValue.value)
       // id.value = data
-      // data && await handleUpdate('新增')
-      proxy?.$modal.msgSuccess("预登记成功");
+      formValue.value.id = data
+      data && await handleUpdate('暂存')
+      // proxy?.$modal.msgSuccess("预登记成功");
       ydjHas.value = false
       // router.push(`/deskRegistration/medicalRegistration-childPage/groupRegistration?id=${data}`);
       data && getDetail(data)
@@ -406,8 +431,8 @@ const handleSC = async (i) => {
       payType: item.payMode,//变更类型(0个人 1单位 2混合支付)
       payStatus: item.payStatus,//缴费状态（0：未缴费，1：已缴费，2：申请退费中，3：已退费，）
       tcFlag: item.projectType,//是否套餐'0'是'1'否
-      teamAmount: 0,//单位应收金额
-      personAmount: item.receivableAmount,//个人应收金额
+      teamAmount: item.teamAmount,//单位应收金额
+      personAmount: item.personAmount,//个人应收金额
       combinProjectCode: '',
       combinProjectName: item.combinProjectName,
       standardAmount: item.standardAmount,
@@ -421,13 +446,13 @@ const handleSC = async (i) => {
   //changeType  //1单项 2总计项 3新增 4删除 5删除全部
   //inputType  //输入类型(1折扣 2应收金额 3收费方式 4个人应收额 5单位应收额)
   const p = {
-    groupFlag: undefined,   //有无分组标志(1有分组)
+    groupFlag: detailInfo.value.amountCalGroupBo ? '1' : undefined,   //有无分组标志(1有分组)
     regType: '2',//1个检 2团检
     changeType: '4',
     inputType: undefined,
     haveAmountCalculationItemBos, ////存量
     amountCalculationItemBos, ////增量或者减量都传这个
-    amountCalGroupBo: {}, //团检分组信息对象
+    amountCalGroupBo: detailInfo.value.amountCalGroupBo, //团检分组信息对象
     standardAmount: detailInfo.value.totalStandardAmount,
     discount: detailInfo.value.discount,
     receivableAmount: detailInfo.value.totalAmount
@@ -518,8 +543,8 @@ const handleUpdate = async (type) => {
     receivableAmount: detailInfo.value.totalAmount,
     personAmount: detailInfo.value.totalAmount,
     teamAmount: 0,
-    paidTotalAmount: formValue.value.paidTotalAmount,
-    paidPersonAmount: formValue.value.paidTotalAmount,
+    paidTotalAmount: formValue.value.paidTotalAmount ?? 0,
+    paidPersonAmount: formValue.value.paidTotalAmount ?? 0,
     paidTeamAmount: 0,
     tjRegCombinItemBos,
     packageId: detailInfo.value.packageId
@@ -570,6 +595,57 @@ const refset = () => {
   preview.value = false
 }
 
+//切换分组需要重新调用算费接口
+const handleChangeGroup = async (row) => {
+  if (row.groupItemList.length == 0) return
+  const amountCalculationItemBos = row.groupItemList.map((item, i) => {
+    return {
+      sort: i + 1,
+      payType: '1',//变更类型(0个人 1单位 2混合支付)
+      payStatus: '0',//缴费状态（0：未缴费，1：已缴费，2：申请退费中，3：已退费，）
+      tcFlag: item.include,//是否套餐'0'是'1'否
+      teamAmount: item.actualPrice,//单位应收金额
+      personAmount: 0,//个人应收金额
+      combinProjectCode: '',
+      combinProjectName: item.itemName,
+      standardAmount: item.standardPrice,
+      discount: item.discount,
+      receivableAmount: item.actualPrice,
+      id: item.itemId,
+    }
+  })
+  //changeType  //1单项 2总计项 3新增 4删除 5删除全部
+  //inputType  //输入类型(1折扣 2应收金额 3收费方式 4个人应收额 5单位应收额)
+  const p = {
+    groupFlag: detailInfo.value.amountCalGroupBo ? '1' : undefined,   //有无分组标志(1有分组)
+    regType: '2',//1个检 2团检
+    changeType: '3',
+    inputType: undefined,
+    haveAmountCalculationItemBos: [], ////存量
+    amountCalculationItemBos, ////增量或者减量都传这个
+    amountCalGroupBo: detailInfo.value.amountCalGroupBo, //团检分组信息对象
+    standardAmount: row.standardPrice,
+    discount: row.discount,
+    receivableAmount: row.actualPrice
+  }
+  const { data } = await commonDynamicBilling(p)
+  detailInfo.value.totalAmount = data.receivableAmount
+  detailInfo.value.discount = data.discount
+  detailInfo.value.totalStandardAmount = data.standardAmount
+  detailInfo.value.dataSource = data.amountCalculationItemVos.map(item => {
+    if (item.tcFlag == 0) {
+      item.packageId = detailInfo.value.packageId
+    }
+    return {
+      ...item,
+      projectType: item.tcFlag,//项目类型（1：套餐项目，2：加项项目
+      payMode: item.payType,
+      checkStatus: '0',
+      addFlag: item.addFlag  //addFlag	加项标识:1个人加项 2团队加项
+    }
+  })
+}
+
 //根据体检类型区分是职业病还是普通体检
 watch(() => formValue.value.physicalType, (newV) => {
   formColumns.value.forEach(item => {
@@ -594,7 +670,7 @@ watch(() => route.query.id, (newV) => {
 })
 watch(() => ydjHas.value, (newV) => {
   formColumns.value.forEach(item => {
-    if (item.label == '单位' || item.label == '任务' || item.label == '体检类型') {
+    if (item.label == '单位' || item.label == '任务' || item.label == '分组') {
       if (newV) {
         item.search.disabled = false
       } else {

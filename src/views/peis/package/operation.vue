@@ -174,6 +174,7 @@ const formColumns = ref([
   },
 ])
 const formValue = reactive({
+  packageName: '',
   tjPackageInfoItemBos: [],
   defaultItemList: []
 })

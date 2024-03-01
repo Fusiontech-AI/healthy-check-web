@@ -1,5 +1,5 @@
 <template>
-  <div :class="{'item-wrapper':true,'item-active':activeKey === item.id}" @click="handleClickItem(item)" :key="item.id">
+  <div :class="{ 'item-wrapper': true, 'item-active': activeKey === item.id }" @click="handleClickItem(item)" :key="item.id">
     <div class="flex items-center justify-between text-[14px] leading-5">
       <span>{{ item.taskName }}</span>
 
@@ -40,7 +40,7 @@ const reviewResultColor = {
 
 const emits = defineEmits(['click-item'])
 
- const props = defineProps({
+const props = defineProps({
   item: {
     type: Object as PropType<any>,
     default() {
@@ -48,7 +48,7 @@ const emits = defineEmits(['click-item'])
     },
   },
   activeKey: {
-    type: Number,
+    type: String,
     default: null,
   },
   bus_physical_type: {

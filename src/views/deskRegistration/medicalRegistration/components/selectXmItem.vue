@@ -65,17 +65,6 @@
 
 <script setup name="selectXmItem" lang="tsx">
 import TransferFilterComplex from '@/components/TransferFilterComplex'
-
-const drawerVisible = ref(false)
-const TransferFilterComplexRef = ref(null)
-const formValue = reactive({
-  standardAmount: 0,
-  discount: 0,
-  receivableAmount: 0,
-  defaultItemList: [],
-  packageId: '',
-  packageName: ""
-})
 const props = defineProps({
   // title
   title: {
@@ -94,6 +83,18 @@ const props = defineProps({
     type: Object,
     default: () => { },
   },
+})
+const drawerVisible = ref(false)
+const TransferFilterComplexRef = ref(null)
+const formValue = reactive({
+  standardAmount: 0,
+  discount: 0,
+  receivableAmount: 0,
+  defaultItemList: [],
+  packageId: '',
+  packageName: "",
+  regType: props.isTuanJian ? '2' : '1',
+  amountCalGroupBo: null //分组信息
 })
 
 const dialogVisible = ref(false)
@@ -134,7 +135,7 @@ const tableColumnsTj =
       isShow: true
     },
     {
-      prop: 'payMode',
+      prop: 'payType',
       label: '支付方式',
       minWidth: 120,
       isShow: true
@@ -199,15 +200,14 @@ const tableData = computed(() => {
 })
 const dataSource = ref([])
 const handleDrawerChange = async () => {
-
   formValue.defaultItemList = props.detailInfo.dataSource.map((item, i) => {
     return {
       sort: i + 1,
       payType: item.payMode,//变更类型(0个人 1单位 2混合支付)
       payStatus: item.payStatus,//缴费状态（0：未缴费，1：已缴费，2：申请退费中，3：已退费，）
       tcFlag: item.projectType,//是否套餐'0'是'1'否
-      teamAmount: 0,//单位应收金额
-      personAmount: item.receivableAmount,//个人应收金额
+      teamAmount: item.teamAmount || (item.payMode == 1 ? item.receivableAmount : 0),//单位应收金额
+      personAmount: item.personAmount || (item.payMode == 0 ? item.receivableAmount : 0),//个人应收金额
       combinProjectCode: '',
       combinProjectName: item.combinProjectName,
       standardAmount: item.standardAmount,
@@ -217,12 +217,12 @@ const handleDrawerChange = async () => {
       addFlag: item.addFlag
     }
   })
-
   formValue.standardAmount = props.detailInfo.totalStandardAmount
   formValue.receivableAmount = props.detailInfo.totalAmount
   formValue.discount = props.detailInfo.discount
   formValue.packageId = props.detailInfo.packageId
   formValue.packageName = props.detailInfo.packageName
+  formValue.amountCalGroupBo = props.detailInfo.amountCalGroupBo
   drawerVisible.value = true
   await nextTick()
   TransferFilterComplexRef.value.defaultItems()
@@ -297,7 +297,7 @@ const handleFzXzr = () => {
 const itemChange = (val) => {
   val.rightTableData.forEach(item => {
     item.projectType = item.tcFlag//项目类型（1：套餐项目，2：加项项目
-    item.payMode = item.payMode ?? (props.title == '个人加项' ? '0' : "1")
+    item.payMode = item.payType ?? (props.title == '个人加项' ? '0' : "1")
     item.checkStatus = '0'
     item.addFlag = item.addFlag ?? (props.title == '个人加项' ? '1' : '2') //addFlag	加项标识:1个人加项 2团队加项
     if (item.projectType == 0) {
