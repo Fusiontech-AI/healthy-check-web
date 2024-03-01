@@ -57,9 +57,9 @@
                   </div>
                   <div class="flex justify-between items-center text-[12px] text-[#89919F]">
                     <span>{{ item.signDate }}</span>
-                    <span v-if="item.reviewResult == '0'" class="text-#FF8400">待审</span>
-                    <span v-if="item.reviewResult == '1'" class="text-#09C268">通过</span>
-                    <span v-if="item.reviewResult == '2'" class="text-#F75252">驳回</span>
+                    <span v-if="item.reviewResult == '0' && item.isReview == '0'" class="text-#FF8400">待审</span>
+                    <span v-if="item.reviewResult == '1' && item.isReview == '0'" class="text-#09C268">通过</span>
+                    <span v-if="item.reviewResult == '2' && item.isReview == '0'" class="text-#F75252">驳回</span>
                   </div>
                 </el-card>
               </template>
@@ -110,8 +110,8 @@
         </div>
       </el-col>
     </el-row>
-    <el-drawer v-model="addDrawer" title="新增团检人员" size="60%">
-      <add-drawer @closeDialog="addDrawer = false" :teamIdList="teamIdList"></add-drawer>
+    <el-drawer v-model="addShowDrawer" title="新增团检人员" size="70%">
+      <add-drawer @closeDialog="addShowDrawer = false;proTableRef.getTableList()" :addShowDrawer="addShowDrawer" :teamIdList="teamIdList" :activeTeamTaskInfo="activeTeamTaskInfo"></add-drawer>
     </el-drawer>
     <el-dialog
       title="批量导入"
@@ -130,14 +130,6 @@
     <el-dialog title="人员信息详情" v-model="showPersonDialog" width="45%">
       <el-scrollbar height="550px" class="no-card">
         <SearchForm ref="formRef" :columns="personColumns" :search-param="personInfo" :search-col="2" :preview="true"></SearchForm>
-        <!-- <Grid ref="gridRef" :gap="20" :cols="2">
-          <GridItem :span="1" v-for="item in personColumns " :key="item.label">
-            <div class="flex text-[14px] text-[#141C28] ml-4">
-              <span class="w-[120px] text-[#89919F]">{{ item.label }}：</span>
-              <span class="flex-1">{{ item.value }}</span>
-            </div>
-          </GridItem>
-        </Grid> -->
       </el-scrollbar>
       <div class="flex justify-end mt-4">
         <el-button round @click="showPersonDialog = false">取消</el-button>
@@ -169,10 +161,11 @@ const searchParam = ref<any>({
 })
 const isActiveId = ref('')
 const formRef = ref<any>(null)
-const addDrawer = ref<boolean>(false) // 新增弹框显示隐藏
+const addShowDrawer = ref<boolean>(false) // 新增弹框显示隐藏
 const showPersonDialog = ref<boolean>(false) // 人员信息弹窗显示隐藏
 const batchImportDialog = ref<boolean>(false) // 批量导入弹框显示隐藏
 const personInfo = ref({})
+const activeTeamTaskInfo = ref<any>({}) // 团检任务基本信息
 
 // 查看人员详情
 const viewPersonDetail = async(row:any) => {
@@ -218,7 +211,7 @@ const importTemplate = () => {
 
 // 新增打开抽屉弹框
 const handleAdd = () => {
-  addDrawer.value = true
+  addShowDrawer.value = true
 }
 const reset = () => {
   searchParam.value = {}
@@ -233,8 +226,6 @@ const clickTeamTask = (row: any) => {
   initParam.taskId = row.id
 }
 
-// 团检任务基本信息
-const activeTeamTaskInfo = ref<any>({})
 // 获取左侧团检任务列表
 const teamTaskList = ref<any>([])
 const teamTaskLoading = ref<boolean>(false)
