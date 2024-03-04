@@ -77,7 +77,7 @@
 
               <template #cz="{ row, $index }">
                 <el-button class="button" @click="handleSelected(row, $index, '4')" type="primary" link
-                  :disabled="props.disabled || (title == '团体加项' && row.addFlag == '1') || (title == '个人加项' && row.addFlag == '2')">删除</el-button>
+                  :disabled="props.disabled || (title == '团体加项' && row.addFlag == '1') || (title == '个人加项' && row.addFlag == '2') || row.checkStatus == 1 || row.payStatus == 1">删除</el-button>
               </template>
             </ProTable>
             <!-- <el-table :data="rightTableData" style="width: 100%" :height="props.isRw ? 350 : 408" v-bind="$attrs">
@@ -204,7 +204,7 @@ const handleSelected = async (row, index, changeType, inputType) => {
   //体检套餐维护和选择套餐单项的不一样所以这里字段要转一下
   row.combinProjectName = row.name ?? row.combinProjectName
   row.combinProjectCode = row.pySimpleCode ?? row.combinProjectCode
-  const { standardAmount, discount, combinProjectCode, combinProjectName, id, type, addFlag, payType } = row
+  const { standardAmount, discount, combinProjectCode, combinProjectName, id, type, addFlag, payType, originId } = row
   //changeType  //1单项 2总计项 3新增 4删除 5删除全部
   //inputType  //输入类型(1折扣 2应收金额 3收费方式 4个人应收额 5单位应收额)
   const sort = changeType ? index + 1 : 1
@@ -228,6 +228,8 @@ const handleSelected = async (row, index, changeType, inputType) => {
     } else {
       p.amountCalculationItemBos = rightTableData.value
     }
+    //状态已检查和已缴费的不允许删除
+    p.amountCalculationItemBos = p.amountCalculationItemBos.filter(item => item.checkStatus != 1 && item.payStatus != 1)
   } else if (changeType == '3' || changeType == '4') {
     //新增还是删除
     if (props.isRw && type == 1) {
@@ -260,7 +262,8 @@ const handleSelected = async (row, index, changeType, inputType) => {
           tcFlag,
           teamAmount: payType != '0' ? receivableAmount : 0,
           personAmount: payType == '0' ? receivableAmount : 0,
-          addFlag
+          addFlag,
+          originId: null
         })
       })
       //第一次选的则为套餐后面的则为加项
@@ -280,7 +283,8 @@ const handleSelected = async (row, index, changeType, inputType) => {
         tcFlag: '1',
         teamAmount: payType != '0' ? standardAmount : 0,
         personAmount: payType == '0' ? standardAmount : 0,
-        addFlag
+        addFlag,
+        originId
       })
     }
 

@@ -83,7 +83,8 @@
               <span class="m10px">未缴金额 ：{{ amountWJ }}</span>
             </div>
             <div>
-              <el-button round type="danger" @click="handleSC('')">删除</el-button>
+              <el-button round type="danger" @click="handleSC('')"
+                :disabled="row.checkStatus == 1 || row.payStatus == 1">删除</el-button>
               <el-button round type="primary" @click="handleJx">
                 <el-icon class="avatar-uploader-icon">
                   <plus />
@@ -227,7 +228,11 @@ const getDetail = async () => {
 //获得需要回显的项目
 const getXm = async () => {
   const { data } = await queryRegCombinProjectList({ id: id.value })
-  detailInfo.value.dataSource = data
+  detailInfo.value.dataSource = data.map(item => {
+    item.originId = item.id
+    return item
+  }
+  )
   detailInfoClone.value = cloneDeep(detailInfo.value)
 }
 id.value && getDetail()
@@ -293,7 +298,8 @@ const handleSC = async (i) => {
       discount: item.discount,
       receivableAmount: item.receivableAmount,
       id: item.combinationProjectId,
-      xmId: item.id
+      xmId: item.id,
+      originId: item.originId
     }
   })
   const amountCalculationItemBos = i === '' ? haveAmountCalculationItemBos.filter((item) => checkedList.value.includes(item.xmId)) : haveAmountCalculationItemBos.filter((item, s) => s == i)
@@ -311,6 +317,8 @@ const handleSC = async (i) => {
     discount,
     receivableAmount
   }
+  //状态已检查和已缴费的不允许删除
+  p.amountCalculationItemBos = p.amountCalculationItemBos.filter(item => item.checkStatus != 1 && item.payStatus != 1)
   const { data } = await commonDynamicBilling(p)
   if (i === '') {
     for (let index = detailInfo.value.dataSource.length - 1; index >= 0; index--) {
@@ -378,7 +386,7 @@ const handleUpdate = async (type) => {
       discount,
       receivableAmount,
       tcFlag,
-      projectType, packageId
+      projectType, packageId, originId
     } = item
     return {
       combinationProjectId: combinationProjectId || id,
@@ -393,7 +401,7 @@ const handleUpdate = async (type) => {
       checkStatus: "0",
       addFlag: "1",
       packageId,
-      id
+      id: originId
     }
   })
   const {

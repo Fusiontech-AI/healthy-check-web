@@ -150,8 +150,9 @@
         <ProTable :columns="tableColumns" :toolButton="false" :data="detailInfo.dataSource" :pagination="false"
           @selectionChange="selectionChange" ref="proTableRef">
 
-          <template #operation="{ $index }">
-            <el-button type="danger" round @click="handleSC($index)">删除</el-button>
+          <template #operation="{ row, $index }">
+            <el-button type="danger" round @click="handleSC($index)"
+              :disabled="row.checkStatus == 1 || row.payStatus == 1">删除</el-button>
           </template>
         </ProTable>
       </el-card>
@@ -388,7 +389,11 @@ const getDetail = async (id) => {
 //获得需要回显的项目
 const getXm = async (id) => {
   const { data } = await queryRegCombinProjectList({ id })
-  detailInfo.value.dataSource = data
+  detailInfo.value.dataSource = data.map(item => {
+    item.originId = item.id
+    return item
+  }
+  )
   detailInfoClone.value = cloneDeep(detailInfo.value)
 }
 id.value && getDetail(id.value)
@@ -459,7 +464,8 @@ const handleSC = async (i) => {
       discount: item.discount,
       receivableAmount: item.receivableAmount,
       id: item.combinationProjectId,
-      xmId: item.id
+      xmId: item.id,
+      originId: item.originId
     }
   })
   const amountCalculationItemBos = i === '' ? haveAmountCalculationItemBos.filter((item) => checkedList.value.includes(item.xmId)) : haveAmountCalculationItemBos.filter((item, s) => s == i)
@@ -478,6 +484,8 @@ const handleSC = async (i) => {
     discount,
     receivableAmount
   }
+  //状态已检查和已缴费的不允许删除
+  p.amountCalculationItemBos = p.amountCalculationItemBos.filter(item => item.checkStatus != 1 && item.payStatus != 1)
   const { data } = await commonDynamicBilling(p)
   if (i === '') {
     for (let index = detailInfo.value.dataSource.length - 1; index >= 0; index--) {
@@ -544,7 +552,7 @@ const handleUpdate = async (type) => {
       discount,
       receivableAmount,
       tcFlag,
-      projectType, addFlag, payMode, teamAmount, personAmount, packageId
+      projectType, addFlag, payMode, teamAmount, personAmount, packageId, originId
     } = item
     return {
       combinationProjectId: combinationProjectId || id,
@@ -557,7 +565,7 @@ const handleUpdate = async (type) => {
       payStatus: "0",
       payMode,
       checkStatus: "0",
-      addFlag, packageId, id
+      addFlag, packageId, id: originId
     }
   })
   const operationType = type == '报到' ? '2' : type == '暂存' ? '4' : '3' //1:登记，2:报道 3:变更项目 4:暂存

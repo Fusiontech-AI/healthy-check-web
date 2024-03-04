@@ -234,7 +234,8 @@ const handleDrawerChange = async () => {
       discount: item.discount,
       receivableAmount: item.receivableAmount,
       id: item.combinationProjectId || item.id, //回显取combinationProjectId 新选的取id
-      addFlag: item.addFlag
+      addFlag: item.addFlag,
+      originId: item.originId
     }
   })
   formValue.standardAmount = standardAmount
@@ -381,7 +382,8 @@ const handleHY = () => {
       discount: item.discount,
       receivableAmount: item.receivableAmount,
       id: item.combinationProjectId || item.id, //回显取combinationProjectId 新选的取id
-      addFlag: item.addFlag
+      addFlag: item.addFlag,
+      originId: item.originId
     }
   })
 
