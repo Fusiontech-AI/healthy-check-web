@@ -39,29 +39,34 @@
           <div>
             <ProTable ref="proTableRef" :columns="tableColumns" :toolButton="false" :data="rightTableData"
               label-position="right" :pagination="false" :height="rightHeight">
+
               <template #discount="{ row, $index }">
                 <el-input v-model="row.discount" placeholder="请输入" @blur="handleSelected(row, $index, '1', '1')"
                   oninput="value=value.replace(/[^\d.]/g, '').replace(/\.{2,}/g, '.').replace('.', '$#$').replace(/\./g, '').replace('$#$', '.').replace(/^(\-)*(\d+)\.(\d\d).*$/, '$1$2.$3').replace(/^\./g, '')"
                   :disabled="props.disabled || (title == '团体加项' && row.addFlag == '1') || (title == '个人加项' && row.addFlag == '2')" />
               </template>
+
               <template #receivableAmount="{ row, $index }">
                 <el-input v-model="row.receivableAmount" placeholder="请输入" @blur="handleSelected(row, $index, '1', '2')"
                   oninput="value=value.replace(/[^\d.]/g, '').replace(/\.{2,}/g, '.').replace('.', '$#$').replace(/\./g, '').replace('$#$', '.').replace(/^(\-)*(\d+)\.(\d\d).*$/, '$1$2.$3').replace(/^\./g, '')"
                   :disabled="props.disabled" />
               </template>
               <!-- 个费 -->
+
               <template #personAmount="{ row, $index }">
                 <el-input v-model="row.personAmount" placeholder="请输入" @blur="handleSelected(row, $index, '1', '4')"
                   oninput="value=value.replace(/[^\d.]/g, '').replace(/\.{2,}/g, '.').replace('.', '$#$').replace(/\./g, '').replace('$#$', '.').replace(/^(\-)*(\d+)\.(\d\d).*$/, '$1$2.$3').replace(/^\./g, '')"
-                  :disabled="props.disabled || (title == '团体加项' && row.addFlag == '1') || (title == '个人加项' && row.addFlag == '2')" />
+                  :disabled="props.disabled || (title == '团体加项' && row.addFlag == '1') || (title == '个人加项' && row.addFlag == '2') || (title == '团体加项' && row.addFlag == '2')" />
               </template>
               <!-- 团费 -->
+
               <template #teamAmount="{ row, $index }">
                 <el-input v-model="row.teamAmount" placeholder="请输入" @blur="handleSelected(row, $index, '1', '5')"
                   oninput="value=value.replace(/[^\d.]/g, '').replace(/\.{2,}/g, '.').replace('.', '$#$').replace(/\./g, '').replace('$#$', '.').replace(/^(\-)*(\d+)\.(\d\d).*$/, '$1$2.$3').replace(/^\./g, '')"
                   :disabled="props.disabled || row.addFlag == '1' || (title == '团体加项' && row.addFlag == '1') || (title == '个人加项' && row.addFlag == '2') || row.payType == '0'" />
               </template>
               <!-- 支付方式 -->
+
               <template #payType="{ row, $index }">
                 <el-select v-model="row.payType" placeholder="请选择" class="left-select" clearable
                   :disabled="props.disabled || row.addFlag == '1' || (title == '团体加项' && row.addFlag == '1') || (title == '个人加项' && row.addFlag == '2')"
@@ -69,6 +74,7 @@
                   <el-option v-for="item in bus_pay_mode" :key="item.value" :label="item.label" :value="item.value" />
                 </el-select>
               </template>
+
               <template #cz="{ row, $index }">
                 <el-button class="button" @click="handleSelected(row, $index, '4')" type="primary" link
                   :disabled="props.disabled || (title == '团体加项' && row.addFlag == '1') || (title == '个人加项' && row.addFlag == '2')">删除</el-button>
@@ -122,6 +128,7 @@
     </el-row>
   </div>
 </template>
+
 <script setup lang="tsx" name="TransferFilterComplex">
 import { debounce, isEmpty } from 'lodash'
 import type { TabsPaneContext } from 'element-plus'
@@ -272,6 +279,14 @@ const handleSelected = async (row, index, changeType, inputType) => {
     }
 
   } else if (changeType == '1') {
+    //变更类型(0个人 1单位 2混合支付)
+    p.haveAmountCalculationItemBos.forEach(item => {
+      if (payType == 0) {
+        item.receivableAmount = item.personAmount
+      } else if (payType == 1) {
+        item.receivableAmount = item.teamAmount
+      }
+    })
     p.sort = sort
   }
   //没有已选项时总折扣和总应收额不触发
@@ -351,6 +366,7 @@ const getRemote = debounce(() => {
 
 defineExpose({ handleSelected, defaultItems })
 </script>
+
 <style scoped lang="scss">
 :deep(.el-tabs__nav-wrap::after) {
   height: 0;
