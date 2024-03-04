@@ -17,6 +17,7 @@
         </template>
         <SearchForm ref="formRef" :columns="formColumns" :search-param="formValue" :search-col="2" :rules="rules"
           :disabled="preview" label-position="right" :preview="preview">
+
           <template #searchcredentialImage>
             <div class="flex justify-around mb-10px">
               <ImageUpload :isShowTip="false" v-model="formValue.credentialImage" :limit="1">
@@ -25,6 +26,7 @@
                 </template>
               </ImageUpload>
               <ImageUpload :isShowTip="false" v-model="formValue.credentialImage" :limit="1">
+
                 <template #txt>
                   <div class="absolute top-60%">人脸采集</div>
                 </template>
@@ -37,11 +39,12 @@
               </div>
             </div>
           </template>
+
           <template #reserveTimeArr>
             <el-time-picker v-model="formValue.reserveTimeArr" is-range arrow-control range-separator="至"
               start-placeholder="开始时间" end-placeholder="结束时间" v-if="!preview" value-format='HH:mm:ss' />
             <span v-if="preview && formValue.reserveStartTime">{{ formValue.reserveStartTime }} 至 {{
-              formValue.reserveEndTime }}</span>
+                formValue.reserveEndTime }}</span>
           </template>
         </SearchForm>
       </el-card>
@@ -68,13 +71,14 @@
         </div>
       </el-card>
       <el-card shadow="hover" class="mt10px">
+
         <template #header>
           <div class="flex justify-between items-center">
             <div>
               <span>已选项目</span>
               <span class="m10px"> 检验{{ JYXMSL }}项/共{{ detailInfo.dataSource.length }}项</span>
-              <span>原金额 ：{{ detailInfo.totalStandardAmount }}</span>
-              <span class="m10px">应收金额 ：{{ detailInfo.totalAmount }}</span>
+              <span>原金额 ：{{ detailInfo.standardAmount }}</span>
+              <span class="m10px">应收金额 ：{{ detailInfo.receivableAmount }}</span>
               <span>已缴金额 ：{{ detailInfo.paidTotalAmount }}</span>
               <span class="m10px">未缴金额 ：{{ amountWJ }}</span>
             </div>
@@ -90,6 +94,7 @@
         </template>
         <ProTable :columns="tableColumns" :toolButton="false" :data="detailInfo.dataSource" :pagination="false"
           @selectionChange="selectionChange" ref="proTableRef">
+
           <template #operation="{ $index }">
             <el-button type="danger" round @click="handleSC($index)">删除</el-button>
           </template>
@@ -99,6 +104,7 @@
     <SelectXmItem ref="selectXmItem" :detailInfo="detailInfo" :detailInfoClone="detailInfoClone" />
   </div>
 </template>
+
 <script setup name="register" lang="ts">
 import { cloneDeep } from 'lodash'
 import SelectXmItem from '@/views/deskRegistration/medicalRegistration/components/selectXmItem.vue'
@@ -168,14 +174,18 @@ const router = useRouter();
 const route = useRoute();
 const info = {
   dataSource: [],
-  paidTotalAmount: 0,
-  totalAmount: 0,
-  totalStandardAmount: 0,
+  receivableAmount: 0,
+  standardAmount: 0,
   discount: 0,
   packageId: '',
   packageName: '',
+  teamAmount: 0,
+  paidTotalAmount: 0,
+  paidPersonAmount: 0,
+  paidTeamAmount: 0,
+  personAmount: 0,
 }
-const detailInfo = reactive(info)
+const detailInfo = ref({ ...info })
 const detailInfoClone = ref({ ...info })
 const {
   bus_pay_status,
@@ -201,20 +211,24 @@ const getDetail = async () => {
   if (data.reserveStartTime && data.reserveEndTime) {
     formValue.value.reserveTimeArr = [data.reserveStartTime, data.reserveEndTime]
   }
-  detailInfo.paidTotalAmount = data.paidTotalAmount
-  detailInfo.totalStandardAmount = data.totalStandardAmount
-  detailInfo.totalAmount = data.totalAmount
-  detailInfo.discount = data.discount
-  detailInfo.packageId = data.packageId
-  detailInfo.packageName = data.packageName
+  detailInfo.value.standardAmount = data.totalStandardAmount
+  detailInfo.value.receivableAmount = data.totalAmount
+  detailInfo.value.discount = data.discount
+  detailInfo.value.packageId = data.packageId
+  detailInfo.value.packageName = data.packageName
+  detailInfo.value.teamAmount = data.teamAmount
+  detailInfo.value.paidTotalAmount = data.paidTotalAmount
+  detailInfo.value.paidTeamAmount = data.paidTeamAmount
+  detailInfo.value.paidPersonAmount = data.paidPersonAmount
+  detailInfo.value.personAmount = data.personAmount
   preview.value = true
   getXm()
 }
 //获得需要回显的项目
 const getXm = async () => {
   const { data } = await queryRegCombinProjectList({ id: id.value })
-  detailInfo.dataSource = data
-  detailInfoClone.value = cloneDeep(detailInfo)
+  detailInfo.value.dataSource = data
+  detailInfoClone.value = cloneDeep(detailInfo.value)
 }
 id.value && getDetail()
 
@@ -224,11 +238,11 @@ const handleClick = (tab: TabsPaneContext, event: Event) => {
 
 //计算未缴金额
 const amountWJ = computed(() => {
-  return accSub(detailInfo.paidTotalAmount, detailInfo.totalAmount)
+  return accSub(detailInfo.value.paidTotalAmount, detailInfo.value.receivableAmount)
 })
 //检验项目数量
 const JYXMSL = computed(() => {
-  return detailInfo.dataSource.filter(item => item.checkType == 1).length
+  return detailInfo.value.dataSource.filter(item => item.checkType == 1).length
 })
 
 //个人加项
@@ -246,13 +260,13 @@ const handleDJ = () => {
       formValue.value.healthyCheckTime = proxy?.$moment().format('YYYY-MM-DD HH:mm:ss')
       formValue.value.reserveStartTime = formValue.value.reserveTimeArr?.[0]
       formValue.value.reserveEndTime = formValue.value.reserveTimeArr?.[1]
-      formValue.value.packageId = detailInfo.packageId
+      formValue.value.packageId = detailInfo.value.packageId
       const { data } = await registerAdd(formValue.value)
       id.value = data
       data && await handleUpdate('新增')
       // proxy?.$modal.msgSuccess("登记成功");
       router.push(`/deskRegistration/medicalRegistration-childPage/checkRegistration?id=${data}`);
-      data && getDetail()
+      // data && getDetail()
     }
   })
 
@@ -265,7 +279,7 @@ const handleSC = async (i) => {
   }
   const txt = i === '' ? `${checkedList.value.length}个` : ''
   await proxy?.$modal.confirm(`<span style="font-weight:bold">是否确定删除选中的${txt}项目？</span><br/> 删除项目后，该记录将不可恢复`)
-  const haveAmountCalculationItemBos = detailInfo.dataSource.map((item, i) => {
+  const haveAmountCalculationItemBos = detailInfo.value.dataSource.map((item, i) => {
     return {
       sort: i + 1,
       payType: item.payMode,//变更类型(0个人 1单位 2混合支付)
@@ -285,6 +299,7 @@ const handleSC = async (i) => {
   const amountCalculationItemBos = i === '' ? haveAmountCalculationItemBos.filter((item) => checkedList.value.includes(item.xmId)) : haveAmountCalculationItemBos.filter((item, s) => s == i)
   //changeType  //1单项 2总计项 3新增 4删除 5删除全部
   //inputType  //输入类型(1折扣 2应收金额 3收费方式 4个人应收额 5单位应收额)
+  const { standardAmount, discount, receivableAmount } = detailInfo.value
   const p = {
     groupFlag: undefined,   //有无分组标志(1有分组)
     regType: '1',//1个检 2团检
@@ -292,21 +307,21 @@ const handleSC = async (i) => {
     inputType: undefined,
     haveAmountCalculationItemBos, ////存量
     amountCalculationItemBos, ////增量或者减量都传这个
-    standardAmount: detailInfo.totalStandardAmount,
-    discount: detailInfo.discount,
-    receivableAmount: detailInfo.totalAmount
+    standardAmount,
+    discount,
+    receivableAmount
   }
   const { data } = await commonDynamicBilling(p)
   if (i === '') {
-    for (let index = detailInfo.dataSource.length - 1; index >= 0; index--) {
-      if (checkedList.value.includes(detailInfo.dataSource[index].id)) {
-        detailInfo.dataSource.splice(index, 1)
+    for (let index = detailInfo.value.dataSource.length - 1; index >= 0; index--) {
+      if (checkedList.value.includes(detailInfo.value.dataSource[index].id)) {
+        detailInfo.value.dataSource.splice(index, 1)
       }
     }
   } else {
-    detailInfo.dataSource.splice(i, 1)
+    detailInfo.value.dataSource.splice(i, 1)
   }
-  // detailInfo.dataSource = data.amountCalculationItemVos.map(item => {
+  // detailInfo.value.dataSource = data.amountCalculationItemVos.map(item => {
   //   return {
   //     combinationProjectId: item.id,
   //     combinProjectName: item.combinProjectName,
@@ -331,9 +346,14 @@ const handleSC = async (i) => {
   //     checkType: "0"
   //   }
   // })
-  detailInfo.totalAmount = data.receivableAmount
-  detailInfo.discount = data.discount
-  detailInfo.totalStandardAmount = data.standardAmount
+  detailInfo.value.receivableAmount = data.receivableAmount
+  detailInfo.value.discount = data.discount
+  detailInfo.value.standardAmount = data.standardAmount
+  detailInfo.value.teamAmount = data.teamAmount
+  detailInfo.value.paidTotalAmount = data.paidTotalAmount
+  detailInfo.value.paidTeamAmount = data.paidTeamAmount
+  detailInfo.value.paidPersonAmount = data.paidPersonAmount
+  detailInfo.value.personAmount = data.personAmount
   proTableRef.value.clearSelection()
 }
 
@@ -350,7 +370,7 @@ const filterPayStatus = () => {
 
 //编辑项目
 const handleUpdate = async (type) => {
-  const tjRegCombinItemBos = detailInfo.dataSource.map(item => {
+  const tjRegCombinItemBos = detailInfo.value.dataSource.map(item => {
     const {
       id,
       combinationProjectId,
@@ -375,19 +395,28 @@ const handleUpdate = async (type) => {
       packageId
     }
   })
+  const {
+    receivableAmount,
+    standardAmount,
+    discount,
+    teamAmount,
+    paidTotalAmount,
+    paidPersonAmount,
+    paidTeamAmount,
+    personAmount, packageId } = detailInfo.value
   const p = {
     operationType: type == '新增' ? '1' : '3',  //1:登记，2:报道 3:变更项目 4:暂存
     registerId: id.value,
-    standardAmount: detailInfo.totalStandardAmount,
-    discount: detailInfo.discount,
-    receivableAmount: detailInfo.totalAmount,
-    personAmount: detailInfo.totalAmount,
-    teamAmount: 0,
-    paidTotalAmount: formValue.value.paidTotalAmount ?? 0,
-    paidPersonAmount: formValue.value.paidTotalAmount ?? 0,
-    paidTeamAmount: 0,
+    standardAmount,
+    discount,
+    receivableAmount,
+    personAmount,
+    teamAmount,
+    paidTotalAmount,
+    paidPersonAmount,
+    paidTeamAmount,
     tjRegCombinItemBos,
-    packageId: detailInfo.packageId
+    packageId
   }
   await registerChangeRegCombin(p)
   id.value && proxy?.$modal.msgSuccess("保存成功");
@@ -408,7 +437,7 @@ const handleBC = async (type) => {
       formValue.value.healthyCheckTime = proxy?.$moment().format('YYYY-MM-DD HH:mm:ss')
       formValue.value.reserveStartTime = formValue.value.reserveTimeArr?.[0]
       formValue.value.reserveEndTime = formValue.value.reserveTimeArr?.[1]
-      formValue.value.packageId = detailInfo.packageId
+      formValue.value.packageId = detailInfo.value.packageId
       await registerUpdate(formValue.value)
       type == '信息' && (proxy?.$modal.msgSuccess("修改成功"))
       type == '信息' && (preview.value = true)
@@ -420,7 +449,7 @@ const handleBC = async (type) => {
 watch(() => route.query.id, (newV) => {
   if (!newV) {
     id.value = ''
-    detailInfo.dataSource = []
+    detailInfo.value = info
     formValue.value = formObj
     preview.value = false
   } else {
@@ -430,10 +459,9 @@ watch(() => route.query.id, (newV) => {
 
 })
 </script>
+
 <style scoped lang="scss">
 :deep(.el-upload--picture-card) {
   width: 120px
 }
 </style>
-
-

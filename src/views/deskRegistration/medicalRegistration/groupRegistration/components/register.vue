@@ -22,6 +22,7 @@
         </template>
         <SearchForm ref="formRef" :columns="formColumns" :search-param="formValue" :search-col="2" :rules="rules"
           :disabled="preview" label-position="right" :preview="preview">
+
           <template #searchcredentialImage>
             <div class="flex justify-around mb-10px">
               <ImageUpload :isShowTip="false" v-model="formValue.credentialImage" :limit="1">
@@ -30,6 +31,7 @@
                 </template>
               </ImageUpload>
               <ImageUpload :isShowTip="false" v-model="formValue.credentialImage" :limit="1">
+
                 <template #txt>
                   <div class="absolute top-60%">人脸采集</div>
                 </template>
@@ -42,6 +44,7 @@
               </div>
             </div>
           </template>
+
           <template #jhgl>
             <div class="flex">
               <el-form-item label="" prop="contactSeniorityYear">
@@ -60,6 +63,7 @@
 
             </div>
           </template>
+
           <template #zgl>
             <div class="flex">
               <el-form-item label="" prop="seniorityYear">
@@ -78,11 +82,12 @@
 
             </div>
           </template>
+
           <template #reserveTimeArr>
             <el-time-picker v-model="formValue.reserveTimeArr" is-range arrow-control range-separator="至"
               start-placeholder="开始时间" end-placeholder="结束时间" v-if="!preview" value-format='HH:mm:ss' />
             <span v-if="preview && formValue.reserveStartTime">{{ formValue.reserveStartTime }} 至 {{
-              formValue.reserveEndTime }}</span>
+                formValue.reserveEndTime }}</span>
           </template>
         </SearchForm>
       </el-card>
@@ -95,7 +100,8 @@
             缴费状态：{{ filterPayStatus() }}
           </div>
           <div>
-            <el-select v-model="value" placeholder="请选择" class="w-240px mr10px" v-if="formValue.healthyCheckStatus == 0">
+            <el-select v-model="value" placeholder="请选择" class="w-240px mr10px"
+              v-if="formValue.healthyCheckStatus == 0">
               <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>
             <el-button round type="primary" @click="handleBC('暂存')" :disabled="detailInfo.dataSource.length == 0"
@@ -115,13 +121,14 @@
         </div>
       </el-card>
       <el-card shadow="hover" class="mt10px">
+
         <template #header>
           <div class="flex justify-between items-center">
             <div>
               <span>已选项目</span>
               <span class="m10px"> 检验{{ JYXMSL }}项/共{{ detailInfo.dataSource.length }}项</span>
-              <span>原金额 ：{{ detailInfo.totalStandardAmount }}</span>
-              <span class="m10px">应收金额 ：{{ detailInfo.totalAmount }}</span>
+              <span>原金额 ：{{ detailInfo.standardAmount }}</span>
+              <span class="m10px">应收金额 ：{{ detailInfo.receivableAmount }}</span>
               <span>已缴金额 ：{{ detailInfo.paidTotalAmount }}</span>
               <span class="m10px">未缴金额 ：{{ amountWJ }}</span>
             </div>
@@ -142,6 +149,7 @@
         </template>
         <ProTable :columns="tableColumns" :toolButton="false" :data="detailInfo.dataSource" :pagination="false"
           @selectionChange="selectionChange" ref="proTableRef">
+
           <template #operation="{ $index }">
             <el-button type="danger" round @click="handleSC($index)">删除</el-button>
           </template>
@@ -165,6 +173,7 @@
 
   </div>
 </template>
+
 <script setup name="groupRegistrationRegister" lang="ts">
 import { cloneDeep } from 'lodash'
 import SelectXmItem from '@/views/deskRegistration/medicalRegistration/components/selectXmItem.vue'
@@ -321,13 +330,17 @@ const router = useRouter();
 const route = useRoute();
 const info = {
   dataSource: [],
-  paidTotalAmount: 0,
-  totalAmount: 0,
-  totalStandardAmount: 0,
+  receivableAmount: 0,
+  standardAmount: 0,
   discount: 0,
   packageId: '',
   packageName: '',
-  amountCalGroupBo: null
+  amountCalGroupBo: null,
+  teamAmount: 0,
+  paidTotalAmount: 0,
+  paidPersonAmount: 0,
+  paidTeamAmount: 0,
+  personAmount: 0,
 }
 const detailInfo = ref({ ...info })
 const detailInfoClone = ref({ ...info })
@@ -357,11 +370,16 @@ const getDetail = async (id) => {
   if (data.reserveStartTime && data.reserveEndTime) {
     formValue.value.reserveTimeArr = [data.reserveStartTime, data.reserveEndTime]
   }
-  detailInfo.value.paidTotalAmount = data.paidTotalAmount
-  detailInfo.value.totalStandardAmount = data.totalStandardAmount
-  detailInfo.value.totalAmount = data.totalAmount
+  detailInfo.value.standardAmount = data.totalStandardAmount
+  detailInfo.value.receivableAmount = data.totalAmount
   detailInfo.value.discount = data.discount
   detailInfo.value.packageId = data.packageId
+  detailInfo.value.packageName = data.packageName
+  detailInfo.value.teamAmount = data.teamAmount
+  detailInfo.value.paidTotalAmount = data.paidTotalAmount
+  detailInfo.value.paidTeamAmount = data.paidTeamAmount
+  detailInfo.value.paidPersonAmount = data.paidPersonAmount
+  detailInfo.value.personAmount = data.personAmount
   data.healthyCheckStatus != 0 && (preview.value = true)
   getXm(id)
 }
@@ -379,7 +397,7 @@ const handleClick = (tab: TabsPaneContext, event: Event) => {
 
 //计算未缴金额
 const amountWJ = computed(() => {
-  return accSub(detailInfo.value.paidTotalAmount, detailInfo.value.totalAmount)
+  return accSub(detailInfo.value.paidTotalAmount, detailInfo.value.receivableAmount)
 })
 //检验项目数量
 const JYXMSL = computed(() => {
@@ -445,17 +463,18 @@ const handleSC = async (i) => {
   const amountCalculationItemBos = i === '' ? haveAmountCalculationItemBos.filter((item) => checkedList.value.includes(item.xmId)) : haveAmountCalculationItemBos.filter((item, s) => s == i)
   //changeType  //1单项 2总计项 3新增 4删除 5删除全部
   //inputType  //输入类型(1折扣 2应收金额 3收费方式 4个人应收额 5单位应收额)
+  const { standardAmount, discount, receivableAmount, amountCalGroupBo } = detailInfo.value
   const p = {
-    groupFlag: detailInfo.value.amountCalGroupBo ? '1' : undefined,   //有无分组标志(1有分组)
+    groupFlag: amountCalGroupBo ? '1' : undefined,   //有无分组标志(1有分组)
     regType: '2',//1个检 2团检
     changeType: '4',
     inputType: undefined,
     haveAmountCalculationItemBos, ////存量
     amountCalculationItemBos, ////增量或者减量都传这个
-    amountCalGroupBo: detailInfo.value.amountCalGroupBo, //团检分组信息对象
-    standardAmount: detailInfo.value.totalStandardAmount,
-    discount: detailInfo.value.discount,
-    receivableAmount: detailInfo.value.totalAmount
+    amountCalGroupBo, //团检分组信息对象
+    standardAmount,
+    discount,
+    receivableAmount
   }
   const { data } = await commonDynamicBilling(p)
   if (i === '') {
@@ -492,9 +511,14 @@ const handleSC = async (i) => {
   //     checkType: "0"
   //   }
   // })
-  detailInfo.value.totalAmount = data.receivableAmount
+  detailInfo.value.receivableAmount = data.receivableAmount
   detailInfo.value.discount = data.discount
-  detailInfo.value.totalStandardAmount = data.standardAmount
+  detailInfo.value.standardAmount = data.standardAmount
+  detailInfo.value.teamAmount = data.teamAmount
+  detailInfo.value.paidTotalAmount = data.paidTotalAmount
+  detailInfo.value.paidTeamAmount = data.paidTeamAmount
+  detailInfo.value.paidPersonAmount = data.paidPersonAmount
+  detailInfo.value.personAmount = data.personAmount
   proTableRef.value.clearSelection()
 }
 
@@ -535,19 +559,28 @@ const handleUpdate = async (type) => {
     }
   })
   const operationType = type == '报到' ? '2' : type == '暂存' ? '4' : '3' //1:登记，2:报道 3:变更项目 4:暂存
+  const {
+    receivableAmount,
+    standardAmount,
+    discount,
+    teamAmount,
+    paidTotalAmount,
+    paidPersonAmount,
+    paidTeamAmount,
+    personAmount, packageId } = detailInfo.value
   const p = {
     operationType,  //1:登记，2:报道 3:变更项目 4:暂存
     registerId: formValue.value.id,
-    standardAmount: detailInfo.value.totalStandardAmount,
-    discount: detailInfo.value.discount,
-    receivableAmount: detailInfo.value.totalAmount,
-    personAmount: detailInfo.value.totalAmount,
-    teamAmount: 0,
-    paidTotalAmount: formValue.value.paidTotalAmount ?? 0,
-    paidPersonAmount: formValue.value.paidTotalAmount ?? 0,
-    paidTeamAmount: 0,
+    standardAmount,
+    discount,
+    receivableAmount,
+    personAmount,
+    teamAmount,
+    paidTotalAmount,
+    paidPersonAmount,
+    paidTeamAmount,
     tjRegCombinItemBos,
-    packageId: detailInfo.value.packageId
+    packageId
   }
   await registerChangeRegCombin(p)
   proxy?.$modal.msgSuccess("操作成功");
@@ -629,9 +662,9 @@ const handleChangeGroup = async (row) => {
     receivableAmount: row.actualPrice
   }
   const { data } = await commonDynamicBilling(p)
-  detailInfo.value.totalAmount = data.receivableAmount
+  detailInfo.value.receivableAmount = data.receivableAmount
   detailInfo.value.discount = data.discount
-  detailInfo.value.totalStandardAmount = data.standardAmount
+  detailInfo.value.standardAmount = data.standardAmount
   detailInfo.value.dataSource = data.amountCalculationItemVos.map(item => {
     if (item.tcFlag == 0) {
       item.packageId = detailInfo.value.packageId
@@ -680,10 +713,9 @@ watch(() => ydjHas.value, (newV) => {
   })
 })
 </script>
+
 <style scoped lang="scss">
 :deep(.el-upload--picture-card) {
   width: 120px
 }
 </style>
-
-

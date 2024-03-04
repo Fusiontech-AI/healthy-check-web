@@ -47,10 +47,12 @@
     <el-dialog v-model="dialogVisible" title="复制项目" width="50%" v-if="dialogVisible">
       <ProTable :columns="tableColumns" :toolButton="false" :data="[{ name: 'aaaaaakaskhaskhahadhsa,d' }]"
         :pagination="false" :searchCol="3" label-position="right">
+
         <template #gx>
           <el-radio label="" size="large"></el-radio>
         </template>
       </ProTable>
+
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="dialogVisible = false">取消</el-button>
@@ -94,7 +96,12 @@ const formValue = reactive({
   packageId: '',
   packageName: "",
   regType: props.isTuanJian ? '2' : '1',
-  amountCalGroupBo: null //分组信息
+  amountCalGroupBo: null, //分组信息
+  teamAmount: 0,
+  paidTotalAmount: 0,
+  paidPersonAmount: 0,
+  paidTeamAmount: 0,
+  personAmount: 0,
 })
 
 const dialogVisible = ref(false)
@@ -200,7 +207,20 @@ const tableData = computed(() => {
 })
 const dataSource = ref([])
 const handleDrawerChange = async () => {
-  formValue.defaultItemList = props.detailInfo.dataSource.map((item, i) => {
+  const {
+    dataSource,
+    receivableAmount,
+    standardAmount,
+    discount,
+    packageId,
+    packageName,
+    teamAmount,
+    amountCalGroupBo,
+    paidTotalAmount,
+    paidPersonAmount,
+    paidTeamAmount,
+    personAmount } = props.detailInfo
+  formValue.defaultItemList = dataSource.map((item, i) => {
     return {
       sort: i + 1,
       payType: item.payMode,//变更类型(0个人 1单位 2混合支付)
@@ -217,12 +237,17 @@ const handleDrawerChange = async () => {
       addFlag: item.addFlag
     }
   })
-  formValue.standardAmount = props.detailInfo.totalStandardAmount
-  formValue.receivableAmount = props.detailInfo.totalAmount
-  formValue.discount = props.detailInfo.discount
-  formValue.packageId = props.detailInfo.packageId
-  formValue.packageName = props.detailInfo.packageName
-  formValue.amountCalGroupBo = props.detailInfo.amountCalGroupBo
+  formValue.standardAmount = standardAmount
+  formValue.receivableAmount = receivableAmount
+  formValue.discount = discount
+  formValue.packageId = packageId
+  formValue.packageName = packageName
+  formValue.amountCalGroupBo = amountCalGroupBo
+  formValue.teamAmount = teamAmount
+  formValue.paidTotalAmount = paidTotalAmount
+  formValue.paidPersonAmount = paidPersonAmount
+  formValue.paidTeamAmount = paidTeamAmount
+  formValue.personAmount = personAmount
   drawerVisible.value = true
   await nextTick()
   TransferFilterComplexRef.value.defaultItems()
@@ -230,12 +255,29 @@ const handleDrawerChange = async () => {
 }
 
 const confirmClick = () => {
+  const {
+    receivableAmount,
+    standardAmount,
+    discount,
+    packageId,
+    packageName,
+    teamAmount,
+    paidTotalAmount,
+    paidPersonAmount,
+    paidTeamAmount,
+    personAmount } = formValue
   props.detailInfo.dataSource = dataSource.value
-  props.detailInfo.totalAmount = formValue.receivableAmount
-  props.detailInfo.totalStandardAmount = formValue.standardAmount
-  props.detailInfo.discount = formValue.discount
-  props.detailInfo.packageId = formValue.packageId
-  props.detailInfo.packageName = formValue.packageName
+  props.detailInfo.receivableAmount = receivableAmount
+  props.detailInfo.standardAmount = standardAmount
+  props.detailInfo.discount = discount
+  props.detailInfo.packageId = packageId
+  props.detailInfo.packageName = packageName
+  props.detailInfo.paidTotalAmount = paidTotalAmount
+  props.detailInfo.teamAmount = teamAmount
+  props.detailInfo.paidTotalAmount = paidTotalAmount
+  props.detailInfo.paidPersonAmount = paidPersonAmount
+  props.detailInfo.paidTeamAmount = paidTeamAmount
+  props.detailInfo.personAmount = personAmount
   drawerVisible.value = false
 }
 
@@ -314,7 +356,18 @@ const handleBlur = (type) => {
 
 //还原
 const handleHY = () => {
-  formValue.defaultItemList = props.detailInfoClone.dataSource.map((item, i) => {
+  const { dataSource,
+    receivableAmount,
+    standardAmount,
+    discount,
+    packageId,
+    packageName,
+    teamAmount,
+    paidTotalAmount,
+    paidPersonAmount,
+    paidTeamAmount,
+    personAmount } = props.detailInfoClone
+  formValue.defaultItemList = dataSource.map((item, i) => {
     return {
       sort: i + 1,
       payType: item.payMode,//变更类型(0个人 1单位 2混合支付)
@@ -332,13 +385,19 @@ const handleHY = () => {
     }
   })
 
-  formValue.standardAmount = props.detailInfoClone.totalStandardAmount
-  formValue.receivableAmount = props.detailInfoClone.totalAmount
-  formValue.discount = props.detailInfoClone.discount
-  formValue.packageId = props.detailInfoClone.packageId
-  formValue.packageName = props.detailInfoClone.packageName
+  formValue.standardAmount = standardAmount
+  formValue.receivableAmount = receivableAmount
+  formValue.discount = discount
+  formValue.packageId = packageId
+  formValue.packageName = packageName
+  formValue.teamAmount = teamAmount
+  formValue.paidTotalAmount = paidTotalAmount
+  formValue.paidPersonAmount = paidPersonAmount
+  formValue.paidTeamAmount = paidTeamAmount
+  formValue.personAmount = personAmount
   TransferFilterComplexRef.value.defaultItems()
 }
 defineExpose({ handleDrawerChange })
 </script>
+
 <style scoped lang="scss"></style>

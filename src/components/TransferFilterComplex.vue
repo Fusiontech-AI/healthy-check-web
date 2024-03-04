@@ -145,7 +145,12 @@ const tcObj = ref({})
 const queryObj = reactive({
   standardAmount: 0,
   discount: 0,
-  receivableAmount: 0
+  receivableAmount: 0,
+  teamAmount: 0,
+  paidTotalAmount: 0,
+  paidPersonAmount: 0,
+  paidTeamAmount: 0,
+  personAmount: 0,
 })
 const form = reactive({
   input: '',
