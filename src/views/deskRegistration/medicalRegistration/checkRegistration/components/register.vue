@@ -392,7 +392,8 @@ const handleUpdate = async (type) => {
       payMode: "0",
       checkStatus: "0",
       addFlag: "1",
-      packageId
+      packageId,
+      id
     }
   })
   const {

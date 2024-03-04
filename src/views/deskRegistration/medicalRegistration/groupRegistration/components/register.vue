@@ -367,6 +367,8 @@ const getDetail = async (id) => {
   dwChange(data.teamId)//查询任务
   rwChange(data.taskId)//查询分组
   formValue.value = data
+  formValue.value.actualPrice = data.tjTeamGroupVo?.price
+  formValue.value.itemDiscount = data.tjTeamGroupVo?.itemDiscount
   if (data.reserveStartTime && data.reserveEndTime) {
     formValue.value.reserveTimeArr = [data.reserveStartTime, data.reserveEndTime]
   }
@@ -555,7 +557,7 @@ const handleUpdate = async (type) => {
       payStatus: "0",
       payMode,
       checkStatus: "0",
-      addFlag, packageId
+      addFlag, packageId, id
     }
   })
   const operationType = type == '报到' ? '2' : type == '暂存' ? '4' : '3' //1:登记，2:报道 3:变更项目 4:暂存
