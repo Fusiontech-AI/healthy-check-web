@@ -489,7 +489,7 @@ const handleSC = async (i) => {
   const { data } = await commonDynamicBilling(p)
   if (i === '') {
     for (let index = detailInfo.value.dataSource.length - 1; index >= 0; index--) {
-      if (checkedList.value.includes(detailInfo.value.dataSource[index].id)) {
+      if (checkedList.value.includes(detailInfo.value.dataSource[index].id) && detailInfo.value.dataSource[index].checkStatus != 1 && detailInfo.value.dataSource[index].payStatus != 1) {
         detailInfo.value.dataSource.splice(index, 1)
       }
     }
