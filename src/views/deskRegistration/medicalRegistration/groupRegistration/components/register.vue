@@ -282,7 +282,7 @@ const dwChange = async (val) => {
   detailInfo.value = { ...info }
   const { rows } = await getTeamTaskList({ teamId: val, pagesize: -1, isAccord: 0 }) // 根据单位带出任务列表
   rows.forEach(item => {
-    item.label = item.groupName
+    item.label = item.taskName
     item.value = item.id
   })
   taskList.value = rows
@@ -301,7 +301,7 @@ const rwChange = async (val) => {
   detailInfo.value = { ...info }
   const { rows } = await teamGroupList({ taskId: val, pagesize: -1, filterProject: 0 }) // 根据任务带出分组列表
   rows.forEach(item => {
-    item.label = item.taskName
+    item.label = item.groupName
     item.value = item.id
   })
   groupList.value = rows
