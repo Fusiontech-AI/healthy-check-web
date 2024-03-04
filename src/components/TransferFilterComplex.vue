@@ -56,7 +56,7 @@
               <template #personAmount="{ row, $index }">
                 <el-input v-model="row.personAmount" placeholder="请输入" @blur="handleSelected(row, $index, '1', '4')"
                   oninput="value=value.replace(/[^\d.]/g, '').replace(/\.{2,}/g, '.').replace('.', '$#$').replace(/\./g, '').replace('$#$', '.').replace(/^(\-)*(\d+)\.(\d\d).*$/, '$1$2.$3').replace(/^\./g, '')"
-                  :disabled="props.disabled || (title == '团体加项' && row.addFlag == '1') || (title == '个人加项' && row.addFlag == '2') || (title == '团体加项' && row.addFlag == '2')" />
+                  :disabled="props.disabled || (title == '团体加项' && row.addFlag == '1') || (title == '个人加项' && row.addFlag == '2') || (title == '团体加项' && row.addFlag == '2' && row.payType == 1)" />
               </template>
               <!-- 团费 -->
 
@@ -133,6 +133,7 @@
 import { debounce, isEmpty } from 'lodash'
 import type { TabsPaneContext } from 'element-plus'
 import { combinationProjectList, commonDynamicBilling, queryPackageAndProjectPages, queryProjectByPackageId } from '@/api/peis/projectPort'
+import { accAdd } from '@/utils'
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 const { bus_pay_mode } = toRefs<any>(proxy?.useDict('bus_pay_mode'));
 const props = defineProps(['tableHeader', 'disabled', 'isRw', 'formValue', 'tableColumns', 'title', 'leftHegiht', 'rightHeight'])
@@ -280,13 +281,19 @@ const handleSelected = async (row, index, changeType, inputType) => {
 
   } else if (changeType == '1') {
     //变更类型(0个人 1单位 2混合支付)
-    p.haveAmountCalculationItemBos.forEach(item => {
-      if (payType == 0) {
-        item.receivableAmount = item.personAmount
-      } else if (payType == 1) {
-        item.receivableAmount = item.teamAmount
-      }
-    })
+    //当为支付方式变更时不应收金额需要不变
+    if (inputType != 3) {
+      p.haveAmountCalculationItemBos.forEach(item => {
+        if (payType == 0) {
+          item.receivableAmount = item.personAmount
+        } else if (payType == 1) {
+          item.receivableAmount = item.teamAmount
+        } else if (payType == 2) {
+          item.receivableAmount = accAdd(item.personAmount, item.teamAmount)
+        }
+      })
+    }
+
     p.sort = sort
   }
   //没有已选项时总折扣和总应收额不触发
