@@ -10,12 +10,14 @@
         </template>
       </el-table-column>
       <el-table-column prop="mb" label="模板">
+
         <template #default="{ row }">
           <el-button type="primary" @click="" link :disabled="preview">预览 </el-button>
           <el-button type="primary" @click="" link :disabled="preview">下载</el-button>
         </template>
       </el-table-column>
       <el-table-column prop="file" label="上传" width="370">
+
         <template #default="{ row }">
           <FileUploadNew :isShowTip="false" :limit="1" action="/peis/teamTaskFile"
             :data="{ taskId: props.form.taskId, fileType: row.fileType }" :modelValue="row.modelValue"

@@ -83,8 +83,7 @@
               <span class="m10px">未缴金额 ：{{ amountWJ }}</span>
             </div>
             <div>
-              <el-button round type="danger" @click="handleSC('')"
-                :disabled="row.checkStatus == 1 || row.payStatus == 1">删除</el-button>
+              <el-button round type="danger" @click="handleSC('')">删除</el-button>
               <el-button round type="primary" @click="handleJx">
                 <el-icon class="avatar-uploader-icon">
                   <plus />
@@ -96,8 +95,9 @@
         <ProTable :columns="tableColumns" :toolButton="false" :data="detailInfo.dataSource" :pagination="false"
           @selectionChange="selectionChange" ref="proTableRef">
 
-          <template #operation="{ $index }">
-            <el-button type="danger" round @click="handleSC($index)">删除</el-button>
+          <template #operation="{ row, $index }">
+            <el-button type="danger" round @click="handleSC($index)"
+              :disabled="row.checkStatus == 1 || row.payStatus == 1">删除</el-button>
           </template>
         </ProTable>
       </el-card>

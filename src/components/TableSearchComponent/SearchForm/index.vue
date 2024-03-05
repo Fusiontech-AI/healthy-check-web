@@ -2,28 +2,26 @@
   <div v-if="columns.length" class="card form-search">
     <el-form ref="formRef" :model="searchParam" label-position="left" labelWidth="auto" v-bind="$attrs">
       <Grid ref="gridRef" :collapsed="collapsed" :gap="[20, 0]" :cols="searchCol">
-        <GridItem
-          v-for="(item, index) in columnsFunc"
-          :key="item.prop"
-          v-bind="getResponsive(item)"
-          :index="index"
-          :class="{ 'notLabel': !item.label }"
-        >
+        <GridItem v-for="(item, index) in columnsFunc" :key="item.prop" v-bind="getResponsive(item)" :index="index"
+          :class="{ 'notLabel': !item.label }">
           <slot :name="item.prop + 'Component'">
             <slot :name="'search' + item.slot">
               <el-form-item :prop="item.prop" v-bind="item.search">
                 <template #label>
                   <el-space :size="4">
                     <span>{{ `${item.search?.label ?? item.label}` }}</span>
-                    <el-tooltip v-if="item.search?.tooltip" effect="dark" :content="item.search?.tooltip" placement="top">
+                    <el-tooltip v-if="item.search?.tooltip" effect="dark" :content="item.search?.tooltip"
+                      placement="top">
                       <i :class="'iconfont icon-yiwen'"></i>
                     </el-tooltip>
                   </el-space>
                   <span>:</span>
                 </template>
                 <slot :name="item.prop + 'Slot'">
+
                   <template v-if="item.slot">
-                    <slot :name="item.slot" :field="item.prop" :model="searchParam" :value="searchParam[item.prop]"> </slot>
+                    <slot :name="item.slot" :field="item.prop" :model="searchParam" :value="searchParam[item.prop]">
+                    </slot>
                   </template>
                   <RenderFormValue v-else-if="preview" v-bind="item"></RenderFormValue>
                   <SearchFormItem v-else :column="item" :search-param="searchParam" v-on="{ ...item }" />
@@ -49,6 +47,7 @@
     </el-form>
   </div>
 </template>
+
 <script setup lang="tsx" name="SearchForm">
 import { computed, ref } from "vue";
 import { ColumnProps } from "@/components/TableSearchComponent/ProTable/interface";
@@ -60,6 +59,7 @@ import GridItem from "@/components/Grid/components/GridItem.vue";
 import FormAction from '@/components/TableSearchComponent/SearchForm/components/FormAction.vue'
 import { useTable } from "@/hooks/useTable";
 import { array } from "vue-types";
+import { log } from "console";
 
 interface ProTableProps {
   columns?: ColumnProps[]; // 搜索配置列
@@ -85,17 +85,18 @@ const props = withDefaults(defineProps<ProTableProps>(), {
 const RenderFormValue = (item: any) => {
   return <div>{{
     default: () => {
-      if (props.searchParam[item.prop] && item.enum && item?.search?.el == 'select') {
-        return item.enum?.find((val: { value: any; }) => val?.value == props.searchParam[item.prop])?.label || props.searchParam[item.prop]
-      }
-      if (props.searchParam[item.prop] && item.enum && item?.search?.el == 'switch') {
-        return item.enum?.find((val: { value: any; }) => val?.value == props.searchParam[item.prop])?.label || props.searchParam[item.prop]
-      }
-      if (props.searchParam[item.prop] && item.enum && item?.search?.el == 'tree-select') {
-        return recursion(item.enum, props.searchParam[item.prop])
-      }
-      return props.searchParam[item.prop]
-    }
+  if (props.searchParam[item.prop] && item.enum && item?.search?.el == 'select') {
+    const obj = item.enum?.find((val: { value: any; }) => (val.value || val[item.fieldNames?.value]) == props.searchParam[item.prop])
+    return obj?.label || obj?.[item.fieldNames?.label] || props.searchParam[item.prop]
+  }
+  if (props.searchParam[item.prop] && item.enum && item?.search?.el == 'switch') {
+    return item.enum?.find((val: { value: any; }) => val?.value == props.searchParam[item.prop])?.label || props.searchParam[item.prop]
+  }
+  if (props.searchParam[item.prop] && item.enum && item?.search?.el == 'tree-select') {
+    return recursion(item.enum, props.searchParam[item.prop])
+  }
+  return props.searchParam[item.prop]
+}
   }}</div>
 }
 
@@ -180,6 +181,7 @@ const showCollapse = computed(() => {
   return show;
 });
 </script>
+
 <style scoped lang="scss">
 .notLabel {
   :deep(.el-form-item__label-wrap) {

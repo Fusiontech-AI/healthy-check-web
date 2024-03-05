@@ -8,6 +8,7 @@
         </template>
       </el-table-column>
       <el-table-column prop="dutyStatus" label="在岗类型" width="100" v-if="props.form.physicalType == 'ZYJKTJ'">
+
         <template #default="{ row }">
           <el-select v-model="row.dutyStatus" placeholder="请选择" class="left-select" clearable
             :disabled="preview || props.form.physicalType != 'ZYJKTJ'">
@@ -16,6 +17,7 @@
         </template>
       </el-table-column>
       <el-table-column prop="groupType" label="分组类型" width="130">
+
         <template #default="{ row }">
           <el-select v-model="row.groupType" placeholder="请选择" class="left-select" clearable :disabled="preview">
             <el-option v-for="item in bus_group_type" :key="item.value" :label="item.label" :value="item.value" />
@@ -23,6 +25,7 @@
         </template>
       </el-table-column>
       <el-table-column prop="gender" label="性别" width="100">
+
         <template #default="{ row }">
           <el-select v-model="row.gender" placeholder="请选择" class="left-select" clearable :disabled="preview">
             <el-option v-for="item in bus_gender" :key="item.value" :label="item.label" :value="item.value" />
@@ -30,6 +33,7 @@
         </template>
       </el-table-column>
       <el-table-column prop="startAge" label="年龄区间" width="180">
+
         <template #default="{ row }">
           <div style="display:flex;align-items:center">
             <el-input v-model="row.startAge" clearable :placeholder="`请填写`" :disabled="preview"
@@ -41,6 +45,7 @@
         </template>
       </el-table-column>
       <el-table-column prop="marriage" label="婚姻状态" width="120">
+
         <template #default="{ row }">
           <el-select v-model="row.marriage" placeholder="请选择" class="left-select" clearable :disabled="preview">
             <el-option v-for="item in bus_marriage_status" :key="item.value" :label="item.label" :value="item.value" />
@@ -48,12 +53,14 @@
         </template>
       </el-table-column>
       <el-table-column prop="price" label="金额（元）" width="100">
+
         <template #default="{ row }">
           <el-input v-model="row.price" clearable :placeholder="`请填写`" :disabled="preview"
             oninput="value=value.replace(/[^\d.]/g, '').replace(/\.{2,}/g, '.').replace('.', '$#$').replace(/\./g, '').replace('$#$', '.').replace(/^(\-)*(\d+)\.(\d\d).*$/, '$1$2.$3').replace(/^\./g, '')"></el-input>
         </template>
       </el-table-column>
       <el-table-column prop="groupPayType" label="分组支付方式" width="120">
+
         <template #default="{ row }">
           <el-select v-model="row.groupPayType" placeholder="请选择" class="left-select" clearable :disabled="preview">
             <el-option v-for="item in bus_group_pay_type" :key="item.value" :label="item.label" :value="item.value" />
@@ -61,12 +68,14 @@
         </template>
       </el-table-column>
       <el-table-column prop="itemDiscount" label="分组折扣" width="100">
+
         <template #default="{ row }">
           <el-input v-model="row.itemDiscount" clearable :placeholder="`请填写`" :disabled="preview"
             oninput="value=value.replace(/[^\d.]/g, '').replace(/\.{2,}/g, '.').replace('.', '$#$').replace(/\./g, '').replace('$#$', '.').replace(/^(\-)*(\d+)\.(\d\d).*$/, '$1$2.$3').replace(/^\./g, '')"></el-input>
         </template>
       </el-table-column>
       <el-table-column prop="addPayType" label="加项支付方式" width="120">
+
         <template #default="{ row }">
           <el-select v-model="row.addPayType" placeholder="请选择" class="left-select" clearable :disabled="preview">
             <el-option v-for="item in bus_group_pay_type" :key="item.value" :label="item.label" :value="item.value" />
@@ -74,17 +83,20 @@
         </template>
       </el-table-column>
       <el-table-column prop="addDiscount" label="加项折扣" width="100">
+
         <template #default="{ row }">
           <el-input v-model="row.addDiscount" clearable :placeholder="`请填写`" :disabled="preview"
             oninput="value=value.replace(/[^\d.]/g, '').replace(/\.{2,}/g, '.').replace('.', '$#$').replace(/\./g, '').replace('$#$', '.').replace(/^(\-)*(\d+)\.(\d\d).*$/, '$1$2.$3').replace(/^\./g, '')"></el-input>
         </template>
       </el-table-column>
       <el-table-column prop="isSyncProject" label="分组同步" width="80">
+
         <template #default="{ row }">
           <el-checkbox v-model="row.isSyncProject1" label="" size="large" :disabled="preview" />
         </template>
       </el-table-column>
       <el-table-column prop="address" label="操作" width="100">
+
         <template #default="{ row, $index }">
           <el-button type="danger" @click="handleDel(row, $index)" :disabled="preview" link>删除</el-button>
         </template>
@@ -93,6 +105,7 @@
     <el-button type="primary" round plain @click="handleAdd" :disabled="preview" class="mt10px">新增一行</el-button>
   </div>
 </template>
+
 <script setup lang="tsx" name="first">
 import { teamGroupDel } from '@/api/groupInspectionManagement/taskManagement'
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;

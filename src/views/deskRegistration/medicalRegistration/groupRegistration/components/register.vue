@@ -148,7 +148,7 @@
           </div>
         </template>
         <ProTable :columns="tableColumns" :toolButton="false" :data="detailInfo.dataSource" :pagination="false"
-          @selectionChange="selectionChange" ref="proTableRef">
+          @selectionChange="selectionChange" ref="proTableRef" :selectable="handleDisable">
 
           <template #operation="{ row, $index }">
             <el-button type="danger" round @click="handleSC($index)"
@@ -190,6 +190,7 @@ import { commonDynamicBilling } from '@/api/peis/projectPort'
 import { accSub, getBirthday, getCurrentAgeByBirthDate, getSex } from '@/utils'
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 import type { TabsPaneContext } from 'element-plus'
+import { tr } from 'element-plus/es/locale'
 const formObj = {
   credentialNumber: '420117199507186555',
   // phone: '18571714455',
@@ -282,10 +283,6 @@ const dwChange = async (val) => {
   formValue.value.itemDiscount = ''
   detailInfo.value = { ...info }
   const { rows } = await getTeamTaskList({ teamId: val, pagesize: -1, isAccord: 0 }) // 根据单位带出任务列表
-  rows.forEach(item => {
-    item.label = item.taskName
-    item.value = item.id
-  })
   taskList.value = rows
 }
 //任务change事件
@@ -301,10 +298,6 @@ const rwChange = async (val) => {
   formValue.value.teamGroupId = ''
   detailInfo.value = { ...info }
   const { rows } = await teamGroupList({ taskId: val, pagesize: -1, filterProject: 0 }) // 根据任务带出分组列表
-  rows.forEach(item => {
-    item.label = item.groupName
-    item.value = item.id
-  })
   groupList.value = rows
 }
 
@@ -410,6 +403,16 @@ const amountWJ = computed(() => {
 const JYXMSL = computed(() => {
   return detailInfo.value.dataSource.filter(item => item.checkType == 1).length
 })
+
+//已检查和已缴费不能删禁用勾选框
+const handleDisable = (row) => {
+  console.log("🚀 ~ handleDisable ~ row:", row)
+  if (row.checkStatus == 1 || row.payStatus == 1) {
+    return true
+  } else {
+    return false
+  }
+}
 
 //个人加项
 const handleGjJx = () => {

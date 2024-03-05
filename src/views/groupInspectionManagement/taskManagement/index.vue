@@ -15,6 +15,7 @@
         </div>
       </template>
       <SearchForm :search-param="queryParams" :columns="basicInfoColumn" :searchCol="1" :show-action-group="false">
+
         <template #gjc>
           <div class="flex gap-2">
             <el-input v-model="queryParams.taskName" placeholder="输入关键词搜索" suffix-icon="Search" />
@@ -24,6 +25,7 @@
       </SearchForm>
 
       <div class="left-view ">
+
         <template v-for="item in teamTaskLists" :key="item.id">
           <CardItem :bus_physical_type="bus_physical_type" :item="item" :activeKey="activeKey"
             @click-item="handleClickItem(item)" />
@@ -50,8 +52,8 @@
       </div>
       <div><span>基本信息</span></div>
       <!-- 查询表单 -->
-      <SearchForm ref="searchFormRef" :search-param="form" :columns="formColumn" :searchCol="4" :show-action-group="false"
-        :rules="rules" :preview="preview">
+      <SearchForm ref="searchFormRef" :search-param="form" :columns="formColumn" :searchCol="4"
+        :show-action-group="false" :rules="rules" :preview="preview">
       </SearchForm>
       <div><span>体检项目信息</span></div>
       <el-tabs v-model="activeName" @tab-click="handleClick" :class="{ 'tabsClass': !preview }">
@@ -100,7 +102,7 @@ const formObj = {
   beginDate: proxy?.$moment().format('YYYY-MM-DD'),
   endDate: proxy?.$moment().format('YYYY-MM-DD'),
 }
-const form = ref(formObj);
+const form = ref({ ...formObj });
 const searchFormRef = ref()
 const teamIdList = ref<any[]>([])
 const deptList = ref<any[]>([])
@@ -112,6 +114,13 @@ const preview = ref(false)
 const activeKey = ref()
 
 const { bus_physical_type, bus_charge_type } = toRefs<any>(proxy?.useDict("bus_physical_type", 'bus_charge_type'));
+
+//单位change
+const dwChange = async (val) => {
+  form.value.teamDeptId = ''
+  const { rows } = await teamDeptList({ teamId: val, pagesize: -1 })
+  deptList.value = rows
+}
 
 const formColumn = ref<any[]>([
   {
@@ -125,11 +134,7 @@ const formColumn = ref<any[]>([
     search: { el: 'tree-select', checkStrictly: true, },
     enum: teamIdList,
     fieldNames: { label: 'teamName', value: 'id' },
-    change: async (val) => {
-      form.value.teamDeptId = ''
-      const { rows } = await teamDeptList({ teamId: val, pagesize: -1 })
-      deptList.value = rows
-    }
+    change: dwChange
   },
   {
     label: '部门',
@@ -304,10 +309,10 @@ const handleX1 = async (bloo) => {
             item.isSyncProject = '1'
           }
         })
-        if (form.value.taskId) {
+        if (form.value.id) {
           //调用校验接口
           await handleJY1()
-          const { data } = await peisTeamTaskUpdate({ ...form.value, id: form.value.taskId })
+          const { data } = await peisTeamTaskUpdate({ ...form.value, id: form.value.id })
           formSecond.value = data
           !bloo && (activeName.value = 'second')
           bloo && (proxy?.$modal.msgSuccess("操作成功"))
@@ -316,7 +321,7 @@ const handleX1 = async (bloo) => {
           formSecond.value = data
           !bloo && (activeName.value = 'second')
           bloo && (proxy?.$modal.msgSuccess("操作成功"))
-          form.value.taskId = data[0].taskId
+          form.value.id = data[0].taskId
         }
         formSecondClone.value = cloneDeep(formSecond.value)
         //执行列表刷新
@@ -397,6 +402,7 @@ const handleClickItem = async (row: any) => {
   activeName.value = 'first'
   activeKey.value = row.id
   const { data } = await teamTaskDetail(row)
+  dwChange(data.teamId)
   data.taskId = data.id
   data.groupList.forEach(item => {
     if (item.isSyncProject == '0') {
@@ -422,13 +428,16 @@ const handleSCRW = async () => {
 }
 //新增任务
 const handleXZRW = async () => {
-  (form.value.id && !preview.value) && await proxy?.$modal.confirm('<span style="font-weight:bold">当前任务未保存，是否确认切换/新增任务？</span><br/> 切换/新增任务后，当前编辑内容将被清空')
+  ((form.value.id) && !preview.value) && await proxy?.$modal.confirm('<span style="font-weight:bold">当前任务未保存，是否确认切换/新增任务？</span><br/> 切换/新增任务后，当前编辑内容将被清空')
   handleGSH()
 }
 //数据格式化
 const handleGSH = () => {
   preview.value = false
   form.value = formObj
+  form.value.groupList = [{
+    groupPayType: '1'
+  }]
   activeName.value = 'first'
   searchFormRef.value.resetFields()
 }
@@ -436,7 +445,6 @@ const handleGSH = () => {
 const getSecondDetail = async () => {
   const { data } = await getTaskItemGroupInfoInfo({ id: form.value.id, physicalType: form.value.physicalType })
   formSecond.value = data
-  form.value.taskId = data[0].taskId
   activeName.value = 'second'
 }
 </script>
