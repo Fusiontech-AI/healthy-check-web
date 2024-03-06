@@ -58,3 +58,53 @@ export const registerUpdate = (params: any) => {
     data: params
   });
 };
+/**
+ * 查询该证件号第几次体检
+ */
+export const registerGetPeTimes = (params: any) => {
+  return request({
+    url: `/peis/register/getPeTimes`,
+    method: 'POST',
+    data: params
+  });
+};
+/**
+ * 体检替检登记
+ */
+export const changeRegReplaceInfo = (params: any) => {
+  return request({
+    url: `/peis/register/changeRegReplaceInfo`,
+    method: 'POST',
+    data: params
+  });
+};
+/**
+ * 报告领取方式信息登记
+ */
+export const changeReportReceiveWay = (params: any) => {
+  return request({
+    url: `/peis/register/changeReportReceiveWay`,
+    method: 'POST',
+    data: params
+  });
+};
+/**
+ * 团转个接口
+ */
+export const registerTeamToPerson = (params: any) => {
+  return request({
+    url: `/peis/register/teamToPerson`,
+    method: 'POST',
+    data: params
+  });
+};
+/**
+ * 个转团
+ */
+export const registerPersonToTeam = (params: any) => {
+  return request({
+    url: `/peis/register/personToTeam`,
+    method: 'POST',
+    data: params
+  });
+};

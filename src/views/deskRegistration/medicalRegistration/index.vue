@@ -20,10 +20,7 @@
           </el-col>
         </el-row>
       </template>
-      <template #teamId>
-        <el-tree-select v-model="queryParams.params.teamId" :data="teamIdList" check-strictly
-          :props="{ label: 'teamName', value: 'id' }" filterable clearable @change="handleChange" />
-      </template>
+
       <template #tableHeader>
         <div class="flex justify-between">
           <div>
@@ -32,8 +29,8 @@
             <el-button type="primary" round @click="handleTj">团检登记</el-button>
             <el-button type="primary" round @click="handleAdd">打印导检单</el-button>
             <el-button type="primary" round @click="handleAdd">打印条码</el-button>
-            <el-button type="primary" round @click="handleAdd">个转团</el-button>
-            <el-button type="primary" round @click="handleAdd">团转个</el-button>
+            <el-button type="primary" round @click="handleGToT">个转团</el-button>
+            <el-button type="primary" round @click="handleTToG">团转个</el-button>
             <el-button round>取消登记</el-button>
             <el-button round>取消报到</el-button>
           </div>
@@ -49,9 +46,11 @@
           </div>
         </div>
       </template>
+
       <template #healthyCheckCode="{ row }">
         <el-button type="primary" link @click="handleXQ(row)">{{ row.healthyCheckCode }}</el-button>
       </template>
+
       <template #operation="{ row }">
         <el-button type="primary" link @click="handleXQ(row)">详情</el-button>
         <el-popover placement="bottom" trigger="click">
@@ -63,17 +62,34 @@
         </el-popover>
       </template>
     </ProTable>
+    <el-dialog v-model="dialogVisible" title="个检转团检" width="30%" :append-to-body="true">
+      <SearchForm ref="formRefGToT" :columns="formColumns" :search-param="formValue" :search-col="1" :rules="rules"
+        label-position="right">
+      </SearchForm>
+
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="dialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="dialogGToT">
+            确定
+          </el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup name="medicalRegistration" lang="tsx">
-import { registerPage } from '@/api/deskRegistration/medicalRegistration'
+import { registerPage, registerTeamToPerson, registerPersonToTeam } from '@/api/deskRegistration/medicalRegistration'
 import { teamInfoList, teamTaskList } from "@/api/groupInspection/inspectionclosing";
+import { teamGroupList } from '@/api/leadershipCockpit/overviewMedicalExaminers'
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 const proTableRef = ref<any>()
 const teamIdList = ref<any>([]) //单位列表
 const teamTaskLists = ref<any>([]) //任务列表
+const teamGroupLists = ref<any>([]) //分组列表
 const checkedList = ref([])
+const dialogVisible = ref(false)
 const queryParams = reactive<any>({
   params: {}
 })
@@ -81,13 +97,24 @@ const queryParams = reactive<any>({
 // 获取单位-任务接口
 const getTeamIdList = async () => {
   const { data } = await teamInfoList({})
-  const { rows } = await teamTaskList({ pageSize: -1 })
   teamIdList.value = proxy?.handleTree<any>(data)
-  teamTaskLists.value = rows
+
 }
 getTeamIdList()
 
+// 单位改变
+const handleTeamChange = async (val: any) => {
+  const { rows } = await teamTaskList({ teamId: val })
+  teamTaskLists.value = rows
+}
+// 任务改变
+const handleTaskChange = async (val: any) => {
+  const { rows } = await teamGroupList({ taskId: val, pagesize: -1, filterProject: 0 }) // 根据任务带出分组列表
+  teamGroupLists.value = rows
+}
+
 const { sys_user_sex, bus_physical_type, bus_category, bus_healthy_check_status, bus_person_category, bus_personnel_marriage_status } = toRefs<any>(proxy?.useDict('sys_user_sex', 'bus_physical_type', 'bus_category', 'bus_healthy_check_status', 'bus_person_category', 'bus_personnel_marriage_status'))
+
 const tableColumns = reactive([
   { type: 'selection', },
   { prop: 'healthyCheckCode', label: '体检号', search: { el: 'input' }, isShow: false },
@@ -97,12 +124,12 @@ const tableColumns = reactive([
   { prop: 'physicalType', label: '体检类型', search: { el: 'select' }, isShow: false, enum: bus_physical_type },
   { prop: 'businessCategory', label: '业务类别', search: { el: 'select' }, isShow: false, enum: bus_category },
   { prop: 'recordCode', label: '档案号', search: { el: 'input' }, isShow: false },
-  { prop: 'teamId', label: '体检单位', search: { el: 'select', }, isShow: false, slot: 'teamId' },
+  { prop: 'teamId', label: '体检单位', search: { el: 'tree-select', 'check-strictly': true }, isShow: false, fieldNames: { label: 'teamName', value: 'id' }, enum: teamIdList, change: handleTeamChange },
+  { prop: 'taskId', label: '任务名称', search: { el: 'select' }, isShow: false, enum: teamTaskLists, fieldNames: { label: 'taskName', value: 'id' }, change: handleTaskChange },
   { prop: 'generalReviewTimeArr', label: '终检日期', search: { el: 'date-picker', props: { type: 'daterange', valueFormat: 'YYYY-MM-DD' } }, isShow: false },
   { prop: 'healthyCheckStatus', label: '体检状态', search: { el: 'select' }, isShow: false, enum: bus_healthy_check_status },
   { prop: 'personCategory', label: '人员类别', search: { el: 'select' }, isShow: false, enum: bus_person_category },
   { prop: 'credentialNumber', label: '身份证号', search: { el: 'input' }, isShow: false },
-  { prop: 'taskId', label: '任务名称', search: { el: 'select' }, isShow: false, enum: teamTaskLists, fieldNames: { label: 'taskName', value: 'id' } },
   { prop: 'chargeTimeArr', label: '支付日期', search: { el: 'date-picker', props: { type: 'daterange', valueFormat: 'YYYY-MM-DD' } }, isShow: false },
   { prop: 'createByName', label: '创建人', search: { el: 'input' }, isShow: false },
   { prop: 'guideSheetReceived', label: '回收', search: { el: 'select' }, isShow: false, enum: [{ value: '0', label: '是' }, { value: '1', label: '否' }] },
@@ -163,13 +190,7 @@ const handleXQ = (row) => {
   }
 }
 
-// 单位改变
-const handleChange = async (val: any) => {
-  const { rows } = await teamTaskList({ teamId: val })
-  teamTaskLists.value = rows
-  tableColumns.value = tableColumnsBasic(teamTaskLists, bus_physical_type)
-  queryParams.value.taskId = null
-}
+
 
 //报到
 const handleBD = async () => {
@@ -187,7 +208,47 @@ const selectionChange = (val) => {
   checkedList.value = val.map(item => item.id)
 }
 
+//团转个
+const handleTToG = async () => {
+  if (checkedList.value.length == 0) return proxy?.$modal.msgWarning("请选择人员操作!");
+  await proxy?.$modal.confirm(`是否确认将选中的 <span>${checkedList.value.length}</span> 条数据变更为个检业务？`)
+  await registerTeamToPerson({ regIds: checkedList.value })
+  proTableRef.value?.getTableList()
+}
+const formRefGToT = ref()
+const formValue = ref({})
+const formColumns = ref<any>([
+  { prop: 'teamId', label: '单位名称', search: { el: 'tree-select', 'check-strictly': true }, enum: teamIdList, fieldNames: { label: 'teamName', value: 'id' }, change: handleTeamChange },
+  { prop: 'taskId', label: '任务', search: { el: 'select', }, enum: teamTaskLists, fieldNames: { label: 'taskName', value: 'id' }, change: handleTaskChange },
+  { prop: 'teamGroupId', label: '分组名称', search: { el: 'select', }, enum: teamGroupLists, fieldNames: { label: 'groupName', value: 'id' }, },
+])
+const rules = ref<any>({
+  teamId: [{ required: true, message: '请选择单位', trigger: 'change' }],
+  taskId: [{ required: true, message: '请选择任务', trigger: 'change' }],
+})
+//个转团
+const handleGToT = async () => {
+  if (checkedList.value.length == 0) return proxy?.$modal.msgWarning("请选择人员操作!");
+  formValue.value = {}
+  dialogVisible.value = true
+}
+const dialogGToT = () => {
+  formRefGToT.value?.validate(async (valid, fields) => {
+    if (valid) {
+      const p = {
+        regIds: checkedList.value,
+        ...formValue.value
+      }
+      await registerPersonToTeam(p)
+      proxy?.$modal.msgSuccess("操作成功");
+      dialogVisible.value = false
+      proTableRef.value?.getTableList()
+    }
+  })
+
+}
 </script>
+
 <style scoped lang="scss">
 .color_ydy {
   width: 8px;

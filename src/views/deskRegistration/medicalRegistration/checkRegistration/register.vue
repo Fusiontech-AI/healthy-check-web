@@ -4,14 +4,17 @@
       <el-card shadow="hover">
         <template #header>
           <div class="flex justify-between items-center">
+            <!-- 体检次数 -->
+            <HowManyMedical ref="howManyMedical" :formValue="formValue" />
             <div>
-              体检人员信息（第n次）
-            </div>
-            <div>
-              <el-button round @click="formValue = {}" v-if="!id">清空</el-button>
-              <el-button round @click="preview = false" v-if="id && preview" type="primary">编辑</el-button>
-              <el-button round @click="getDetail" v-if="id && !preview">取消</el-button>
-              <el-button round @click="handleBC('信息')" v-if="id && !preview" type="primary">保存</el-button>
+              <el-button round @click="formValue = {}"
+                v-if="!formValue.healthyCheckStatus || formValue.healthyCheckStatus == 0">清空</el-button>
+              <el-button round @click="preview = false" v-if="id && formValue.healthyCheckStatus != 0 && preview"
+                type="primary">编辑</el-button>
+              <el-button round @click="getDetail"
+                v-if="id && !preview && formValue.healthyCheckStatus != 0">取消</el-button>
+              <el-button round @click="handleBC('信息')" v-if="id && !preview && formValue.healthyCheckStatus != 0"
+                type="primary">保存</el-button>
             </div>
           </div>
         </template>
@@ -44,7 +47,7 @@
             <el-time-picker v-model="formValue.reserveTimeArr" is-range arrow-control range-separator="至"
               start-placeholder="开始时间" end-placeholder="结束时间" v-if="!preview" value-format='HH:mm:ss' />
             <span v-if="preview && formValue.reserveStartTime">{{ formValue.reserveStartTime }} 至 {{
-                formValue.reserveEndTime }}</span>
+              formValue.reserveEndTime }}</span>
           </template>
         </SearchForm>
       </el-card>
@@ -57,15 +60,20 @@
             缴费状态：{{ filterPayStatus() }}
           </div>
           <div>
-            <el-select v-model="value" placeholder="请选择" class="w-240px mr10px" v-if="!id">
+            <el-select v-model="value" placeholder="请选择" class="w-240px mr10px"
+              v-if="!id || formValue.healthyCheckStatus == 0">
               <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>
             <el-button round type="primary" @click="handleDJ" :disabled="detailInfo.dataSource.length == 0"
-              v-if="!id">登记</el-button>
-            <el-button round type="primary" @click="handleDJ" v-if="id">打印条形码</el-button>
-            <el-button round type="primary" @click="handleDJ" v-if="id">打印导检单</el-button>
-            <el-button round type="primary" @click="handleDJ" v-if="id">继续登记</el-button>
-            <el-button round type="primary" @click="handleBC" v-if="id">保存</el-button>
+              v-if="!id || formValue.healthyCheckStatus == 0">登记</el-button>
+            <el-button round type="primary" @click="handleDJ"
+              v-if="id && formValue.healthyCheckStatus != 0">打印条形码</el-button>
+            <el-button round type="primary" @click="handleDJ"
+              v-if="id && formValue.healthyCheckStatus != 0">打印导检单</el-button>
+            <el-button round type="primary" @click="handleJXDJ"
+              v-if="id && formValue.healthyCheckStatus != 0">继续登记</el-button>
+            <el-button round type="primary" @click="handleBC"
+              v-if="id && formValue.healthyCheckStatus != 0">保存</el-button>
             <el-button round @click="router.go(-1)">返回</el-button>
           </div>
         </div>
@@ -107,8 +115,9 @@
 </template>
 
 <script setup name="register" lang="ts">
-import { cloneDeep } from 'lodash'
+import { cloneDeep, debounce } from 'lodash'
 import SelectXmItem from '@/views/deskRegistration/medicalRegistration/components/selectXmItem.vue'
+import HowManyMedical from '@/views/deskRegistration/medicalRegistration/components/howManyMedical.vue'
 import ImageUpload from '@/components/ImageUpload'
 import { formInfoColumns, formRules, tableColumns } from '@/views/deskRegistration/medicalRegistration/checkRegistration/rowColumns.tsx'
 import { teamInfoList } from "@/api/groupInspection/inspectionclosing";
@@ -128,10 +137,12 @@ const formObj = {
   age: 28,
   gender: '0',
   physicalType: 'JKTJ',
+  costType: '1',
+  payType: '1',
 }
 const formValue = ref<any>(formObj) // 基本信息绑定的值
 const teamIdList = ref<any>([]) //单位列表
-
+const howManyMedical = ref()
 //证件类型change事件
 const zjlxChange = (val) => {
   formValue.value.birthday = ''
@@ -151,6 +162,10 @@ const zjlxChange = (val) => {
 }
 //证件号型zjhInput事件
 const zjhInput = (val) => {
+  getRemote(val)
+}
+//防抖控制请求次数
+const getRemote = debounce((val) => {
   formValue.value.birthday = ''
   formValue.value.age = ''
   formValue.value.gender = ''
@@ -161,7 +176,8 @@ const zjhInput = (val) => {
       formValue.value.gender = getSex(val, 'num')
     }
   }
-}
+  howManyMedical.value.getNum()
+}, 500)
 const formColumns = ref<any>(formInfoColumns(teamIdList, zjlxChange, zjhInput))
 const value = ref('')
 const options = reactive([])
@@ -222,7 +238,7 @@ const getDetail = async () => {
   detailInfo.value.paidTeamAmount = data.paidTeamAmount
   detailInfo.value.paidPersonAmount = data.paidPersonAmount
   detailInfo.value.personAmount = data.personAmount
-  preview.value = true
+  data.healthyCheckStatus != 0 && (preview.value = true)
   getXm()
 }
 //获得需要回显的项目
@@ -270,8 +286,7 @@ const handleDJ = () => {
       id.value = data
       data && await handleUpdate('新增')
       // proxy?.$modal.msgSuccess("登记成功");
-      router.push(`/deskRegistration/medicalRegistration-childPage/checkRegistration?id=${data}`);
-      // data && getDetail()
+      !route.query.id && router.push(`/deskRegistration/medicalRegistration-childPage/checkRegistration?id=${data}`);
     }
   })
 
@@ -437,6 +452,11 @@ const selectionChange = (val) => {
   checkedList.value = val.map(item => item.id)
 }
 
+//继续登记
+const handleJXDJ = () => {
+  router.push(`/deskRegistration/medicalRegistration-childPage/checkRegistration`);
+}
+
 //编辑保存
 const handleBC = async (type) => {
   formRef.value.validate(async (valid, fields) => {
@@ -459,6 +479,7 @@ watch(() => route.query.id, (newV) => {
   if (!newV) {
     id.value = ''
     detailInfo.value = info
+    detailInfo.value.dataSource = []
     formValue.value = formObj
     preview.value = false
   } else {
@@ -466,6 +487,10 @@ watch(() => route.query.id, (newV) => {
     getDetail()
   }
 
+})
+
+defineExpose({
+  formValue, getDetail
 })
 </script>
 

@@ -112,7 +112,7 @@
               v-if="id && formValue.healthyCheckStatus != 0">打印条形码</el-button>
             <el-button round type="primary" @click="handleDJ"
               v-if="id && formValue.healthyCheckStatus != 0">打印导检单</el-button>
-            <el-button round type="primary" @click="handleDJ"
+            <el-button round type="primary" @click="handleJXDJ"
               v-if="id && formValue.healthyCheckStatus != 0">继续登记</el-button>
             <el-button round type="primary" @click="handleUpdate"
               v-if="id && formValue.healthyCheckStatus != 0">保存</el-button>
@@ -190,7 +190,6 @@ import { commonDynamicBilling } from '@/api/peis/projectPort'
 import { accSub, getBirthday, getCurrentAgeByBirthDate, getSex } from '@/utils'
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 import type { TabsPaneContext } from 'element-plus'
-import { tr } from 'element-plus/es/locale'
 const formObj = {
   credentialNumber: '420117199507186555',
   // phone: '18571714455',
@@ -441,7 +440,7 @@ const handleDJ = () => {
       // proxy?.$modal.msgSuccess("预登记成功");
       ydjHas.value = false
       // router.push(`/deskRegistration/medicalRegistration-childPage/groupRegistration?id=${data}`);
-      data && getDetail(data)
+      // data && getDetail(data)
     }
   })
 }
@@ -598,8 +597,8 @@ const handleUpdate = async (type) => {
   await registerChangeRegCombin(p)
   proxy?.$modal.msgSuccess("操作成功");
   type == '报到' && router.push(`/deskRegistration/medicalRegistration-childPage/groupRegistration?id=${formValue.value.id}`);
-  id.value = formValue.value.id
-  type != '报到' && getDetail(formValue.value.id)
+  id.value = formValue.value.id;
+  (type != '报到' || route.query.id) && getDetail(formValue.value.id)
 }
 
 //勾选
@@ -692,6 +691,11 @@ const handleChangeGroup = async (row) => {
   })
 }
 
+//继续登记
+const handleJXDJ = () => {
+  router.push(`/deskRegistration/medicalRegistration-childPage/groupRegistration`);
+}
+
 //根据体检类型区分是职业病还是普通体检
 watch(() => formValue.value.physicalType, (newV) => {
   formColumns.value.forEach(item => {
@@ -724,6 +728,9 @@ watch(() => ydjHas.value, (newV) => {
       }
     }
   })
+})
+defineExpose({
+  formValue, getDetail
 })
 </script>
 
