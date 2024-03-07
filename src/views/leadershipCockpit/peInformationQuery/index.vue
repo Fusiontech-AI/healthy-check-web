@@ -9,6 +9,8 @@
       :highlight-current-row="true"
       row-key="id"
       @row-click="rowClick"
+      class="leadershipCockpit-pms-table"
+      row-class-name="hoverPointer"
     >
       <template #searchxm>
         <el-row>
@@ -20,7 +22,7 @@
           <el-col :span="12">
             <el-form-item label="性别：">
               <el-select :filterable="true" clearable :placeholder="`请选择性别`" style="width: 100%;">
-                <el-option v-for="option of options" :key="option.value" :label="option.name" :value="option.value"></el-option>
+                <el-option v-for="option of sys_user_sex" :key="option.dictValue" :label="option.dictLabel" :value="option.dictValue"></el-option>
               </el-select>
             </el-form-item>
           </el-col>
@@ -41,6 +43,8 @@
 import { ref } from 'vue';
 import DetailTabel from './components/Table.vue'
 import {itemListColumn,summaryListColumn,suggestListColumn} from './data'
+import moment from 'moment'
+const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 
 const showDrawer = ref<boolean>(false)
 const activeName = ref<any>('1')
@@ -51,6 +55,8 @@ const dataSourceDetail = [
     }
 ]
 
+// 获取下拉列表
+const { bus_physical_type, sys_user_sex, bus_healthy_check_status } = toRefs<any>(proxy?.useDict( 'bus_physical_type', 'sys_user_sex', 'bus_healthy_check_status' ))
 const tabList = ref<any>({
     '1':{
         label:'体检项目列表',
@@ -94,11 +100,18 @@ const rowClick = ()=>{
 const tableColumns = ref([
   { prop: 'f1', label: '体检号', search: { el: 'input' }, isShow: false },
   { prop: 'f2', label: '姓名', search: { el: 'input', }, isShow: false, slot: 'xm' },
-  { prop: 'f3', label: '体检日期', search: { el: 'date-picker', props: { type: 'daterange' } }, isShow: false },
-  { prop: 'f4', label: '体检类型', search: { el: 'select' }, isShow: false },
+  { prop: 'f3', label: '体检日期',
+   search: {
+    el: 'date-picker',
+    props:
+    { type: 'daterange', valueFormat: "YYYY-MM-DD" },
+    defaultValue: [moment().format('YYYY-MM-DD'), moment().format('YYYY-MM-DD')]
+   },
+   isShow: false },
+  { prop: 'f4', label: '体检类型', search: { el: 'select' }, isShow: false,enum: bus_physical_type },
   { prop: 'f5', label: '档案号', search: { el: 'input' }, isShow: false },
   { prop: 'f6', label: '身份证号', search: { el: 'input' }, isShow: false },
-  { prop: 'f7', label: '体检状态', search: { el: 'select' }, isShow: false },
+  { prop: 'f7', label: '体检状态', search: { el: 'select' }, enum: bus_healthy_check_status, isShow: false },
   { prop: 'f8', label: '体检号', fixed: 'left' },
   { prop: 'f9', label: '档案号', fixed: 'left' },
   { prop: 'f10', label: '证件号', fixed: 'left' },
@@ -114,3 +127,8 @@ const tableColumns = ref([
 const options = ref<any>([])
 </script>
 <style scoped lang="scss"></style>
+<style lang="scss">
+.leadershipCockpit-pms-table .hoverPointer:hover .el-table__cell {
+  cursor: pointer !important;
+}
+</style>
