@@ -7,7 +7,9 @@
       <el-tab-pane label="替检登记" name="second" v-if="register?.formValue.id">
         <TiJianRegister :formValue="register?.formValue" :getDetail="register?.getDetail" />
       </el-tab-pane>
-      <el-tab-pane label="体检档案" name="third" v-if="register?.formValue.id">Role</el-tab-pane>
+      <el-tab-pane label="体检档案" name="third" v-if="register?.formValue.id">
+        <MedicalExaminationFile :formValue="register?.formValue" />
+      </el-tab-pane>
       <el-tab-pane label="报告领取方式" name="fourth" v-if="register?.formValue.id">
         <ReportReceivingMethod :formValue="register?.formValue" />
       </el-tab-pane>
@@ -18,6 +20,7 @@
 <script setup name="groupRegistration" lang="ts">
 import Register from '@/views/deskRegistration/medicalRegistration/groupRegistration/register.vue'
 import TiJianRegister from '@/views/deskRegistration/medicalRegistration/components/tiJianRegister.vue'
+import MedicalExaminationFile from '@/views/deskRegistration/medicalRegistration/components/medicalExaminationFile.vue'
 import ReportReceivingMethod from '@/views/deskRegistration/medicalRegistration/components/reportReceivingMethod.vue'
 import type { TabsPaneContext } from 'element-plus'
 const activeName = ref('first')

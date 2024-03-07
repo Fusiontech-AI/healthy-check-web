@@ -126,8 +126,10 @@ const handleAdd = () => {
 //删除一行
 const handleDel = async (row, i) => {
   await proxy?.$modal.confirm('是否删除此条信息？')
-  await teamGroupDel({ ids: row.id })
-  proxy?.$modal.msgSuccess("操作成功");
+  if (row.id) {
+    await teamGroupDel({ ids: row.id })
+    proxy?.$modal.msgSuccess("操作成功");
+  }
   props.form.groupList.splice(i, 1)
 }
 </script>

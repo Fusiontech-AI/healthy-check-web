@@ -343,7 +343,7 @@ const tableColumns = [
   { type: 'index', label: '序列', width: 60 },
   { prop: 'combinProjectName', label: '项目名称' },
   { prop: 'projectType', label: '项目类型', enum: bus_combination_project_type },
-  { prop: 'standardAmount', label: '原金额（元）' },
+  { prop: 'standardAmount', label: '原金额（元）', width: 120 },
   { prop: 'discount', label: '折扣（%）' },
   { prop: 'receivableAmount', label: '折后应收（元）', width: 130 },
   { prop: 'payStatus', label: '结算状态', enum: bus_pay_status },

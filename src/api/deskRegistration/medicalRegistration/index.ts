@@ -108,3 +108,22 @@ export const registerPersonToTeam = (params: any) => {
     data: params
   });
 };
+/**
+ * 删除体检人员登记信息
+ */
+export const registerDel = (params: any) => {
+  return request({
+    url: `/peis/register/${params.ids}`,
+    method: 'DELETE'
+  });
+};
+/**
+ * 体检项目批量报到
+ */
+export const registerBatchReport = (params: any) => {
+  return request({
+    url: `peis/register/batchReport`,
+    method: 'POST',
+    data: params
+  });
+};

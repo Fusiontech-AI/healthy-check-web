@@ -16,7 +16,7 @@ export const getRegisterPage = (params: any) => {
 export const reRegistration = (ids: any) => {
   return request({
     url: `/peis/register/reRegistration/${ids}`,
-    method: 'PUT',
+    method: 'PUT'
   });
 };
 
@@ -28,5 +28,27 @@ export const mergeArchives = (data: any) => {
     url: `/peis/register/mergeArchives`,
     method: 'POST',
     data
+  });
+};
+
+/**
+ * 根据登记id查询组合项目列表
+ */
+export const queryRegCombinProjectList = (params: any) => {
+  return request({
+    url: `/peis/regCombinationProject/queryRegCombinProjectList`,
+    method: 'GET',
+    params
+  });
+};
+
+/**
+ * 根据登记组合项目主键id查询基础项目列表
+ */
+export const queryRegBasicProjectList = (params: any) => {
+  return request({
+    url: `/peis/regCombinationProject/queryRegBasicProjectList`,
+    method: 'GET',
+    params
   });
 };

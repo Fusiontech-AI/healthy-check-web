@@ -148,7 +148,7 @@
           </div>
         </template>
         <ProTable :columns="tableColumns" :toolButton="false" :data="detailInfo.dataSource" :pagination="false"
-          @selectionChange="selectionChange" ref="proTableRef" :selectable="handleDisable">
+          @selectionChange="selectionChange" ref="proTableRef" :selectable="handleDisable" height="600">
 
           <template #operation="{ row, $index }">
             <el-button type="danger" round @click="handleSC($index)"
@@ -597,7 +597,7 @@ const handleUpdate = async (type) => {
   await registerChangeRegCombin(p)
   proxy?.$modal.msgSuccess("操作成功");
   type == '报到' && router.push(`/deskRegistration/medicalRegistration-childPage/groupRegistration?id=${formValue.value.id}`);
-  id.value = formValue.value.id;
+  type == '报到' && (id.value = formValue.value.id);
   (type != '报到' || route.query.id) && getDetail(formValue.value.id)
 }
 

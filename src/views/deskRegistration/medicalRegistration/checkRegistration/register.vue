@@ -101,7 +101,7 @@
           </div>
         </template>
         <ProTable :columns="tableColumns" :toolButton="false" :data="detailInfo.dataSource" :pagination="false"
-          @selectionChange="selectionChange" ref="proTableRef">
+          @selectionChange="selectionChange" ref="proTableRef" height="600">
 
           <template #operation="{ row, $index }">
             <el-button type="danger" round @click="handleSC($index)"

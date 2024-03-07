@@ -134,10 +134,10 @@ watch(() => props.formSecond, async (newV) => {
     item.standardAmount = standardPrice
     item.receivableAmount = actualPrice
   }))
-  const { groupName } = newV[0]
+  const { groupName } = newV?.[0] || {}
   activeName.value = groupName
   await nextTick()
-  TransferFilterComplexRef.value.forEach(item => {
+  TransferFilterComplexRef.value?.forEach(item => {
     item.defaultItems()
   })
 })
@@ -243,6 +243,7 @@ const handleHY = async () => {
   TransferFilterComplexRef.value[index].defaultItems()
 }
 </script>
+
 <style scoped lang="scss">
 .group-price {
   background: #F1F5FB;

@@ -313,15 +313,15 @@ const handleX1 = async (bloo) => {
           //调用校验接口
           await handleJY1()
           const { data } = await peisTeamTaskUpdate({ ...form.value, id: form.value.id })
-          formSecond.value = data
+          formSecond.value = data.groupList
           !bloo && (activeName.value = 'second')
           bloo && (proxy?.$modal.msgSuccess("操作成功"))
         } else {
           const { data } = await peisTeamTask(form.value)
-          formSecond.value = data
+          formSecond.value = data.groupList
           !bloo && (activeName.value = 'second')
           bloo && (proxy?.$modal.msgSuccess("操作成功"))
-          form.value.id = data[0].taskId
+          form.value.id = data.taskId
         }
         formSecondClone.value = cloneDeep(formSecond.value)
         //执行列表刷新
@@ -332,6 +332,9 @@ const handleX1 = async (bloo) => {
       if (activeName.value == 'second') {
         //调用校验接口
         await handleJY2()
+        if (formSecond.value.length == 0) {
+          return activeName.value = 'third'
+        }
         await updateGroupProjectInfo(formSecond.value)
         !bloo && (activeName.value = 'third')
         bloo && (proxy?.$modal.msgSuccess("操作成功"))
