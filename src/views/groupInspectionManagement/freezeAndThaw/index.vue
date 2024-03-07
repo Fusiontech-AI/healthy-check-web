@@ -131,9 +131,9 @@ const handleClickTab = (tab:any)=>{
   proTableRef.value!.clearSelection()
 }
 
-const getTableList = async () =>{
+const getTableList = async (params: any) =>{
   const [registerTimeStart,registerTimeEnd] = queryParams.value?.registerTime || []
-  const data = await registerPage({freezeStatus: activeTab.value,...queryParams.value,registerTime:undefined,registerTimeStart,registerTimeEnd})
+  const data = await registerPage({freezeStatus: activeTab.value,...queryParams.value,registerTime:undefined,registerTimeStart,registerTimeEnd,...params,})
   return {data}
 }
 
