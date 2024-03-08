@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <div class="mb-[10px] card table-main" style="padding-bottom: 0px;">
+  <div class="flex flex-col h-full">
+    <div class="mb-[10px] card" style="padding-bottom: 0px;">
       <SearchForm
         ref="basicSearchFormRef"
         :search-param="queryParams"
@@ -26,7 +26,7 @@
         </template>
       </SearchForm>
     </div>
-    <div class="card table-main">
+    <div class="card table-main flex-1">
       <div class="flex items-center mb-[10px]">
         <div
           v-for="(item,index) in tabList"

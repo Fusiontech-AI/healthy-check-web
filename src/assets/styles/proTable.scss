@@ -93,9 +93,11 @@
     width: calc(100% - 230px);
   }
 }
+
 .form-search {
   padding: 10px;
   margin-bottom: 10px;
+  // border-bottom: 1px solid #E8E8E8;
 
   &.search-table {
     border-bottom: 1px solid #E8E8E8;
@@ -104,6 +106,7 @@
   .el-form {
     .el-form-item__content>* {
       width: 100%;
+
       .el-input__wrapper {
         width: 100%;
       }
@@ -122,6 +125,7 @@
     margin-bottom: 18px;
   }
 }
+
 /* proTable */
 .table-box,
 .table-main {
@@ -140,6 +144,7 @@
     .el-form {
       .el-form-item__content>* {
         width: 100%;
+
         .el-input__wrapper {
           width: 100%;
         }
@@ -158,6 +163,7 @@
       margin-bottom: 18px;
     }
   }
+
   // 表格 header 样式
   .table-header {
     .header-button-lf {
@@ -178,7 +184,10 @@
     flex: 1;
 
     .el-table__inner-wrapper {
-      height: 350px;
+      min-height: 350px;
+    }
+    .el-scrollbar {
+      min-height: 365px;
     }
     // 修复 safari 浏览器表格错位 https://github.com/HalseySpicy/Geeker-Admin/issues/83
     table {

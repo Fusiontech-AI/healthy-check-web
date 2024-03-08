@@ -1,7 +1,7 @@
 <template>
   <div class="closing">
     <el-card class="box-card" shadow="never">
-      <el-form ref="ruleFormRef" :model="ruleForm" :rules="rules" label-width="120px" class="demo-ruleForm" size="default"
+      <el-form ref="ruleFormRef" :model="ruleForm" :rules="rules" class="demo-ruleForm" size="default"
         status-icon>
         <el-row :gutter="20">
           <el-col :span="6">
@@ -28,7 +28,7 @@
         </el-row>
       </el-form>
     </el-card>
-    <el-card>
+    <el-card class="no-card" shadow="never">
       <div class="title">
         <div class="title_name">任务信息</div>
         <div class="clearfix">
@@ -594,8 +594,8 @@ const details = async (title: any, row: any) => {
 
 <style scoped lang="scss">
 .closing {
-  padding: 20px;
-  background-color: #f1f1f1;
+  // padding: 20px;
+  // background-color: #f1f1f1;
 
   .box-card {
     margin-bottom: 10px;
@@ -603,6 +603,7 @@ const details = async (title: any, row: any) => {
 
   .title {
     border-left: 6px solid #FF8F33;
+    margin-top: 10px;
     margin-bottom: 20px;
     padding-left: 10px;
     display: flex;

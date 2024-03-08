@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="h-full">
     <component :is="tabList[activeTab].component" @goTo="goTo" />
   </div>
 </template>

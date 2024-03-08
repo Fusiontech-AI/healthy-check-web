@@ -176,7 +176,12 @@
 
 .table-box .el-table .el-table__inner-wrapper,
 .table-main .el-table .el-table__inner-wrapper {
-  height: 350px;
+  min-height: 350px;
+}
+
+.table-box .el-table .el-scrollbar,
+.table-main .el-table .el-scrollbar {
+  min-height: 365px;
 }
 
 .table-box .el-table table,

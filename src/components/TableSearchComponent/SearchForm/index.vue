@@ -59,7 +59,6 @@ import GridItem from "@/components/Grid/components/GridItem.vue";
 import FormAction from '@/components/TableSearchComponent/SearchForm/components/FormAction.vue'
 import { useTable } from "@/hooks/useTable";
 import { array } from "vue-types";
-import { log } from "console";
 
 interface ProTableProps {
   columns?: ColumnProps[]; // 搜索配置列
@@ -159,7 +158,13 @@ const getResponsive = (item: ColumnProps) => {
 
 // 是否默认折叠搜索项
 const collapsed = ref(true);
-
+onMounted(()=> {
+  if(props.showActionGroup) {
+    collapsed.value = true
+  }else {
+    collapsed.value = false
+  }
+})
 // 获取响应式断点
 const gridRef = ref();
 const breakPoint = computed<BreakPoint>(() => gridRef.value?.breakPoint);

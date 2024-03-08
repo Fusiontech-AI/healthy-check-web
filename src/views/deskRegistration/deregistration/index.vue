@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="table-box">
     <ProTable
       ref="proTableRef"
       :columns="tableColumns"
@@ -42,15 +42,15 @@ const tableColumns = ref<any>([
   { type: 'selection', },
   { prop: 'healthyCheckCode', label: '体检号', search: { el: 'input' }, isShow: false },
   { prop: 'name', label: '姓名', search: { el: 'input', }, isShow: false, slot: 'xm' },
-  { prop: 'healthyCheckTime', 
-    label: '体检日期', 
-    search: { el: 'date-picker', 
-      props: { type: 'daterange', 
-        valueFormat: "YYYY-MM-DD", 
-        format: "YYYY-MM-DD", 
-        clearable: true, 
-      }, 
-      defaultValue: [dayjs(new Date()).format("YYYY-MM-DD"), dayjs(new Date()).format("YYYY-MM-DD")] }, 
+  { prop: 'healthyCheckTime',
+    label: '体检日期',
+    search: { el: 'date-picker',
+      props: { type: 'daterange',
+        valueFormat: "YYYY-MM-DD",
+        format: "YYYY-MM-DD",
+        clearable: true,
+      },
+      defaultValue: [dayjs(new Date()).format("YYYY-MM-DD"), dayjs(new Date()).format("YYYY-MM-DD")] },
     isShow: false,
   },
   { prop: 'physicalType', label: '体检类型', search: { el: 'select' },enum: bus_physical_type, fieldNames: { label: 'dictLabel', value: 'dictValue' }, isShow: false,  },
