@@ -1,6 +1,6 @@
 <template>
-  <div class="flex p-10px">
-    <div class="w-500px">
+  <el-row :gutter="10" class="p10px">
+    <el-col :span="8">
       <el-card shadow="hover">
         <template #header>
           <div class="flex justify-between items-center">
@@ -87,12 +87,12 @@
             <el-time-picker v-model="formValue.reserveTimeArr" is-range arrow-control range-separator="至"
               start-placeholder="开始时间" end-placeholder="结束时间" v-if="!preview" value-format='HH:mm:ss' />
             <span v-if="preview && formValue.reserveStartTime">{{ formValue.reserveStartTime }} 至 {{
-                formValue.reserveEndTime }}</span>
+    formValue.reserveEndTime }}</span>
           </template>
         </SearchForm>
       </el-card>
-    </div>
-    <div class="flex-1 ml10px">
+    </el-col>
+    <el-col :span="16">
       <el-card shadow="hover">
         <div class="flex justify-between items-center">
           <div>
@@ -156,23 +156,23 @@
           </template>
         </ProTable>
       </el-card>
-    </div>
-    <SelectXmItem ref="selectXmItemGj" :detailInfo="detailInfo" :isTuanJian="true" :detailInfoClone="detailInfoClone" />
-    <SelectXmItem ref="selectXmItemTj" title="团体加项" :detailInfo="detailInfo" :isTuanJian="true"
-      :detailInfoClone="detailInfoClone" />
+      <SelectXmItem ref="selectXmItemGj" :detailInfo="detailInfo" :isTuanJian="true"
+        :detailInfoClone="detailInfoClone" />
+      <SelectXmItem ref="selectXmItemTj" title="团体加项" :detailInfo="detailInfo" :isTuanJian="true"
+        :detailInfoClone="detailInfoClone" />
 
-    <!-- 选择预登记信息 -->
-    <el-dialog title="选择预登记信息" v-model="dialogVisible" width="55%">
-      <ProTable ref="proTableRef" :columns="tableColumnsYDJList" :toolButton="false" :request-api="registerPage"
-        :request-auto="true" :queryParams="queryParams">
-      </ProTable>
-      <div class="flex justify-end mt-4">
-        <el-button round @click="dialogVisible = false">取消</el-button>
-        <el-button round type="primary" @click="handleYDJ">确定</el-button>
-      </div>
-    </el-dialog>
-
-  </div>
+      <!-- 选择预登记信息 -->
+      <el-dialog title="选择预登记信息" v-model="dialogVisible" width="55%">
+        <ProTable ref="proTableRef" :columns="tableColumnsYDJList" :toolButton="false" :request-api="registerPage"
+          :request-auto="true" :queryParams="queryParams">
+        </ProTable>
+        <div class="flex justify-end mt-4">
+          <el-button round @click="dialogVisible = false">取消</el-button>
+          <el-button round type="primary" @click="handleYDJ">确定</el-button>
+        </div>
+      </el-dialog>
+    </el-col>
+  </el-row>
 </template>
 
 <script setup name="groupRegistrationRegister" lang="ts">

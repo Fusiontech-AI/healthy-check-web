@@ -1,13 +1,13 @@
 <template>
-  <div class="flex p-10px">
-    <div class="w-500px">
+  <el-row :gutter="10" class="p10px">
+    <el-col :span="8">
       <el-card shadow="hover">
         <template #header>
           <div class="flex justify-between items-center">
             <!-- 体检次数 -->
             <HowManyMedical ref="howManyMedical" :formValue="formValue" />
             <div>
-              <el-button round @click="formValue = {}"
+              <el-button round @click="formValue = formObj"
                 v-if="!formValue.healthyCheckStatus || formValue.healthyCheckStatus == 0">清空</el-button>
               <el-button round @click="preview = false" v-if="id && formValue.healthyCheckStatus != 0 && preview"
                 type="primary">编辑</el-button>
@@ -47,12 +47,12 @@
             <el-time-picker v-model="formValue.reserveTimeArr" is-range arrow-control range-separator="至"
               start-placeholder="开始时间" end-placeholder="结束时间" v-if="!preview" value-format='HH:mm:ss' />
             <span v-if="preview && formValue.reserveStartTime">{{ formValue.reserveStartTime }} 至 {{
-              formValue.reserveEndTime }}</span>
+    formValue.reserveEndTime }}</span>
           </template>
         </SearchForm>
       </el-card>
-    </div>
-    <div class="flex-1 ml10px">
+    </el-col>
+    <el-col :span="16">
       <el-card shadow="hover">
         <div class="flex justify-between items-center">
           <div>
@@ -109,9 +109,9 @@
           </template>
         </ProTable>
       </el-card>
-    </div>
+    </el-col>
     <SelectXmItem ref="selectXmItem" :detailInfo="detailInfo" :detailInfoClone="detailInfoClone" />
-  </div>
+  </el-row>
 </template>
 
 <script setup name="register" lang="ts">
@@ -127,20 +127,20 @@ import { accSub, getBirthday, getCurrentAgeByBirthDate, getSex } from '@/utils'
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 import type { TabsPaneContext } from 'element-plus'
 const formObj = {
-  credentialNumber: '420117199507186555',
-  phone: '18571714455',
+  // credentialNumber: '420117199507186555',
+  // phone: '18571714455',
   credentialType: '0',
-  name: '123',
-  checkType: '11',
-  reserveTimeArr: [],
-  birthday: '1995-07-18',
-  age: 28,
-  gender: '0',
-  physicalType: 'JKTJ',
+  // name: '123',
+  // checkType: '11',
+  // reserveTimeArr: [],
+  // birthday: '1995-07-18',
+  // age: 28,
+  // gender: '0',
+  // physicalType: 'JKTJ',
   costType: '1',
   payType: '1',
 }
-const formValue = ref<any>(formObj) // 基本信息绑定的值
+const formValue = ref<any>({ ...formObj }) // 基本信息绑定的值
 const teamIdList = ref<any>([]) //单位列表
 const howManyMedical = ref()
 //证件类型change事件

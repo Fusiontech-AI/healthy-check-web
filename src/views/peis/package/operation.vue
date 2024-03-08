@@ -7,6 +7,15 @@
       </div>
       <SearchForm ref="formRef" :columns="formColumns" :search-param="formValue" :search-col="4" :rules="rules"
         :disabled="!!look" label-position="right">
+        <template #bjxm>
+          <el-checkbox-group v-model="formValue.bjxm" :disabled="true">
+            <el-checkbox label="Option A" value="Value A" />
+            <el-checkbox label="Option B" value="Value B" />
+            <el-checkbox label="Option C" value="Value C" />
+            <el-checkbox label="disabled" value="Value disabled" disabled />
+            <el-checkbox label="selected and disabled" value="Value selected and disabled" disabled />
+          </el-checkbox-group>
+        </template>
       </SearchForm>
     </el-card>
     <el-card shadow="hover">
@@ -23,7 +32,8 @@
               oninput="value=value.replace(/[^\d.]/g, '').replace(/\.{2,}/g, '.').replace('.', '$#$').replace(/\./g, '').replace('$#$', '.').replace(/^(\-)*(\d+)\.(\d\d).*$/, '$1$2.$3').replace(/^\./g, '')"
               :disabled="!!look" />
             <span class="ml10px">折后应收：</span>
-            <el-input v-model="formValue.receivableAmount" placeholder="请输入" style="width:100px;" @blur="handleBlur('2')"
+            <el-input v-model="formValue.receivableAmount" placeholder="请输入" style="width:100px;"
+              @blur="handleBlur('2')"
               oninput="value=value.replace(/[^\d.]/g, '').replace(/\.{2,}/g, '.').replace('.', '$#$').replace(/\./g, '').replace('$#$', '.').replace(/^(\-)*(\d+)\.(\d\d).*$/, '$1$2.$3').replace(/^\./g, '')"
               :disabled="!!look" />
           </div>
@@ -41,6 +51,7 @@
 <script setup name="operation" lang="ts">
 import TransferFilterComplex from '@/components/TransferFilterComplex'
 import {
+  packageList,
   packageAdd,
   packageDetail,
   packageUpload,
@@ -86,8 +97,18 @@ const tableColumns = [
     prop: 'cz'
   },
 ]
+const fxtcList = ref([])
+//复制套餐change
+const handleFztc = (val) => {
+  if (!val) {
+    formValue.defaultItemList = []
+    TransferFilterComplexRef.value.defaultItems()
+    return
+  }
+  getXm(val)
+}
 const { proxy } = getCurrentInstance() as ComponentInternalInstance
-const { bus_physical_type, bus_gender } = toRefs<any>(proxy?.useDict('bus_physical_type', 'bus_gender'))
+const { bus_physical_type, bus_gender, bus_hazardous_factors, bus_duty_status, bus_shine_source, bus_job_illumination_source } = toRefs<any>(proxy?.useDict('bus_physical_type', 'bus_gender', 'bus_hazardous_factors', 'bus_duty_status', 'bus_shine_source', 'bus_job_illumination_source'))
 const formColumns = ref([
   {
     label: '体检类型',
@@ -122,6 +143,66 @@ const formColumns = ref([
     search: { el: 'input', },
   },
   {
+    label: '复制套餐',
+    prop: 'fztc',
+    search: { el: 'select' },
+    fieldNames: { label: 'packageName', value: 'id' },
+    enum: fxtcList,
+    change: handleFztc
+  },
+  {
+    label: '在岗状态',
+    prop: 'dutyStatus',
+    search: { el: 'select', },
+    enum: bus_duty_status,
+    isShowSearch: false
+  },
+  {
+    label: '危害因素',
+    prop: 'hazardsBoList',
+    enum: bus_hazardous_factors,
+    search: { el: 'select', props: { multiple: true }, span: 2 },
+    isShowSearch: false
+  },
+  {
+    label: '照射源',
+    prop: 'shineSource',
+    enum: bus_shine_source,
+    search: { el: 'select', },
+    isShowSearch: false
+  },
+  {
+    label: '职业照射种类',
+    prop: 'shineType',
+    enum: bus_job_illumination_source,
+    search: { el: 'select', },
+    isShowSearch: false
+  },
+  {
+    label: '其他粉尘因素',
+    prop: 'fc',
+    search: { el: 'input', },
+    isShowSearch: false
+  },
+  {
+    label: '其他生物因素',
+    prop: 'sw',
+    search: { el: 'input', },
+    isShowSearch: false
+  },
+  {
+    label: '其他物理因素',
+    prop: 'wl',
+    search: { el: 'input', },
+    isShowSearch: false
+  },
+  {
+    label: '其他化学因素',
+    prop: 'hx',
+    search: { el: 'input', },
+    isShowSearch: false
+  },
+  {
     label: '状态',
     prop: 'status',
     search: { el: 'select' },
@@ -137,43 +218,14 @@ const formColumns = ref([
     ]
   },
   {
-    label: '在岗状态',
-    prop: 'packageSort',
-    search: { el: 'select', },
-    isShowSearch: false
-  },
-  {
-    label: '危害因素',
-    prop: 'packageSort',
-    search: { el: 'select', prop: { multiple: true }, span: 2 },
-    isShowSearch: false
-  },
-  {
-    label: '照射源',
-    prop: 'packageSort',
-    search: { el: 'select', },
-    isShowSearch: false
-  },
-  {
-    label: '职业照射种类',
-    prop: 'packageSort',
-    search: { el: 'select', },
-    isShowSearch: false
-  },
-  {
-    label: '其他粉尘',
-    prop: 'packageSort',
-    search: { el: 'input', },
-    isShowSearch: false
-  },
-  {
-    label: '其他化学因素',
-    prop: 'packageSort',
-    search: { el: 'input', },
-    isShowSearch: false
+    label: '必检项目',
+    prop: 'bjxm',
+    search: { el: 'checkbox', span: 24 },
+    slot: 'bjxm', isShowSearch: false
   },
 ])
 const formValue = reactive({
+  hazardsBoList: [],
   packageName: '',
   tjPackageInfoItemBos: [],
   defaultItemList: []
@@ -195,6 +247,33 @@ const rules = ref({
   status: [
     { required: true, message: '请选择状态', trigger: 'change' },
   ],
+  hazardsBoList: [
+    { required: true, message: '请选择危害因素', trigger: 'change' },
+  ],
+  dutyStatus: [
+    { required: true, message: '请选择在岗状态', trigger: 'change' },
+  ],
+  shineSource: [
+    { required: true, message: '请选择照射源', trigger: 'change' },
+  ],
+  shineType: [
+    { required: true, message: '请选择职业照射种类', trigger: 'change' },
+  ],
+  fc: [
+    { required: true, message: '请输入其他粉尘因素', trigger: 'blur' },
+  ],
+  sw: [
+    { required: true, message: '请输入其他生物因素', trigger: 'blur' },
+  ],
+  wl: [
+    { required: true, message: '请输入其他物理因素', trigger: 'blur' },
+  ],
+  hx: [
+    { required: true, message: '请输入其他化学因素', trigger: 'blur' },
+  ],
+  bjxm: [
+    { required: true, message: '请选择必检项目', trigger: 'change' },
+  ],
 })
 const { id, look } = route.query
 //获得详情
@@ -206,8 +285,8 @@ const getDetail = async () => {
   getXm()
 }
 //获得需要回显的项目
-const getXm = async () => {
-  const { rows } = await packageInfoList({ packageId: id })
+const getXm = async (val) => {
+  const { rows } = await packageInfoList({ packageId: val || id })
   formValue.defaultItemList = rows.map((item, i) => {
     return {
       sort: i + 1,
@@ -224,6 +303,12 @@ const getXm = async () => {
 }
 id && getDetail()
 
+//获得已存在套餐list
+const hasTcList = async () => {
+  const { rows } = await packageList({ pageSize: -1 })
+  fxtcList.value = rows
+}
+!look && hasTcList()
 //确定
 const handleSubmit = () => {
   formRef.value.validate(async (valid, fields) => {
@@ -263,16 +348,66 @@ const handleBlur = (type) => {
 }
 //健康和职业病的类型切换
 watch(() => formValue.tjType, (newV) => {
+  const arr = ['危害因素', '在岗状态', '必检项目']
   formColumns.value.forEach(item => {
     if (item.isShowSearch != undefined) {
-      if (newV == 'ZYJKTJ') {
+      if (newV == 'ZYJKTJ' && arr.includes(item.label)) {
         item.isShowSearch = true
-      } else {
+      } else if (arr.includes(item.label)) {
         item.isShowSearch = false
       }
     }
   })
 })
+//健康和职业病的类型切换
+watch(() => formValue.hazardsBoList, (newV) => {
+  // 其他放射14999
+  // 其他生物15999
+  // 其他物理13999
+  // 其他粉尘11999
+  // 其他化学12999
+  formColumns.value.forEach(item => {
+    if (item.isShowSearch != undefined) {
+      if (item.label == '照射源' || item.label == '职业照射种类') {
+        if (newV.includes('14999')) {
+          item.isShowSearch = true
+        } else {
+          item.isShowSearch = false
+        }
+      }
+      if (item.label == '其他生物因素') {
+        if (newV.includes('15999')) {
+          item.isShowSearch = true
+        } else {
+          item.isShowSearch = false
+        }
+      }
+      if (item.label == '其他物理因素') {
+        if (newV.includes('13999')) {
+          item.isShowSearch = true
+        } else {
+          item.isShowSearch = false
+        }
+      }
+      if (item.label == '其他粉尘因素') {
+        if (newV.includes('11999')) {
+          item.isShowSearch = true
+        } else {
+          item.isShowSearch = false
+        }
+      }
+      if (item.label == '其他化学因素') {
+        if (newV.includes('12999')) {
+          item.isShowSearch = true
+        } else {
+          item.isShowSearch = false
+        }
+      }
+
+    }
+  })
+})
+
 </script>
 <style scoped lang="scss">
 .title {

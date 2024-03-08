@@ -191,16 +191,14 @@ const handleXQ = (row) => {
   }
 }
 
-
-
 //报到
 const handleBD = async () => {
   if (checkedList.value.length == 0) {
-    proxy?.$modal.msgWarning("请选择人员");
+    proxy?.$modal.msgWarning("请选择人员操作!");
     return
   }
   await proxy?.$modal.confirm('<span style="font-weight:bold">是否确定进行报到？</span><br/> 报到后可打印指引单和条码')
-  registerBatchReport(checkedList.value)
+  await registerBatchReport(checkedList.value)
   proxy?.$modal.msgSuccess("操作成功");
   proTableRef.value?.clearSelection()
   proTableRef.value?.getTableList()

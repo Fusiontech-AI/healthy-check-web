@@ -136,7 +136,40 @@ import { combinationProjectList, commonDynamicBilling, queryPackageAndProjectPag
 import { accAdd } from '@/utils'
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 const { bus_pay_mode } = toRefs<any>(proxy?.useDict('bus_pay_mode'));
-const props = defineProps(['tableHeader', 'disabled', 'isRw', 'formValue', 'tableColumns', 'title', 'leftHegiht', 'rightHeight'])
+const props = defineProps({
+  tableHeader: {
+    type: Array,
+    default: () => []
+  },
+  tableColumns: {
+    type: Array,
+    default: () => []
+  },
+  disabled: {
+    type: Boolean,
+    default: () => false
+  },
+  isRw: {
+    type: Boolean,
+    default: () => false
+  },
+  formValue: {
+    type: Object,
+    default: () => { }
+  },
+  title: {
+    type: String,
+    default: () => ''
+  },
+  leftHegiht: {
+    type: Number,
+    default: () => null
+  },
+  rightHeight: {
+    type: Number,
+    default: () => null
+  },
+})
 const emit = defineEmits(['itemChange', 'handleHY'])
 const tableData = ref([])
 const tableDataClone = ref([])
