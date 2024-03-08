@@ -64,11 +64,10 @@
 </template>
 
 <script setup lang="ts">
-import { getTeamTaskList, insertRegisterData } from '@/api/groupInspection/taskAudit'
 import { unitGroupColumn, rules } from '../rowColumns'
 import { teamGroupList } from '@/api/leadershipCockpit/overviewMedicalExaminers'
 import { registerAdd } from '@/api/deskRegistration/medicalRegistration';
-import { dayjs } from 'element-plus';
+import { ElMessage, dayjs } from 'element-plus';
 import { getBirthday, getCurrentAgeByBirthDate, getSex } from '@/utils';
 
 const props = defineProps({
