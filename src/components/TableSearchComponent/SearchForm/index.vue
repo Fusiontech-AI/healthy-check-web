@@ -35,13 +35,13 @@
         <GridItem suffix>
           <div class="operation" v-if="showActionGroup">
             <slot name="formAction">
-              <FormAction :actionOption="actionOption" @search="search" @reset="reset" class="mr-2"></FormAction>
-              <el-button v-if="showCollapse" type="primary" link class="search-isOpen" @click="collapsed = !collapsed">
-                {{ collapsed ? "展开" : "合并" }}
+              <el-button v-if="showCollapse" type="info" link class="search-isOpen mr-2" @click="collapsed = !collapsed">
+                {{ collapsed ? "展开" : "收起" }}
                 <el-icon class="el-icon--right">
                   <component :is="collapsed ? ArrowDown : ArrowUp"></component>
                 </el-icon>
               </el-button>
+              <FormAction :actionOption="actionOption" @search="search" @reset="reset"></FormAction>
             </slot>
           </div>
         </GridItem>
@@ -157,7 +157,7 @@ const getResponsive = (item: ColumnProps) => {
 };
 
 // 是否默认折叠搜索项
-const collapsed = ref(false);
+const collapsed = ref(true);
 
 // 获取响应式断点
 const gridRef = ref();
@@ -171,9 +171,9 @@ const showCollapse = computed(() => {
       (current.search![breakPoint.value]?.span ?? current.search?.span ?? 1) +
       (current.search![breakPoint.value]?.offset ?? current.search?.offset ?? 0);
     if (typeof props.searchCol !== "number") {
-      if (prev >= props.searchCol[breakPoint.value]) show = true;
+      if (prev >= props.searchCol[breakPoint.value] * 2) show = true;
     } else {
-      if (prev >= props.searchCol) show = true;
+      if (prev >= props.searchCol * 2) show = true;
     }
     return prev;
   }, 0);
