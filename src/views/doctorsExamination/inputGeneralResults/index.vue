@@ -1,92 +1,108 @@
 <template>
   <div class="bg-#fff content">
-    <Grid ref="gridRef" :cols="13">
+    <Grid ref="gridRef" :cols="11">
       <GridItem :span="2">
         <div class="border-r ">
           <div class="p-10px">
-            <el-date-picker start-placeholder="开始日期" end-placeholder="结束日期" type="daterange"
-              style="width: 100%;"></el-date-picker>
-            <el-input class="mt-8px" placeholder="请输入体检号"></el-input>
+            <el-date-picker
+              v-model="registerParams.healthyCheckTime"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+              value-format="YYYY-MM-DD"
+              format="YYYY-MM-DD"
+              type="daterange"
+              style="width: 100%;"
+              @change="getRegisterList"
+            ></el-date-picker>
+            <div class="flex mt-8px">
+              <el-input @input="updateInput" v-model="registerParams.healthyCheckCode" placeholder="请输入体检号" clearable></el-input>
+              <el-button
+                link
+                class="ml-1"
+                style="padding: 8px;"
+                @click="showInput = !showInput"
+                :icon="showInput ? 'ArrowUpBold' : 'ArrowDownBold'"
+              />
+            </div>
             <el-collapse-transition>
-              <div v-if="showInput">
-                <el-input class="mt-8px" placeholder="请输入姓名"></el-input>
+              <div v-show="showInput" class="flex mt-8px">
+                <el-input placeholder="请输入姓名" v-model="registerParams.name" @input="updateInput"></el-input>
+                <el-button class="ml-1" icon="RefreshRight" style="padding: 8px;"></el-button>
               </div>
             </el-collapse-transition>
-            <div class="mt-8px">
-              <el-button type="primary" round size="small">搜索</el-button>
-              <el-button round size="small">重置</el-button>
-              <el-button link class="mr-2" @click="showInput = !showInput"
-                :icon="showInput ? ArrowUpBold : ArrowDownBold" />
-            </div>
             <div class="divider"></div>
             <div class="tabs">
-              <span :class="activeName == '1' ? 'active' : ''" @click="activeName = '1'">分检</span>
-              <span :class="activeName == '2' ? 'active' : ''" @click="activeName = '2'">分检完成</span>
+              <span :class="registerParams.healthyCheckStatus == '2' ? 'active' : ''" @click="registerParams.healthyCheckStatus = '2';">分检</span>
+              <span :class="registerParams.healthyCheckStatus == '3' ? 'active' : ''" @click="registerParams.healthyCheckStatus = '3';"
+                >分检完成</span
+              >
             </div>
           </div>
-          <el-scrollbar class="left_list" height="calc(100vh - 292px)">
-            <el-card v-for="item in 20" :key="item" shadow="hover" class="list_item">
-              <div class="flex justify-between mb-4px">
-                <div><span> 张三 </span><span> 21 </span><span> 身份证 </span><span> 出诊 </span></div>
-                <el-button link size="small" @click="showCard = showCard && showCard == item ? null : item"
-                  :icon="showCard == item ? ArrowUpBold : ArrowDownBold"></el-button>
+          <el-scrollbar class="left_list" :height="showInput?'calc(100vh - 298px)':'calc(100vh - 258px)'" v-loading="registerLoading">
+            <div v-for="item in registerList" :key="item" shadow="hover">
+              <div
+                v-show="item.id === activeRegisterInfo.id"
+                class="flex justify-between text-sm bg-blue-400 rounded-t-4px text-white font-bold py-1 pl-2 pr-2"
+              >
+                {{ bus_physical_type?.find((val: any) => val.dictValue == item.physicalType)?.label }}
+                <span class="mr-1px px-2px border border-white border-solid rounded">{{item.businessCategory == '1'?'个':'团'}}</span>
               </div>
-              <div class="flex justify-between">
-                <span>015475</span>
-                <span>2024-01-12</span>
-              </div>
-              <el-collapse-transition>
-                <div v-if="showCard && showCard == item" class="mt-6px bg-slate-200 rounded-6px p-4px text-12px">
-                  <div>体检日期：2023-09-09</div>
-                  <div>单 位：枝江工行</div>
-                  <div>电 话：1889920202023</div>
-                  <div>体检类型：职业健康体检</div>
-                  <div>身份证号：4383939393993933</div>
-                  <div>档 案 号：TJ20289393933</div>
-                  <div>人员类别：VIP</div>
-                  <div>体检次数：1次</div>
+              <el-card class="list_item" :class="{'active':item.id === activeRegisterInfo.id}" shadow="hover" @click="activeRegisterInfo = item;">
+                <div class="flex justify-between items-center mb-4px">
+                  <div class="flex items-center flex-wrap">
+                    <div class="text-base font-medium relative" :class="item.checkType == '21'?'mr-4':''">
+                      {{ item.name }}
+                      <span
+                        v-if="item.checkType == '21'"
+                        class="text-xs font-normal absolute inline-block text-#F75252 border border-orange-500 border-solid px-1px rounded-sm right-[-18px] top-[-4px]"
+                        >复</span
+                      >
+                    </div>
+                    <div class="mx-2 px-4px flex items-center rounded-lg" :class="item.gender == '0'?'bg-#F0F9FF':'bg-#FFF0F1'">
+                      <el-icon v-if="item.gender == '0'" color="#159DFF"><Male /></el-icon>
+                      <el-icon v-if="item.gender == '1'" color="#FE525D"><Female /></el-icon>
+                      <span class="ml-1" :class="item.gender == '0'?'text-#159DFF':'text-#FE525D'">{{ item.age }}</span>
+                    </div>
+                    <el-tooltip effect="dark" :content="item.credentialNumber" placement="top">
+                      <SvgIcon icon-class="idCard" class="mr-2"></SvgIcon>
+                    </el-tooltip>
+                  </div>
+                  <el-button
+                    link
+                    size="small"
+                    @click.stop="item.showCard = !item.showCard"
+                    :icon="item.showCard ? ArrowUpBold : ArrowDownBold"
+                  ></el-button>
                 </div>
-              </el-collapse-transition>
-            </el-card>
+                <div class="flex justify-between">
+                  <span class="text-xs text-#1D2129">{{ item.healthyCheckCode }}</span>
+                  <span class="text-xs text-#C0C4CC">{{ item.healthyCheckTime }}</span>
+                </div>
+                <el-collapse-transition>
+                  <div v-show="item.showCard" class="mt-6px bg-#F1F5FB rounded-6px py-4px px-6px text-sm leading-6">
+                    <div><span class="text-xs w-60px text-#999999 inline-block">体检日期：</span>{{ item.healthyCheckTime }}</div>
+                    <div><span class="text-xs w-60px text-#999999 inline-block">单 位：</span>{{ item.groupName }}</div>
+                    <div><span class="text-xs w-60px text-#999999 inline-block">电 话：</span>{{item.phone}}</div>
+                    <div>
+                      <span class="text-xs w-60px text-#999999 inline-block">体检类型：</span
+                      >{{ bus_physical_type?.find((val: any) => val.dictValue == item.physicalType)?.label }}
+                    </div>
+                    <div><span class="text-xs w-60px text-#999999 inline-block">身份证号：</span>{{ item.credentialNumber }}</div>
+                    <div><span class="text-xs w-60px text-#999999 inline-block">档 案 号：</span>{{item.recordCode}}</div>
+                    <div>
+                      <span class="text-xs w-60px text-#999999 inline-block">人员类别：</span
+                      >{{ bus_person_category?.find((val: any) => val.dictValue == item.personCategory)?.labe }}
+                    </div>
+                    <div><span class="text-xs w-60px text-#999999 inline-block">体检次数：</span>{{ item.peTimes }}</div>
+                  </div>
+                </el-collapse-transition>
+              </el-card>
+            </div>
           </el-scrollbar>
         </div>
       </GridItem>
-      <GridItem :span="8">
-        <div class="p-10px relative"
-          style="height: calc(100vh - 112px); border-left: 1px solid #E8E8E8; border-right: 1px solid #E8E8E8;">
-          <div class="px-20px">
-            张三三 男 25岁 共30项 / 已检15项
-          </div>
-          <div class="mt-8px">
-            <el-tabs v-model="activetab" type="card">
-              <el-tab-pane label="物理体检" name="1"></el-tab-pane>
-              <el-tab-pane label="内科" name="2"></el-tab-pane>
-              <el-tab-pane label="外科" name="3"></el-tab-pane>
-              <el-tab-pane label="血常规" name="4"></el-tab-pane>
-              <el-tab-pane label="幽门螺旋杆菌HP抗体" name="5"></el-tab-pane>
-              <el-tab-pane label="尿常规" name="6"></el-tab-pane>
-              <el-tab-pane label="胸部正位DR" name="7"></el-tab-pane>
-              <el-tab-pane label="腹部彩超（肝胆胰脾双肾）" name="8"></el-tab-pane>
-            </el-tabs>
-          </div>
-          <div class="flex justify-between">
-            <div>
-              <el-button size="small" type="primary">保存</el-button>
-              <el-button size="small">清除</el-button>
-              <el-button size="small">弃检</el-button>
-              <el-button size="small">使用上次体检结果</el-button>
-              <el-button size="small">快速录入</el-button>
-            </div>
-            <el-button link>查看图片>></el-button>
-          </div>
-          <div class="no-card mt-16px">
-            <ProTable :columns="columns" :data="[{ name: '1' }]" :tool-button="false" :pagination="false"></ProTable>
-          </div>
-          <div class="absolute bottom-0 ">
-            <span class="mr-18px">检查医生：xxx</span>
-            <span>检查日期：2023-03-09 13:34:34</span>
-          </div>
-        </div>
+      <GridItem :span="6">
+        <reg-combin-project :registerInfo="activeRegisterInfo"></reg-combin-project>
       </GridItem>
       <GridItem :span="3">
         <div class="h-full">
@@ -97,9 +113,15 @@
               <el-tab-pane label="历史本科小结" name="3"></el-tab-pane>
             </el-tabs>
             <div class="no-card">
-              <ProTable :columns="columns1" :data="[{ name: '1' }, { name: '1' }, { name: '1' },]" :tool-button="false"
-                :pagination="false" :header-cell-style="{ 'font-size': '12px' }" :cell-style="{ 'font-size': '12px' }"
-                height="calc((100vh - 220px) / 2)"></ProTable>
+              <ProTable
+                :columns="columns1"
+                :data="[{ name: '1' }, { name: '1' }, { name: '1' },]"
+                :tool-button="false"
+                :pagination="false"
+                :header-cell-style="{ 'font-size': '12px' }"
+                :cell-style="{ 'font-size': '12px' }"
+                height="calc((100vh - 220px) / 2)"
+              ></ProTable>
             </div>
           </div>
           <el-tabs type="card">
@@ -107,10 +129,14 @@
             <el-tab-pane label="医学科普" name="2"></el-tab-pane>
           </el-tabs>
           <div class="no-card">
-            <ProTable :columns="columns2"
+            <ProTable
+              :columns="columns2"
               :data="[{ name: '1' }, { name: '1' }, { name: '1' }, { name: '1' }, { name: '1' }, { name: '1' }, { name: '1' }, { name: '1' }, { name: '1' }]"
-              :tool-button="false" :pagination="false" :header-cell-style="{ 'font-size': '12px' }"
-              height="calc((100vh - 230px) / 2)"></ProTable>
+              :tool-button="false"
+              :pagination="false"
+              :header-cell-style="{ 'font-size': '12px' }"
+              height="calc((100vh - 230px) / 2)"
+            ></ProTable>
           </div>
         </div>
       </GridItem>
@@ -119,22 +145,15 @@
 </template>
 
 <script setup lang="ts">
-import { ArrowUpBold, ArrowDownBold } from "@element-plus/icons-vue";
+import _ from 'lodash'
+import { getRegisterPage } from "@/api/deskRegistration/deregistration";
+import { ArrowUpBold, ArrowDownBold} from "@element-plus/icons-vue";
 import { ref } from "vue";
+import RegCombinProject from './components/RegCombinProject.vue';
+const { proxy } = getCurrentInstance() as ComponentInternalInstance;
+const {bus_physical_type, bus_person_category} = toRefs<any>(proxy?.useDict('bus_physical_type'))
+
 const showInput = ref(false)
-const showCard = ref()
-const activeName = ref('1')
-const activetab = ref('1')
-const columns = ref<any>([
-  { type: 'selection' },
-  { label: '序号', type: 'index', width: 60 },
-  { label: '项目名称', prop: 'name' },
-  { label: '明细结果', prop: 'name' },
-  { label: '单位', prop: 'name' },
-  { label: '参考值', prop: 'name' },
-  { label: '提示', prop: 'name' },
-  { label: '异常', prop: 'name' },
-])
 const columns1 = ref<any>([
   { type: 'selection' },
   { label: '项目名称', prop: 'name' },
@@ -147,6 +166,41 @@ const columns2 = ref<any>([
   { label: '建议名称', prop: 'name' },
   { label: '诊断建议', prop: 'name' },
 ])
+const registerParams = ref<any>({
+  healthyCheckTime: [],
+  healthyCheckCode: '',
+  name: '',
+  // 0：预约，1：登记，2：科室分检，3：分检完成，4：待总检，5：已终检
+  healthyCheckStatus: ''
+})
+const registerList = ref<any>([])
+const registerLoading = ref<boolean>(false)
+const activeRegisterInfo = ref<any>({}) // 当前选中的人员信息
+const showCardId = ref()
+// 左侧体检人登记列表
+const getRegisterList = async()=> {
+  try {
+    registerLoading.value = true
+    const {healthyCheckTime, ...p} = registerParams.value
+    const params = {
+      status: 0,
+      pagesize: -1,
+      healthyCheckTimeStart: healthyCheckTime?.[0],
+      healthyCheckTimeEnd: healthyCheckTime?.[1],
+      ...p
+    }
+    const {rows} = await getRegisterPage(params)
+    activeRegisterInfo.value = rows?.[0]
+    // showCardId.value = rows?.[0].id
+    registerLoading.value = false
+    registerList.value = _.cloneDeep(rows)
+  } catch (error) {
+    registerLoading.value = false
+  }
+}
+getRegisterList()
+
+const updateInput = _.debounce(getRegisterList, 200) // 防抖
 </script>
 
 <style scoped lang="scss">
@@ -158,23 +212,29 @@ const columns2 = ref<any>([
   padding: 0 10px;
 
   .list_item {
+    cursor: pointer;
     background: #fff;
     margin-bottom: 8px;
-    border-style: solid;
-    border-color: #E6EAEF;
-    border-radius: 4px;
-    border-width: 0px 0px 1px 0px;
+    border-radius: 0px 0px 4px 4px;
+    border: 1px solid transparent;
+    border-bottom: 1px solid #E6EAEF;
     font-size: 14px;
-    cursor: pointer;
+    box-sizing: border-box;
+    transition: all .3s;
+
+    &.el-card.is-hover-shadow:focus, &.el-card.is-hover-shadow:hover {
+      box-shadow: 0px 2px 6px 0px rgba(155, 171, 203, 0.34) !important;
+    }
 
     &:hover {
-      border-color: #F1F5FB;
-      background: #F1F5FB;
+      border-left: 1px solid #F1F5FB;
+      border-right: 1px solid #F1F5FB;
     }
 
     &.active {
-      border-color: #F1F5FB;
-      background: #F1F5FB;
+      border-left: 1px solid #F1F5FB;
+      border-right: 1px solid #F1F5FB;
+      box-shadow: 0px 2px 6px 0px rgba(155, 171, 203, 0.34) !important;
     }
   }
 }

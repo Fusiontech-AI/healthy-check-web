@@ -4,7 +4,6 @@
       v-if="!(actionOption.hasOwnProperty('showResetButton') && !actionOption.showResetButton)"
       v-bind="actionOption?.resetOption"
       @click="handleReset"
-      :icon="Search"
       round
     >
       {{actionOption?.resetOption?.btnText || '重置'}}
@@ -14,10 +13,9 @@
       :type="actionOption?.submitOption?.type || 'primary'"
       v-bind="actionOption?.submitOption"
       @click="handleSearch"
-      :icon="Search"
       round
     >
-      {{actionOption?.submitOption?.btnText || '搜索'}}
+      {{actionOption?.submitOption?.btnText || '查询'}}
     </el-button>
   </div>
 </template>
