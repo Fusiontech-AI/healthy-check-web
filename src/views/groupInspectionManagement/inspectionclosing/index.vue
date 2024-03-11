@@ -68,7 +68,7 @@
       </ProTable>
 
       <div class="title">
-        <div style="width: 200px;">结账信息</div>
+        <div style="width: 200px;"><div class="title_name">结账信息</div></div>
       </div>
       <ProTable ref="proTableAccounts" :columns="columnsAccounts" :data="tableListAccountsData"
         :request-api="getTableListAccounts" :pagination="tableListAccountsData.length > 0" :height="200"
@@ -604,7 +604,7 @@ const details = async (title: any, row: any) => {
     // border-left: 6px solid #FF8F33;
     margin-top: 10px;
     margin-bottom: 20px;
-    padding-left: 10px;
+    // padding-left: 10px;
     display: flex;
     justify-content: space-between;
 
