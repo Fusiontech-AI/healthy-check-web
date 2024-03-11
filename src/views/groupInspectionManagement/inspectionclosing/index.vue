@@ -589,7 +589,6 @@ const details = async (title: any, row: any) => {
   }
 
 }
-
 </script>
 
 <style scoped lang="scss">
@@ -602,7 +601,7 @@ const details = async (title: any, row: any) => {
   }
 
   .title {
-    border-left: 6px solid #FF8F33;
+    // border-left: 6px solid #FF8F33;
     margin-top: 10px;
     margin-bottom: 20px;
     padding-left: 10px;
@@ -611,6 +610,21 @@ const details = async (title: any, row: any) => {
 
     .title_name {
       width: 100px;
+      display: flex;
+      align-items: center;
+      &::before {
+        content: '';
+        width: 4px;
+        height: 18px;
+        margin-right: 4px;
+        border-radius: 2px;
+        background: #FF8F33;
+      }
+      // span {
+      //   width: 4px;
+      //   border-radius: 2px;
+      //   background: #FF8F33;
+      // }
     }
 
     .clearfix {

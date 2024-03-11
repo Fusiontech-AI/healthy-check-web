@@ -1,5 +1,5 @@
 <template>
-  <div class="flex p-10px">
+  <div class="flex">
     <div class="w-500px shrink-0">
       <el-card shadow="hover">
         <template #header>
