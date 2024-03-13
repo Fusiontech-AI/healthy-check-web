@@ -1,7 +1,7 @@
 <template>
-  <div class="p-2">
+  <div class="table-box">
     <ProTable ref="proTableRef" :columns="tableColumns" :toolButton="false" :request-api="registerPage"
-      label-position="right" :queryParams="queryParams" @selectionChange="selectionChange" :height="450">
+      label-position="right" :queryParams="queryParams" @selectionChange="selectionChange" :searchCol="4">
       <template #searchxm>
         <el-row>
           <el-col :span="12">
