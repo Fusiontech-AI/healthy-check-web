@@ -1,5 +1,5 @@
 <template>
-  <div class="p-2">
+  <div class="table-box">
     <ProTable ref="proTable" :columns="tableColumns" :toolButton="false" :request-api="packageList"
       :init-param="initParam">
       <template #tableHeader="scope">

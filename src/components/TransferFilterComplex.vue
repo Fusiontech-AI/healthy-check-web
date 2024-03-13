@@ -38,7 +38,7 @@
           </div>
           <div>
             <ProTable ref="proTableRef" :columns="tableColumns" :toolButton="false" :data="rightTableData"
-              label-position="right" :pagination="false">
+              label-position="right" :pagination="false" :max-height="rightHeight">
 
               <template #discount="{ row, $index }">
                 <el-input v-model="row.discount" placeholder="请输入" @blur="handleSelected(row, $index, '1', '1')"
@@ -353,8 +353,12 @@ watch(() => form.input, (newVal) => {
 })
 
 //回显
-const defaultItems = () => {
-  const { packageId, defaultItemList, packageName } = props.formValue
+const defaultItems = (data) => {
+  let result = props.formValue
+  if (data) {
+    result = data
+  }
+  const { packageId, defaultItemList, packageName } = result
   const zxList = defaultItemList.map(item => {
     //套餐的放一起
     if (item.tcFlag == '0') {

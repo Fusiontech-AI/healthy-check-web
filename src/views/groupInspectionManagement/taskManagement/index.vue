@@ -116,7 +116,7 @@ const activeName = ref('first')
 const preview = ref(false)
 const activeKey = ref()
 
-const { bus_physical_type, bus_charge_type } = toRefs<any>(proxy?.useDict("bus_physical_type", 'bus_charge_type'));
+const { bus_physical_type, bus_charge_type, bus_hazardous_factors } = toRefs<any>(proxy?.useDict("bus_physical_type", 'bus_charge_type', 'bus_hazardous_factors'));
 
 //单位change
 const dwChange = async (val) => {
@@ -344,7 +344,55 @@ const handleX1 = async (bloo) => {
         if (formSecond.value.length == 0) {
           return activeName.value = 'third'
         }
-        await updateGroupProjectInfo(formSecond.value)
+
+        formSecond.value.forEach(res => {
+          const tjPackageHazardsBoList = []
+          res.hazardsBoList.forEach(item => {
+            if (item == '14999') {
+              tjPackageHazardsBoList.push({
+                hazardFactorsOther: res.fs,
+                hazardFactorsName: (bus_hazardous_factors.value.filter(row => row.dictValue == item))[0].dictLabel,
+                hazardFactorsCode: item
+              })
+            } else if (item == '15999') {
+              tjPackageHazardsBoList.push({
+                hazardFactorsOther: res.sw,
+                hazardFactorsName: (bus_hazardous_factors.value.filter(row => row.dictValue == item))[0].dictLabel,
+                hazardFactorsCode: item
+              })
+            } else if (item == '13999') {
+              tjPackageHazardsBoList.push({
+                hazardFactorsOther: res.wl,
+                hazardFactorsName: (bus_hazardous_factors.value.filter(row => row.dictValue == item))[0].dictLabel,
+                hazardFactorsCode: item
+              })
+            } else if (item == '11999') {
+              tjPackageHazardsBoList.push({
+                hazardFactorsOther: res.fc,
+                hazardFactorsName: (bus_hazardous_factors.value.filter(row => row.dictValue == item))[0].dictLabel,
+                hazardFactorsCode: item
+              })
+            } else if (item == '12999') {
+              tjPackageHazardsBoList.push({
+                hazardFactorsOther: res.hx,
+                hazardFactorsName: (bus_hazardous_factors.value.filter(row => row.dictValue == item))[0].dictLabel,
+                hazardFactorsCode: item
+              })
+            } else {
+              tjPackageHazardsBoList.push({
+                hazardFactorsOther: '',
+                hazardFactorsName: (bus_hazardous_factors.value.filter(row => row.dictValue == item))[0].dictLabel,
+                hazardFactorsCode: item
+              })
+            }
+          })
+          res.groupHazardsList = tjPackageHazardsBoList
+        })
+        const p = {
+          list: formSecond.value,
+          physicalType: form.value.physicalType
+        }
+        await updateGroupProjectInfo(p)
         !bloo && (activeName.value = 'third')
         bloo && (proxy?.$modal.msgSuccess("操作成功"))
         return
