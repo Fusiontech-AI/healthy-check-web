@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="table-box">
     <div class="table-main mb-[10px]">
       <ProTable ref="proTable" :columns="columns" :request-api="getTableList" :toolButton="false" rowKey="id" :searchCol="4" label-position="right">
         <!-- 表格 header 按钮 -->

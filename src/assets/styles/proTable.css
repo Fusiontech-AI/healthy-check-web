@@ -166,22 +166,12 @@
 
 .table-box .table-header .el-button,
 .table-main .table-header .el-button {
-  margin-bottom: 15px;
+  margin-bottom: 10px;
 }
 
 .table-box .el-table,
 .table-main .el-table {
   flex: 1;
-}
-
-.table-box .el-table .el-table__inner-wrapper,
-.table-main .el-table .el-table__inner-wrapper {
-  min-height: 350px;
-}
-
-.table-box .el-table .el-scrollbar,
-.table-main .el-table .el-scrollbar {
-  min-height: 365px;
 }
 
 .table-box .el-table table,

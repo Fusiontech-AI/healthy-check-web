@@ -29,7 +29,7 @@
     "default-passive-events": "^2.0.0",
     "echarts": "5.4.0",
     "el-table-infinite-scroll": "^3.0.3",
-    "element-plus": "2.2.27",
+    "element-plus": "^2.6.1",
     "file-saver": "2.0.5",
     "fuse.js": "6.6.2",
     "js-cookie": "3.0.1",

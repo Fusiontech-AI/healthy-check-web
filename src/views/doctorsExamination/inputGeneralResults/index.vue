@@ -101,44 +101,8 @@
           </el-scrollbar>
         </div>
       </GridItem>
-      <GridItem :span="6">
-        <reg-combin-project :registerInfo="activeRegisterInfo"></reg-combin-project>
-      </GridItem>
-      <GridItem :span="3">
-        <div class="h-full">
-          <div>
-            <el-tabs type="card">
-              <el-tab-pane label="体检小结" name="1"></el-tab-pane>
-              <el-tab-pane label="其他科室小结" name="2"></el-tab-pane>
-              <el-tab-pane label="历史本科小结" name="3"></el-tab-pane>
-            </el-tabs>
-            <div class="no-card">
-              <ProTable
-                :columns="columns1"
-                :data="[{ name: '1' }, { name: '1' }, { name: '1' },]"
-                :tool-button="false"
-                :pagination="false"
-                :header-cell-style="{ 'font-size': '12px' }"
-                :cell-style="{ 'font-size': '12px' }"
-                height="calc((100vh - 220px) / 2)"
-              ></ProTable>
-            </div>
-          </div>
-          <el-tabs type="card">
-            <el-tab-pane label="阳性结果发现" name="1"></el-tab-pane>
-            <el-tab-pane label="医学科普" name="2"></el-tab-pane>
-          </el-tabs>
-          <div class="no-card">
-            <ProTable
-              :columns="columns2"
-              :data="[{ name: '1' }, { name: '1' }, { name: '1' }, { name: '1' }, { name: '1' }, { name: '1' }, { name: '1' }, { name: '1' }, { name: '1' }]"
-              :tool-button="false"
-              :pagination="false"
-              :header-cell-style="{ 'font-size': '12px' }"
-              height="calc((100vh - 230px) / 2)"
-            ></ProTable>
-          </div>
-        </div>
+      <GridItem :span="9">
+        <combin-project ref="comProjectRef"></combin-project>
       </GridItem>
     </Grid>
   </div>
@@ -149,23 +113,11 @@ import _ from 'lodash'
 import { getRegisterPage } from "@/api/deskRegistration/deregistration";
 import { ArrowUpBold, ArrowDownBold} from "@element-plus/icons-vue";
 import { ref } from "vue";
-import RegCombinProject from './components/RegCombinProject.vue';
+import CombinProject from './components/CombinProject.vue';
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 const {bus_physical_type, bus_person_category} = toRefs<any>(proxy?.useDict('bus_physical_type'))
-
 const showInput = ref(false)
-const columns1 = ref<any>([
-  { type: 'selection' },
-  { label: '项目名称', prop: 'name' },
-  { label: '项目小结', prop: 'name' },
-  { label: '单位', prop: 'name' },
-  { label: '参考范围', prop: 'name' },
-])
-const columns2 = ref<any>([
-  { type: 'selection' },
-  { label: '建议名称', prop: 'name' },
-  { label: '诊断建议', prop: 'name' },
-])
+
 const registerParams = ref<any>({
   healthyCheckTime: [],
   healthyCheckCode: '',
@@ -177,6 +129,8 @@ const registerList = ref<any>([])
 const registerLoading = ref<boolean>(false)
 const activeRegisterInfo = ref<any>({}) // 当前选中的人员信息
 const showCardId = ref()
+provide('registerInfo', activeRegisterInfo);  
+
 // 左侧体检人登记列表
 const getRegisterList = async()=> {
   try {
@@ -199,7 +153,6 @@ const getRegisterList = async()=> {
   }
 }
 getRegisterList()
-
 const updateInput = _.debounce(getRegisterList, 200) // 防抖
 </script>
 
@@ -260,5 +213,12 @@ const updateInput = _.debounce(getRegisterList, 200) // 防抖
       color: #2879FF;
     }
   }
+}
+
+:deep(.el-tabs--card>.el-tabs__header .el-tabs__item.is-active) {
+  background: #F1F5FB;
+}
+:deep(.el-tabs__header) {
+  margin-bottom: 10px;
 }
 </style>

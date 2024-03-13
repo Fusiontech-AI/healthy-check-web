@@ -175,7 +175,7 @@
     }
 
     .el-button {
-      margin-bottom: 15px;
+      margin-bottom: 10px;
     }
   }
 
@@ -183,12 +183,12 @@
   .el-table {
     flex: 1;
 
-    .el-table__inner-wrapper {
-      min-height: 350px;
-    }
-    .el-scrollbar {
-      min-height: 365px;
-    }
+    // .el-table__inner-wrapper {
+    //   min-height: 350px;
+    // }
+    // .el-scrollbar {
+    //   min-height: 365px;
+    // }
     // 修复 safari 浏览器表格错位 https://github.com/HalseySpicy/Geeker-Admin/issues/83
     table {
       width: 100%;
