@@ -96,7 +96,10 @@ const queryParams = reactive({
 })
 const formObj = {
   groupList: [{
-    groupPayType: '1'
+    groupPayType: '1',
+    groupType: '1',
+    gender: '2',
+    marriage: '2'
   }],
   signDate: proxy?.$moment().format('YYYY-MM-DD'),
   beginDate: proxy?.$moment().format('YYYY-MM-DD'),
@@ -147,7 +150,13 @@ const formColumn = ref<any[]>([
     label: '体检类型',
     prop: 'physicalType',
     enum: bus_physical_type,
-    search: { el: 'select' }
+    search: { el: 'select' },
+    change: (val) => {
+      if (val == 'ZYJKTJ' || val == 'FSTJ') {
+        //要求当为职业病和放射时分组类型只能是项目
+        form.value.groupList.forEach(item => item.groupType = '1')
+      }
+    }
   },
   {
     label: '签订日期',

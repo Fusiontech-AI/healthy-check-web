@@ -3,11 +3,16 @@
     <el-tabs type="border-card" tab-position="left" v-model="activeName" @tab-click="handleClick">
       <el-tab-pane :label="item.groupName" :name="item.groupName" v-for="item in props.formSecond">
         <SearchForm :search-param="item" :columns="basicInfoColumnZYB" :searchCol="4" :show-action-group="false"
-          :rules="rulesZYB" :disabled="preview" v-if="props.form.physicalType == 'ZYJKTJ'">
+          :rules="rulesZYB" :disabled="preview"
+          v-if="props.form.physicalType == 'ZYJKTJ' || props.form.physicalType == 'FSTJ'">
         </SearchForm>
         <TransferFilterComplex ref="TransferFilterComplexRef" :tableHeader="tableHeader"
           @itemChange="(val) => itemChange(val, item)" :isRw="true" :formValue="item" :disabled="preview"
-          @handleHY="handleHY" :tableColumns="tableColumns" :leftHegiht="350" :rightHeight="326" />
+          @handleHY="handleHY" :tableColumns="tableColumns" :leftHegiht="374" :rightHeight="106">
+          <template #TcWh>
+            123
+          </template>
+        </TransferFilterComplex>
         <SearchForm :search-param="item" :columns="basicInfoColumn" :searchCol="4" :show-action-group="false"
           class="mt10px" :rules="rules" :disabled="preview">
         </SearchForm>
@@ -20,6 +25,10 @@
 import { teamGroupInfo } from '@/api/groupInspectionManagement/taskManagement'
 import TransferFilterComplex from '@/components/TransferFilterComplex.vue'
 const props = defineProps(['formSecond', 'preview', 'form'])
+
+const { proxy } = getCurrentInstance() as ComponentInternalInstance
+const { bus_hazardous_factors, bus_duty_status, bus_shine_source, bus_job_illumination_source } = toRefs<any>(proxy?.useDict('bus_hazardous_factors', 'bus_duty_status', 'bus_shine_source', 'bus_job_illumination_source'))
+
 const tableHeader = ref([
   {
     prop: 'name',
@@ -98,16 +107,67 @@ const basicInfoColumn = ref([
   },
 
 ])
+//根据危害因素编码、在岗状态查询必检项目
+const getBJList = async () => {
+  const index = getIndex(activeName.value)
+  const { groupHazardsList, dutyStatus, shineSource, shineType } = props.formSecond[index]
+  if (props.form.physicalType == 'FSTJ') {
+    if (groupHazardsList.length == 0 || !dutyStatus || !shineSource || !shineType) {
+      props.formSecond[index].defaultItemList = []
+      TransferFilterComplexRef.value[index].defaultItems()
+      return
+    }
+  } else {
+    if (groupHazardsList.length == 0 || !dutyStatus) {
+      props.formSecond[index].defaultItemList = []
+      TransferFilterComplexRef.value[index].defaultItems()
+      return
+    }
+  }
+  getBjFun(props.formSecond[index])
+}
+//获得必检项目
+const getBjFun = async (row) => {
+  const { hazardsBoList, dutyStatus, shineSource, shineType } = row
+  const p = {
+    codeList: hazardsBoList,
+    dutyStatus,
+    shineSource,
+    shineType,
+  }
+  const { data } = await queryItemByFactorsCodeAndDutyStauts(p)
+  row.BJList = data
+}
 const basicInfoColumnZYB = ref([
   {
     label: '在岗类型 ',
     prop: 'dutyStatus',
-    search: { el: 'select' }
+    search: { el: 'select' },
+    enum: bus_duty_status,
+    change: getBJList
   },
   {
     label: '危害因素 ',
     prop: 'groupHazardsList',
-    search: { el: 'select', props: { multiple: true } }
+    search: { el: 'select', props: { multiple: true } },
+    enum: bus_hazardous_factors,
+    change: getBJList
+  },
+  {
+    label: '照射源',
+    prop: 'shineSource',
+    enum: bus_shine_source,
+    search: { el: 'select', },
+    isShowSearch: false,
+    change: getBJList
+  },
+  {
+    label: '职业照射种类',
+    prop: 'shineType',
+    enum: bus_job_illumination_source,
+    search: { el: 'select', },
+    isShowSearch: false,
+    change: getBJList
   },
 ])
 watch(() => props.formSecond, async (newV) => {
@@ -149,6 +209,12 @@ const rulesZYB = reactive(
     ],
     groupHazardsList: [
       { required: true, message: '请选择危害因素', trigger: 'change' },
+    ],
+    shineSource: [
+      { required: true, message: '请选择照射源', trigger: 'change' },
+    ],
+    shineType: [
+      { required: true, message: '请选择职业照射种类', trigger: 'change' },
     ],
   }
 )
@@ -214,7 +280,7 @@ const itemChange = (val, item) => {
       actualPrice: item.receivableAmount,
       discount: item.discount,
       include: item.type == '1' ? '1' : '0',
-      isRequired: false,
+      required: false,
     }
   })
   let { standardAmount, receivableAmount, discount } = item
@@ -242,6 +308,17 @@ const handleHY = async () => {
   props.formSecond[index] = data
   TransferFilterComplexRef.value[index].defaultItems()
 }
+
+watch(() => props.form.physicalType, (newV) => {
+
+  basicInfoColumnZYB.value.forEach(item => {
+    if (newV == 'FSTJ') {
+      (item.isShowSearch != undefined) && (item.isShowSearch = true)
+    } else {
+      (item.isShowSearch != undefined) && (item.isShowSearch = false)
+    }
+  })
+})
 </script>
 
 <style scoped lang="scss">

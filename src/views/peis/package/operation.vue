@@ -7,13 +7,9 @@
       </div>
       <SearchForm ref="formRef" :columns="formColumns" :search-param="formValue" :search-col="4" :rules="rules"
         :disabled="!!look" label-position="right">
-        <template #bjxm>
-          <el-checkbox-group v-model="formValue.bjxm" :disabled="true">
-            <el-checkbox label="Option A" value="Value A" />
-            <el-checkbox label="Option B" value="Value B" />
-            <el-checkbox label="Option C" value="Value C" />
-            <el-checkbox label="disabled" value="Value disabled" disabled />
-            <el-checkbox label="selected and disabled" value="Value selected and disabled" disabled />
+        <template #bjxmList>
+          <el-checkbox-group v-model="formValue.bjxmList" :disabled="true">
+            <el-checkbox :label="item.itemId" :value="item.itemId" v-for="item in BJList">{{ item.name }}</el-checkbox>
           </el-checkbox-group>
         </template>
       </SearchForm>
@@ -24,7 +20,8 @@
         套餐项目
       </div>
       <TransferFilterComplex ref="TransferFilterComplexRef" :tableHeader="tableHeader" @itemChange="itemChange"
-        :disabled="!!look" :formValue="formValue" :tableColumns="tableColumns" :leftHegiht="450" :rightHeight="385">
+        :disabled="!!look" :formValue="formValue" :tableColumns="tableColumns" :leftHegiht="450" :rightHeight="385"
+        @handleHY="handleHY">
         <template #TcWh>
           <div class="mt10px">套餐金额 {{ formValue.standardAmount }}元
             <span class="ml10px">整体折扣：</span>
@@ -40,11 +37,14 @@
         </template>
       </TransferFilterComplex>
     </el-card>
-    <div class="footer-submit">
-      <el-button class="button" round @click="router.go(-1)">取消</el-button>
-      <el-button class="button" type="primary" round @click="handleSubmit"
-        :disabled="formValue.tjPackageInfoItemBos.length === 0 || !!look">确定</el-button>
-    </div>
+    <el-affix position="bottom" :offset="0">
+      <div class="footer-submit">
+        <el-button class="button" round @click="router.go(-1)">取消</el-button>
+        <el-button class="button" type="primary" round @click="handleSubmit"
+          :disabled="formValue.tjPackageInfoItemBos.length === 0 || !!look">确定</el-button>
+      </div>
+    </el-affix>
+
   </div>
 </template>
 
@@ -55,7 +55,8 @@ import {
   packageAdd,
   packageDetail,
   packageUpload,
-  packageInfoList
+  packageInfoList,
+  queryItemByFactorsCodeAndDutyStauts, queryCompulsoryInspectionProject, queryBasicListByCombinIds
 } from "@/api/peis/package";
 const tableHeader = ref([
   {
@@ -97,15 +98,73 @@ const tableColumns = [
     prop: 'cz'
   },
 ]
-const fxtcList = ref([])
+const TransferFilterComplexRef = ref(null)
+const router = useRouter();
+const route = useRoute();
+const formRef = ref(null)
+const fxtcList = ref([])//复制套餐
+const BJList = ref([])//必检套餐
+const formValue = reactive({
+  bjxmList: [],
+  hazardsBoList: [],
+  packageName: '',
+  tjPackageInfoItemBos: [],
+  defaultItemList: []
+})
 //复制套餐change
 const handleFztc = (val) => {
   if (!val) {
-    formValue.defaultItemList = []
-    TransferFilterComplexRef.value.defaultItems()
+    // formValue.defaultItemList = formValue.tjPackageInfoItemBos.filter(item => item.required)
+    // packageParamsFun(formValue.defaultItemList)
     return
   }
-  getXm(val)
+  getXm(val, '复制')
+}
+//根据危害因素编码、在岗状态查询必检项目
+const getBJList = async () => {
+  const { hazardsBoList, dutyStatus, shineSource, shineType, tjPackageInfoItemBos } = formValue
+  //将已选的required先删掉
+  formValue.tjPackageInfoItemBos = tjPackageInfoItemBos.filter(item => !item.required)
+  if (formValue.tjType == 'FSTJ') {
+    if (hazardsBoList.length == 0 || !dutyStatus || !shineSource || !shineType) {
+      BJList.value = []
+      formRef.value.clearValidate('bjxmList')
+      packageParamsFun(formValue.tjPackageInfoItemBos)
+      return
+    }
+  } else {
+    if (hazardsBoList.length == 0 || !dutyStatus) {
+      BJList.value = []
+      formRef.value.clearValidate('bjxmList')
+      packageParamsFun(formValue.tjPackageInfoItemBos)
+      return
+    }
+  }
+
+  await getBjFun()
+
+  //查询必检组合项目
+  const k = {
+    itemIdList: BJList.value.map(item => item.itemId),
+    combinProjectName: ''
+  }
+  const data1 = await queryCompulsoryInspectionProject(k)
+  //required为true的放右边
+  const arr = data1.data.filter(item => item.required)
+  arr.forEach(item => item.combinProjectId = item.id)
+  await packageParamsFun(arr)
+}
+//获得必检项目
+const getBjFun = async () => {
+  const { hazardsBoList, dutyStatus, shineSource, shineType } = formValue
+  const p = {
+    codeList: hazardsBoList,
+    dutyStatus,
+    shineSource,
+    shineType,
+  }
+  const { data } = await queryItemByFactorsCodeAndDutyStauts(p)
+  BJList.value = data
 }
 const { proxy } = getCurrentInstance() as ComponentInternalInstance
 const { bus_physical_type, bus_gender, bus_hazardous_factors, bus_duty_status, bus_shine_source, bus_job_illumination_source } = toRefs<any>(proxy?.useDict('bus_physical_type', 'bus_gender', 'bus_hazardous_factors', 'bus_duty_status', 'bus_shine_source', 'bus_job_illumination_source'))
@@ -155,27 +214,37 @@ const formColumns = ref([
     prop: 'dutyStatus',
     search: { el: 'select', },
     enum: bus_duty_status,
-    isShowSearch: false
+    isShowSearch: false,
+    change: getBJList
   },
   {
     label: '危害因素',
     prop: 'hazardsBoList',
     enum: bus_hazardous_factors,
     search: { el: 'select', props: { multiple: true }, span: 2 },
-    isShowSearch: false
+    isShowSearch: false,
+    change: getBJList
   },
   {
     label: '照射源',
     prop: 'shineSource',
     enum: bus_shine_source,
     search: { el: 'select', },
-    isShowSearch: false
+    isShowSearch: false,
+    change: getBJList
   },
   {
     label: '职业照射种类',
     prop: 'shineType',
     enum: bus_job_illumination_source,
     search: { el: 'select', },
+    isShowSearch: false,
+    change: getBJList
+  },
+  {
+    label: '其他放射因素',
+    prop: 'fs',
+    search: { el: 'input', },
     isShowSearch: false
   },
   {
@@ -219,21 +288,12 @@ const formColumns = ref([
   },
   {
     label: '必检项目',
-    prop: 'bjxm',
+    prop: 'bjxmList',
     search: { el: 'checkbox', span: 24 },
-    slot: 'bjxm', isShowSearch: false
+    slot: 'bjxmList', isShowSearch: false
   },
 ])
-const formValue = reactive({
-  hazardsBoList: [],
-  packageName: '',
-  tjPackageInfoItemBos: [],
-  defaultItemList: []
-})
-const TransferFilterComplexRef = ref(null)
-const router = useRouter();
-const route = useRoute();
-const formRef = ref(null)
+
 const rules = ref({
   tjType: [
     { required: true, message: '请选择体检类型', trigger: 'change' },
@@ -271,7 +331,10 @@ const rules = ref({
   hx: [
     { required: true, message: '请输入其他化学因素', trigger: 'blur' },
   ],
-  bjxm: [
+  fs: [
+    { required: true, message: '请输入其他放射因素', trigger: 'blur' },
+  ],
+  bjxmList: [
     { required: true, message: '请选择必检项目', trigger: 'change' },
   ],
 })
@@ -279,15 +342,47 @@ const { id, look } = route.query
 //获得详情
 const getDetail = async () => {
   const { data } = await packageDetail({ id })
+  //危害因素重新赋值
+  // 其他放射14999
+  // 其他生物15999
+  // 其他物理13999
+  // 其他粉尘11999
+  // 其他化学12999
+  formValue.hazardsBoList = data.tjPackageHazardsVoList.map(item => {
+    if (item.hazardFactorsCode == 14999) {
+      formValue.fs = item.hazardFactorsOther
+    }
+    if (item.hazardFactorsCode == 15999) {
+      formValue.sw = item.hazardFactorsOther
+    }
+    if (item.hazardFactorsCode == 13999) {
+      formValue.wl = item.hazardFactorsOther
+    }
+    if (item.hazardFactorsCode == 11999) {
+      formValue.fc = item.hazardFactorsOther
+    }
+    if (item.hazardFactorsCode == 12999) {
+      formValue.hx = item.hazardFactorsOther
+    }
+    return item.hazardFactorsCode
+  })
   for (const key in data) {
     formValue[key] = data[key]
   }
+  getBjFun()
   getXm()
 }
 //获得需要回显的项目
-const getXm = async (val) => {
+const getXm = async (val, type) => {
   const { rows } = await packageInfoList({ packageId: val || id })
-  formValue.defaultItemList = rows.map((item, i) => {
+  const arr = type == '复制' ? [...formValue.tjPackageInfoItemBos, ...rows] : rows
+  packageParamsFun(arr)
+}
+id && getDetail()
+
+//组装参数
+const packageParamsFun = (arr) => {
+  formValue.defaultItemList = arr.map((item, i) => {
     return {
       sort: i + 1,
       payType: '1',//变更类型(0个人 1单位 2混合支付)
@@ -300,9 +395,23 @@ const getXm = async (val) => {
     }
   })
   TransferFilterComplexRef.value.defaultItems()
+  //触发一次算价格
+  if (formValue.defaultItemList.length == 0) {
+    formValue.standardAmount = 0
+    formValue.discount = 0
+    formValue.receivableAmount = 0
+    return
+  }
+  getXmNews()
+  TransferFilterComplexRef.value.handleSelected({}, 0, '1', '1')
 }
-id && getDetail()
-
+//查询组合项目下基础项目信息
+const getXmNews = async () => {
+  const arr = formValue.defaultItemList.map(item => item.combinProjectId)
+  const { data } = await queryBasicListByCombinIds(arr)
+  //匹配勾选
+  formValue.bjxmList = data.map(item => item.basicProjectId)
+}
 //获得已存在套餐list
 const hasTcList = async () => {
   const { rows } = await packageList({ pageSize: -1 })
@@ -311,6 +420,58 @@ const hasTcList = async () => {
 !look && hasTcList()
 //确定
 const handleSubmit = () => {
+  //职业病的必检项目必须全选择
+  const flag = BJList.value.every(item => formValue.bjxmList.includes(item.itemId))
+  if (!flag) {
+    return proxy?.$modal.msgWarning("必检项目未全选!");
+  }
+  // 其他放射14999
+  // 其他生物15999
+  // 其他物理13999
+  // 其他粉尘11999
+  // 其他化学12999
+  const tjPackageHazardsBoList = []
+  formValue.hazardsBoList.forEach(item => {
+    if (item == '14999') {
+      tjPackageHazardsBoList.push({
+        hazardFactorsOther: formValue.fs,
+        hazardFactorsName: (bus_hazardous_factors.value.filter(row => row.dictValue == item))[0].dictLabel,
+        hazardFactorsCode: item
+      })
+    } else if (item == '15999') {
+      tjPackageHazardsBoList.push({
+        hazardFactorsOther: formValue.sw,
+        hazardFactorsName: (bus_hazardous_factors.value.filter(row => row.dictValue == item))[0].dictLabel,
+        hazardFactorsCode: item
+      })
+    } else if (item == '13999') {
+      tjPackageHazardsBoList.push({
+        hazardFactorsOther: formValue.wl,
+        hazardFactorsName: (bus_hazardous_factors.value.filter(row => row.dictValue == item))[0].dictLabel,
+        hazardFactorsCode: item
+      })
+    } else if (item == '11999') {
+      tjPackageHazardsBoList.push({
+        hazardFactorsOther: formValue.fc,
+        hazardFactorsName: (bus_hazardous_factors.value.filter(row => row.dictValue == item))[0].dictLabel,
+        hazardFactorsCode: item
+      })
+    } else if (item == '12999') {
+      tjPackageHazardsBoList.push({
+        hazardFactorsOther: formValue.hx,
+        hazardFactorsName: (bus_hazardous_factors.value.filter(row => row.dictValue == item))[0].dictLabel,
+        hazardFactorsCode: item
+      })
+    } else {
+      tjPackageHazardsBoList.push({
+        hazardFactorsOther: '',
+        hazardFactorsName: (bus_hazardous_factors.value.filter(row => row.dictValue == item))[0].dictLabel,
+        hazardFactorsCode: item
+      })
+    }
+
+  })
+  formValue.tjPackageHazardsBoList = tjPackageHazardsBoList
   formRef.value.validate(async (valid, fields) => {
     if (valid) {
       if (id) {
@@ -339,6 +500,9 @@ const itemChange = (val) => {
       standardAmount: item.standardAmount,
       discount: item.discount,
       receivableAmount: item.receivableAmount,
+      combinProjectCode: item.combinProjectCode,
+      combinProjectName: item.combinProjectName,
+      required: item.required
     }
   })
 }
@@ -349,11 +513,15 @@ const handleBlur = (type) => {
 //健康和职业病的类型切换
 watch(() => formValue.tjType, (newV) => {
   const arr = ['危害因素', '在岗状态', '必检项目']
+  const arr1 = ['照射源', '职业照射种类']
   formColumns.value.forEach(item => {
     if (item.isShowSearch != undefined) {
-      if (newV == 'ZYJKTJ' && arr.includes(item.label)) {
+      //为职业病类型
+      if (newV == 'FSTJ' && (arr.includes(item.label) || arr1.includes(item.label))) {
         item.isShowSearch = true
-      } else if (arr.includes(item.label)) {
+      } else if (newV == 'ZYJKTJ' && arr.includes(item.label)) {
+        item.isShowSearch = true
+      } else if (arr.includes(item.label) || arr1.includes(item.label)) {
         item.isShowSearch = false
       }
     }
@@ -368,7 +536,7 @@ watch(() => formValue.hazardsBoList, (newV) => {
   // 其他化学12999
   formColumns.value.forEach(item => {
     if (item.isShowSearch != undefined) {
-      if (item.label == '照射源' || item.label == '职业照射种类') {
+      if (item.label == '其他放射因素') {
         if (newV.includes('14999')) {
           item.isShowSearch = true
         } else {
@@ -407,7 +575,12 @@ watch(() => formValue.hazardsBoList, (newV) => {
     }
   })
 })
-
+//还原
+const handleHY = async () => {
+  formValue.defaultItemList = []
+  TransferFilterComplexRef.value.defaultItems()
+  getXm()
+}
 </script>
 <style scoped lang="scss">
 .title {

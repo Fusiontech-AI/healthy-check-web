@@ -127,7 +127,7 @@ export const getTaskItemGroupInfoInfo = (params: any) => {
 export const teamGroupDel = (params: any) => {
   return request({
     url: `/peis/teamGroup/${params.ids}`,
-    method: 'GET',
+    method: 'DELETE',
     data: params
   });
 };

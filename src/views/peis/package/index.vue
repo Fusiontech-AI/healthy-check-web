@@ -40,7 +40,7 @@ const tableColumns = ref([
     prop: 'name',
     label: '姓名',
   },
-  { prop: 'pySimpleCode', label: '编码' },
+  // { prop: 'pySimpleCode', label: '编码' },
   { prop: 'packageName', label: '套餐名称' },
   { prop: 'packageName', label: '套餐名称', search: { el: 'input' }, isShow: false },
   { prop: 'tjType', label: '体检类型', search: { el: 'select' }, enum: bus_physical_type },

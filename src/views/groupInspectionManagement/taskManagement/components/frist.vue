@@ -7,11 +7,11 @@
           <el-input v-model="row.groupName" clearable :placeholder="`请填写`" :disabled="preview"></el-input>
         </template>
       </el-table-column>
-      <el-table-column prop="dutyStatus" label="在岗类型" width="100" v-if="props.form.physicalType == 'ZYJKTJ'">
+      <el-table-column prop="dutyStatus" label="在岗类型" width="100"
+        v-if="props.form.physicalType == 'ZYJKTJ' || props.form.physicalType == 'FSTJ'">
 
         <template #default="{ row }">
-          <el-select v-model="row.dutyStatus" placeholder="请选择" class="left-select" clearable
-            :disabled="preview || props.form.physicalType != 'ZYJKTJ'">
+          <el-select v-model="row.dutyStatus" placeholder="请选择" class="left-select" clearable :disabled="preview">
             <el-option v-for="item in bus_duty_status" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </template>
@@ -19,7 +19,8 @@
       <el-table-column prop="groupType" label="分组类型" width="130">
 
         <template #default="{ row }">
-          <el-select v-model="row.groupType" placeholder="请选择" class="left-select" clearable :disabled="preview">
+          <el-select v-model="row.groupType" placeholder="请选择" class="left-select" clearable
+            :disabled="preview || props.form.physicalType == 'ZYJKTJ' || props.form.physicalType == 'FSTJ'">
             <el-option v-for="item in bus_group_type" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </template>
@@ -115,12 +116,18 @@ const props = defineProps(['form', 'preview'])
 const handleAdd = () => {
   if (!props.form.groupList) {
     props.form.groupList = [{
-      groupPayType: '1'
+      groupPayType: '1',
+      groupType: '1',
+      gender: '2',
+      marriage: '2'
     }]
     return
   }
   props.form.groupList.push({
-    groupPayType: '1'
+    groupPayType: '1',
+    groupType: '1',
+    gender: '2',
+    marriage: '2'
   })
 }
 //删除一行

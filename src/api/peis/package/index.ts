@@ -57,3 +57,43 @@ export const packageInfoList = (params: any) => {
     params
   });
 };
+/**
+ * 根据危害因素编码、在岗状态查询必检项目
+ */
+export const queryItemByFactorsCodeAndDutyStauts = (params: any) => {
+  return request({
+    url: `/peis/factorsRequire/queryItemByFactorsCodeAndDutyStauts`,
+    method: 'POST',
+    data: params
+  });
+};
+/**
+ * 查询必检组合项目
+ */
+export const queryCompulsoryInspectionProject = (params: any) => {
+  return request({
+    url: `/peis/combinationProject/queryCompulsoryInspectionProject`,
+    method: 'POST',
+    data: params
+  });
+};
+/**
+ * 查询其他必检组合项目
+ */
+export const queryOtherCompulsoryInspection = (params: any) => {
+  return request({
+    url: `/peis/combinationProject/queryOtherCompulsoryInspection`,
+    method: 'POST',
+    data: params
+  });
+};
+/**
+ * 查询组合项目下基础项目信息
+ */
+export const queryBasicListByCombinIds = (params: any) => {
+  return request({
+    url: `/peis/combinationProjectInfo/queryBasicListByCombinIds`,
+    method: 'POST',
+    data: params
+  });
+};
