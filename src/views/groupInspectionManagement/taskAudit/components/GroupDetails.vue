@@ -30,7 +30,7 @@
       </div>
       <div v-show="activeValue == '2'" class="no-card">
         <ProTable :columns="groupPersonColumns" :toolButton="false" :request-api="getRegisterPage"
-          :init-param="initParam">
+          :init-param="initParam" :height="340">
         </ProTable>
       </div>
     </div>

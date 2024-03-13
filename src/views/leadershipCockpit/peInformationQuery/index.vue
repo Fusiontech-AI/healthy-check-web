@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="table-box">
     <ProTable
       :columns="tableColumns"
       :toolButton="false"

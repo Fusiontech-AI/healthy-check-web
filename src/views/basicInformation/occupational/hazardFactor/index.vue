@@ -23,7 +23,7 @@
         <div class="divider"></div>
         <div v-loading="loading">
           <pro-table v-if="activeTabValue !== '7'" ref="proTableRef" :columns="columns" :toolButton="false"
-            :request-api="getTableList" :data-callback="dataCallback" :isShowSearch="true" rowKey="id">
+            :request-api="getTableList" :data-callback="dataCallback" :isShowSearch="true" rowKey="id" :height="380">
             <template #tableHeader="{ selectedListIds, isSelected }">
               <el-button round type="primary" @click="onpenDrawer({})">新增</el-button>
               <el-button round :disabled="!isSelected" @click="handleDel(selectedListIds)">批量删除</el-button>

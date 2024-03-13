@@ -98,6 +98,7 @@
                   :request-api="queryTaskRegisterExportById"
                   :init-param="initParam"
                   :request-auto="false"
+                  :height="260"
                 >
                   <template #operation="{row}">
                     <el-button type="primary" link @click="viewPersonDetail(row)">查看</el-button>

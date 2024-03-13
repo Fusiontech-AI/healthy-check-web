@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="table-box">
     <ProTable ref="proTable" row-key="id" :searchCol="4" :columns="columns" :request-api="getUserTreeList"
       :data-callback="dataCallback" :toolButton="false">
       <!-- 表格 header 按钮 -->

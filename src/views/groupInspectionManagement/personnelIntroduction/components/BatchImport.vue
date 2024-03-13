@@ -86,7 +86,7 @@
         </div>
 
         <div class="mt-4 no-card" v-if="steps == 2">
-          <ProTable :columns="importColumns" :toolButton="false" :data="successList" :pagination="false" height="450">
+          <ProTable :columns="importColumns" :toolButton="false" :data="successList" :pagination="false" :height="450">
             <template #teamGroupId="{row}">
               <el-select v-model="row.teamGroupId" placeholder="请选择">
                 <el-option v-for="item in groupList" :key="item.id" :label="item.groupName" :value="item.id"></el-option>
