@@ -1,5 +1,5 @@
 <template>
-  <div style="padding:10px">
+  <div>
     <el-card>
       <el-row>
         <el-col :span="4">

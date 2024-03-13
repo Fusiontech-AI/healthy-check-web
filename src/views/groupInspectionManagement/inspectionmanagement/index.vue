@@ -35,7 +35,7 @@
         </el-row>
       </el-form>
     </el-card>
-    <el-card class="no-card" shadow="never">
+    <el-card class="no-card box-card" shadow="never">
       <div class="title">
         <div>任务信息</div>
       </div>
@@ -688,6 +688,8 @@ const details = async (title: any, row: any) => {
 
   .box-card {
     margin-bottom: 10px;
+    border: none;
+    border-radius: 0px;
   }
 
   .title {
