@@ -32,7 +32,7 @@
     </div>
     <!-- 表格主体 -->
     <el-table ref="tableRef" v-bind="$attrs" :data="processTableData" :border="border" :row-key="rowKey"
-      @selection-change="selectionChange">
+      @selection-change="selectionChange" v-loading="loading">
       <!-- 默认插槽 -->
       <slot />
       <template v-for="item in tableColumns" :key="item.prop">
@@ -158,7 +158,7 @@ const radio = ref("");
 const { selectionChange, selectedList, selectedListIds, isSelected } = useSelection(props.rowKey);
 
 // 表格操作 Hooks
-const { tableData, pageable, searchParam, searchInitParam, getTableList, search, reset, handleSizeChange, handleCurrentChange, updatePageable } =
+const { tableData, pageable, searchParam, searchInitParam, getTableList, search, reset, handleSizeChange, handleCurrentChange, updatePageable, loading } =
   useTable(props.requestApi, props.initParam, props.queryParams, props.pagination, props.dataCallback, props.requestError);
 
 // 清空选中数据列表

@@ -27,19 +27,19 @@
             <el-collapse-transition>
               <div v-show="showInput" class="flex mt-8px">
                 <el-input placeholder="请输入姓名" v-model="registerParams.name" @input="updateInput"></el-input>
-                <el-button class="ml-1" icon="RefreshRight" style="padding: 8px;"></el-button>
+                <el-button class="ml-1" icon="RefreshRight" style="padding: 8px;" @click="handleRefresh"></el-button>
               </div>
             </el-collapse-transition>
             <div class="divider"></div>
             <div class="tabs">
-              <span :class="registerParams.healthyCheckStatus == '2' ? 'active' : ''" @click="registerParams.healthyCheckStatus = '2';">分检</span>
-              <span :class="registerParams.healthyCheckStatus == '3' ? 'active' : ''" @click="registerParams.healthyCheckStatus = '3';"
-                >分检完成</span
+              <span :class="registerParams.healthyCheckStatus == '2' ? 'active' : ''" @click="registerParams.healthyCheckStatus = '2';getRegisterList()">分检</span>
+              <span :class="registerParams.healthyCheckStatus == '3' ? 'active' : ''" @click="registerParams.healthyCheckStatus = '3';getRegisterList()">分检完成</span
               >
             </div>
           </div>
           <el-scrollbar class="left_list" :height="showInput?'calc(100vh - 298px)':'calc(100vh - 258px)'" v-loading="registerLoading">
-            <div v-for="item in registerList" :key="item" shadow="hover">
+            <template v-if="registerList && registerList.length !== 0">
+              <div v-for="item in registerList" :key="item" shadow="hover">
               <div
                 v-show="item.id === activeRegisterInfo.id"
                 class="flex justify-between text-sm bg-blue-400 rounded-t-4px text-white font-bold py-1 pl-2 pr-2"
@@ -98,6 +98,8 @@
                 </el-collapse-transition>
               </el-card>
             </div>
+            </template>
+            <el-empty v-else description="无数据" />
           </el-scrollbar>
         </div>
       </GridItem>
@@ -128,9 +130,19 @@ const registerParams = ref<any>({
 const registerList = ref<any>([])
 const registerLoading = ref<boolean>(false)
 const activeRegisterInfo = ref<any>({}) // 当前选中的人员信息
-const showCardId = ref()
 provide('registerInfo', activeRegisterInfo);  
 
+// 重置刷新
+const handleRefresh = () => {
+  registerParams.value = {
+    healthyCheckTime: [],
+    healthyCheckCode: '',
+    name: '',
+    // 0：预约，1：登记，2：科室分检，3：分检完成，4：待总检，5：已终检
+    healthyCheckStatus: ''
+  }
+  getRegisterList()
+}
 // 左侧体检人登记列表
 const getRegisterList = async()=> {
   try {
@@ -144,8 +156,7 @@ const getRegisterList = async()=> {
       ...p
     }
     const {rows} = await getRegisterPage(params)
-    activeRegisterInfo.value = rows?.[0]
-    // showCardId.value = rows?.[0].id
+    if(_.isEmpty(activeRegisterInfo.value)) activeRegisterInfo.value = rows?.[0] || {}
     registerLoading.value = false
     registerList.value = _.cloneDeep(rows)
   } catch (error) {

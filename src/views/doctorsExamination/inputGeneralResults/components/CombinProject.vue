@@ -33,12 +33,12 @@
           </div>
           <div class="no-card mt-4px">
             <ProTable ref="projectTableRef" :columns="columns" :data="basicProjectList" :pagination="false" row-key="id" height="calc(100vh - 300px)">
-              <template #tableHeader="{isSelected, selectedList}">
+              <template #tableHeader="{isSelected, selectedList,selectedListIds }">
                 <el-button round type="primary" @click="handleSave" :disabled="basicProjectList.length == 0">保存</el-button>
                 <el-button round :disabled="!isSelected" @click="handleClear(selectedList)">批量清除</el-button>
-                <el-button round :disabled="!isSelected">弃检</el-button>
+                <el-button round :disabled="!isSelected" @click="handleAbandon(selectedListIds)">弃检</el-button>
                 <el-button round>使用上次体检结果</el-button>
-                <el-button round>快速录入</el-button>
+                <el-button round @click="handleQuickEntry">快速录入</el-button>
               </template>
               <template #toolButton>
                 <el-button link class="mt-2">查看图片>></el-button>
@@ -53,38 +53,40 @@
       </GridItem>
       <GridItem :span="1">
         <div class="h-full right_card">
-          <project-summary :projectItem="activeTabItem" :basicProjectList="basicProjectList"></project-summary>
-          <el-tabs type="card">
-            <el-tab-pane label="阳性结果发现" name="1"></el-tab-pane>
-            <el-tab-pane label="医学科普" name="2"></el-tab-pane>
-          </el-tabs>
-          <div class="no-card">
-            <ProTable
-              :columns="columns2"
-              :data="[{ name: '1' }, { name: '1' }, { name: '1' }, { name: '1' }, { name: '1' }, { name: '1' }, { name: '1' }, { name: '1' }, { name: '1' }]"
-              :tool-button="false"
-              :pagination="false"
-              :header-cell-style="{ 'font-size': '12px' }"
-              height="calc((100vh - 250px) / 2)"
-            ></ProTable>
-          </div>
+          <project-summary ref="projectSummaryRef" :projectItem="activeTabItem" :basicProjectList="basicProjectList"></project-summary>
+          <positive-project ref="positiveProjectRef" :projectItem="activeTabItem" :basicProjectList="basicProjectList"></positive-project>
         </div>
       </GridItem>
     </Grid>
+    <el-dialog title="快速录入" v-model="quickEntryDialog" width="35%">
+      <el-scrollbar height="calc(100vh - 450px)" class="p-10px">
+        <el-form :model="quickEntryFormValue" label-width="auto" label-position="left">
+          <el-form-item v-for="item in quickEntryList" :key="item.id" :label="item.basicProjectName">
+            <el-input v-model="quickEntryFormValue[item.checkResult]" placeholder="请输入检查结果"></el-input>
+          </el-form-item>
+        </el-form>
+      </el-scrollbar>
+      <div class="w-full flex justify-end mt-18px">
+        <el-button round @click="quickEntryDialog = false">取消</el-button>
+        <el-button type="primary" round>确定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script setup lang="tsx">
 import _ from 'lodash'
 import { queryRegCombinProjectList } from '@/api/deskRegistration/medicalRegistration';
-import { queryRegBasicProjectList, saveDiagnosis } from '@/api/doctorsExamination/inputGeneralResults';
+import { queryRegBasicProjectList, saveDiagnosis, abandonProjects } from '@/api/doctorsExamination/inputGeneralResults';
 import ProjectSummary from './ProjectSummary.vue';
+import PositiveProject from './PositiveProject.vue'
+import { WarningFilled } from '@element-plus/icons-vue';
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 const {sys_user_sex, bus_check_result} = toRefs<any>(proxy?.useDict('sys_user_sex', 'bus_check_result'))
 const registerInfo = inject<any>('registerInfo', reactive({}))
 
 const columns = ref<any>([
-  {type: 'selection'},
+  { type: 'selection', },
   { label: '序号', type: 'index', width: 55 },
   { label: '项目名称', prop: 'basicProjectName', width: 120, },
   {
@@ -116,25 +118,51 @@ const columns = ref<any>([
     }
   }
 ])
-const columns2 = ref<any>([
-  { type: 'selection', fixed: 'left' },
-  { label: '建议名称', prop: 'name' },
-  { label: '诊断建议', prop: 'name' },
-])
 const activetabId = ref('')
 const activeTabItem = ref<any>({})
 const combinProjectList = ref<any>([]) // 组合项目
 const basicProjectList = ref<any>([]) // 组合项目下的基础项目
 const projectTableRef = ref<any>()
 
+// 快速录入
+const quickEntryDialog = ref(false) //
+const quickEntryList = ref<any>([])
+const quickEntryFormValue = ref<any>({})
+const handleQuickEntry = ()=> {
+  quickEntryDialog.value = true
+  quickEntryList.value = _.cloneDeep(basicProjectList.value)
+}
+// 弃检
+const handleAbandon = (ids: any) => {
+  console.log(ids);
+  ElMessageBox({
+    title: '确定弃检',
+    message: <>
+      <div class='flex items-center mb'><el-icon class='mr-2' color='#FF8400'><WarningFilled /></el-icon>是否确认将选中的{ids.length}条项目结果进行弃检，清除后将无法撤销？</div>
+      <div class='flex'><span class='w-80px'>弃检原因:</span><el-input type='textarea'></el-input></div>
+    </>,
+    customStyle: {maxWidth: '435px'},
+    showCancelButton: true,
+    roundButton: true,
+  }).then(()=> {
+
+  })
+}
 // 批量清除
 const handleClear = (selectedList:any)=> {
-  selectedList.forEach((item:any)=> {
-    item.checkResult = ''
-    item.isAbnormal = ''
+  ElMessageBox.confirm(`是否确认将选中的${selectedList.length}条项目结果清除？`, '确认清除', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    roundButton: true,
+    type: 'warning',
+  }).then(()=> {
+    selectedList.forEach((item:any)=> {
+      item.checkResult = ''
+      item.isAbnormal = ''
+    })
+    projectTableRef.value?.clearSelection()
+    ElMessage.success('清除成功！')
   })
-  projectTableRef.value?.clearSelection()
-  ElMessage.success('清除成功！')
 }
 // 保存
 const handleSave = async()=> {
@@ -153,6 +181,9 @@ const handleSave = async()=> {
       combinProjectList.value[i].checkStatus = '1'
     }
   })
+  const { data } = await queryRegCombinProjectList({id: registerInfo.value.id})
+  combinProjectList.value = _.cloneDeep(data|| [])
+  activeTabItem.value = data?.find((item:any)=> item.id == activetabId.value)
   getRegBasicProjectList(activetabId.value)
 }
 
@@ -171,14 +202,25 @@ const getRegCombinProjectList = async()=> {
     getRegBasicProjectList(activetabId.value)
   } else {
     basicProjectList.value = []
+    nextTick(()=> {
+      projectSummaryRef.value.getSummaryList()
+      positiveProjectRef.value.getPositiveList()
+    })
   }
 }
+const projectSummaryRef = ref()
+const positiveProjectRef = ref()
 // 根据组合项目id查询基础项目列表
 const getRegBasicProjectList = async(id:any)=> {
   if(!id) return
   const {data: list} =  await queryRegBasicProjectList({id})
   basicProjectList.value = _.cloneDeep(list|| [])
   projectTableRef.value.clearSelection()
+  // 获取体检小结和阳性结果数据
+  nextTick(()=> {
+    projectSummaryRef.value.getSummaryList()
+    positiveProjectRef.value.getPositiveList()
+  })
 }
 
 watch(()=>registerInfo.value, (newV)=> {
@@ -201,16 +243,6 @@ watch(()=>registerInfo.value, (newV)=> {
     border-radius: 2px;
     font-weight: bold;
     background: #FF8F33;
-  }
-}
-.right_card {
-  :deep(.el-table) {
-    .el-table__inner-wrapper {
-      min-height: 0px;
-    }
-    .el-scrollbar {
-      min-height: 0px;
-    }
   }
 }
 </style>
