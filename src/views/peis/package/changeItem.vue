@@ -3,7 +3,7 @@
     <el-button class="button" @click="handleBG" type="primary" link v-bind="$attrs">变更</el-button>
     <el-dialog v-model="dialogVisible" title="请选择变更项目" width="70%" :append-to-body="true">
       <ProTable ref="proTableRef" :columns="tableColumns" :toolButton="false" :data="dataSource" label-position="right"
-        :pagination="false">
+        :pagination="false" height="300">
         <template #cz="{ row, $index }">
           <el-button class="button" @click="handleSelectedBG(row)" type="primary" link>变更</el-button>
         </template>
@@ -50,10 +50,10 @@ const props = defineProps({
 const handleBG = async () => {
   dialogVisible.value = true
   const { shineSource, shineType, dutyStatus, hazardsBoList } = props.formValue
-  const { combinProjectId } = props.row
-  const combinProjectIdList = props.rightTableData.filter(item => item.required)?.map(item => item.combinProjectId)
+  const { combinProjectId, originId } = props.row
+  const combinProjectIdList = props.rightTableData.filter(item => item.required)?.map(item => item.combinProjectId || item.originId)
   const p = {
-    combinProjectId,
+    combinProjectId: combinProjectId || originId,
     codeList: hazardsBoList,
     dutyStatus,
     combinProjectIdList,

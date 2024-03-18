@@ -167,7 +167,7 @@ const formInfoColumns = (teamIdList, zjlxChange, zjhInput) => [
     slot: 'reserveTimeArr'
   },
   {
-    prop: 'birthday1',
+    prop: 'registerTime',
     label: '报到时间',
     search: { el: 'date-picker', props: { type: 'date', valueFormat: 'YYYY-MM-DD' }, span: 24, disabled: true }
   },
@@ -231,7 +231,16 @@ const formRules = {
 };
 
 const tableColumns = [
-  { type: 'selection' },
+  {
+    type: 'selection',
+    selectable: (row) => {
+      if (row.checkStatus == 1 || row.payStatus == 1 || row.required) {
+        return false;
+      } else {
+        return true;
+      }
+    }
+  },
   { type: 'index', label: '序列', width: 60 },
   { prop: 'combinProjectName', label: '项目名称' },
   { prop: 'projectType', label: '项目类型', enum: bus_combination_project_type },

@@ -99,7 +99,10 @@ const formObj = {
     groupPayType: '1',
     groupType: '1',
     gender: '2',
-    marriage: '2'
+    marriage: '2',
+    addPayType: '0',
+    itemDiscount: 100,
+    addDiscount: 100,
   }],
   signDate: proxy?.$moment().format('YYYY-MM-DD'),
   beginDate: proxy?.$moment().format('YYYY-MM-DD'),
@@ -328,6 +331,7 @@ const handleX1 = async (bloo) => {
         } else {
           const { data } = await peisTeamTask(form.value)
           formSecond.value = data.groupList
+          form.value.groupList = data.groupList
           !bloo && (activeName.value = 'second')
           bloo && (proxy?.$modal.msgSuccess("操作成功"))
           form.value.id = data.taskId
@@ -496,7 +500,13 @@ const handleGSH = () => {
   preview.value = false
   form.value = formObj
   form.value.groupList = [{
-    groupPayType: '1'
+    groupPayType: '1',
+    groupType: '1',
+    gender: '2',
+    marriage: '2',
+    addPayType: '0',
+    itemDiscount: 100,
+    addDiscount: 100,
   }]
   activeName.value = 'first'
   searchFormRef.value.resetFields()

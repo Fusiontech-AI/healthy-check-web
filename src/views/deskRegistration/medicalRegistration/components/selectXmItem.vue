@@ -85,9 +85,14 @@ const props = defineProps({
     type: Object,
     default: () => { },
   },
+  formValue1: {
+    type: Object,
+    default: () => { },
+  },
 })
 const drawerVisible = ref(false)
 const TransferFilterComplexRef = ref(null)
+
 const formValue = reactive({
   standardAmount: 0,
   discount: 0,
@@ -102,6 +107,7 @@ const formValue = reactive({
   paidPersonAmount: 0,
   paidTeamAmount: 0,
   personAmount: 0,
+
 })
 
 const dialogVisible = ref(false)
@@ -235,7 +241,8 @@ const handleDrawerChange = async () => {
       receivableAmount: item.receivableAmount,
       id: item.combinationProjectId || item.id, //回显取combinationProjectId 新选的取id
       addFlag: item.addFlag,
-      originId: item.originId
+      originId: item.originId,
+      required: item.required
     }
   })
   formValue.standardAmount = standardAmount
@@ -249,6 +256,11 @@ const handleDrawerChange = async () => {
   formValue.paidPersonAmount = paidPersonAmount
   formValue.paidTeamAmount = paidTeamAmount
   formValue.personAmount = personAmount
+  const { illuminationSource, jobIlluminationType, dutyStatus, tjRegisterZybHazardBosTes } = props.formValue1
+  formValue.shineSource = illuminationSource
+  formValue.shineType = jobIlluminationType
+  formValue.dutyStatus = dutyStatus
+  formValue.hazardsBoList = tjRegisterZybHazardBosTes
   drawerVisible.value = true
   await nextTick()
   TransferFilterComplexRef.value.defaultItems()
@@ -383,7 +395,8 @@ const handleHY = () => {
       receivableAmount: item.receivableAmount,
       id: item.combinationProjectId || item.id, //回显取combinationProjectId 新选的取id
       addFlag: item.addFlag,
-      originId: item.originId
+      originId: item.originId,
+      required: item.required
     }
   })
 

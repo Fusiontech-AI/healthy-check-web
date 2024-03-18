@@ -9,7 +9,7 @@
             </div>
             <div>
               <el-button round type="primary" v-if="ydjHas" @click="handleDJ">新增</el-button>
-              <el-button round @click="formValue = {}"
+              <el-button round @click="formValue = formObj; detailInfo = info"
                 v-if="!formValue.healthyCheckStatus || formValue.healthyCheckStatus == 0">清空</el-button>
               <el-button round @click="preview = false" v-if="id && formValue.healthyCheckStatus != 0 && preview"
                 type="primary">编辑</el-button>
@@ -49,14 +49,22 @@
             <div class="flex">
               <el-form-item label="" prop="contactSeniorityYear">
                 <div class="flex">
-                  <el-input v-model="formValue['contactSeniorityYear']" clearable :placeholder="`请输入`"></el-input>
+                  <el-input v-model="formValue['contactSeniorityYear']" clearable :placeholder="`请输入`"
+                    style="width: 100px;"
+                    oninput="value=value.replace(/[^\d.]/g, '').replace(/\.{2,}/g, '.').replace('.', '$#$').replace(/\./g, '').replace('$#$', '.').replace(/^(\-)*(\d+)\.(\d\d).*$/, '$1$2.$3').replace(/^\./g, '')"
+                    v-if="!preview"></el-input>
+                  <div v-if="preview">{{ formValue['contactSeniorityYear'] }}</div>
                   <span class="mx20px">年</span>
                 </div>
               </el-form-item>
 
               <el-form-item label="" prop="contactSeniorityMonth">
                 <div class="flex">
-                  <el-input v-model="formValue['contactSeniorityMonth']" clearable :placeholder="`请输入`"></el-input>
+                  <el-input v-model="formValue['contactSeniorityMonth']" clearable :placeholder="`请输入`"
+                    style="width: 100px;"
+                    oninput="value=value.replace(/[^\d.]/g, '').replace(/\.{2,}/g, '.').replace('.', '$#$').replace(/\./g, '').replace('$#$', '.').replace(/^(\-)*(\d+)\.(\d\d).*$/, '$1$2.$3').replace(/^\./g, '')"
+                    v-if="!preview"></el-input>
+                  <div v-if="preview">{{ formValue['contactSeniorityMonth'] }}</div>
                   <span class="mx20px">月</span>
                 </div>
               </el-form-item>
@@ -68,14 +76,21 @@
             <div class="flex">
               <el-form-item label="" prop="seniorityYear">
                 <div class="flex">
-                  <el-input v-model="formValue['seniorityYear']" clearable :placeholder="`请输入`"></el-input>
+                  <el-input v-model="formValue['seniorityYear']" clearable :placeholder="`请输入`" style="width: 100px;"
+                    oninput="value=value.replace(/[^\d.]/g, '').replace(/\.{2,}/g, '.').replace('.', '$#$').replace(/\./g, '').replace('$#$', '.').replace(/^(\-)*(\d+)\.(\d\d).*$/, '$1$2.$3').replace(/^\./g, '')"
+                    v-if="!preview">
+                  </el-input>
+                  <div v-if="preview">{{ formValue['seniorityYear'] }}</div>
                   <span class="mx20px">年</span>
                 </div>
               </el-form-item>
 
               <el-form-item label="" prop="seniorityMonth">
-                <div class="flex">
-                  <el-input v-model="formValue['seniorityMonth']" clearable :placeholder="`请输入`"></el-input>
+                <div class="flex shrink-0">
+                  <el-input v-model="formValue['seniorityMonth']" clearable :placeholder="`请输入`" style="width: 100px;"
+                    oninput="value=value.replace(/[^\d.]/g, '').replace(/\.{2,}/g, '.').replace('.', '$#$').replace(/\./g, '').replace('$#$', '.').replace(/^(\-)*(\d+)\.(\d\d).*$/, '$1$2.$3').replace(/^\./g, '')"
+                    v-if="!preview"></el-input>
+                  <div v-if="preview">{{ formValue['seniorityMonth'] }}</div>
                   <span class="mx20px">月</span>
                 </div>
               </el-form-item>
@@ -148,18 +163,18 @@
           </div>
         </template>
         <ProTable :columns="tableColumns" :toolButton="false" :data="detailInfo.dataSource" :pagination="false"
-          @selectionChange="selectionChange" ref="proTableRef" :selectable="handleDisable" height="600">
+          @selectionChange="selectionChange" ref="proTableRef" height="600">
 
           <template #operation="{ row, $index }">
             <el-button type="danger" round @click="handleSC($index)"
-              :disabled="row.checkStatus == 1 || row.payStatus == 1">删除</el-button>
+              :disabled="row.checkStatus == 1 || row.payStatus == 1 || row.required">删除</el-button>
           </template>
         </ProTable>
       </el-card>
-      <SelectXmItem ref="selectXmItemGj" :detailInfo="detailInfo" :isTuanJian="true"
-        :detailInfoClone="detailInfoClone" />
+      <SelectXmItem ref="selectXmItemGj" :detailInfo="detailInfo" :isTuanJian="true" :detailInfoClone="detailInfoClone"
+        :formValue1="formValue" />
       <SelectXmItem ref="selectXmItemTj" title="团体加项" :detailInfo="detailInfo" :isTuanJian="true"
-        :detailInfoClone="detailInfoClone" />
+        :detailInfoClone="detailInfoClone" :formValue1="formValue" />
 
       <!-- 选择预登记信息 -->
       <el-dialog title="选择预登记信息" v-model="dialogVisible" width="55%">
@@ -187,11 +202,14 @@ import { registerAdd, registerChangeRegCombin, registerInfo, queryRegCombinProje
 import { teamGroupList } from '@/api/leadershipCockpit/overviewMedicalExaminers'
 import { getTeamTaskList } from '@/api/groupInspection/taskAudit'
 import { commonDynamicBilling } from '@/api/peis/projectPort'
-import { accSub, getBirthday, getCurrentAgeByBirthDate, getSex } from '@/utils'
+import {
+  queryItemByFactorsCodeAndDutyStauts, queryCompulsoryInspectionProject, queryBasicListByCombinIds
+} from "@/api/peis/package";
+import { accSub, accAdd, getBirthday, getCurrentAgeByBirthDate, getSex } from '@/utils'
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 import type { TabsPaneContext } from 'element-plus'
 const formObj = {
-  credentialNumber: '420117199507186555',
+  credentialNumber: '', //'420117199507186555',
   // phone: '18571714455',
   // name: '123',
   // checkType: '11',
@@ -204,12 +222,13 @@ const formObj = {
   payType: '1',
   marriageStatus: '2',
   checkType: '11',
+  taskId: ''
 }
 const formValue = ref<any>(formObj) // 基本信息绑定的值
 const teamIdList = ref<any>([]) //单位列表
 const taskList = ref<any>([]) //任务列表
 const groupList = ref<any>([]) //分组列表
-
+const BJList = ref([])//必检项目
 //证件类型change事件
 const zjlxChange = (val) => {
   formValue.value.birthday = ''
@@ -265,10 +284,43 @@ const teamGroupIdChange = async (val) => {
       formValue.value.itemDiscount = item.itemDiscount
     }
   })
-  if (!val) return
+  if (!val) {
+    formValue.value.dutyStatus = ''
+    formValue.value.illuminationSource = ''
+    formValue.value.jobIlluminationType = ''
+    formValue.value.tjRegisterZybHazardBosTes = []
+    formValue.value.fs = ''
+    formValue.value.sw = ''
+    formValue.value.wl = ''
+    formValue.value.fc = ''
+    formValue.value.hx = ''
+    return
+  }
   const { data } = await teamGroupInfo({ id: val })
   //有分组就要传amountCalGroupBo
-  const { groupType, price, groupPayType, addPayType, itemDiscount, addDiscount, groupItemList, standardPrice, actualPrice, packageId } = data
+  const { groupType, price, groupPayType, addPayType, itemDiscount, addDiscount, groupItemList, standardPrice, actualPrice, packageId, groupHazardsList, dutyStatus, shineSource, shineType } = data
+  //有分组则带出在岗状态和危害因素  照射源  职业照射种类
+  formValue.value.dutyStatus = dutyStatus
+  formValue.value.illuminationSource = shineSource
+  formValue.value.jobIlluminationType = shineType
+  formValue.value.tjRegisterZybHazardBosTes = groupHazardsList.map(item => {
+    if (item.hazardFactorsCode == 14999) {
+      formValue.value.fs = item.hazardFactorsOther
+    }
+    if (item.hazardFactorsCode == 15999) {
+      formValue.value.sw = item.hazardFactorsOther
+    }
+    if (item.hazardFactorsCode == 13999) {
+      formValue.value.wl = item.hazardFactorsOther
+    }
+    if (item.hazardFactorsCode == 11999) {
+      formValue.value.fc = item.hazardFactorsOther
+    }
+    if (item.hazardFactorsCode == 12999) {
+      formValue.value.hx = item.hazardFactorsOther
+    }
+    return item.hazardFactorsCode
+  })
   detailInfo.value.packageId = packageId
   detailInfo.value.amountCalGroupBo = { groupType, price, groupPayType, addPayType, itemDiscount, addDiscount }
   handleChangeGroup(data)
@@ -276,7 +328,7 @@ const teamGroupIdChange = async (val) => {
 //单位change事件
 const dwChange = async (val) => {
   taskList.value = []
-  formValue.value.taskId = ''
+  formRef.value.resetFields('taskId')
   formValue.value.teamGroupId = ''
   formValue.value.actualPrice = ''
   formValue.value.itemDiscount = ''
@@ -299,8 +351,94 @@ const rwChange = async (val) => {
   const { rows } = await teamGroupList({ taskId: val, pagesize: -1, filterProject: 0 }) // 根据任务带出分组列表
   groupList.value = rows
 }
+const ZYBChange = async () => {
+  const { dutyStatus, tjRegisterZybHazardBosTes, illuminationSource, jobIlluminationType, physicalType } = formValue.value
+  if (physicalType == 'FSTJ') {
+    if (tjRegisterZybHazardBosTes.length == 0 || !dutyStatus || !jobIlluminationType || !illuminationSource) {
+      detailInfo.value = info
+      return
+    }
+  } else {
+    if (tjRegisterZybHazardBosTes.length == 0 || !dutyStatus) {
+      detailInfo.value = info
+      return
+    }
+  }
+  await getBjFun()
 
-const formColumns = ref<any>(formInfoColumns(teamIdList, taskList, groupList, zjhInput, zjlxChange, teamGroupIdChange, dwChange, rwChange))
+  //查询必检组合项目
+  const k = {
+    itemIdList: BJList.value.map(item => item.itemId),
+    combinProjectName: ''
+  }
+  const data1 = await queryCompulsoryInspectionProject(k)
+  //required为true的放右边
+  const arr = data1.data.filter(item => item.required)
+  let standardAmount = 0
+  const amountCalculationItemBos = arr.map((item, i) => {
+    item.combinProjectId = item.id
+    standardAmount = accAdd(standardAmount, item.standardAmount)
+    return {
+      sort: i + 1,
+      payType: '1',//变更类型(0个人 1单位 2混合支付)
+      payStatus: '0',//缴费状态（0：未缴费，1：已缴费，2：申请退费中，3：已退费，）
+      tcFlag: '1',//是否套餐'0'是'1'否
+      teamAmount: item.standardAmount,//单位应收金额
+      personAmount: 0,//个人应收金额
+      combinProjectCode: '',
+      combinProjectName: item.combinProjectName,
+      standardAmount: item.standardAmount,
+      discount: item.discount,
+      receivableAmount: item.standardAmount,
+      id: item.id,
+      required: item.required
+    }
+  })
+  //changeType  //1单项 2总计项 3新增 4删除 5删除全部
+  //inputType  //输入类型(1折扣 2应收金额 3收费方式 4个人应收额 5单位应收额)
+  const p = {
+    groupFlag: undefined,   //有无分组标志(1有分组)
+    regType: '2',//1个检 2团检
+    changeType: '3',
+    inputType: undefined,
+    haveAmountCalculationItemBos: [], ////存量
+    amountCalculationItemBos, ////增量或者减量都传这个
+    amountCalGroupBo: undefined, //团检分组信息对象
+    standardAmount,
+    discount: 100,
+    receivableAmount: standardAmount
+  }
+  const { data } = await commonDynamicBilling(p)
+  detailInfo.value.receivableAmount = data.receivableAmount
+  detailInfo.value.discount = data.discount
+  detailInfo.value.standardAmount = data.standardAmount
+  detailInfo.value.dataSource = data.amountCalculationItemVos.map(item => {
+    if (item.tcFlag == 0) {
+      item.packageId = detailInfo.value.packageId
+    }
+    return {
+      ...item,
+      projectType: item.tcFlag,//项目类型（1：套餐项目，2：加项项目
+      payMode: item.payType,
+      checkStatus: '0',
+      addFlag: item.addFlag  //addFlag	加项标识:1个人加项 2团队加项
+    }
+  })
+}
+
+//获得必检项目
+const getBjFun = async () => {
+  const { dutyStatus, tjRegisterZybHazardBosTes, illuminationSource, jobIlluminationType } = formValue.value
+  const p = {
+    codeList: tjRegisterZybHazardBosTes,
+    dutyStatus,
+    shineSource: jobIlluminationType,
+    shineType: illuminationSource,
+  }
+  const { data } = await queryItemByFactorsCodeAndDutyStauts(p)
+  BJList.value = data
+}
+const formColumns = ref<any>(formInfoColumns(teamIdList, taskList, groupList, zjhInput, zjlxChange, teamGroupIdChange, dwChange, rwChange, ZYBChange))
 const tableColumnsYDJList = ref<any>(tableColumnsYDJ(teamIdList))
 const queryParams = reactive<any>({
   params: {
@@ -338,10 +476,10 @@ const info = {
 const detailInfo = ref({ ...info })
 const detailInfoClone = ref({ ...info })
 const {
-  bus_pay_status,
+  bus_pay_status, bus_hazardous_factors, bus_physical_type
 } = toRefs<any>(proxy?.
   useDict(
-    'bus_pay_status',
+    'bus_pay_status', 'bus_hazardous_factors', 'bus_physical_type'
   )
 );
 
@@ -357,9 +495,29 @@ getTeamIdList()
 //获得详情
 const getDetail = async (id) => {
   const { data } = await registerInfo({ id })
-  dwChange(data.teamId)//查询任务
-  rwChange(data.taskId)//查询分组
-  formValue.value = data
+  await dwChange(data.teamId)//查询任务
+  await rwChange(data.taskId)//查询分组
+  // await teamGroupIdChange(data.teamGroupId)//分组
+  const { tjRegisterZybHazardVos } = data.tjRegisterZybVo || {}
+  data.tjRegisterZybHazardBosTes = tjRegisterZybHazardVos?.map(item => {
+    if (item.hazardFactor == 14999) {
+      data.fs = item.hazardFactorOther
+    }
+    if (item.hazardFactor == 15999) {
+      data.sw = item.hazardFactorOther
+    }
+    if (item.hazardFactor == 13999) {
+      data.wl = item.hazardFactorOther
+    }
+    if (item.hazardFactor == 11999) {
+      data.fc = item.hazardFactorOther
+    }
+    if (item.hazardFactor == 12999) {
+      data.hx = item.hazardFactorOther
+    }
+    return item.hazardFactor
+  }) || []
+  formValue.value = { ...data, ...data?.tjRegisterZybVo, ...data?.tjTeamGroupVo, id: data.id }
   formValue.value.actualPrice = data.tjTeamGroupVo?.price
   formValue.value.itemDiscount = data.tjTeamGroupVo?.itemDiscount
   if (data.reserveStartTime && data.reserveEndTime) {
@@ -382,6 +540,7 @@ const getDetail = async (id) => {
 const getXm = async (id) => {
   const { data } = await queryRegCombinProjectList({ id })
   detailInfo.value.dataSource = data.map(item => {
+    item.required = item.projectRequiredType == '1' ? true : false
     item.originId = item.id
     return item
   }
@@ -403,16 +562,6 @@ const JYXMSL = computed(() => {
   return detailInfo.value.dataSource.filter(item => item.checkType == 1).length
 })
 
-//已检查和已缴费不能删禁用勾选框
-const handleDisable = (row) => {
-  console.log("🚀 ~ handleDisable ~ row:", row)
-  if (row.checkStatus == 1 || row.payStatus == 1) {
-    return true
-  } else {
-    return false
-  }
-}
-
 //个人加项
 const handleGjJx = () => {
   selectXmItemGj.value.handleDrawerChange()
@@ -428,11 +577,61 @@ const handleDJ = () => {
     if (valid) {
       //登记信息的接口
       formValue.value.businessCategory = '2' //业务类别（1：个检，2：团检
-      formValue.value.occupationalType = '1' //是否职业病(0：是，1：否)
+      // formValue.value.occupationalType = '1' //是否职业病(0：是，1：否)
       formValue.value.healthyCheckTime = proxy?.$moment().format('YYYY-MM-DD HH:mm:ss')
       formValue.value.reserveStartTime = formValue.value.reserveTimeArr?.[0]
       formValue.value.reserveEndTime = formValue.value.reserveTimeArr?.[1]
       formValue.value.packageId = detailInfo.value.packageId
+      if (formValue.value.occupationalType == 0) {//0zyb
+
+        //职业病组装
+        const { dutyStatus, illuminationSource, jobIlluminationType, caseCardType, jobCode, seniorityYear, seniorityMonth, contactSeniorityYear, contactSeniorityMonth, tjRegisterZybHazardBosTes, fs, sw, wl, fc, hx, otherJobName } = formValue.value
+        formValue.value.tjRegisterZybBo = {
+          dutyStatus, illuminationSource, jobIlluminationType, caseCardType, jobCode, seniorityYear, seniorityMonth, contactSeniorityYear, contactSeniorityMonth, otherJobName
+        }
+        const tjPackageHazardsBoList = []
+        tjRegisterZybHazardBosTes.forEach(item => {
+          if (item == '14999') {
+            tjPackageHazardsBoList.push({
+              hazardFactorOther: fs,
+              hazardFactorName: (bus_hazardous_factors.value.filter(row => row.dictValue == item))[0].dictLabel,
+              hazardFactor: item
+            })
+          } else if (item == '15999') {
+            tjPackageHazardsBoList.push({
+              hazardFactorOther: sw,
+              hazardFactorName: (bus_hazardous_factors.value.filter(row => row.dictValue == item))[0].dictLabel,
+              hazardFactor: item
+            })
+          } else if (item == '13999') {
+            tjPackageHazardsBoList.push({
+              hazardFactorOther: wl,
+              hazardFactorName: (bus_hazardous_factors.value.filter(row => row.dictValue == item))[0].dictLabel,
+              hazardFactor: item
+            })
+          } else if (item == '11999') {
+            tjPackageHazardsBoList.push({
+              hazardFactorOther: fc,
+              hazardFactorName: (bus_hazardous_factors.value.filter(row => row.dictValue == item))[0].dictLabel,
+              hazardFactor: item
+            })
+          } else if (item == '12999') {
+            tjPackageHazardsBoList.push({
+              hazardFactorOther: hx,
+              hazardFactorName: (bus_hazardous_factors.value.filter(row => row.dictValue == item))[0].dictLabel,
+              hazardFactor: item
+            })
+          } else {
+            tjPackageHazardsBoList.push({
+              hazardFactorOther: '',
+              hazardFactorName: (bus_hazardous_factors.value.filter(row => row.dictValue == item))[0].dictLabel,
+              hazardFactor: item
+            })
+          }
+
+        })
+        formValue.value.tjRegisterZybHazardBos = tjPackageHazardsBoList
+      }
       const { data } = await registerAdd(formValue.value)
       // id.value = data
       formValue.value.id = data
@@ -554,7 +753,7 @@ const handleUpdate = async (type) => {
       discount,
       receivableAmount,
       tcFlag,
-      projectType, addFlag, payMode, teamAmount, personAmount, packageId, originId
+      projectType, addFlag, payMode, teamAmount, personAmount, packageId, originId, required
     } = item
     return {
       combinationProjectId: combinationProjectId || id,
@@ -567,7 +766,8 @@ const handleUpdate = async (type) => {
       payStatus: "0",
       payMode,
       checkStatus: "0",
-      addFlag, packageId, id: originId
+      addFlag, packageId, id: originId,
+      projectRequiredType: required ? '1' : '0' //0：选检项目，1：必检项目
     }
   })
   const operationType = type == '报到' ? '2' : type == '暂存' ? '4' : '3' //1:登记，2:报道 3:变更项目 4:暂存
@@ -612,11 +812,74 @@ const handleBC = (type) => {
   formRef.value?.validate(async (valid, fields) => {
     if (valid) {
       formValue.value.businessCategory = '2'
-      formValue.value.occupationalType = '1' //是否职业病(0：是，1：否)
+      // formValue.value.occupationalType = '1' //是否职业病(0：是，1：否)
       formValue.value.healthyCheckTime = proxy?.$moment().format('YYYY-MM-DD HH:mm:ss') //体检日期
       formValue.value.reserveStartTime = formValue.value.reserveTimeArr?.[0]
       formValue.value.reserveEndTime = formValue.value.reserveTimeArr?.[1]
       formValue.value.packageId = detailInfo.value.packageId
+      if (formValue.value.occupationalType == 0) {//0zyb
+        //职业病组装
+        const { dutyStatus, illuminationSource, jobIlluminationType, caseCardType, jobCode, seniorityYear, seniorityMonth, contactSeniorityYear, contactSeniorityMonth, tjRegisterZybHazardBosTes, fs, sw, wl, fc, hx, tjRegisterZybVo, otherJobName } = formValue.value
+        formValue.value.tjRegisterZybBo = {
+          id: tjRegisterZybVo?.id,
+          regId: tjRegisterZybVo?.regId,
+          dutyStatus, illuminationSource, jobIlluminationType, caseCardType, jobCode, seniorityYear, seniorityMonth, contactSeniorityYear, contactSeniorityMonth, otherJobName
+        }
+        const tjPackageHazardsBoList = []
+        tjRegisterZybHazardBosTes.forEach(item => {
+          if (item == '14999') {
+            tjPackageHazardsBoList.push({
+              // id: tjRegisterZybVo.id,
+              regId: tjRegisterZybVo.regId,
+              hazardFactorOther: fs,
+              hazardFactorName: (bus_hazardous_factors.value.filter(row => row.dictValue == item))[0].dictLabel,
+              hazardFactor: item
+            })
+          } else if (item == '15999') {
+            tjPackageHazardsBoList.push({
+              // id: tjRegisterZybVo.id,
+              regId: tjRegisterZybVo.regId,
+              hazardFactorOther: sw,
+              hazardFactorName: (bus_hazardous_factors.value.filter(row => row.dictValue == item))[0].dictLabel,
+              hazardFactor: item
+            })
+          } else if (item == '13999') {
+            tjPackageHazardsBoList.push({
+              // id: tjRegisterZybVo.id,
+              regId: tjRegisterZybVo.regId,
+              hazardFactorOther: wl,
+              hazardFactorName: (bus_hazardous_factors.value.filter(row => row.dictValue == item))[0].dictLabel,
+              hazardFactor: item
+            })
+          } else if (item == '11999') {
+            tjPackageHazardsBoList.push({
+              // id: tjRegisterZybVo.id,
+              regId: tjRegisterZybVo.regId,
+              hazardFactorOther: fc,
+              hazardFactorName: (bus_hazardous_factors.value.filter(row => row.dictValue == item))[0].dictLabel,
+              hazardFactor: item
+            })
+          } else if (item == '12999') {
+            tjPackageHazardsBoList.push({
+              // id: tjRegisterZybVo.id,
+              regId: tjRegisterZybVo.regId,
+              hazardFactorOther: hx,
+              hazardFactorName: (bus_hazardous_factors.value.filter(row => row.dictValue == item))[0].dictLabel,
+              hazardFactor: item
+            })
+          } else {
+            tjPackageHazardsBoList.push({
+              // id: tjRegisterZybVo.id,
+              regId: tjRegisterZybVo.regId,
+              hazardFactorOther: '',
+              hazardFactorName: (bus_hazardous_factors.value.filter(row => row.dictValue == item))[0].dictLabel,
+              hazardFactor: item
+            })
+          }
+
+        })
+        formValue.value.tjRegisterZybHazardBos = tjPackageHazardsBoList
+      }
       await registerUpdate(formValue.value);
       (type != '暂存' && type != '报到') && proxy?.$modal.msgSuccess(`操作成功`);
       (type != '暂存' && type != '报到') && (preview.value = true);
@@ -657,6 +920,7 @@ const handleChangeGroup = async (row) => {
       discount: item.discount,
       receivableAmount: item.actualPrice,
       id: item.itemId,
+      required: item.required
     }
   })
   //changeType  //1单项 2总计项 3新增 4删除 5删除全部
@@ -698,26 +962,127 @@ const handleJXDJ = () => {
 
 //根据体检类型区分是职业病还是普通体检
 watch(() => formValue.value.physicalType, (newV) => {
+  const arr = ['在岗状态', '危害因素', '个案卡类别', '工种名称', '接害工龄', '总工龄']
+  const arr1 = ['照射源', '职业照射种类']
+  formValue.value.tjRegisterZybHazardBosTes = []
+  bus_physical_type.value.forEach(item => {
+    if (item.dictValue == newV) {
+      formValue.value.occupationalType = item.busType //是否职业病(0：是，1：否)
+    }
+  })
   formColumns.value.forEach(item => {
-    if (item.label == '在岗状态' || item.label == '危害因素' || item.label == '照射源' || item.label == '职业照射种类' || item.label == '个案卡类别' || item.label == '工种名称' || item.label == '接害工龄' || item.label == '总工龄') {
-      if (newV == 'ZYJKTJ') {
-        // item.
+    if (arr.includes(item.label)) {
+      if (newV == 'ZYJKTJ' || newV == 'FSTJ') {
+        item.isShowSearch = true
       } else {
-
+        item.isShowSearch = false
       }
     }
-
+    if (arr1.includes(item.label)) {
+      if (newV == 'FSTJ') {
+        item.isShowSearch = true
+      } else {
+        item.isShowSearch = false
+      }
+    }
   })
 
 })
+//监听危害因素显示其他
+watch(() => formValue.value.tjRegisterZybHazardBosTes, (newV) => {
+  // 其他放射14999
+  // 其他生物15999
+  // 其他物理13999
+  // 其他粉尘11999
+  // 其他化学12999
+  formColumns.value.forEach(item => {
+    if (item.isShowSearch != undefined) {
+      if (item.label == '其他放射因素') {
+        if (newV.includes('14999')) {
+          item.isShowSearch = true
+        } else {
+          formValue.value.fs = ''
+          item.isShowSearch = false
+        }
+      }
+      if (item.label == '其他生物因素') {
+        if (newV.includes('15999')) {
+          item.isShowSearch = true
+        } else {
+          formValue.value.sw = ''
+
+          item.isShowSearch = false
+        }
+      }
+      if (item.label == '其他物理因素') {
+        if (newV.includes('13999')) {
+          item.isShowSearch = true
+        } else {
+          formValue.value.wl = ''
+
+          item.isShowSearch = false
+        }
+      }
+      if (item.label == '其他粉尘因素') {
+        if (newV.includes('11999')) {
+          item.isShowSearch = true
+        } else {
+          formValue.value.fc = ''
+
+          item.isShowSearch = false
+        }
+      }
+      if (item.label == '其他化学因素') {
+        if (newV.includes('12999')) {
+          item.isShowSearch = true
+        } else {
+          formValue.value.hx = ''
+
+          item.isShowSearch = false
+        }
+      }
+
+    }
+  })
+})
+//监听分组 有分组危害因素等都是带出来 的
+watch(() => formValue.value.teamGroupId, (newV) => {
+  const arr = ['在岗状态', '危害因素', '照射源', '职业照射种类']
+  formColumns.value.forEach(item => {
+    if (arr.includes(item.label)) {
+      if (!newV) {
+        item.search.disabled = false
+      } else {
+        item.search.disabled = true
+      }
+    }
+  })
+})
+//监听工种名称
+watch(() => formValue.value.jobCode, (newV) => {
+  const arr = ['00-44', '00-33', '99-990', '99-9999']
+  formColumns.value.forEach(item => {
+    if (item.label == '其他工种名称') {
+      if (!arr.includes(newV)) {
+        formValue.value.otherJobName = ''
+        item.isShowSearch = false
+      } else {
+        item.isShowSearch = true
+      }
+    }
+  })
+})
+//监听路由id
 watch(() => route.query.id, (newV) => {
   if (!newV) {
     refset()
   } else {
+    id.value = newV
     getDetail(newV)
   }
 
 })
+//当输入的身份证没有登记时
 watch(() => ydjHas.value, (newV) => {
   formColumns.value.forEach(item => {
     if (item.label == '单位' || item.label == '任务' || item.label == '分组') {

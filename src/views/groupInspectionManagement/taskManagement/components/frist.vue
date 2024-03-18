@@ -119,7 +119,10 @@ const handleAdd = () => {
       groupPayType: '1',
       groupType: '1',
       gender: '2',
-      marriage: '2'
+      marriage: '2',
+      addPayType: '0',
+      itemDiscount: 100,
+      addDiscount: 100,
     }]
     return
   }
@@ -127,7 +130,10 @@ const handleAdd = () => {
     groupPayType: '1',
     groupType: '1',
     gender: '2',
-    marriage: '2'
+    marriage: '2',
+    addPayType: '0',
+    itemDiscount: 100,
+    addDiscount: 100,
   })
 }
 //删除一行

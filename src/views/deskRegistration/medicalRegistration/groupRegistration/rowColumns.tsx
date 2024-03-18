@@ -14,7 +14,7 @@ const {
   bus_combination_project_type,
   bus_nation,
   bus_duty_status,
-  tj_register_zyb_hazard,
+  bus_hazardous_factors,
   bus_shine_source,
   bus_job_illumination_source,
   bus_case_card_type,
@@ -35,14 +35,14 @@ const {
     'bus_combination_project_type',
     'bus_nation',
     'bus_duty_status',
-    'tj_register_zyb_hazard',
+    'bus_hazardous_factors',
     'bus_shine_source',
     'bus_job_illumination_source',
     'bus_case_card_type',
     'bus_job_code'
   )
 );
-const formInfoColumns = (teamIdList, taskList, groupList, zjhInput, zjlxChange, teamGroupIdChange, dwChange, rwChange) => [
+const formInfoColumns = (teamIdList, taskList, groupList, zjhInput, zjlxChange, teamGroupIdChange, dwChange, rwChange, ZYBChange) => [
   {
     slot: 'credentialImage',
     search: { span: 24 }
@@ -213,7 +213,7 @@ const formInfoColumns = (teamIdList, taskList, groupList, zjhInput, zjlxChange, 
     slot: 'reserveTimeArr'
   },
   {
-    prop: 'birthday1',
+    prop: 'registerTime',
     label: '报到时间',
     search: { el: 'date-picker', props: { type: 'date', valueFormat: 'YYYY-MM-DD' }, span: 24, disabled: true }
   },
@@ -221,28 +221,62 @@ const formInfoColumns = (teamIdList, taskList, groupList, zjhInput, zjlxChange, 
     prop: 'dutyStatus',
     label: '在岗状态',
     enum: bus_duty_status,
-    search: { el: 'select', span: 24 },
-    isShowSearch: false
+    search: { el: 'select', span: 24, disabled: false },
+    isShowSearch: false,
+    change: ZYBChange
   },
   {
-    prop: 'tjRegisterZybHazardBos',
+    prop: 'tjRegisterZybHazardBosTes',
     label: '危害因素',
-    enum: tj_register_zyb_hazard,
-    search: { el: 'select', span: 24 },
-    isShowSearch: false
+    enum: bus_hazardous_factors,
+    search: { el: 'select', props: { multiple: true }, span: 24, disabled: false },
+    isShowSearch: false,
+    change: ZYBChange
   },
   {
     prop: 'illuminationSource',
     label: '照射源',
     enum: bus_shine_source,
     search: { el: 'select' },
-    isShowSearch: false
+    isShowSearch: false,
+    change: ZYBChange
   },
   {
     prop: 'jobIlluminationType',
     label: '职业照射种类',
     enum: bus_job_illumination_source,
     search: { el: 'select' },
+    isShowSearch: false,
+    change: ZYBChange
+  },
+  {
+    label: '其他放射因素',
+    prop: 'fs',
+    search: { el: 'input' },
+    isShowSearch: false
+  },
+  {
+    label: '其他粉尘因素',
+    prop: 'fc',
+    search: { el: 'input' },
+    isShowSearch: false
+  },
+  {
+    label: '其他生物因素',
+    prop: 'sw',
+    search: { el: 'input' },
+    isShowSearch: false
+  },
+  {
+    label: '其他物理因素',
+    prop: 'wl',
+    search: { el: 'input' },
+    isShowSearch: false
+  },
+  {
+    label: '其他化学因素',
+    prop: 'hx',
+    search: { el: 'input' },
     isShowSearch: false
   },
   {
@@ -257,6 +291,12 @@ const formInfoColumns = (teamIdList, taskList, groupList, zjhInput, zjlxChange, 
     label: '工种名称',
     enum: bus_job_code,
     search: { el: 'select' },
+    isShowSearch: false
+  },
+  {
+    prop: 'otherJobName',
+    label: '其他工种名称',
+    search: { el: 'input' },
     isShowSearch: false
   },
   {
@@ -327,7 +367,7 @@ const formRules = {
     { validator: validatePhone, trigger: 'blur' }
   ],
   dutyStatus: [{ required: true, message: '请选择在岗状态', trigger: 'change' }],
-  tjRegisterZybHazardBos: [{ required: true, message: '请选择危害因素', trigger: 'change' }],
+  tjRegisterZybHazardBosTes: [{ required: true, message: '请选择危害因素', trigger: 'change' }],
   illuminationSource: [{ required: true, message: '请选择照射源', trigger: 'change' }],
   jobIlluminationType: [{ required: true, message: '请选择职业照射种类', trigger: 'change' }],
   caseCardType: [{ required: true, message: '请选择个案卡类别', trigger: 'change' }],
@@ -335,11 +375,26 @@ const formRules = {
   contactSeniorityYear: [{ required: true, message: '请输入年份', trigger: 'blur' }],
   contactSeniorityMonth: [{ required: true, message: '请输入月份', trigger: 'blur' }],
   seniorityYear: [{ required: true, message: '请输入年份', trigger: 'blur' }],
-  seniorityMonth: [{ required: true, message: '请输入月份', trigger: 'blur' }]
+  seniorityMonth: [{ required: true, message: '请输入月份', trigger: 'blur' }],
+  fc: [{ required: true, message: '请输入其他粉尘因素', trigger: 'blur' }],
+  sw: [{ required: true, message: '请输入其他生物因素', trigger: 'blur' }],
+  wl: [{ required: true, message: '请输入其他物理因素', trigger: 'blur' }],
+  hx: [{ required: true, message: '请输入其他化学因素', trigger: 'blur' }],
+  fs: [{ required: true, message: '请输入其他放射因素', trigger: 'blur' }],
+  otherJobName: [{ required: true, message: '请输入其他工种名称', trigger: 'blur' }]
 };
 
 const tableColumns = [
-  { type: 'selection' },
+  {
+    type: 'selection',
+    selectable: (row) => {
+      if (row.checkStatus == 1 || row.payStatus == 1 || row.required) {
+        return false;
+      } else {
+        return true;
+      }
+    }
+  },
   { type: 'index', label: '序列', width: 60 },
   { prop: 'combinProjectName', label: '项目名称' },
   { prop: 'projectType', label: '项目类型', enum: bus_combination_project_type },

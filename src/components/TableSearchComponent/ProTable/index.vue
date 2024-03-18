@@ -2,8 +2,8 @@
 
 <template>
   <!-- 查询表单 -->
-  <SearchForm v-show="isShowSearch" :search="_search" :reset="_reset" :columns="searchColumns" :search-param="searchParam"
-    :search-col="searchCol" :showActionGroup="showActionGroup" v-bind="$attrs">
+  <SearchForm v-show="isShowSearch" :search="_search" :reset="_reset" :columns="searchColumns"
+    :search-param="searchParam" :search-col="searchCol" :showActionGroup="showActionGroup" v-bind="$attrs">
     <template v-for="slot in Object.keys($slots)" #[slot]="scope">
       <slot :name="slot" v-bind="scope" />
     </template>
@@ -37,8 +37,8 @@
       <slot />
       <template v-for="item in tableColumns" :key="item.prop">
         <!-- selection || radio || index || expand || sort -->
-        <el-table-column v-if="item.type && columnTypes.includes(item.type)" v-bind="item" :align="item.align ?? 'center'"
-          :reserve-selection="item.type == 'selection'">
+        <el-table-column v-if="item.type && columnTypes.includes(item.type)" v-bind="item"
+          :align="item.align ?? 'center'" :reserve-selection="item.type == 'selection'" :selectable="item.selectable">
           <template #default="scope">
             <!-- expand -->
             <template v-if="item.type == 'expand'">
@@ -80,8 +80,8 @@
     </el-table>
     <!-- 分页组件 -->
     <slot name="pagination">
-      <TablePagination v-if="pagination && pageable.total !== 0" :pageable="pageable" :handle-size-change="handleSizeChange"
-        :handle-current-change="handleCurrentChange" />
+      <TablePagination v-if="pagination && pageable.total !== 0" :pageable="pageable"
+        :handle-size-change="handleSizeChange" :handle-current-change="handleCurrentChange" />
     </slot>
   </div>
   <!-- 列设置 -->
@@ -136,7 +136,6 @@ const props = withDefaults(defineProps<ProTableProps>(), {
   showActionGroup: true,
   isShowSearch: true
 });
-
 // table 实例
 const tableRef = ref<InstanceType<typeof ElTable>>();
 

@@ -33,7 +33,8 @@
         <GridItem suffix>
           <div class="operation" v-if="showActionGroup">
             <slot name="formAction">
-              <el-button v-if="showCollapse" type="info" link class="search-isOpen mr-2" @click="collapsed = !collapsed">
+              <el-button v-if="showCollapse" type="info" link class="search-isOpen mr-2"
+                @click="collapsed = !collapsed">
                 {{ collapsed ? "展开" : "收起" }}
                 <el-icon class="el-icon--right">
                   <component :is="collapsed ? ArrowDown : ArrowUp"></component>
@@ -59,6 +60,7 @@ import GridItem from "@/components/Grid/components/GridItem.vue";
 import FormAction from '@/components/TableSearchComponent/SearchForm/components/FormAction.vue'
 import { useTable } from "@/hooks/useTable";
 import { array } from "vue-types";
+import { log } from "console";
 
 interface ProTableProps {
   columns?: ColumnProps[]; // 搜索配置列
@@ -84,18 +86,28 @@ const props = withDefaults(defineProps<ProTableProps>(), {
 const RenderFormValue = (item: any) => {
   return <div>{{
     default: () => {
-  if (props.searchParam[item.prop] && item.enum && item?.search?.el == 'select') {
-    const obj = item.enum?.find((val: { value: any; }) => (val.value || val[item.fieldNames?.value]) == props.searchParam[item.prop])
-    return obj?.label || obj?.[item.fieldNames?.label] || props.searchParam[item.prop]
-  }
-  if (props.searchParam[item.prop] && item.enum && item?.search?.el == 'switch') {
-    return item.enum?.find((val: { value: any; }) => val?.value == props.searchParam[item.prop])?.label || props.searchParam[item.prop]
-  }
-  if (props.searchParam[item.prop] && item.enum && item?.search?.el == 'tree-select') {
-    return recursion(item.enum, props.searchParam[item.prop])
-  }
-  return props.searchParam[item.prop]
-}
+      if (props.searchParam[item.prop] && item.enum && item?.search?.el == 'select') {
+        //多选则拼文字
+        if (item.search.props?.multiple) {
+          let txt = ''
+          item.enum.forEach(row => {
+            if (props.searchParam[item.prop].includes(row.value)) {
+              txt += row.label + ','
+            }
+          })
+          return txt.substring(0, txt.length - 1)
+        }
+        const obj = item.enum?.find((val: { value: any; }) => (val.value || val[item.fieldNames?.value]) == props.searchParam[item.prop])
+        return obj?.label || obj?.[item.fieldNames?.label] || props.searchParam[item.prop]
+      }
+      if (props.searchParam[item.prop] && item.enum && item?.search?.el == 'switch') {
+        return item.enum?.find((val: { value: any; }) => val?.value == props.searchParam[item.prop])?.label || props.searchParam[item.prop]
+      }
+      if (props.searchParam[item.prop] && item.enum && item?.search?.el == 'tree-select') {
+        return recursion(item.enum, props.searchParam[item.prop])
+      }
+      return props.searchParam[item.prop]
+    }
   }}</div>
 }
 
@@ -158,10 +170,10 @@ const getResponsive = (item: ColumnProps) => {
 
 // 是否默认折叠搜索项
 const collapsed = ref(true);
-onMounted(()=> {
-  if(props.showActionGroup) {
+onMounted(() => {
+  if (props.showActionGroup) {
     collapsed.value = true
-  }else {
+  } else {
     collapsed.value = false
   }
 })

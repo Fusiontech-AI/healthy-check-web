@@ -125,12 +125,14 @@ const getBJList = async () => {
   if (props.form.physicalType == 'FSTJ') {
     if (hazardsBoList.length == 0 || !dutyStatus || !shineSource || !shineType) {
       props.formSecond[index].defaultItemList = []
+      props.formSecond[index].BJList = []
       TransferFilterComplexRef.value[index].defaultItems()
       return
     }
   } else {
     if (hazardsBoList.length == 0 || !dutyStatus) {
       props.formSecond[index].defaultItemList = []
+      props.formSecond[index].BJList = []
       TransferFilterComplexRef.value[index].defaultItems()
       return
     }
@@ -169,6 +171,7 @@ const getBJList = async () => {
 const getBjFun = async (row) => {
   if (props.form.physicalType != 'ZYJKTJ' && props.form.physicalType != 'FSTJ') return
   const { hazardsBoList, dutyStatus, shineSource, shineType } = row
+  if (hazardsBoList.length == 0) return
   const p = {
     codeList: hazardsBoList,
     dutyStatus,
@@ -181,6 +184,7 @@ const getBjFun = async (row) => {
 //查询组合项目下基础项目信息
 const getXmNews = async (row) => {
   const arr = row.defaultItemList.map(item => item.combinProjectId || item.id)
+  if (arr.length == 0) return
   const { data } = await queryBasicListByCombinIds(arr)
   //匹配勾选
   row.bjxmList = data.map(item => item.basicProjectId)

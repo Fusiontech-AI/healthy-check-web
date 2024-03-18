@@ -38,7 +38,7 @@
           </div>
           <div>
             <ProTable ref="proTableRef" :columns="tableColumns" :toolButton="false" :data="rightTableData"
-              label-position="right" :pagination="false" :max-height="rightHeight">
+              label-position="right" :pagination="false" :height="rightHeight">
 
               <template #discount="{ row, $index }">
                 <el-input v-model="row.discount" placeholder="请输入" @blur="handleSelected(row, $index, '1', '1')"
@@ -80,7 +80,8 @@
                   :disabled="props.disabled || (title == '团体加项' && row.addFlag == '1') || (title == '个人加项' && row.addFlag == '2') || row.checkStatus == 1 || row.payStatus == 1"
                   v-if="!row.required">删除</el-button>
                 <ChangeItem v-if="row.required" :formValue="formValue" :row="row" :rightTableData="rightTableData"
-                  :index="$index" :handleSelected="handleSelected" :disabled="props.disabled" />
+                  :index="$index" :handleSelected="handleSelected"
+                  :disabled="props.disabled || (title == '团体加项' && row.addFlag == '1') || (title == '个人加项' && row.addFlag == '2') || row.checkStatus == 1 || row.payStatus == 1" />
               </template>
             </ProTable>
           </div>
