@@ -3,8 +3,13 @@
     <el-row>
       <el-col :span="10">
         <el-card shadow="hover">
+          <div>套餐/项目检索</div>
           <div style="display: flex;align-items: center;justify-content: space-between;margin-bottom:6px ; ">
-            <div>套餐/项目检索</div>
+            <el-radio-group v-model="radio1" size="small">
+              <el-radio-button label="推荐套餐" value="推荐套餐" />
+              <el-radio-button label="职业项目" value="职业项目" />
+              <el-radio-button label="健康项目" value="健康项目" />
+            </el-radio-group>
             <el-input v-model="form.input" placeholder="请输入" suffix-icon="Search" style="width:50%;"
               :disabled="props.disabled" />
           </div>
@@ -156,7 +161,7 @@ const form = reactive({
   pageNum: 1,
   total: 0,
 })
-
+const radio1 = ref('推荐套餐')
 //获得左侧列表数据
 const getLeftProject = async () => {
   let row = []

@@ -256,7 +256,7 @@ const handleDrawerChange = async () => {
   formValue.paidPersonAmount = paidPersonAmount
   formValue.paidTeamAmount = paidTeamAmount
   formValue.personAmount = personAmount
-  const { illuminationSource, jobIlluminationType, dutyStatus, tjRegisterZybHazardBosTes } = props.formValue1
+  const { illuminationSource, jobIlluminationType, dutyStatus, tjRegisterZybHazardBosTes } = props.formValue1 || {}
   formValue.shineSource = illuminationSource
   formValue.shineType = jobIlluminationType
   formValue.dutyStatus = dutyStatus
