@@ -32,7 +32,7 @@ export const queryPackageAndProjectPages = (params: any) => {
 export const queryProjectByPackageId = (params: any) => {
   return request({
     url: `/peis/package/queryProjectByPackageId`,
-    method: 'GET',
-    params
+    method: 'post',
+    data: params
   });
 };

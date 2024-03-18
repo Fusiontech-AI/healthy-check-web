@@ -280,7 +280,7 @@ watch(() => props.formSecond, async (newV) => {
     item.basicInfoColumnZYB = basicInfoColumnZYB.value
     const { groupType, price, groupPayType, addPayType, itemDiscount, addDiscount, groupItemList, standardPrice, actualPrice, } = item
     item.regType = '2'
-    item.amountCalGroupBo = { groupType, price, groupPayType, addPayType, itemDiscount, addDiscount }
+    item.amountCalGroupBo = { groupType, price: price ? price : 100000, groupPayType, addPayType, itemDiscount, addDiscount }
     item.defaultItemList = groupItemList.map((item, i) => {
       return {
         sort: i + 1,
@@ -431,7 +431,7 @@ const handleHY = async () => {
   const { data } = await teamGroupInfo({ id })
   const { groupType, price, groupPayType, addPayType, itemDiscount, addDiscount, groupItemList, standardPrice, actualPrice, groupHazardsList } = data
   data.regType = '2'
-  data.amountCalGroupBo = { groupType, price, groupPayType, addPayType, itemDiscount, addDiscount }
+  data.amountCalGroupBo = { groupType, price: price ? price : 10000, groupPayType, addPayType, itemDiscount, addDiscount }
   data.standardAmount = standardPrice
   data.receivableAmount = actualPrice
   data.defaultItemList = groupItemList.map((item, i) => {
