@@ -271,7 +271,7 @@ const zjhInput = async (val) => {
       // total == 1 && //router.push(`/deskRegistration/medicalRegistration-childPage/groupRegistration?id=${rows[0].id}`);
       ydjHas.value = false
       total == 1 && (getDetail(rows[0].id))
-      total > 1 && (queryParams.params.credentialNumber = formValue.value.credentialNumber, dialogVisible.value = true)
+      total > 1 && (refset(), queryParams.params.credentialNumber = formValue.value.credentialNumber, dialogVisible.value = true)
       //要支持预登记
       total == 0 && (refset(), proxy?.$modal.msgWarning("此证件号无预登记信息!"), ydjHas.value = true)
     }
@@ -492,7 +492,10 @@ const getDetail = async (id) => {
 
   data.healthyCheckStatus != 0 && (preview.value = true)
   await getXm(id)
-  getBjFun()
+  //职业病/放射才调用
+  if (data.physicalType == 'FSTJ' || data.physicalType == 'ZYJKTJ') {
+    getBjFun()
+  }
 }
 //获得需要回显的项目
 const getXm = async (id) => {
@@ -631,7 +634,7 @@ const handleSC = async (i) => {
   //changeType  //1单项 2总计项 3新增 4删除 5删除全部
   //inputType  //输入类型(1折扣 2应收金额 3收费方式 4个人应收额 5单位应收额)
   const { standardAmount, discount, receivableAmount, amountCalGroupBo } = detailInfo.value
-  if (amountCalGroupBo.initFlag) {
+  if (amountCalGroupBo?.initFlag) {
     delete amountCalGroupBo.initFlag
   }
   const p = {

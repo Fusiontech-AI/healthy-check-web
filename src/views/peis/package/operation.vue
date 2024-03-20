@@ -1,5 +1,5 @@
 <template>
-  <div class="p-2">
+  <div class="p-2" v-loading="loading">
     <el-card shadow="hover">
       <div class="title">
         <div class="title-box"></div>
@@ -20,7 +20,7 @@
         套餐项目
       </div>
       <TransferFilterComplex ref="TransferFilterComplexRef" :tableHeader="tableHeader" @itemChange="itemChange"
-        :disabled="!!look" :formValue="formValue" :tableColumns="tableColumns" :leftHegiht="450" :rightHeight="385"
+        :disabled="!!look" :formValue="formValue" :tableColumns="tableColumns" :leftHegiht="450" :rightHeight="384"
         @handleHY="handleHY">
         <template #TcWh>
           <div class="mt10px">套餐金额 {{ formValue.standardAmount }}元
@@ -98,6 +98,7 @@ const tableColumns = [
     prop: 'cz'
   },
 ]
+const loading = ref(false)
 const TransferFilterComplexRef = ref(null)
 const router = useRouter();
 const route = useRoute();
@@ -341,6 +342,7 @@ const rules = ref({
 const { id, look } = route.query
 //获得详情
 const getDetail = async () => {
+  loading.value = true
   const { data } = await packageDetail({ id })
   //危害因素重新赋值
   // 其他放射14999
@@ -348,29 +350,32 @@ const getDetail = async () => {
   // 其他物理13999
   // 其他粉尘11999
   // 其他化学12999
-  formValue.hazardsBoList = data.tjPackageHazardsVoList.map(item => {
-    if (item.hazardFactorsCode == 14999) {
-      formValue.fs = item.hazardFactorsOther
-    }
-    if (item.hazardFactorsCode == 15999) {
-      formValue.sw = item.hazardFactorsOther
-    }
-    if (item.hazardFactorsCode == 13999) {
-      formValue.wl = item.hazardFactorsOther
-    }
-    if (item.hazardFactorsCode == 11999) {
-      formValue.fc = item.hazardFactorsOther
-    }
-    if (item.hazardFactorsCode == 12999) {
-      formValue.hx = item.hazardFactorsOther
-    }
-    return item.hazardFactorsCode
-  })
   for (const key in data) {
     formValue[key] = data[key]
   }
-  getBjFun()
   getXm()
+  if (data.tjType == 'ZYJKTJ' || data.tjType == 'FSTJ') {
+    formValue.hazardsBoList = data.tjPackageHazardsVoList?.map(item => {
+      if (item.hazardFactorsCode == 14999) {
+        formValue.fs = item.hazardFactorsOther
+      }
+      if (item.hazardFactorsCode == 15999) {
+        formValue.sw = item.hazardFactorsOther
+      }
+      if (item.hazardFactorsCode == 13999) {
+        formValue.wl = item.hazardFactorsOther
+      }
+      if (item.hazardFactorsCode == 11999) {
+        formValue.fc = item.hazardFactorsOther
+      }
+      if (item.hazardFactorsCode == 12999) {
+        formValue.hx = item.hazardFactorsOther
+      }
+      return item.hazardFactorsCode
+    })
+    getBjFun()
+  }
+  loading.value = false
 }
 //获得需要回显的项目
 const getXm = async (val, type) => {

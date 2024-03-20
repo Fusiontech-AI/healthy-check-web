@@ -1,16 +1,16 @@
 <template>
   <div class="tabs">
     <el-tabs type="border-card" tab-position="left" v-model="activeName" @tab-click="handleClick">
-      <el-tab-pane :label="item.groupName" :name="item.groupName" v-for="item in props.formSecond">
+      <el-tab-pane :label="item.groupName" :name="item.groupName" v-for="(item, i) in props.formSecond">
         <SearchForm :search-param="item" :columns="columsFun(item)" :searchCol="4" :show-action-group="false"
           :rules="rulesZYB" :disabled="preview"
           v-if="props.form.physicalType == 'ZYJKTJ' || props.form.physicalType == 'FSTJ'">
         </SearchForm>
 
         <TransferFilterComplex ref="TransferFilterComplexRef" :tableHeader="tableHeader"
-          @itemChange="(val) => itemChange(val, item)" :isRw="true" :formValue="item" :disabled="preview"
+          @itemChange="(val) => itemChange(val, item, i)" :isRw="true" :formValue="item" :disabled="preview"
           @handleHY="handleHY" :tableColumns="tableColumns" :leftHegiht="374"
-          :rightHeight="(props.form.physicalType == 'ZYJKTJ' || props.form.physicalType == 'FSTJ') ? 316 : 350">
+          :rightHeight="(props.form.physicalType == 'ZYJKTJ' || props.form.physicalType == 'FSTJ') ? 336 : 350">
           <template #TcWh v-if="props.form.physicalType == 'ZYJKTJ' || props.form.physicalType == 'FSTJ'">
             <div class="flex items-center h35px">
               <span>必检项目:</span> <el-checkbox-group v-model="item.bjxmList" :disabled="true" class="mt3px">
@@ -390,6 +390,7 @@ const rules = reactive({
 //tab切换
 const handleClick = (tab, event) => {
   let index = getIndex(tab.props.label)
+  getBjFun(props.formSecond[index])
   TransferFilterComplexRef.value?.[index].getRemote()
 }
 //失焦事件
@@ -411,28 +412,31 @@ const getIndex = (name) => {
   })
   return index
 }
-const itemChange = (val, item) => {
-  const { rightTableData, formValue } = val
-  item.groupItemList = rightTableData.map(item => {
-    return {
-      itemId: item.id,
-      itemName: item.combinProjectName,
-      combinProjectCode: item.combinProjectCode,
-      standardPrice: item.standardAmount,
-      actualPrice: item.receivableAmount,
-      discount: item.discount,
-      include: item.tcFlag == '1' ? '1' : '0',
-      //type	1套餐 2项目
-      //include	是否套餐包含的项目0是1否
-      // tcFlag	是否套餐项目标志1是
-      required: item.required,
-    }
-  })
-  let { standardAmount, receivableAmount, discount } = formValue
-  item.standardPrice = standardAmount
-  item.actualPrice = receivableAmount
-  item.discount = discount
-  getBjFun(item)
+const itemChange = (val, item, i) => {
+  const index = getIndex(activeName.value)
+  if (index == i) {
+    const { rightTableData, formValue } = val
+    item.groupItemList = rightTableData.map(item => {
+      return {
+        itemId: item.id,
+        itemName: item.combinProjectName,
+        combinProjectCode: item.combinProjectCode,
+        standardPrice: item.standardAmount,
+        actualPrice: item.receivableAmount,
+        discount: item.discount,
+        include: item.tcFlag == '1' ? '1' : '0',
+        //type	1套餐 2项目
+        //include	是否套餐包含的项目0是1否
+        // tcFlag	是否套餐项目标志1是
+        required: item.required,
+      }
+    })
+    let { standardAmount, receivableAmount, discount } = formValue
+    item.standardPrice = standardAmount
+    item.actualPrice = receivableAmount
+    item.discount = discount
+    getBjFun(item)
+  }
 }
 //还原
 const handleHY = async () => {

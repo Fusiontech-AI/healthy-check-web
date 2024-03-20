@@ -87,6 +87,7 @@ import CardItem from './components/CardItem.vue';
 import {
   teamDeptList
 } from '@/api/groupInspectionManagement/unitMsg/index';
+import { reactive } from 'vue'
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 
 const queryParams = reactive({
@@ -94,7 +95,7 @@ const queryParams = reactive({
   times: [],
   taskName: ''
 })
-const formObj = {
+const formObj = reactive({
   groupList: [{
     groupPayType: '1',
     groupType: '1',
@@ -107,7 +108,7 @@ const formObj = {
   signDate: proxy?.$moment().format('YYYY-MM-DD'),
   beginDate: proxy?.$moment().format('YYYY-MM-DD'),
   endDate: proxy?.$moment().format('YYYY-MM-DD'),
-}
+})
 const form = ref({ ...formObj });
 const searchFormRef = ref()
 const teamIdList = ref<any[]>([])
@@ -314,6 +315,11 @@ const handleX1 = async (bloo) => {
   searchFormRef.value.validate(async (valid: any, fields: any) => {
     if (valid) {
       if (activeName.value == 'first') {
+        if (preview.value) {
+          activeName.value = 'second'
+          getSecondDetail()
+          return
+        }
         form.value.groupList.forEach(item => {
           if (item.isSyncProject1) {
             item.isSyncProject = '0'
@@ -343,6 +349,9 @@ const handleX1 = async (bloo) => {
         return
       }
       if (activeName.value == 'second') {
+        if (preview.value) {
+          return activeName.value = 'third'
+        }
         //调用校验接口
         await handleJY2()
         if (formSecond.value.length == 0) {
@@ -498,16 +507,7 @@ const handleXZRW = async () => {
 //数据格式化
 const handleGSH = () => {
   preview.value = false
-  form.value = formObj
-  form.value.groupList = [{
-    groupPayType: '1',
-    groupType: '1',
-    gender: '2',
-    marriage: '2',
-    addPayType: '0',
-    itemDiscount: 100,
-    addDiscount: 100,
-  }]
+  form.value = { ...formObj }
   activeName.value = 'first'
   searchFormRef.value.resetFields()
 }
