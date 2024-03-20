@@ -22,7 +22,7 @@
     </div>
     <TransferFilterComplex @itemChange="itemChange" :disabled="false" :formValue="formValue" :tableHeader="tableHeader"
       ref="TransferFilterComplexRef" :isRw="true" :tableColumns="isTuanJian ? tableColumnsTj : tableColumnsGj"
-      :title="title" :leftHegiht="301" :rightHeight="640" @handleHY="handleHY">
+      :title="title" :leftHegiht="271" :rightHeight="610" @handleHY="handleHY">
       <template #yiShanChu>
         <el-card shadow="hover" class="mt10px">
           <div class="mb6px">已删除项目（共{{ tableData.length }}项）</div>
@@ -34,6 +34,14 @@
             <el-table-column prop="receivableAmount" label="实际金额" />
           </el-table>
         </el-card>
+      </template>
+      <template #TcWh v-if="formValue.physicalType == 'ZYJKTJ' || formValue.physicalType == 'FSTJ'">
+        <div class="flex items-center h35px">
+          <span>必检项目:</span> <el-checkbox-group v-model="formValue.bjxmList" :disabled="true" class="mt3px">
+            <el-checkbox :label="row.itemId" :value="row.itemId" v-for="row in formValue.BJList">{{ row.name
+              }}</el-checkbox>
+          </el-checkbox-group>
+        </div>
       </template>
     </TransferFilterComplex>
 
@@ -66,6 +74,9 @@
 </template>
 
 <script setup name="selectXmItem" lang="tsx">
+import {
+  queryBasicListByCombinIds
+} from "@/api/peis/package";
 import TransferFilterComplex from '@/components/TransferFilterComplex'
 const props = defineProps({
   // title
@@ -256,17 +267,19 @@ const handleDrawerChange = async () => {
   formValue.paidPersonAmount = paidPersonAmount
   formValue.paidTeamAmount = paidTeamAmount
   formValue.personAmount = personAmount
-  const { illuminationSource, jobIlluminationType, dutyStatus, tjRegisterZybHazardBosTes } = props.formValue1 || {}
+  const { illuminationSource, jobIlluminationType, dutyStatus, tjRegisterZybHazardBosTes, physicalType, groupHazardsList, BJList } = props.formValue1 || {}
   formValue.shineSource = illuminationSource
   formValue.shineType = jobIlluminationType
   formValue.dutyStatus = dutyStatus
-  formValue.hazardsBoList = tjRegisterZybHazardBosTes
+  formValue.groupHazardsList = groupHazardsList
+  formValue.physicalType = physicalType
+  formValue.BJList = BJList
   drawerVisible.value = true
   await nextTick()
   TransferFilterComplexRef.value.defaultItems()
+  TransferFilterComplexRef.value.getRemote()
 
 }
-
 const confirmClick = () => {
   const {
     receivableAmount,
@@ -380,14 +393,15 @@ const handleHY = () => {
     paidPersonAmount,
     paidTeamAmount,
     personAmount } = props.detailInfoClone
+
   formValue.defaultItemList = dataSource.map((item, i) => {
     return {
       sort: i + 1,
       payType: item.payMode,//变更类型(0个人 1单位 2混合支付)
       payStatus: item.payStatus,//缴费状态（0：未缴费，1：已缴费，2：申请退费中，3：已退费，）
       tcFlag: item.projectType,//是否套餐'0'是'1'否
-      teamAmount: 0,//单位应收金额
-      personAmount: item.receivableAmount,//个人应收金额
+      teamAmount: item.teamAmount,//单位应收金额
+      personAmount: item.personAmount,//个人应收金额
       combinProjectCode: '',
       combinProjectName: item.combinProjectName,
       standardAmount: item.standardAmount,
@@ -412,6 +426,15 @@ const handleHY = () => {
   formValue.personAmount = personAmount
   TransferFilterComplexRef.value.defaultItems()
 }
+//匹配必检项目的勾选
+watch(() => dataSource.value, async (newV) => {
+  const arr = newV.map(item => item.combinProjectId || item.id)
+  if (arr.length == 0) return (formValue.bjxmList = [])
+  const { data } = await queryBasicListByCombinIds(arr)
+  //匹配勾选
+  formValue.bjxmList = data.map(item => item.basicProjectId)
+  props.formValue1.bjxmList = formValue.bjxmList
+})
 defineExpose({ handleDrawerChange })
 </script>
 

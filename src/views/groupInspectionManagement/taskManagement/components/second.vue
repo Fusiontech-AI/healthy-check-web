@@ -90,6 +90,7 @@ const tableColumns = [
     prop: 'cz'
   },
 ]
+const bus_job_illumination_source_option = ref([])
 const TransferFilterComplexRef = ref(null)
 const activeName = ref('')
 const basicInfoColumn = ref([
@@ -119,59 +120,74 @@ const basicInfoColumn = ref([
 
 ])
 //根据危害因素编码、在岗状态查询必检项目
-const getBJList = async () => {
+const getBJList = async (val, type) => {
+  if (type == '照射源') {
+    if (!val) return bus_job_illumination_source_option.value = []
+    bus_job_illumination_source_option.value = bus_job_illumination_source.value.filter((item: any) => item.busType === val)
+  }
   const index = getIndex(activeName.value)
-  const { hazardsBoList, dutyStatus, shineSource, shineType } = props.formSecond[index]
-  if (props.form.physicalType == 'FSTJ') {
-    if (hazardsBoList.length == 0 || !dutyStatus || !shineSource || !shineType) {
-      props.formSecond[index].defaultItemList = []
-      props.formSecond[index].BJList = []
-      TransferFilterComplexRef.value[index].defaultItems()
-      return
-    }
-  } else {
-    if (hazardsBoList.length == 0 || !dutyStatus) {
-      props.formSecond[index].defaultItemList = []
-      props.formSecond[index].BJList = []
-      TransferFilterComplexRef.value[index].defaultItems()
-      return
-    }
-  }
-  await getBjFun(props.formSecond[index])
-
-  //查询必检组合项目
-  const k = {
-    itemIdList: props.formSecond[index].BJList.map(item => item.itemId),
-    combinProjectName: ''
-  }
-  const data1 = await queryCompulsoryInspectionProject(k)
-  //required为true的放右边
-  const arr = data1.data.filter(item => item.required)
-  arr.forEach(item => item.combinProjectId = item.id)
-  props.formSecond[index].defaultItemList = arr.map((item, i) => {
-    return {
-      sort: i + 1,
-      payType: '1',//变更类型(0个人 1单位 2混合支付)
-      payStatus: '0',//缴费状态（0：未缴费，1：已缴费，2：申请退费中，3：已退费，）
-      tcFlag: '1',//是否套餐'0'是'1'否
-      teamAmount: 0,//单位应收金额
-      personAmount: item.standardAmount,//个人应收金额
-      ...item,
-      id: item.combinProjectId
+  const { hazardsBoList, dutyStatus, shineSource, shineType, fs, sw, wl, fc, hx } = props.formSecond[index]
+  const tjPackageHazardsBoList = []
+  hazardsBoList.forEach(item => {
+    if (item == '14999') {
+      tjPackageHazardsBoList.push({
+        hazardFactorsOther: fs,
+        hazardFactorsCode: item
+      })
+    } else if (item == '15999') {
+      tjPackageHazardsBoList.push({
+        hazardFactorsOther: sw,
+        hazardFactorsCode: item
+      })
+    } else if (item == '13999') {
+      tjPackageHazardsBoList.push({
+        hazardFactorsOther: wl,
+        hazardFactorsCode: item
+      })
+    } else if (item == '11999') {
+      tjPackageHazardsBoList.push({
+        hazardFactorsOther: fc,
+        hazardFactorsCode: item
+      })
+    } else if (item == '12999') {
+      tjPackageHazardsBoList.push({
+        hazardFactorsOther: hx,
+        hazardFactorsCode: item
+      })
+    } else {
+      tjPackageHazardsBoList.push({
+        hazardFactorsOther: '',
+        hazardFactorsCode: item
+      })
     }
   })
-  //重置数据
-  TransferFilterComplexRef.value[index].defaultItems()
-  ////查询组合项目下基础项目信息看必检项目有没有勾上
-  getXmNews(props.formSecond[index])
-  //触发一次算费
-  TransferFilterComplexRef.value[index].handleSelected({}, 0, '1', '1')
+  props.formSecond[index].groupHazardsList = tjPackageHazardsBoList
+  // if (props.form.physicalType == 'FSTJ') {
+  //   if (hazardsBoList.length == 0 || !dutyStatus || !shineSource || !shineType) {
+  //     props.formSecond[index].defaultItemList = []
+  //     props.formSecond[index].BJList = []
+  //     TransferFilterComplexRef.value[index].defaultItems(props.formSecond[index])
+  //     TransferFilterComplexRef.value[index].getRemote()
+  //     return
+  //   }
+  // } else {
+  //   if (hazardsBoList.length == 0 || !dutyStatus) {
+  props.formSecond[index].defaultItemList = []
+  props.formSecond[index].BJList = []
+  TransferFilterComplexRef.value[index].defaultItems(props.formSecond[index])
+  TransferFilterComplexRef.value[index].getRemote()
+  // return
+  // }
+  // }
+  // await getBjFun(props.formSecond[index])
+  //查询一次列表
+  // TransferFilterComplexRef.value[index].getRemote()
 }
 //获得必检项目
 const getBjFun = async (row) => {
   if (props.form.physicalType != 'ZYJKTJ' && props.form.physicalType != 'FSTJ') return
   const { hazardsBoList, dutyStatus, shineSource, shineType } = row
-  if (hazardsBoList.length == 0) return
+  if (hazardsBoList.length == 0 || !dutyStatus) return (row.BJList = [])
   const p = {
     codeList: hazardsBoList,
     dutyStatus,
@@ -180,14 +196,16 @@ const getBjFun = async (row) => {
   }
   const { data } = await queryItemByFactorsCodeAndDutyStauts(p)
   row.BJList = data
+  getXmNews(row)
 }
 //查询组合项目下基础项目信息
 const getXmNews = async (row) => {
-  const arr = row.defaultItemList.map(item => item.combinProjectId || item.id)
-  if (arr.length == 0) return
+  const arr = row.groupItemList.map(item => item.itemId)
+  if (arr.length == 0) return (row.bjxmList = [])
+  const index = getIndex(activeName.value)
   const { data } = await queryBasicListByCombinIds(arr)
   //匹配勾选
-  row.bjxmList = data.map(item => item.basicProjectId)
+  props.formSecond[index].bjxmList = data.map(item => item.basicProjectId)
 }
 const basicInfoColumnZYB = ref([
   {
@@ -210,12 +228,12 @@ const basicInfoColumnZYB = ref([
     enum: bus_shine_source,
     search: { el: 'select', },
     isShowSearch: false,
-    change: getBJList
+    change: (val) => getBJList(val, '照射源')
   },
   {
     label: '职业照射种类',
     prop: 'shineType',
-    enum: bus_job_illumination_source,
+    enum: bus_job_illumination_source_option,
     search: { el: 'select', },
     isShowSearch: false,
     change: getBJList
@@ -277,10 +295,11 @@ watch(() => props.formSecond, async (newV) => {
       }
       return row.hazardFactorsCode
     })
+    item.physicalType = props.form.physicalType
     item.basicInfoColumnZYB = basicInfoColumnZYB.value
     const { groupType, price, groupPayType, addPayType, itemDiscount, addDiscount, groupItemList, standardPrice, actualPrice, } = item
     item.regType = '2'
-    item.amountCalGroupBo = { groupType, price: price ? price : 100000, groupPayType, addPayType, itemDiscount, addDiscount }
+    item.amountCalGroupBo = { groupType, price: price ? price : 100000, groupPayType, addPayType, itemDiscount, addDiscount, initFlag: '1' }
     item.defaultItemList = groupItemList.map((item, i) => {
       return {
         sort: i + 1,
@@ -303,12 +322,13 @@ watch(() => props.formSecond, async (newV) => {
   }))
   const { groupName } = newV?.[0] || {}
   activeName.value = groupName
-  getBjFun(newV?.[0])
-  getXmNews(newV?.[0])
+  // getBjFun(newV?.[0])
+  // getXmNews(newV?.[0])
   await nextTick()
   TransferFilterComplexRef.value?.forEach(item => {
     item.defaultItems()
   })
+  TransferFilterComplexRef.value?.[0].getRemote()
 })
 
 const rulesZYB = reactive(
@@ -370,21 +390,16 @@ const rules = reactive({
 //tab切换
 const handleClick = (tab, event) => {
   let index = getIndex(tab.props.label)
-  // const { groupType, price, groupPayType, addPayType, itemDiscount, addDiscount, groupItemList } = props.formSecond[index]
-  // props.formSecond[index].amountCalGroupBo = {
-  //   groupType, price, groupPayType, addPayType, itemDiscount, addDiscount
-  // }
-  // props.formSecond[index].defaultItemList = groupItemList
-  getBjFun(props.formSecond[index])
-  ////查询组合项目下基础项目信息看必检项目有没有勾上
-  getXmNews(props.formSecond[index])
+  TransferFilterComplexRef.value?.[index].getRemote()
 }
 //失焦事件
 const handleBlur = (val) => {
   let index = getIndex(activeName.value)
-  props.formSecond[index].standardAmount = props.formSecond[index].standardPrice
-  props.formSecond[index].receivableAmount = props.formSecond[index].actualPrice
-  TransferFilterComplexRef.value[index].handleSelected({}, '', '2', val)
+  const { groupType, price, groupPayType, addPayType, itemDiscount, addDiscount, actualPrice, standardPrice } = props.formSecond[index]
+  props.formSecond[index].amountCalGroupBo = { groupType, price: price ? price : 100000, groupPayType, addPayType, itemDiscount, addDiscount, initFlag: '1' }
+  props.formSecond[index].standardAmount = standardPrice
+  props.formSecond[index].receivableAmount = actualPrice
+  TransferFilterComplexRef.value[index].handleSelected(props.formSecond[index], '', '2', val)
 }
 //根据tabName返回索引
 const getIndex = (name) => {
@@ -397,7 +412,7 @@ const getIndex = (name) => {
   return index
 }
 const itemChange = (val, item) => {
-  const { rightTableData } = val
+  const { rightTableData, formValue } = val
   item.groupItemList = rightTableData.map(item => {
     return {
       itemId: item.id,
@@ -413,10 +428,11 @@ const itemChange = (val, item) => {
       required: item.required,
     }
   })
-  let { standardAmount, receivableAmount, discount } = item
+  let { standardAmount, receivableAmount, discount } = formValue
   item.standardPrice = standardAmount
   item.actualPrice = receivableAmount
   item.discount = discount
+  getBjFun(item)
 }
 //还原
 const handleHY = async () => {
@@ -431,7 +447,7 @@ const handleHY = async () => {
   const { data } = await teamGroupInfo({ id })
   const { groupType, price, groupPayType, addPayType, itemDiscount, addDiscount, groupItemList, standardPrice, actualPrice, groupHazardsList } = data
   data.regType = '2'
-  data.amountCalGroupBo = { groupType, price: price ? price : 10000, groupPayType, addPayType, itemDiscount, addDiscount }
+  data.amountCalGroupBo = { groupType, price: price ? price : 10000, groupPayType, addPayType, itemDiscount, addDiscount, initFlag: '1' }
   data.standardAmount = standardPrice
   data.receivableAmount = actualPrice
   data.defaultItemList = groupItemList.map((item, i) => {
@@ -451,6 +467,7 @@ const handleHY = async () => {
       required: item.required
     }
   })
+  data.hazardsBoList = []
   data.groupHazardsList == groupHazardsList.map(row => {
     if (row.hazardFactorsCode == 14999) {
       props.formSecond[index].fs = row.hazardFactorsOther
@@ -467,10 +484,11 @@ const handleHY = async () => {
     if (row.hazardFactorsCode == 12999) {
       props.formSecond[index].hx = row.hazardFactorsOther
     }
+    data.hazardsBoList.push(row.hazardFactorsCode)
     return row.hazardFactorsCode
   })
 
-  props.formSecond[index] = data
+  props.formSecond[index] = Object.assign({}, props.formSecond[index], data)
   TransferFilterComplexRef.value[index].defaultItems(data)
 }
 //根据其他危害因素展示

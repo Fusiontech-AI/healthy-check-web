@@ -3,14 +3,16 @@
     <el-row>
       <el-col :span="10">
         <el-card shadow="hover">
-          <div>套餐/项目检索</div>
+          <div v-if="formValue.physicalType == 'ZYJKTJ' || formValue.physicalType == 'FSTJ'">套餐/项目检索</div>
           <div style="display: flex;align-items: center;justify-content: space-between;margin-bottom:6px ; ">
-            <el-radio-group v-model="radio1" size="small">
+            <div v-if="formValue.physicalType != 'ZYJKTJ' && formValue.physicalType != 'FSTJ'">套餐/项目检索</div>
+            <el-radio-group v-model="radio1" size="small" @change="radioChange"
+              v-if="formValue.physicalType == 'ZYJKTJ' || formValue.physicalType == 'FSTJ'">
               <el-radio-button label="推荐套餐" value="推荐套餐" />
               <el-radio-button label="职业项目" value="职业项目" />
               <el-radio-button label="健康项目" value="健康项目" />
             </el-radio-group>
-            <el-input v-model="form.input" placeholder="请输入" suffix-icon="Search" style="width:50%;"
+            <el-input v-model="form.name" placeholder="请输入" suffix-icon="Search" style="width:50%;"
               :disabled="props.disabled" />
           </div>
           <div>
@@ -48,7 +50,7 @@
               <template #discount="{ row, $index }">
                 <el-input v-model="row.discount" placeholder="请输入" @blur="handleSelected(row, $index, '1', '1')"
                   oninput="value=value.replace(/[^\d.]/g, '').replace(/\.{2,}/g, '.').replace('.', '$#$').replace(/\./g, '').replace('$#$', '.').replace(/^(\-)*(\d+)\.(\d\d).*$/, '$1$2.$3').replace(/^\./g, '')"
-                  :disabled="props.disabled || (title == '团体加项' && row.addFlag == '1') || (title == '个人加项' && row.addFlag == '2')" />
+                  :disabled="props.disabled || (title == '团体加项' && row.addFlag == '1') || (title == '个人加项' && row.addFlag == '2') || (title == '个人加项' && row.payType == '1')" />
               </template>
 
               <template #receivableAmount="{ row, $index }">
@@ -61,7 +63,7 @@
               <template #personAmount="{ row, $index }">
                 <el-input v-model="row.personAmount" placeholder="请输入" @blur="handleSelected(row, $index, '1', '4')"
                   oninput="value=value.replace(/[^\d.]/g, '').replace(/\.{2,}/g, '.').replace('.', '$#$').replace(/\./g, '').replace('$#$', '.').replace(/^(\-)*(\d+)\.(\d\d).*$/, '$1$2.$3').replace(/^\./g, '')"
-                  :disabled="props.disabled || (title == '团体加项' && row.addFlag == '1') || (title == '个人加项' && row.addFlag == '2') || (title == '团体加项' && row.addFlag == '2' && row.payType == 1)" />
+                  :disabled="props.disabled || (title == '团体加项' && row.addFlag == '1') || (title == '个人加项' && row.addFlag == '2') || (title == '团体加项' && row.addFlag == '2' && row.payType == 1) || (title == '个人加项' && row.payType == '1')" />
               </template>
               <!-- 团费 -->
 
@@ -83,9 +85,9 @@
               <template #cz="{ row, $index }">
                 <el-button class="button" @click="handleSelected(row, $index, '4')" type="primary" link
                   :disabled="props.disabled || (title == '团体加项' && row.addFlag == '1') || (title == '个人加项' && row.addFlag == '2') || row.checkStatus == 1 || row.payStatus == 1"
-                  v-if="!row.required">删除</el-button>
-                <ChangeItem v-if="row.required" :formValue="formValue" :row="row" :rightTableData="rightTableData"
-                  :index="$index" :handleSelected="handleSelected"
+                  v-if="!row.required || isRw">删除</el-button>
+                <ChangeItem v-if="row.required && !isRw" :formValue="formValue" :row="row"
+                  :rightTableData="rightTableData" :index="$index" :handleSelected="handleSelected"
                   :disabled="props.disabled || (title == '团体加项' && row.addFlag == '1') || (title == '个人加项' && row.addFlag == '2') || row.checkStatus == 1 || row.payStatus == 1" />
               </template>
             </ProTable>
@@ -101,7 +103,7 @@
 <script setup lang="tsx" name="TransferFilterComplex">
 import { debounce, isEmpty } from 'lodash'
 import type { TabsPaneContext } from 'element-plus'
-import { combinationProjectList, commonDynamicBilling, queryPackageAndProjectPages, queryProjectByPackageId } from '@/api/peis/projectPort'
+import { combinationProjectList, commonDynamicBilling, queryPackageAndProjectPages, queryProjectByPackageId, queryOccupationalPackage, queryOccupationalProject } from '@/api/peis/projectPort'
 import ChangeItem from "@/views/peis/package/changeItem";
 import { accAdd } from '@/utils'
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
@@ -156,7 +158,7 @@ const queryObj = reactive({
   personAmount: 0,
 })
 const form = reactive({
-  input: '',
+  name: '',
   pageSize: 10,
   pageNum: 1,
   total: 0,
@@ -164,26 +166,53 @@ const form = reactive({
 const radio1 = ref('推荐套餐')
 //获得左侧列表数据
 const getLeftProject = async () => {
+  const { formValue, isRw } = props
+  let { physicalType, groupHazardsList, shineSource, shineType, BJList } = formValue
   let row = []
   let tota = 0
-  if (props.isRw) {
-    //查询套餐和项目混合分页的
-    const { rows, total } = await queryPackageAndProjectPages({ ...form, name: '' })
-    row = rows
-    tota = total
+  if (isRw) {
+    //职业病 / 放射
+    if ((physicalType == "ZYJKTJ" || physicalType == 'FSTJ') && radio1.value != '健康项目') {
+      if (radio1.value == '职业项目') {
+        shineSource = undefined
+        shineType = undefined
+        groupHazardsList = undefined
+      }
+      const { rows, total } = await queryOccupationalPackage({ ...form, physicalType, shineSource, shineType, groupHazardsList })
+      row = rows
+      tota = total
+    } else if (radio1.value == '健康项目') {
+      const itemIdList = BJList.map(item => item.itemId)
+      //职业病 / 放射 的健康项目
+      if (itemIdList.length == 0) return
+      const { rows, total } = await queryOccupationalProject({ ...form, itemIdList, combinProjectName: form.name })
+      rows.forEach(item => {
+        item.name = item.combinProjectName
+        item.receivableAmount = item.standardAmount
+      })
+      row = rows
+      tota = total
+    } else {
+      //查询套餐和项目混合分页的健康的登记,任务,非职业病
+      const { rows, total } = await queryPackageAndProjectPages({ ...form })
+      row = rows
+      tota = total
+    }
+
   } else {
-    //只查询单项的
-    const { rows, total } = await combinationProjectList({ combinSimpleName: form.input, ...form })
+    //只查询单项的套餐维护用的
+    const { rows, total } = await combinationProjectList({ combinSimpleName: form.name, ...form })
     row = rows
     tota = total
   }
 
+  if (tableDataClone.value.length == tota) return
   tableData.value = [...tableData.value, ...row]
   tableDataClone.value = [...tableDataClone.value, ...row]
   form.total = tota
   filterList()
 }
-getLeftProject()
+// getLeftProject()
 const handleClick = (tab: TabsPaneContext, event: Event) => {
   console.log(tab, event)
 }
@@ -207,7 +236,7 @@ const handleSelected = async (row, index, changeType, inputType) => {
   //体检套餐维护和选择套餐单项的不一样所以这里字段要转一下
   row.combinProjectName = row.name ?? row.combinProjectName
   row.combinProjectCode = row.pySimpleCode ?? row.combinProjectCode
-  const { standardAmount, discount, combinProjectCode, combinProjectName, id, type, addFlag, payType, originId } = row
+  const { standardAmount, discount, combinProjectCode, combinProjectName, id, type, addFlag, payType, originId, checkType } = row
   //changeType  //1单项 2总计项 3新增 4删除 5删除全部
   //inputType  //输入类型(1折扣 2应收金额 3收费方式 4个人应收额 5单位应收额)
   const sort = changeType ? index + 1 : 1
@@ -232,7 +261,7 @@ const handleSelected = async (row, index, changeType, inputType) => {
       p.amountCalculationItemBos = rightTableData.value
     }
     //状态已检查和已缴费的不允许删除   还有必检项目不能删
-    p.amountCalculationItemBos = p.amountCalculationItemBos.filter(item => item.checkStatus != 1 && item.payStatus != 1 && !item.required)
+    p.amountCalculationItemBos = p.amountCalculationItemBos.filter(item => item.checkStatus != 1 && item.payStatus != 1 && (!item.required || props.isRw))
   } else if (changeType == '3' || changeType == '4') {
     //新增还是删除
     if (props.isRw && type == 1) {
@@ -251,6 +280,7 @@ const handleSelected = async (row, index, changeType, inputType) => {
           receivableAmount,
           standardAmount,
           addFlag,
+          checkType
         } = item
         const tcFlag = isEmpty(tcObj.value) ? "0" : '1'
         zxList.push(id)
@@ -266,7 +296,8 @@ const handleSelected = async (row, index, changeType, inputType) => {
           teamAmount: payType != '0' ? receivableAmount : 0,
           personAmount: payType == '0' ? receivableAmount : 0,
           addFlag,
-          originId: null
+          originId: null,
+          checkType
         })
       })
       //第一次选的则为套餐后面的则为加项
@@ -287,7 +318,8 @@ const handleSelected = async (row, index, changeType, inputType) => {
         teamAmount: payType != '0' ? standardAmount : 0,
         personAmount: payType == '0' ? standardAmount : 0,
         addFlag,
-        originId
+        originId,
+        checkType
       })
     }
 
@@ -315,6 +347,7 @@ const handleSelected = async (row, index, changeType, inputType) => {
   for (const key in queryObj) {
     p[key] = props.formValue[key]
   }
+
   const { data } = await commonDynamicBilling(p)
   rightTableData.value = data.amountCalculationItemVos
   for (const key in queryObj) {
@@ -351,10 +384,9 @@ watch(() => rightTableData.value, (newV) => {
     props.formValue.packageId = tcObj.value.id
     props.formValue.packageName = tcObj.value.name
   }
-  emit('itemChange', { rightTableData: newV })
+  emit('itemChange', { rightTableData: newV, formValue: props.formValue })
 })
-watch(() => form.input, (newVal) => {
-  form.pageNum = 1
+watch(() => form.name, (newVal) => {
   getRemote()
 })
 
@@ -373,6 +405,7 @@ const defaultItems = (data) => {
     return item.itemId
   })
   tcObj.value = { id: packageId, name: packageName, zxList }
+
   rightTableData.value = defaultItemList
 }
 
@@ -382,12 +415,16 @@ const handleHY = () => {
 }
 
 const getRemote = debounce(() => {
+  form.pageNum = 1
   tableData.value = []
   tableDataClone.value = []
   getLeftProject()
 }, 500)
-
-defineExpose({ handleSelected, defaultItems })
+//radioChange
+const radioChange = () => {
+  getRemote()
+}
+defineExpose({ handleSelected, defaultItems, getRemote })
 </script>
 
 <style scoped lang="scss">

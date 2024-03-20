@@ -9,7 +9,7 @@
             </div>
             <div>
               <el-button round type="primary" v-if="ydjHas" @click="handleDJ">新增</el-button>
-              <el-button round @click="formValue = formObj; detailInfo = info"
+              <el-button round @click="refset('清空')"
                 v-if="!formValue.healthyCheckStatus || formValue.healthyCheckStatus == 0">清空</el-button>
               <el-button round @click="preview = false" v-if="id && formValue.healthyCheckStatus != 0 && preview"
                 type="primary">编辑</el-button>
@@ -167,7 +167,7 @@
 
           <template #operation="{ row, $index }">
             <el-button type="danger" round @click="handleSC($index)"
-              :disabled="row.checkStatus == 1 || row.payStatus == 1 || row.required">删除</el-button>
+              :disabled="row.checkStatus == 1 || row.payStatus == 1">删除</el-button>
           </template>
         </ProTable>
       </el-card>
@@ -208,23 +208,27 @@ import {
 import { accSub, accAdd, getBirthday, getCurrentAgeByBirthDate, getSex } from '@/utils'
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 import type { TabsPaneContext } from 'element-plus'
-const formObj = {
-  credentialNumber: '', //'420117199507186555',
-  // phone: '18571714455',
-  // name: '123',
-  // checkType: '11',
-  // reserveTimeArr: [],
-  // birthday: '1995-07-18 00:00:00',
-  // age: 28,
-  // gender: '0',
-  // physicalType: 'JKTJ',
-  credentialType: '0',
-  payType: '1',
-  marriageStatus: '2',
-  checkType: '11',
-  taskId: ''
-}
-const formValue = ref<any>(formObj) // 基本信息绑定的值
+const formObj = reactive(
+  {
+    credentialNumber: '', //'420117199507186555',
+    // phone: '18571714455',
+    // name: '123',
+    // checkType: '11',
+    // reserveTimeArr: [],
+    // birthday: '1995-07-18 00:00:00',
+    // age: 28,
+    // gender: '0',
+    // physicalType: 'JKTJ',
+    credentialType: '0',
+    payType: '1',
+    marriageStatus: '2',
+    checkType: '11',
+    taskId: '',
+    teamId: '',
+    tjRegisterZybHazardBosTes: []
+  }
+)
+const formValue = ref<any>({ ...formObj }) // 基本信息绑定的值
 const teamIdList = ref<any>([]) //单位列表
 const taskList = ref<any>([]) //任务列表
 const groupList = ref<any>([]) //分组列表
@@ -269,7 +273,7 @@ const zjhInput = async (val) => {
       total == 1 && (getDetail(rows[0].id))
       total > 1 && (queryParams.params.credentialNumber = formValue.value.credentialNumber, dialogVisible.value = true)
       //要支持预登记
-      total == 0 && (refset(), proxy?.$modal.msgWarning("此证件号无预登记信息!"), formValue.value = formObj, ydjHas.value = true)
+      total == 0 && (refset(), proxy?.$modal.msgWarning("此证件号无预登记信息!"), ydjHas.value = true)
     }
   }
 }
@@ -323,12 +327,16 @@ const teamGroupIdChange = async (val) => {
   })
   detailInfo.value.packageId = packageId
   detailInfo.value.amountCalGroupBo = { groupType, price, groupPayType, addPayType, itemDiscount, addDiscount }
+  // 预登记切换项目分组时要传,initFlag:'1'
+  if (groupType == '1') {
+    detailInfo.value.amountCalGroupBo.initFlag = '1'
+  }
   handleChangeGroup(data)
 }
 //单位change事件
 const dwChange = async (val) => {
   taskList.value = []
-  formRef.value.resetFields('taskId')
+  formValue.value.taskId = ''
   formValue.value.teamGroupId = ''
   formValue.value.actualPrice = ''
   formValue.value.itemDiscount = ''
@@ -365,65 +373,6 @@ const ZYBChange = async () => {
     }
   }
   await getBjFun()
-
-  //查询必检组合项目
-  const k = {
-    itemIdList: BJList.value.map(item => item.itemId),
-    combinProjectName: ''
-  }
-  const data1 = await queryCompulsoryInspectionProject(k)
-  //required为true的放右边
-  const arr = data1.data.filter(item => item.required)
-  let standardAmount = 0
-  const amountCalculationItemBos = arr.map((item, i) => {
-    item.combinProjectId = item.id
-    standardAmount = accAdd(standardAmount, item.standardAmount)
-    return {
-      sort: i + 1,
-      payType: '1',//变更类型(0个人 1单位 2混合支付)
-      payStatus: '0',//缴费状态（0：未缴费，1：已缴费，2：申请退费中，3：已退费，）
-      tcFlag: '1',//是否套餐'0'是'1'否
-      teamAmount: item.standardAmount,//单位应收金额
-      personAmount: 0,//个人应收金额
-      combinProjectCode: '',
-      combinProjectName: item.combinProjectName,
-      standardAmount: item.standardAmount,
-      discount: item.discount,
-      receivableAmount: item.standardAmount,
-      id: item.id,
-      required: item.required
-    }
-  })
-  //changeType  //1单项 2总计项 3新增 4删除 5删除全部
-  //inputType  //输入类型(1折扣 2应收金额 3收费方式 4个人应收额 5单位应收额)
-  const p = {
-    groupFlag: undefined,   //有无分组标志(1有分组)
-    regType: '2',//1个检 2团检
-    changeType: '3',
-    inputType: undefined,
-    haveAmountCalculationItemBos: [], ////存量
-    amountCalculationItemBos, ////增量或者减量都传这个
-    amountCalGroupBo: undefined, //团检分组信息对象
-    standardAmount,
-    discount: 100,
-    receivableAmount: standardAmount
-  }
-  const { data } = await commonDynamicBilling(p)
-  detailInfo.value.receivableAmount = data.receivableAmount
-  detailInfo.value.discount = data.discount
-  detailInfo.value.standardAmount = data.standardAmount
-  detailInfo.value.dataSource = data.amountCalculationItemVos.map(item => {
-    if (item.tcFlag == 0) {
-      item.packageId = detailInfo.value.packageId
-    }
-    return {
-      ...item,
-      projectType: item.tcFlag,//项目类型（1：套餐项目，2：加项项目
-      payMode: item.payType,
-      checkStatus: '0',
-      addFlag: item.addFlag  //addFlag	加项标识:1个人加项 2团队加项
-    }
-  })
 }
 
 //获得必检项目
@@ -436,8 +385,10 @@ const getBjFun = async () => {
     shineType: illuminationSource,
   }
   const { data } = await queryItemByFactorsCodeAndDutyStauts(p)
-  BJList.value = data
+  formValue.value.BJList = data
+  handleBJ()
 }
+
 const formColumns = ref<any>(formInfoColumns(teamIdList, taskList, groupList, zjhInput, zjlxChange, teamGroupIdChange, dwChange, rwChange, ZYBChange))
 const tableColumnsYDJList = ref<any>(tableColumnsYDJ(teamIdList))
 const queryParams = reactive<any>({
@@ -533,8 +484,15 @@ const getDetail = async (id) => {
   detailInfo.value.paidTeamAmount = data.paidTeamAmount
   detailInfo.value.paidPersonAmount = data.paidPersonAmount
   detailInfo.value.personAmount = data.personAmount
+  //data?.tjTeamGroupVo分组信息
+  if (data?.tjTeamGroupVo) {
+    const { groupType, price, groupPayType, addPayType, itemDiscount, addDiscount } = data?.tjTeamGroupVo
+    detailInfo.value.amountCalGroupBo = { groupType, price, groupPayType, addPayType, itemDiscount, addDiscount }
+  }
+
   data.healthyCheckStatus != 0 && (preview.value = true)
-  getXm(id)
+  await getXm(id)
+  getBjFun()
 }
 //获得需要回显的项目
 const getXm = async (id) => {
@@ -673,6 +631,9 @@ const handleSC = async (i) => {
   //changeType  //1单项 2总计项 3新增 4删除 5删除全部
   //inputType  //输入类型(1折扣 2应收金额 3收费方式 4个人应收额 5单位应收额)
   const { standardAmount, discount, receivableAmount, amountCalGroupBo } = detailInfo.value
+  if (amountCalGroupBo.initFlag) {
+    delete amountCalGroupBo.initFlag
+  }
   const p = {
     groupFlag: amountCalGroupBo ? '1' : undefined,   //有无分组标志(1有分组)
     regType: '2',//1个检 2团检
@@ -811,15 +772,20 @@ const selectionChange = (val) => {
 const handleBC = (type) => {
   formRef.value?.validate(async (valid, fields) => {
     if (valid) {
+      const { dutyStatus, illuminationSource, jobIlluminationType, caseCardType, jobCode, seniorityYear, seniorityMonth, contactSeniorityYear, contactSeniorityMonth, tjRegisterZybHazardBosTes, fs, sw, wl, fc, hx, tjRegisterZybVo, otherJobName, occupationalType, physicalType, BJList, bjxmList, reserveTimeArr } = formValue.value
+      //为职业病/放射需要校验必检项目
+      if (physicalType == 'ZYJKTJ' || physicalType == 'FSTJ') {
+        const flag = BJList.some(item => !bjxmList.includes(item.itemId))
+        if (flag) return proxy?.$modal.msgWarning(`必检项目未全部选择!`)
+      }
       formValue.value.businessCategory = '2'
       // formValue.value.occupationalType = '1' //是否职业病(0：是，1：否)
       formValue.value.healthyCheckTime = proxy?.$moment().format('YYYY-MM-DD HH:mm:ss') //体检日期
-      formValue.value.reserveStartTime = formValue.value.reserveTimeArr?.[0]
-      formValue.value.reserveEndTime = formValue.value.reserveTimeArr?.[1]
+      formValue.value.reserveStartTime = reserveTimeArr?.[0]
+      formValue.value.reserveEndTime = reserveTimeArr?.[1]
       formValue.value.packageId = detailInfo.value.packageId
-      if (formValue.value.occupationalType == 0) {//0zyb
+      if (occupationalType == 0) {//0zyb
         //职业病组装
-        const { dutyStatus, illuminationSource, jobIlluminationType, caseCardType, jobCode, seniorityYear, seniorityMonth, contactSeniorityYear, contactSeniorityMonth, tjRegisterZybHazardBosTes, fs, sw, wl, fc, hx, tjRegisterZybVo, otherJobName } = formValue.value
         formValue.value.tjRegisterZybBo = {
           id: tjRegisterZybVo?.id,
           regId: tjRegisterZybVo?.regId,
@@ -896,11 +862,13 @@ const handleYDJ = () => {
 }
 
 // 重置数据
-const refset = () => {
+const refset = (type) => {
+  const { credentialNumber, birthday, age, gender } = formValue.value
   id.value = ''
   detailInfo.value = info
-  formValue.value = formObj
+  formValue.value = type == '清空' ? { ...formObj } : { ...formObj, credentialNumber, birthday, age, gender }
   preview.value = false
+  formRef.value.resetFields()
 }
 
 //切换分组需要重新调用算费接口
@@ -959,7 +927,14 @@ const handleChangeGroup = async (row) => {
 const handleJXDJ = () => {
   router.push(`/deskRegistration/medicalRegistration-childPage/groupRegistration`);
 }
-
+//初始化时必检项目的勾选情况
+const handleBJ = async () => {
+  const arr = detailInfo.value.dataSource.map(item => item.combinationProjectId)
+  if (arr.length == 0) return (formValue.value.bjxmList = [])
+  const { data } = await queryBasicListByCombinIds(arr)
+  //匹配勾选
+  formValue.value.bjxmList = data.map(item => item.basicProjectId)
+}
 //根据体检类型区分是职业病还是普通体检
 watch(() => formValue.value.physicalType, (newV) => {
   const arr = ['在岗状态', '危害因素', '个案卡类别', '工种名称', '接害工龄', '总工龄']

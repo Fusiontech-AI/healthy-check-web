@@ -404,6 +404,7 @@ const packageParamsFun = (arr) => {
   }
   getXmNews()
   TransferFilterComplexRef.value.handleSelected({}, 0, '1', '1')
+
 }
 //查询组合项目下基础项目信息
 const getXmNews = async () => {
@@ -581,6 +582,11 @@ const handleHY = async () => {
   TransferFilterComplexRef.value.defaultItems()
   getXm()
 }
+onMounted(async () => {
+  await nextTick()
+  TransferFilterComplexRef.value.getRemote()
+
+})
 </script>
 <style scoped lang="scss">
 .title {

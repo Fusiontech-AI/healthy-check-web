@@ -53,7 +53,7 @@
       <div><span>基本信息</span></div>
       <!-- 查询表单 -->
       <SearchForm ref="searchFormRef" :search-param="form" :columns="formColumn" :searchCol="4"
-        :show-action-group="false" :rules="rules" :preview="preview">
+        :show-action-group="false" :rules="rules" :preview="preview" :disabled="activeName != 'first'">
       </SearchForm>
       <div><span>体检项目信息</span></div>
       <el-tabs v-model="activeName" @tab-click="handleClick" :class="{ 'tabsClass': !preview }">

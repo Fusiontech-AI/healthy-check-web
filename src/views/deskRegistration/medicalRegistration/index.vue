@@ -154,7 +154,7 @@ const tableColumns = reactive([
   { prop: 'teamName', label: '单位', width: 150 },
   { prop: 'groupName', label: '分组', width: 120 },
   { prop: 'deptName', label: '部门', width: 120 },
-  { prop: 'name', label: '备注字段没得', width: 160 },
+  { prop: 'remark', label: '备注', width: 160 },
   { prop: 'introducerName', label: '介绍人', },
   { prop: 'createByName', label: '创建人', },
   { prop: 'registerDoctorName', label: '报到人', },

@@ -386,14 +386,14 @@ const formRules = {
 
 const tableColumns = [
   {
-    type: 'selection',
-    selectable: (row) => {
-      if (row.checkStatus == 1 || row.payStatus == 1 || row.required) {
-        return false;
-      } else {
-        return true;
-      }
-    }
+    type: 'selection'
+    // selectable: (row) => {
+    // if (row.checkStatus == 1 || row.payStatus == 1 || row.required) {
+    // return false;
+    // } else {
+    // return true;
+    // }
+    // }
   },
   { type: 'index', label: '序列', width: 60 },
   { prop: 'combinProjectName', label: '项目名称' },

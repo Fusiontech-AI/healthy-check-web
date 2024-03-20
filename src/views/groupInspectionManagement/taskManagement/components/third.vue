@@ -8,7 +8,7 @@
       </div>
     </div>
     <ProTable ref="proTableRef" :columns="tableColumns" :toolButton="false" :request-api="queryTaskReviewRegister"
-      :init-param="initParam" :request-auto="true">
+      :init-param="initParam" :request-auto="true" height="350">
       <template #operation="{ row }">
         <el-button type="primary" link :disabled="preview" @click="viewPersonDetail(row)">查看</el-button>
         <el-button type="danger" link :disabled="preview" @click="handleDel(row)">删除</el-button>
