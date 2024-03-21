@@ -286,13 +286,13 @@ const formInfoColumns = (teamIdList, taskList, groupList, zjhInput, zjlxChange, 
     search: { el: 'select' },
     isShowSearch: false
   },
-  {
-    prop: 'jobCode',
-    label: '工种名称',
-    enum: bus_job_code,
-    search: { el: 'select' },
-    isShowSearch: false
-  },
+  // {
+  //   prop: 'jobCode',
+  //   label: '工种名称',
+  //   enum: bus_job_code,
+  //   search: { el: 'select' },
+  //   isShowSearch: false
+  // },
   {
     prop: 'otherJobName',
     label: '其他工种名称',
