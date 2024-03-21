@@ -86,7 +86,7 @@ const props = withDefaults(defineProps<ProTableProps>(), {
 const RenderFormValue = (item: any) => {
   return <div>{{
     default: () => {
-      if (props.searchParam[item.prop] && item.enum && item?.search?.el == 'select') {
+      if (props.searchParam[item.prop] && item.enum && item?.search?.el == 'select' || item?.search?.el == 'select-v2') {
         //多选则拼文字
         if (item.search.props?.multiple) {
           let txt = ''
