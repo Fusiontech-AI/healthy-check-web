@@ -8,7 +8,7 @@
         <TiJianRegister :formValue="register?.formValue" :getDetail="register?.getDetail" />
       </el-tab-pane>
       <el-tab-pane label="体检档案" name="third" v-if="register?.formValue.id">
-        <MedicalExaminationFile :formValue="register?.formValue" />
+        <MedicalExaminationFile :formValue="register?.formValue" v-if="activeName == 'third'" />
       </el-tab-pane>
       <el-tab-pane label="报告领取方式" name="fourth" v-if="register?.formValue.id">
         <ReportReceivingMethod :formValue="register?.formValue" />
@@ -26,6 +26,7 @@ import type { TabsPaneContext } from 'element-plus'
 const activeName = ref('first')
 const register = ref()
 const handleClick = (tab: TabsPaneContext, event: Event) => {
+  activeName.value = tab.key
 }
 </script>
 

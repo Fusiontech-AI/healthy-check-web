@@ -428,6 +428,8 @@ const handleHY = () => {
 }
 //匹配必检项目的勾选
 watch(() => dataSource.value, async (newV) => {
+  const { physicalType } = props.formValue1
+  if (physicalType != 'FSTJ' && physicalType != 'ZYJKTJ') return
   const arr = newV.map(item => item.combinProjectId || item.id)
   if (arr.length == 0) return (formValue.bjxmList = [])
   const { data } = await queryBasicListByCombinIds(arr)

@@ -154,7 +154,7 @@
                   <plus />
                 </el-icon>个人加项
               </el-button>
-              <el-button round type="primary" @click="handleTjJx" v-if="!ydjHas">
+              <el-button round type="primary" @click="handleGjJx" v-if="!ydjHas">
                 <el-icon class="avatar-uploader-icon">
                   <plus />
                 </el-icon>团体加项
@@ -210,7 +210,7 @@ const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 import type { TabsPaneContext } from 'element-plus'
 const formObj = reactive(
   {
-    credentialNumber: '', //'420117199507186555',
+    credentialNumber: '420117199507186555',
     // phone: '18571714455',
     // name: '123',
     // checkType: '11',
@@ -376,7 +376,7 @@ const ZYBChange = async () => {
 }
 
 //获得必检项目
-const getBjFun = async () => {
+const getBjFun = async (type) => {
   const { dutyStatus, tjRegisterZybHazardBosTes, illuminationSource, jobIlluminationType } = formValue.value
   const p = {
     codeList: tjRegisterZybHazardBosTes,
@@ -386,7 +386,7 @@ const getBjFun = async () => {
   }
   const { data } = await queryItemByFactorsCodeAndDutyStauts(p)
   formValue.value.BJList = data
-  handleBJ()
+  type != '必检' && await handleBJ()
 }
 
 const formColumns = ref<any>(formInfoColumns(teamIdList, taskList, groupList, zjhInput, zjlxChange, teamGroupIdChange, dwChange, rwChange, ZYBChange))
@@ -441,13 +441,17 @@ const getTeamIdList = async () => {
   const { data } = await teamInfoList({})
   teamIdList.value = proxy?.handleTree<any>(data) || []
 }
-getTeamIdList()
+!id.value && getTeamIdList()
 
 //获得详情
 const getDetail = async (id) => {
   const { data } = await registerInfo({ id })
-  await dwChange(data.teamId)//查询任务
-  await rwChange(data.taskId)//查询分组
+  //组装单位任务.分组数据
+  teamIdList.value = [{ teamName: data.teamName, id: data.teamId }]
+  taskList.value = [{ taskName: data.taskName, id: data.taskId }]
+  groupList.value = [{ groupName: data.groupName, id: data.teamGroupId }]
+  // await dwChange(data.teamId)//查询任务
+  // await rwChange(data.taskId)//查询分组
   // await teamGroupIdChange(data.teamGroupId)//分组
   const { tjRegisterZybHazardVos } = data.tjRegisterZybVo || {}
   data.tjRegisterZybHazardBosTes = tjRegisterZybHazardVos?.map(item => {
@@ -468,6 +472,7 @@ const getDetail = async (id) => {
     }
     return item.hazardFactor
   }) || []
+
   formValue.value = { ...data, ...data?.tjRegisterZybVo, ...data?.tjTeamGroupVo, id: data.id }
   formValue.value.actualPrice = data.tjTeamGroupVo?.price
   formValue.value.itemDiscount = data.tjTeamGroupVo?.itemDiscount
@@ -492,10 +497,6 @@ const getDetail = async (id) => {
 
   data.healthyCheckStatus != 0 && (preview.value = true)
   await getXm(id)
-  //职业病/放射才调用
-  if (data.physicalType == 'FSTJ' || data.physicalType == 'ZYJKTJ') {
-    getBjFun()
-  }
 }
 //获得需要回显的项目
 const getXm = async (id) => {
@@ -524,13 +525,14 @@ const JYXMSL = computed(() => {
 })
 
 //个人加项
-const handleGjJx = () => {
+const handleGjJx = async () => {
+  await getBjFun('必检')
   selectXmItemGj.value.handleDrawerChange()
 }
 //团检加项
-const handleTjJx = () => {
-  selectXmItemTj.value.handleDrawerChange()
-}
+// const handleTjJx = () => {
+//   selectXmItemTj.value.handleDrawerChange()
+// }
 
 //新增预登记
 const handleDJ = () => {
@@ -775,10 +777,13 @@ const selectionChange = (val) => {
 const handleBC = (type) => {
   formRef.value?.validate(async (valid, fields) => {
     if (valid) {
-      const { dutyStatus, illuminationSource, jobIlluminationType, caseCardType, jobCode, seniorityYear, seniorityMonth, contactSeniorityYear, contactSeniorityMonth, tjRegisterZybHazardBosTes, fs, sw, wl, fc, hx, tjRegisterZybVo, otherJobName, occupationalType, physicalType, BJList, bjxmList, reserveTimeArr } = formValue.value
+      const { dutyStatus, illuminationSource, jobIlluminationType, caseCardType, jobCode, seniorityYear, seniorityMonth, contactSeniorityYear, contactSeniorityMonth, tjRegisterZybHazardBosTes, fs, sw, wl, fc, hx, tjRegisterZybVo, otherJobName, occupationalType, physicalType, reserveTimeArr } = formValue.value
       //为职业病/放射需要校验必检项目
       if (physicalType == 'ZYJKTJ' || physicalType == 'FSTJ') {
-        const flag = BJList.some(item => !bjxmList.includes(item.itemId))
+        //职业病/放射才调用
+        await getBjFun()
+        const { BJList, bjxmList } = formValue.value
+        const flag = BJList.some(item => !bjxmList?.includes(item.itemId))
         if (flag) return proxy?.$modal.msgWarning(`必检项目未全部选择!`)
       }
       formValue.value.businessCategory = '2'
@@ -942,7 +947,6 @@ const handleBJ = async () => {
 watch(() => formValue.value.physicalType, (newV) => {
   const arr = ['在岗状态', '危害因素', '个案卡类别', '工种名称', '接害工龄', '总工龄']
   const arr1 = ['照射源', '职业照射种类']
-  formValue.value.tjRegisterZybHazardBosTes = []
   bus_physical_type.value.forEach(item => {
     if (item.dictValue == newV) {
       formValue.value.occupationalType = item.busType //是否职业病(0：是，1：否)
