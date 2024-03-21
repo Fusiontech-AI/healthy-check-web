@@ -229,7 +229,7 @@ const formInfoColumns = (teamIdList, taskList, groupList, zjhInput, zjlxChange, 
     prop: 'tjRegisterZybHazardBosTes',
     label: '危害因素',
     enum: bus_hazardous_factors,
-    search: { el: 'select', props: { multiple: true }, span: 24, disabled: false },
+    search: { el: 'select-v2', props: { multiple: true }, span: 24, disabled: false },
     isShowSearch: false,
     change: ZYBChange
   },
@@ -286,13 +286,13 @@ const formInfoColumns = (teamIdList, taskList, groupList, zjhInput, zjlxChange, 
     search: { el: 'select' },
     isShowSearch: false
   },
-  // {
-  //   prop: 'jobCode',
-  //   label: '工种名称',
-  //   enum: bus_job_code,
-  //   search: { el: 'select' },
-  //   isShowSearch: false
-  // },
+  {
+    prop: 'jobCode',
+    label: '工种名称',
+    enum: bus_job_code,
+    search: { el: 'select-v2' },
+    isShowSearch: false
+  },
   {
     prop: 'otherJobName',
     label: '其他工种名称',
