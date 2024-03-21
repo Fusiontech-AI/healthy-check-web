@@ -4,8 +4,8 @@
       :init-param="initParam">
       <template #tableHeader="scope">
         <el-button type="primary" round @click="handleAdd">新增</el-button>
-        <el-button type="danger" round @click="handleAdd">批量禁用</el-button>
-        <el-button round type="danger">批量删除</el-button>
+        <el-button type="danger" round @click="handleDisable">批量禁用</el-button>
+        <el-button round type="danger" @click="handleDel">批量删除</el-button>
       </template>
       <template #operation="{ row }">
         <el-button type="primary" link @click="handleXq(row)">详情</el-button>
@@ -24,14 +24,13 @@
 <script setup name="package" lang="ts">
 import {
   packageList,
-  packageDel
+  packageDel, batchDisable
 } from "@/api/peis/package";
 import { useHandleData } from '@/hooks/useHandleData'
 // ProTable 实例
 const proTable = ref<ProTableInstance>();
 // 如果表格需要初始化请求参数，直接定义传给 ProTable (之后每次请求都会自动带上该参数，此参数更改之后也会一直带上，改变此参数会自动刷新表格数据)
 const initParam = reactive({});
-
 const { proxy } = getCurrentInstance() as ComponentInternalInstance
 const { bus_physical_type, bus_gender } = toRefs<any>(proxy?.useDict('bus_physical_type', 'bus_gender'))
 const tableColumns = ref([
@@ -74,6 +73,7 @@ const handleDel = async (row) => {
     message: `请至少选择一项!`
   });
   await useHandleData(packageDel, { ids }, '删除')
+  proTable.value?.clearSelection()
   proTable.value?.getTableList()
 }
 //编辑
@@ -85,5 +85,17 @@ const handleEdit = (row) => {
 const handleXq = (row) => {
   router.push("/basicInfo/package-data/operation?look=true&id=" + row.id);
 
+}
+//禁用
+const handleDisable = async () => {
+  const ids = proTable.value.selectedListIds
+  if (ids.length == 0) return ElMessage({
+    type: "warning",
+    message: `请至少选择一项!`
+  });
+  await batchDisable({ ids })
+  proxy?.$modal.msgSuccess("操作成功");
+  proTable.value?.clearSelection()
+  proTable.value?.getTableList()
 }
 </script>

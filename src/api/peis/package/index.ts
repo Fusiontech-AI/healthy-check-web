@@ -97,3 +97,12 @@ export const queryBasicListByCombinIds = (params: any) => {
     data: params
   });
 };
+/**
+ * 体检套餐批量禁用
+ */
+export const batchDisable = (params: any) => {
+  return request({
+    url: `/peis/package/batchDisable/${params.ids}`,
+    method: 'GET'
+  });
+};

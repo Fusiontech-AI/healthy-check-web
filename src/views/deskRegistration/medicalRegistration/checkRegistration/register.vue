@@ -1,5 +1,5 @@
 <template>
-  <el-row :gutter="10" class="p10px">
+  <el-row :gutter="10" class="p10px" v-loading="loading">
     <el-col :span="8">
       <el-card shadow="hover">
         <template #header>
@@ -140,6 +140,7 @@ const formObj = {
   costType: '1',
   payType: '1',
 }
+const loading = ref(false)
 const formValue = ref<any>({ ...formObj }) // 基本信息绑定的值
 const teamIdList = ref<any>([]) //单位列表
 const howManyMedical = ref()
@@ -223,23 +224,28 @@ getTeamIdList()
 
 //获得详情
 const getDetail = async () => {
-  const { data } = await registerInfo({ id: id.value })
-  formValue.value = data
-  if (data.reserveStartTime && data.reserveEndTime) {
-    formValue.value.reserveTimeArr = [data.reserveStartTime, data.reserveEndTime]
+  try {
+    loading.value = true
+    const { data } = await registerInfo({ id: id.value })
+    formValue.value = data
+    if (data.reserveStartTime && data.reserveEndTime) {
+      formValue.value.reserveTimeArr = [data.reserveStartTime, data.reserveEndTime]
+    }
+    detailInfo.value.standardAmount = data.totalStandardAmount
+    detailInfo.value.receivableAmount = data.totalAmount
+    detailInfo.value.discount = data.discount
+    detailInfo.value.packageId = data.packageId
+    detailInfo.value.packageName = data.packageName
+    detailInfo.value.teamAmount = data.teamAmount
+    detailInfo.value.paidTotalAmount = data.paidTotalAmount
+    detailInfo.value.paidTeamAmount = data.paidTeamAmount
+    detailInfo.value.paidPersonAmount = data.paidPersonAmount
+    detailInfo.value.personAmount = data.personAmount
+    data.healthyCheckStatus != 0 && (preview.value = true)
+    getXm()
+  } finally {
+    loading.value = false
   }
-  detailInfo.value.standardAmount = data.totalStandardAmount
-  detailInfo.value.receivableAmount = data.totalAmount
-  detailInfo.value.discount = data.discount
-  detailInfo.value.packageId = data.packageId
-  detailInfo.value.packageName = data.packageName
-  detailInfo.value.teamAmount = data.teamAmount
-  detailInfo.value.paidTotalAmount = data.paidTotalAmount
-  detailInfo.value.paidTeamAmount = data.paidTeamAmount
-  detailInfo.value.paidPersonAmount = data.paidPersonAmount
-  detailInfo.value.personAmount = data.personAmount
-  data.healthyCheckStatus != 0 && (preview.value = true)
-  getXm()
 }
 //获得需要回显的项目
 const getXm = async () => {
@@ -273,22 +279,28 @@ const handleJx = () => {
 
 //登记
 const handleDJ = () => {
-  formRef.value.validate(async (valid, fields) => {
-    if (valid) {
-      //登记信息的接口
-      formValue.value.businessCategory = '1'
-      formValue.value.occupationalType = '1'
-      formValue.value.healthyCheckTime = proxy?.$moment().format('YYYY-MM-DD HH:mm:ss')
-      formValue.value.reserveStartTime = formValue.value.reserveTimeArr?.[0]
-      formValue.value.reserveEndTime = formValue.value.reserveTimeArr?.[1]
-      formValue.value.packageId = detailInfo.value.packageId
-      const { data } = await registerAdd(formValue.value)
-      id.value = data
-      data && await handleUpdate('新增')
-      // proxy?.$modal.msgSuccess("登记成功");
-      !route.query.id && router.push(`/deskRegistration/medicalRegistration-childPage/checkRegistration?id=${data}`);
-    }
-  })
+  try {
+    loading.value = true
+    formRef.value.validate(async (valid, fields) => {
+      if (valid) {
+        //登记信息的接口
+        formValue.value.businessCategory = '1'
+        formValue.value.occupationalType = '1'
+        formValue.value.healthyCheckTime = proxy?.$moment().format('YYYY-MM-DD HH:mm:ss')
+        formValue.value.reserveStartTime = formValue.value.reserveTimeArr?.[0]
+        formValue.value.reserveEndTime = formValue.value.reserveTimeArr?.[1]
+        formValue.value.packageId = detailInfo.value.packageId
+        const { data } = await registerAdd(formValue.value)
+        id.value = data
+        data && await handleUpdate('新增')
+        // proxy?.$modal.msgSuccess("登记成功");
+        !route.query.id && router.push(`/deskRegistration/medicalRegistration-childPage/checkRegistration?id=${data}`);
+      }
+    })
+
+  } finally {
+    loading.value = false
+  }
 
 }
 

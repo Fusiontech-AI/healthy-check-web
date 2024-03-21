@@ -138,7 +138,7 @@ const tableColumns = reactive([
   { prop: 'recordCode', label: '档案号', width: 120 },
   { prop: 'credentialNumber', label: '证件号', width: 180 },
   { prop: 'businessCategory', label: '业务类别', enum: bus_category, width: 100 },
-  { prop: 'physicalType', label: '体检类型', enum: bus_physical_type, width: 100 },
+  { prop: 'physicalType', label: '体检类型', enum: bus_physical_type, width: 120 },
   { prop: 'name', label: '姓名', },
   { prop: 'marriageStatus', label: '婚否', enum: bus_personnel_marriage_status },
   { prop: 'age', label: '年龄' },

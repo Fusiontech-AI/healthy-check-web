@@ -26,7 +26,7 @@ import type { TabsPaneContext } from 'element-plus'
 const activeName = ref('first')
 const register = ref()
 const handleClick = (tab: TabsPaneContext, event: Event) => {
-  activeName.value = tab.key
+  activeName.value = tab.props.name
 }
 </script>
 

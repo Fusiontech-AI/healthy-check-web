@@ -1,13 +1,14 @@
 <template>
-  <div class="flex justify-between items-start">
+  <div class="flex justify-between items-start" v-loading="loading">
     <el-card shadow="hover" class="left">
       <template #header>
         <div class="flex justify-between">
           <span>任务列表</span>
           <el-tooltip class="box-item" content="新增任务" placement="top">
             <div
-              class="rounded-full w-[24px] h-[24px] cursor-pointer bg-[#2879FF] flex items-center justify-center text-[14px]">
-              <el-icon color="#fff" @click="handleXZRW">
+              class="rounded-full w-[24px] h-[24px] cursor-pointer bg-[#2879FF] flex items-center justify-center text-[14px]"
+              @click="handleXZRW">
+              <el-icon color="#fff">
                 <Plus />
               </el-icon>
             </div>
@@ -109,6 +110,7 @@ const formObj = reactive({
   beginDate: proxy?.$moment().format('YYYY-MM-DD'),
   endDate: proxy?.$moment().format('YYYY-MM-DD'),
 })
+const loading = ref(false)
 const form = ref({ ...formObj });
 const searchFormRef = ref()
 const teamIdList = ref<any[]>([])
@@ -263,10 +265,15 @@ const getList = async () => {
 getList()
 //任务列表
 const getTaskList = async () => {
-  const signBeginDate = queryParams.times[0]
-  const signEndDate = queryParams.times[1]
-  const { rows } = await teamTaskList({ ...queryParams, signEndDate, signBeginDate })
-  teamTaskLists.value = rows
+  try {
+    loading.value = true
+    const signBeginDate = queryParams.times[0]
+    const signEndDate = queryParams.times[1]
+    const { rows } = await teamTaskList({ ...queryParams, signEndDate, signBeginDate })
+    teamTaskLists.value = rows
+  } finally {
+    loading.value = false
+  }
 }
 getTaskList()
 //监听
@@ -312,110 +319,115 @@ const handleCz = () => {
 //bloo判断是否需要跳到下一步,区分保存任务
 //下一步
 const handleX1 = async (bloo) => {
-  searchFormRef.value.validate(async (valid: any, fields: any) => {
-    if (valid) {
-      if (activeName.value == 'first') {
-        if (preview.value) {
-          activeName.value = 'second'
-          getSecondDetail()
-          return
-        }
-        form.value.groupList.forEach(item => {
-          if (item.isSyncProject1) {
-            item.isSyncProject = '0'
-          } else {
-            item.isSyncProject = '1'
+  try {
+    loading.value = true
+    searchFormRef.value.validate(async (valid: any, fields: any) => {
+      if (valid) {
+        if (activeName.value == 'first') {
+          if (preview.value) {
+            activeName.value = 'second'
+            await getSecondDetail()
+            return
           }
-        })
-        if (form.value.id) {
-          //调用校验接口
-          await handleJY1()
-          const { data } = await peisTeamTaskUpdate({ ...form.value, id: form.value.id })
-          formSecond.value = data.groupList
-          !bloo && (activeName.value = 'second')
-          bloo && (proxy?.$modal.msgSuccess("操作成功"))
-        } else {
-          const { data } = await peisTeamTask(form.value)
-          formSecond.value = data.groupList
-          form.value.groupList = data.groupList
-          !bloo && (activeName.value = 'second')
-          bloo && (proxy?.$modal.msgSuccess("操作成功"))
-          form.value.id = data.taskId
-        }
-        formSecondClone.value = cloneDeep(formSecond.value)
-        //执行列表刷新
-        getTaskList()
-
-        return
-      }
-      if (activeName.value == 'second') {
-        if (preview.value) {
-          return activeName.value = 'third'
-        }
-        //调用校验接口
-        await handleJY2()
-        if (formSecond.value.length == 0) {
-          return activeName.value = 'third'
-        }
-
-        formSecond.value.forEach(res => {
-          const tjPackageHazardsBoList = []
-          res.hazardsBoList.forEach(item => {
-            if (item == '14999') {
-              tjPackageHazardsBoList.push({
-                hazardFactorsOther: res.fs,
-                hazardFactorsName: (bus_hazardous_factors.value.filter(row => row.dictValue == item))[0].dictLabel,
-                hazardFactorsCode: item
-              })
-            } else if (item == '15999') {
-              tjPackageHazardsBoList.push({
-                hazardFactorsOther: res.sw,
-                hazardFactorsName: (bus_hazardous_factors.value.filter(row => row.dictValue == item))[0].dictLabel,
-                hazardFactorsCode: item
-              })
-            } else if (item == '13999') {
-              tjPackageHazardsBoList.push({
-                hazardFactorsOther: res.wl,
-                hazardFactorsName: (bus_hazardous_factors.value.filter(row => row.dictValue == item))[0].dictLabel,
-                hazardFactorsCode: item
-              })
-            } else if (item == '11999') {
-              tjPackageHazardsBoList.push({
-                hazardFactorsOther: res.fc,
-                hazardFactorsName: (bus_hazardous_factors.value.filter(row => row.dictValue == item))[0].dictLabel,
-                hazardFactorsCode: item
-              })
-            } else if (item == '12999') {
-              tjPackageHazardsBoList.push({
-                hazardFactorsOther: res.hx,
-                hazardFactorsName: (bus_hazardous_factors.value.filter(row => row.dictValue == item))[0].dictLabel,
-                hazardFactorsCode: item
-              })
+          form.value.groupList.forEach(item => {
+            if (item.isSyncProject1) {
+              item.isSyncProject = '0'
             } else {
-              tjPackageHazardsBoList.push({
-                hazardFactorsOther: '',
-                hazardFactorsName: (bus_hazardous_factors.value.filter(row => row.dictValue == item))[0].dictLabel,
-                hazardFactorsCode: item
-              })
+              item.isSyncProject = '1'
             }
           })
-          res.groupHazardsList = tjPackageHazardsBoList
-        })
-        const p = {
-          list: formSecond.value,
-          physicalType: form.value.physicalType
+          if (form.value.id) {
+            //调用校验接口
+            await handleJY1()
+            const { data } = await peisTeamTaskUpdate({ ...form.value, id: form.value.id })
+            formSecond.value = data.groupList
+            !bloo && (activeName.value = 'second')
+            bloo && (proxy?.$modal.msgSuccess("操作成功"))
+          } else {
+            const { data } = await peisTeamTask(form.value)
+            formSecond.value = data.groupList
+            form.value.groupList = data.groupList
+            !bloo && (activeName.value = 'second')
+            bloo && (proxy?.$modal.msgSuccess("操作成功"))
+            form.value.id = data.taskId
+          }
+          formSecondClone.value = cloneDeep(formSecond.value)
+          //执行列表刷新
+          await getTaskList()
+
+          return
         }
-        await updateGroupProjectInfo(p)
-        !bloo && (activeName.value = 'third')
-        bloo && (proxy?.$modal.msgSuccess("操作成功"))
-        return
+        if (activeName.value == 'second') {
+          if (preview.value) {
+            return activeName.value = 'third'
+          }
+          //调用校验接口
+          await handleJY2()
+          if (formSecond.value.length == 0) {
+            return activeName.value = 'third'
+          }
+
+          formSecond.value.forEach(res => {
+            const tjPackageHazardsBoList = []
+            res.hazardsBoList.forEach(item => {
+              if (item == '14999') {
+                tjPackageHazardsBoList.push({
+                  hazardFactorsOther: res.fs,
+                  hazardFactorsName: (bus_hazardous_factors.value.filter(row => row.dictValue == item))[0].dictLabel,
+                  hazardFactorsCode: item
+                })
+              } else if (item == '15999') {
+                tjPackageHazardsBoList.push({
+                  hazardFactorsOther: res.sw,
+                  hazardFactorsName: (bus_hazardous_factors.value.filter(row => row.dictValue == item))[0].dictLabel,
+                  hazardFactorsCode: item
+                })
+              } else if (item == '13999') {
+                tjPackageHazardsBoList.push({
+                  hazardFactorsOther: res.wl,
+                  hazardFactorsName: (bus_hazardous_factors.value.filter(row => row.dictValue == item))[0].dictLabel,
+                  hazardFactorsCode: item
+                })
+              } else if (item == '11999') {
+                tjPackageHazardsBoList.push({
+                  hazardFactorsOther: res.fc,
+                  hazardFactorsName: (bus_hazardous_factors.value.filter(row => row.dictValue == item))[0].dictLabel,
+                  hazardFactorsCode: item
+                })
+              } else if (item == '12999') {
+                tjPackageHazardsBoList.push({
+                  hazardFactorsOther: res.hx,
+                  hazardFactorsName: (bus_hazardous_factors.value.filter(row => row.dictValue == item))[0].dictLabel,
+                  hazardFactorsCode: item
+                })
+              } else {
+                tjPackageHazardsBoList.push({
+                  hazardFactorsOther: '',
+                  hazardFactorsName: (bus_hazardous_factors.value.filter(row => row.dictValue == item))[0].dictLabel,
+                  hazardFactorsCode: item
+                })
+              }
+            })
+            res.groupHazardsList = tjPackageHazardsBoList
+          })
+          const p = {
+            list: formSecond.value,
+            physicalType: form.value.physicalType
+          }
+          await updateGroupProjectInfo(p)
+          !bloo && (activeName.value = 'third')
+          bloo && (proxy?.$modal.msgSuccess("操作成功"))
+          return
+        }
+        if (activeName.value == 'third') {
+          activeName.value = 'fourth'
+          return
+        }
       }
-      if (activeName.value == 'third') {
-        activeName.value = 'fourth'
-        return
-      }
-    }
-  })
+    })
+  } finally {
+    loading.value = false
+  }
 
 }
 //校验第一步所填数据
@@ -471,21 +483,26 @@ const handleS1 = () => {
 }
 //详情
 const handleClickItem = async (row: any) => {
-  searchFormRef.value.resetFields()
-  activeName.value = 'first'
-  activeKey.value = row.id
-  const { data } = await teamTaskDetail(row)
-  dwChange(data.teamId)
-  data.taskId = data.id
-  data.groupList.forEach(item => {
-    if (item.isSyncProject == '0') {
-      item.isSyncProject1 = true
-    } else {
-      item.isSyncProject1 = false
-    }
-  })
-  form.value = data
-  preview.value = true
+  try {
+    loading.value = true
+    searchFormRef.value.resetFields()
+    activeName.value = 'first'
+    activeKey.value = row.id
+    const { data } = await teamTaskDetail(row)
+    dwChange(data.teamId)
+    data.taskId = data.id
+    data.groupList.forEach(item => {
+      if (item.isSyncProject == '0') {
+        item.isSyncProject1 = true
+      } else {
+        item.isSyncProject1 = false
+      }
+    })
+    form.value = data
+    preview.value = true
+  } finally {
+    loading.value = false
+  }
 }
 //保存任务
 const handleBCRW = async () => {
@@ -510,12 +527,18 @@ const handleGSH = () => {
   form.value = { ...formObj }
   activeName.value = 'first'
   searchFormRef.value.resetFields()
+  activeKey.value = ''
 }
 //当为详情查看时点击操作上一步或者下一步触发的套餐详情接口
 const getSecondDetail = async () => {
-  const { data } = await getTaskItemGroupInfoInfo({ id: form.value.id, physicalType: form.value.physicalType })
-  formSecond.value = data
-  activeName.value = 'second'
+  try {
+    loading.value = true
+    const { data } = await getTaskItemGroupInfoInfo({ id: form.value.id, physicalType: form.value.physicalType })
+    formSecond.value = data
+    activeName.value = 'second'
+  } finally {
+    loading.value = false
+  }
 }
 </script>
 

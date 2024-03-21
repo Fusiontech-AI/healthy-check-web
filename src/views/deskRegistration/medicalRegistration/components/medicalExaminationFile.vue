@@ -1,5 +1,5 @@
 <template>
-  <div class="flex p-10px">
+  <div class="flex p-10px" v-loading="loading">
     <div class="w-260px shrink-0">
       <div>
         <span class="w-70px font-bold text-lg inline-block">{{ formValue.name }}</span>
@@ -44,7 +44,7 @@
             {{ item.combinProjectName }}
           </div>
         </div>
-        <div class="w100%">
+        <div style="width:calc(100% - 190px)">
           {{ detailObj.combinProjectName }} <el-button link type="primary" v-if="dataSource.length > 0"
             @click="expandFlag = !expandFlag">一键{{ !expandFlag ? '展开' : "收起" }}</el-button>
           <ProTable :columns="tableColumns" :toolButton="false" :data="dataSource" :pagination="false" ref="proTableRef"
@@ -77,6 +77,7 @@ const props = defineProps({
     default: () => { },
   },
 })
+const loading = ref(false)
 const { sys_user_sex, } = toRefs<any>(proxy?.useDict('sys_user_sex'))
 const flag = ref(false)
 const expandFlag = ref(false)
@@ -111,9 +112,14 @@ const filterGender = () => {
 }
 //获得体检记录
 const getTJList = async () => {
-  const { rows } = await getRegisterPage({ recordCode: props.formValue.recordCode, pageSize: -1 })
-  tjList.value = rows
-  handleTJJGHZ()
+  try {
+    loading.value = true
+    const { rows } = await getRegisterPage({ recordCode: props.formValue.recordCode, pageSize: -1 })
+    tjList.value = rows
+    await handleTJJGHZ()
+  } finally {
+    loading.value = false
+  }
 }
 //体检结果汇总和体检记录查详情的
 const handleTJJGHZ = async (row) => {
@@ -130,7 +136,7 @@ const handleTJJGHZ = async (row) => {
   const { data } = await queryRegCombinProjectList({ id: row?.id || props.formValue.id })
   tjjgList.value = data
   if (data.length == 0) return
-  handleDXXZ(data[0])
+  await handleDXXZ(data[0])
 }
 //体检项目详情
 const handleDXXZ = async (row) => {
