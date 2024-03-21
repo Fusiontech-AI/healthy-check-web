@@ -60,8 +60,8 @@
             缴费状态：{{ filterPayStatus() }}
           </div>
           <div>
-            <el-select v-model="value" placeholder="请选择" class="w-240px mr10px"
-              v-if="!id || formValue.healthyCheckStatus == 0">
+            <el-select v-model="value" placeholder="请选择" class="mr10px" v-if="!id || formValue.healthyCheckStatus == 0"
+              style="width: 240px;">
               <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>
             <el-button round type="primary" @click="handleDJ" :disabled="detailInfo.dataSource.length == 0"

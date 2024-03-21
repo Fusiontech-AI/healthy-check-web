@@ -1,5 +1,5 @@
 <template>
-  <el-row :gutter="10" class="p10px">
+  <el-row :gutter="10" class="p10px" v-loading="loading">
     <el-col :span="8">
       <el-card shadow="hover">
         <template #header>
@@ -9,7 +9,7 @@
             </div>
             <div>
               <el-button round type="primary" v-if="ydjHas" @click="handleDJ">新增</el-button>
-              <el-button round @click="refset('清空')"
+              <el-button round @click="getDetail(id)"
                 v-if="!formValue.healthyCheckStatus || formValue.healthyCheckStatus == 0">清空</el-button>
               <el-button round @click="preview = false" v-if="id && formValue.healthyCheckStatus != 0 && preview"
                 type="primary">编辑</el-button>
@@ -115,8 +115,8 @@
             缴费状态：{{ filterPayStatus() }}
           </div>
           <div>
-            <el-select v-model="value" placeholder="请选择" class="w-240px mr10px"
-              v-if="formValue.healthyCheckStatus == 0">
+            <el-select v-model="value" placeholder="请选择" class=" mr10px" v-if="formValue.healthyCheckStatus == 0"
+              style="width: 240px;">
               <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>
             <el-button round type="primary" @click="handleBC('暂存')" :disabled="detailInfo.dataSource.length == 0"
@@ -210,7 +210,7 @@ const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 import type { TabsPaneContext } from 'element-plus'
 const formObj = reactive(
   {
-    credentialNumber: '420117199507186555',
+    credentialNumber: '',// '420117199507186555',
     // phone: '18571714455',
     // name: '123',
     // checkType: '11',
@@ -228,6 +228,7 @@ const formObj = reactive(
     tjRegisterZybHazardBosTes: []
   }
 )
+const loading = ref(false)
 const formValue = ref<any>({ ...formObj }) // 基本信息绑定的值
 const teamIdList = ref<any>([]) //单位列表
 const taskList = ref<any>([]) //任务列表
@@ -445,58 +446,63 @@ const getTeamIdList = async () => {
 
 //获得详情
 const getDetail = async (id) => {
-  const { data } = await registerInfo({ id })
-  //组装单位任务.分组数据
-  teamIdList.value = [{ teamName: data.teamName, id: data.teamId }]
-  taskList.value = [{ taskName: data.taskName, id: data.taskId }]
-  groupList.value = [{ groupName: data.groupName, id: data.teamGroupId }]
-  // await dwChange(data.teamId)//查询任务
-  // await rwChange(data.taskId)//查询分组
-  // await teamGroupIdChange(data.teamGroupId)//分组
-  const { tjRegisterZybHazardVos } = data.tjRegisterZybVo || {}
-  data.tjRegisterZybHazardBosTes = tjRegisterZybHazardVos?.map(item => {
-    if (item.hazardFactor == 14999) {
-      data.fs = item.hazardFactorOther
-    }
-    if (item.hazardFactor == 15999) {
-      data.sw = item.hazardFactorOther
-    }
-    if (item.hazardFactor == 13999) {
-      data.wl = item.hazardFactorOther
-    }
-    if (item.hazardFactor == 11999) {
-      data.fc = item.hazardFactorOther
-    }
-    if (item.hazardFactor == 12999) {
-      data.hx = item.hazardFactorOther
-    }
-    return item.hazardFactor
-  }) || []
+  try {
+    loading.value = true
+    const { data } = await registerInfo({ id })
+    //组装单位任务.分组数据
+    teamIdList.value = [{ teamName: data.teamName, id: data.teamId }]
+    taskList.value = [{ taskName: data.taskName, id: data.taskId }]
+    groupList.value = [{ groupName: data.groupName, id: data.teamGroupId }]
+    // await dwChange(data.teamId)//查询任务
+    // await rwChange(data.taskId)//查询分组
+    // await teamGroupIdChange(data.teamGroupId)//分组
+    const { tjRegisterZybHazardVos } = data.tjRegisterZybVo || {}
+    data.tjRegisterZybHazardBosTes = tjRegisterZybHazardVos?.map(item => {
+      if (item.hazardFactor == 14999) {
+        data.fs = item.hazardFactorOther
+      }
+      if (item.hazardFactor == 15999) {
+        data.sw = item.hazardFactorOther
+      }
+      if (item.hazardFactor == 13999) {
+        data.wl = item.hazardFactorOther
+      }
+      if (item.hazardFactor == 11999) {
+        data.fc = item.hazardFactorOther
+      }
+      if (item.hazardFactor == 12999) {
+        data.hx = item.hazardFactorOther
+      }
+      return item.hazardFactor
+    }) || []
 
-  formValue.value = { ...data, ...data?.tjRegisterZybVo, ...data?.tjTeamGroupVo, id: data.id }
-  formValue.value.actualPrice = data.tjTeamGroupVo?.price
-  formValue.value.itemDiscount = data.tjTeamGroupVo?.itemDiscount
-  if (data.reserveStartTime && data.reserveEndTime) {
-    formValue.value.reserveTimeArr = [data.reserveStartTime, data.reserveEndTime]
-  }
-  detailInfo.value.standardAmount = data.totalStandardAmount
-  detailInfo.value.receivableAmount = data.totalAmount
-  detailInfo.value.discount = data.discount
-  detailInfo.value.packageId = data.packageId
-  detailInfo.value.packageName = data.packageName
-  detailInfo.value.teamAmount = data.teamAmount
-  detailInfo.value.paidTotalAmount = data.paidTotalAmount
-  detailInfo.value.paidTeamAmount = data.paidTeamAmount
-  detailInfo.value.paidPersonAmount = data.paidPersonAmount
-  detailInfo.value.personAmount = data.personAmount
-  //data?.tjTeamGroupVo分组信息
-  if (data?.tjTeamGroupVo) {
-    const { groupType, price, groupPayType, addPayType, itemDiscount, addDiscount } = data?.tjTeamGroupVo
-    detailInfo.value.amountCalGroupBo = { groupType, price, groupPayType, addPayType, itemDiscount, addDiscount }
-  }
+    formValue.value = { ...data, ...data?.tjRegisterZybVo, ...data?.tjTeamGroupVo, id: data.id }
+    formValue.value.actualPrice = data.tjTeamGroupVo?.price
+    formValue.value.itemDiscount = data.tjTeamGroupVo?.itemDiscount
+    if (data.reserveStartTime && data.reserveEndTime) {
+      formValue.value.reserveTimeArr = [data.reserveStartTime, data.reserveEndTime]
+    }
+    detailInfo.value.standardAmount = data.totalStandardAmount
+    detailInfo.value.receivableAmount = data.totalAmount
+    detailInfo.value.discount = data.discount
+    detailInfo.value.packageId = data.packageId
+    detailInfo.value.packageName = data.packageName
+    detailInfo.value.teamAmount = data.teamAmount
+    detailInfo.value.paidTotalAmount = data.paidTotalAmount
+    detailInfo.value.paidTeamAmount = data.paidTeamAmount
+    detailInfo.value.paidPersonAmount = data.paidPersonAmount
+    detailInfo.value.personAmount = data.personAmount
+    //data?.tjTeamGroupVo分组信息
+    if (data?.tjTeamGroupVo) {
+      const { groupType, price, groupPayType, addPayType, itemDiscount, addDiscount } = data?.tjTeamGroupVo
+      detailInfo.value.amountCalGroupBo = { groupType, price, groupPayType, addPayType, itemDiscount, addDiscount }
+    }
 
-  data.healthyCheckStatus != 0 && (preview.value = true)
-  await getXm(id)
+    data.healthyCheckStatus != 0 && (preview.value = true)
+    await getXm(id)
+  } finally {
+    loading.value = false
+  }
 }
 //获得需要回显的项目
 const getXm = async (id) => {
