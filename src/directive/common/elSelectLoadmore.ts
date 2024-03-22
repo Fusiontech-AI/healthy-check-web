@@ -28,7 +28,7 @@ export default {
           binding.value();
         }
       }
-      selectWrap.addEventListener('scroll', _.debounce(debounceScroll, 200));
+      selectWrap?.addEventListener('scroll', _.debounce(debounceScroll, 200));
     }
   }
 }
