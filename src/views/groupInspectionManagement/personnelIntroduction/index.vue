@@ -29,7 +29,7 @@
               @change="getTeamTaskData"
             />
             <div class="flex items-center">
-              <el-input placeholder="请输入任务名称" v-model="searchParam.taskName" @input="updateInput"></el-input>
+              <el-input placeholder="请输入任务名称" v-model="searchParam.taskName" @input="updateInput" clearable></el-input>
               <el-button @click="reset" :icon="RefreshRight" style="padding: 8px;margin-left: 10px;"></el-button>
             </div>
           </div>

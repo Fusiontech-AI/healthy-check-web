@@ -204,7 +204,21 @@ export const dynamicRoutes: RouteOption[] = [
         meta: { title: '团检登记', activeMenu: '/deskRegistration/medicalRegistration', icon: '' }
       }
     ]
-  }
+  },
+  {
+    path: '/basicInfo/diagnosticKnowledge',
+    component: Layout,
+    hidden: true,
+    permissions: ['basicInfo:diagnosticKnowledge:list'],
+    children: [
+      {
+        path: 'basicProjecRules/ruleDetail',
+        component: () => import('@/views/basicInformation/diagnosticKnowledge/basicProjecRules/ruleDetail.vue'),
+        name: 'ruleDetail',
+        meta: { title: '基础项目维护详情', activeMenu: '/basicInfo/diagnosticKnowledge/basicProjecRules', icon: '' }
+      }
+    ]
+  },
 ];
 
 /**
