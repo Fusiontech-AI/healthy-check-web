@@ -55,6 +55,7 @@
 
 /*-------------Dialog-------------**/
 .el-overlay {
+  z-index:999 !important;
   overflow: hidden;
 
   .el-overlay-dialog {

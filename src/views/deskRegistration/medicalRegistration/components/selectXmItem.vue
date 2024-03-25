@@ -53,18 +53,14 @@
     </template>
 
     <el-dialog v-model="dialogVisible" title="复制项目" width="50%" v-if="dialogVisible">
-      <ProTable :columns="tableColumns" :toolButton="false" :data="[{ name: 'aaaaaakaskhaskhahadhsa,d' }]"
-        :pagination="false" :searchCol="3" label-position="right">
-
-        <template #gx>
-          <el-radio label="" size="large"></el-radio>
-        </template>
+      <ProTable :columns="tableColumns" :toolButton="false" :request-api="registerPage" :pagination="true"
+        :searchCol="3" label-position="right" :height='400' ref="proTableRef">
       </ProTable>
 
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="dialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="dialogVisible = false">
+          <el-button type="primary" @click="handleFZXM">
             确定
           </el-button>
         </span>
@@ -77,6 +73,7 @@
 import {
   queryBasicListByCombinIds
 } from "@/api/peis/package";
+import { registerPage, queryRegCombinProjectList, registerInfo } from '@/api/deskRegistration/medicalRegistration'
 import TransferFilterComplex from '@/components/TransferFilterComplex'
 const props = defineProps({
   // title
@@ -103,7 +100,7 @@ const props = defineProps({
 })
 const drawerVisible = ref(false)
 const TransferFilterComplexRef = ref(null)
-
+const proTableRef = ref()
 const formValue = reactive({
   standardAmount: 0,
   discount: 0,
@@ -120,7 +117,8 @@ const formValue = reactive({
   personAmount: 0,
 
 })
-
+const { proxy } = getCurrentInstance() as ComponentInternalInstance;
+const { bus_category, bus_physical_type, sys_user_sex } = toRefs<any>(proxy?.useDict('bus_category', 'bus_physical_type', 'sys_user_sex	'))
 const dialogVisible = ref(false)
 let tableColumns = reactive([])
 const tableColumnsTj =
@@ -329,36 +327,36 @@ const tableHeader = ref([
 const handleFzSc = () => {
   dialogVisible.value = true
   tableColumns = [
-    { prop: 'name', label: '体检时间', search: { el: 'date-picker', props: { type: 'daterange' } }, isShow: false },
-    { prop: 'gx', label: '勾选' },
-    { prop: 'name', label: '序号' },
-    { prop: 'name', label: '登记时间' },
-    { prop: 'name', label: '体检日期' },
-    { prop: 'name', label: '业务类型' },
-    { prop: 'name', label: '单位名称' },
-    { prop: 'name', label: '体检类型' },
-    { prop: 'name', label: '任务名称' },
-    { prop: 'name', label: '分组名称' },
-    { prop: 'name', label: '创建人' },
+    { prop: 'healthyCheckTimeArr', label: '体检日期', search: { el: 'date-picker', props: { type: 'daterange', valueFormat: 'YYYY-MM-DD' } }, isShow: false },
+    { type: 'radio', label: '勾选', width: 60 },
+    { type: 'index', label: '序号', width: 60 },
+    { prop: 'registerTimeStart', label: '登记时间' },
+    { prop: 'healthyCheckTimeStart', label: '体检日期' },
+    { prop: 'businessCategory', label: '业务类别', enum: bus_category, },
+    { prop: 'teamName', label: '单位名称' },
+    { prop: 'physicalType', label: '体检类型', enum: bus_physical_type, },
+    { prop: 'taskName', label: '任务名称' },
+    { prop: 'groupName', label: '分组名称' },
+    { prop: 'createByName', label: '创建人' },
   ]
 }
 //复制选择人项目
 const handleFzXzr = () => {
   dialogVisible.value = true
   tableColumns = [
-    { prop: 'name', label: '证件号/体检号', search: { el: 'input' }, isShow: false },
+    { prop: 'credentialNumber', label: '证件号/体检号', search: { el: 'input' }, isShow: false },
     { prop: 'name', label: '姓名', search: { el: 'input' }, isShow: false },
-    { prop: 'name', label: '体检时间', search: { el: 'date-picker', props: { type: 'daterange' } }, isShow: false },
-    { prop: 'gx', label: '勾选' },
-    { prop: 'name', label: '序号' },
-    { prop: 'name', label: '体检号' },
+    { prop: 'healthyCheckTimeArr', label: '体检日期', search: { el: 'date-picker', props: { type: 'daterange', valueFormat: 'YYYY-MM-DD' } }, isShow: false },
+    { type: 'radio', label: '勾选', width: 60 },
+    { type: 'index', label: '序号', width: 60 },
+    { prop: 'healthyCheckCode', label: '体检号' },
     { prop: 'name', label: '姓名' },
-    { prop: 'name', label: '性别' },
-    { prop: 'name', label: '身份证号' },
-    { prop: 'name', label: '业务类型' },
-    { prop: 'name', label: '体检类型' },
-    { prop: 'name', label: '单位名称' },
-    { prop: 'name', label: '登记时间' },
+    { prop: 'gender', label: '性别', enum: sys_user_sex, },
+    { prop: 'credentialNumber', label: '身份证号', },
+    { prop: 'businessCategory', label: '业务类型', enum: bus_category, },
+    { prop: 'physicalType', label: '体检类型', enum: bus_physical_type, },
+    { prop: 'teamName', label: '单位名称' },
+    { prop: 'registerTimeStart', label: '登记时间' },
   ]
 }
 
@@ -426,9 +424,62 @@ const handleHY = () => {
   formValue.personAmount = personAmount
   TransferFilterComplexRef.value.defaultItems()
 }
+//复制项目
+const handleFZXM = async () => {
+  const info = await registerInfo({ id: proTableRef.value.radio })
+  const {
+    totalAmount,
+    totalStandardAmount,
+    discount,
+    packageId,
+    packageName,
+    teamAmount,
+    paidTotalAmount,
+    paidPersonAmount,
+    paidTeamAmount,
+    personAmount } = info.data
+  const { data } = await queryRegCombinProjectList({ id: proTableRef.value.radio })
+  const defaultItemList = data.map(item => {
+    item.required = item.projectRequiredType == '1' ? true : false
+    item.originId = item.id
+    return item
+  }
+  )
+  formValue.defaultItemList = defaultItemList.map((item, i) => {
+    return {
+      sort: i + 1,
+      payType: item.payMode,//变更类型(0个人 1单位 2混合支付)
+      payStatus: item.payStatus,//缴费状态（0：未缴费，1：已缴费，2：申请退费中，3：已退费，）
+      tcFlag: item.projectType,//是否套餐'0'是'1'否
+      teamAmount: item.teamAmount || (item.payMode == 1 ? item.receivableAmount : 0),//单位应收金额
+      personAmount: item.personAmount || (item.payMode == 0 ? item.receivableAmount : 0),//个人应收金额
+      combinProjectCode: '',
+      combinProjectName: item.combinProjectName,
+      standardAmount: item.standardAmount,
+      discount: item.discount,
+      receivableAmount: item.receivableAmount,
+      id: item.combinationProjectId || item.id, //回显取combinationProjectId 新选的取id
+      addFlag: item.addFlag,
+      originId: item.originId,
+      required: item.required
+    }
+  })
+  formValue.standardAmount = totalStandardAmount
+  formValue.receivableAmount = totalAmount
+  formValue.discount = discount
+  formValue.packageId = packageId
+  formValue.packageName = packageName
+  // formValue.teamAmount = teamAmount
+  // formValue.paidTotalAmount = paidTotalAmount
+  // formValue.paidPersonAmount = paidPersonAmount
+  // formValue.paidTeamAmount = paidTeamAmount
+  // formValue.personAmount = personAmount
+  TransferFilterComplexRef.value.defaultItems()
+  dialogVisible.value = false
+}
 //匹配必检项目的勾选
 watch(() => dataSource.value, async (newV) => {
-  const { physicalType } = props.formValue1
+  const { physicalType } = props?.formValue1 || {}
   if (physicalType != 'FSTJ' && physicalType != 'ZYJKTJ') return
   const arr = newV.map(item => item.combinProjectId || item.id)
   if (arr.length == 0) return (formValue.bjxmList = [])
