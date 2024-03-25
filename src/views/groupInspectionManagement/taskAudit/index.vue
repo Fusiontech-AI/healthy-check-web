@@ -14,7 +14,7 @@
               style="width: 100%;"
               @change="getTeamTaskData"
             />
-            <el-input class="mt-2" placeholder="请输入任务名称" v-model="taskName" @input="updateInput"></el-input>
+            <el-input class="mt-2" placeholder="请输入任务名称" v-model="taskName" @input="updateInput" clearable></el-input>
             <div class="tabs">
               <span :class="pendingReview == '0' ? 'active' : ''" @click="updateTabs('0')">待审批</span>
               <span :class="pendingReview == '1' ? 'active' : ''" @click="updateTabs('1')">已审批</span>
