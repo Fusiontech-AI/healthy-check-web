@@ -96,12 +96,12 @@
         </template>
         <template #operation="{ row, $index }">
           <el-button link type="primary" @click="handleAddSubitem(row)">新增子项</el-button>
-          <el-button link type="primary" @click="handleEdit(row)">修改</el-button>
+          <el-button link type="primary" @click="handleEdit(row)">编辑</el-button>
           <el-button link type="primary" @click="handleDelete(row)">删除</el-button>
         </template>
       </ProTable>
     </div>
-    <el-drawer v-model="dialogVisible" title="新增" size="50%">
+    <el-drawer v-model="dialogVisible" :title="addSearchParam?.id?'编辑':'新增'" size="50%">
       <div class="no-card">
         <SearchForm ref="addSearchFormRef" :columns="tableColumns" :search-param="addSearchParam" :search-col="2"
           :rules="addRules">
