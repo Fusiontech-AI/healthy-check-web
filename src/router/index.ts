@@ -201,7 +201,7 @@ export const dynamicRoutes: RouteOption[] = [
     path: '/basicInfo/diagnosticKnowledge',
     component: Layout,
     hidden: true,
-    permissions: ['basicInfo:diagnosticKnowledge:list'],
+    permissions: ['basicInfo:diagnosticKnowledge:basicProjecRules:list'],
     children: [
       {
         path: 'basicProjecRules/ruleDetail',
