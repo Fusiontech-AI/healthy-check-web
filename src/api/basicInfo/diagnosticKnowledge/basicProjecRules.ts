@@ -46,11 +46,21 @@ export const updateRuleTjSet = (params:any) => {
 };
 
 /**
+ * 删除体检项目规则集
+ */
+export const deleteRuleTjSet = (ids:any) => {
+  return request({
+    url: `/peis/tjSet/${ids}`,
+    method: 'DELETE',
+  });
+};
+
+/**
  * 获取体检基础项目参考信息详细信息
  */
-export const basicProjectRef = (id:any) => {
+export const basicProject = (id:any) => {
   return request({
-    url: `/peis/basicProjectRef/${id}`,
+    url: `/peis/basicProject/${id}`,
     method: 'get',
   });
 };
@@ -161,5 +171,15 @@ export const paramTypeMap = () => {
   return request({
     url: '/peis/tjSet/ruleLogicType/paramTypeMap',
     method: 'get'
+  });
+};
+
+
+// 查询部门列表
+export const listDept = (query:any) => {
+  return request({
+    url: '/system/dept/list',
+    method: 'get',
+    params: query
   });
 };

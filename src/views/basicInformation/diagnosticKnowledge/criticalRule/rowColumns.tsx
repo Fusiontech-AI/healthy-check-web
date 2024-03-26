@@ -229,22 +229,85 @@ export const tableColumn = [
     isShowSearch: false
   }
 ];
+
+// 新增表单配置项目
+export const addDialogField = [
+  {
+    prop: 'infoTitle',
+    label: '',
+    search: {
+      span: 2
+    }
+  },
+  {
+    prop: 'name',
+    label: '规则名称',
+    search: {
+      el: 'input'
+    },
+  },
+  {
+    prop: 'zdjyId',
+    label: '诊断建议',
+    search: {
+      el: 'select'
+    },
+    enum: [],
+    fieldNames: { label: 'jymc', value: 'id' },
+  },
+  {
+    prop: 'logicType',
+    label: '逻辑符号',
+    search: {
+      el: 'select'
+    },
+    enum: [],
+  },
+  {
+    prop: 'dealTitle',
+    label: '',
+    search: {
+      span: 2
+    }
+  },
+  {
+    prop: 'recommendDeptCode',
+    label: '临床处理科室',
+    search: {
+      el: 'tree-select',
+      'default-expand-all': true
+    },
+    enum: [],
+    fieldNames: { label: 'deptName', value: 'deptId' }
+  },
+  {
+    prop: 'followType',
+    label: '体检科随访',
+    search: {
+      el: 'select'
+    },
+    enum: [
+      { label: '是', value: '1' },
+      { label: '否', value: '2' }
+    ],
+  }
+]
 // 新增弹窗规则校验
 export const addRule = {
   name: [{ required: true, message: '请输入规则描述', trigger: 'blur' }],
-  zdjyId: [{ required: true, message: '请选择诊断建议', trigger: 'change' }],
+  zdjyId: [{ required: false, message: '请选择诊断建议', trigger: 'change' }],
   resultType: [{ required: true, message: '请选择结果类型', trigger: 'change' }],
-  recommendDeptCode: [{ required: true, message: '请输入推荐就诊科室', trigger: 'blur' }],
+  recommendDeptCode: [{ required: false, message: '请选择临床处理科室', trigger: 'blur' }],
   crisisType: [{ required: true, message: '请选择是否危急值', trigger: 'change' }],
   crisisDeal: [{ required: true, message: '请输入危急值措施', trigger: 'blur' }],
   privacyType: [{ required: true, message: '请选择是否隐私', trigger: 'change' }],
   summaryType: [{ required: true, message: '请选择项目名称进入小结', trigger: 'change' }],
   diagnosisType: [{ required: true, message: '请选择项目名称进入诊断', trigger: 'change' }],
-  followType: [{ required: true, message: '请选择是否随访', trigger: 'change' }],
+  followType: [{ required: true, message: '请选择体检科随访', trigger: 'change' }],
   keyWords: [{ required: true, message: '请输入匹配关键词', trigger: 'blur' }],
   logicType: [{ required: true, message: '请选择逻辑符号', trigger: 'change' }],
   importance: [{ required: true, message: '请选择重要程度逻辑符号', trigger: 'change' }],
-  priority: [{ required: true, message: '请输入优先级', trigger: 'blur' }]
+  priority: [{ required: true, message: '请输入优先级', trigger: 'blur' }],
 };
 
 // 表格子项里面的表单配置项
