@@ -103,13 +103,19 @@
     </div>
     <el-drawer v-model="dialogVisible" :title="addSearchParam?.id?'编辑':'新增'" size="50%">
       <div class="no-card">
-        <SearchForm ref="addSearchFormRef" :columns="tableColumns" :search-param="addSearchParam" :search-col="2"
+        <SearchForm ref="addSearchFormRef" :columns="addDialogFields" :search-param="addSearchParam" :search-col="2"
           :rules="addRules">
+          <template #infoTitleComponent>
+            <div class="mb-3 title">基本信息</div>
+          </template>
           <template #zdjyIdSlot>
             <el-select v-model="addSearchParam.zdjyId" placeholder="请选择诊断建议" v-el-select-loadmore="selectLoadmore"
               clearable filterable remote :remote-method="remoteMethod">
               <el-option v-for="item in diagnosisList" :key="item.id" :label="item.jymc" :value="item.id"></el-option>
             </el-select>
+          </template>
+          <template #dealTitleComponent>
+            <div class="mb-3 title">危急值处理</div>
           </template>
         </SearchForm>
       </div>
@@ -123,10 +129,12 @@
 
 <script setup lang="tsx">
 import _ from 'lodash'
-import { basicProject, queryRuleTjInfoList, addRuleTjInfo, addRuleTjCondition, getRelationTypeMap, getRuleLogicTypeMap, paramTypeMap, updateRuleTjCondition, deleteRuleTjCondition, updateRuleTjInfo, deleteRuleTjInfo } from '@/api/basicInfo/diagnosticKnowledge/basicProjecRules'
+import { basicProject, queryRuleTjInfoList, addRuleTjInfo, addRuleTjCondition, getRelationTypeMap, getRuleLogicTypeMap, paramTypeMap, updateRuleTjCondition, deleteRuleTjCondition, updateRuleTjInfo, deleteRuleTjInfo, listDept } from '@/api/basicInfo/diagnosticKnowledge/basicProjecRules'
 import { getZdjyList } from '@/api/doctorsExamination/inputGeneralResults'
-import { infoFiled, tableColumn, addRule, subitemField, subitemRule } from './rowColumns'
+import { infoFiled, tableColumn, addDialogField, addRule, subitemField, subitemRule } from './rowColumns'
 import { tjksList } from '@/api/basicInfo/basicProjectManagement'
+import { DeptVO } from '@/api/system/dept/types'
+const { proxy } = getCurrentInstance() as ComponentInternalInstance
 const route = useRoute()
 const router = useRouter()
 const initParams = reactive<any>({
@@ -142,6 +150,7 @@ const infoFileds = ref<any>(infoFiled)
 // 基础信息
 const infoSearchParam = ref({})
 const tableColumns = ref<any>(tableColumn)
+const addDialogFields = ref<any>(addDialogField)
 const addRules: any = reactive(addRule)
 const subitemFields = ref<any>(subitemField) // 子集表单配置项
 const subitemRules = reactive(subitemRule) // 子项表单校验
@@ -324,11 +333,11 @@ const handleAddRule = () => {
   dialogVisible.value = true
   const tableData = proTableRef.value.tableData
   addSearchParam.value = {
-    crisisType: '2',
-    privacyType: '2',
-    summaryType: '2',
-    diagnosisType: '2',
-    followType: '2',
+    // crisisType: '2',
+    // privacyType: '2',
+    // summaryType: '2',
+    // diagnosisType: '2',
+    // followType: '2',
     logicType: 'XOR',
     priority: tableData.length !== 0 ? tableData[tableData.length - 1]?.priority - 1 : 10 // 优先级
   }
@@ -437,6 +446,9 @@ const getDiagnosisList = async () => {
 const getDict = async () => {
   const { data: ruleLogicTypeList } = await getRuleLogicTypeMap() // 规则逻辑符号
   const { data: paramTypeList } = await paramTypeMap() // 参数名称
+  const { data: list } = await listDept({ pageSize: -1})
+  const deptList = proxy?.handleTree<DeptVO>(list, "deptId")
+
   const paramTypeArr = []
   // 参数名称
   for (let key in paramTypeList) {
@@ -481,6 +493,22 @@ const getDict = async () => {
         })
       }
       item.enum = arr
+    }
+  })
+  addDialogFields.value.forEach((item: any) => {
+    if (item.prop == 'logicType' && item.search.el == 'select') {
+      const arr = []
+      // 规则逻辑符号
+      for (let key in ruleLogicTypeList) {
+        arr.push({
+          label: ruleLogicTypeList[key],
+          value: key
+        })
+      }
+      item.enum = arr
+    }
+    if (item.prop == 'recommendDeptCode' && item.search.el == 'tree-select') {
+      item.enum = deptList
     }
   })
 }

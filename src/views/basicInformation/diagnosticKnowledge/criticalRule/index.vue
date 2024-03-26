@@ -131,7 +131,7 @@ const rowId = ref('')
 
 // 查看详情
 const goToRule = (row: any) => {
-  router.push({ path: '/basicInfo/diagnosticKnowledge/basicProjecRules/ruleDetail',
+  router.push({ path: '/basicInfo/diagnosticKnowledge/criticalRule/ruleDetail',
     query: {id: row.id, basicProject: row.basicProjectId}
   })
 }
@@ -219,7 +219,7 @@ const handleAdd = () => {
 const treeNodeClickObj = ref<any>({})// 当前选中的节点数据
 const initParam = reactive({
   basicProjectId: '', // 基础项目id
-  ruleType: '1', // 规则类型 1诊断建议 2危急值 3高危异常
+  ruleType: '2', // 规则类型 1诊断建议 2危急值 3高危异常
 })
 // 点击树节点
 const handleNodeClick = (row: any) => {

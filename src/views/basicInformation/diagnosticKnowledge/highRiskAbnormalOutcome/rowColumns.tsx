@@ -1,3 +1,5 @@
+import { useDict } from '@/utils/dict';
+const { bus_high_type, bus_statistical_classification } = toRefs<any>(useDict('bus_high_type', 'bus_statistical_classification'));
 /**
  * 规则详情页 结果维护
  *
@@ -20,20 +22,20 @@ export const infoFiled = [
     prop: 'ksId',
     label: '所属科室',
     search: {
-      el: 'select',
+      el: 'select'
     },
     enum: [],
-    fieldNames: { label: 'ksName', value: 'id' },
+    fieldNames: { label: 'ksName', value: 'id' }
   },
   {
     prop: 'resultType',
     label: '结果类型',
     search: {
-      el: 'select',
+      el: 'select'
     },
     enum: [
-      {label: '数字', value: '0'},
-      {label: '文本', value: '1'},
+      { label: '数字', value: '0' },
+      { label: '文本', value: '1' }
     ]
   },
   // {
@@ -44,14 +46,14 @@ export const infoFiled = [
     prop: 'suitSex',
     label: '性别控制',
     search: {
-      el: 'select',
+      el: 'select'
     },
     enum: [
-      {label: '男', value: '0'},
-      {label: '女', value: '1'},
-      {label: '不限', value: '2'},
+      { label: '男', value: '0' },
+      { label: '女', value: '1' },
+      { label: '不限', value: '2' }
     ]
-  },
+  }
   // {
   //   prop: 'name',
   //   label: '年龄控制'
@@ -229,22 +231,112 @@ export const tableColumn = [
     isShowSearch: false
   }
 ];
+
+// 新增表单配置项目
+export const addDialogField = [
+  {
+    prop: 'infoTitle',
+    label: '',
+    search: {
+      span: 2
+    }
+  },
+  {
+    prop: 'name',
+    label: '规则名称',
+    search: {
+      el: 'input'
+    }
+  },
+  {
+    prop: 'zdjyId',
+    label: '诊断建议',
+    search: {
+      el: 'select'
+    },
+    enum: [],
+    fieldNames: { label: 'jymc', value: 'id' }
+  },
+  {
+    prop: 'icdClassification',
+    label: '阳性分类',
+    search: {
+      el: 'select'
+    },
+    enum: []
+  },
+  {
+    prop: 'statisticsClassification',
+    label: '统计分类',
+    search: {
+      el: 'select'
+    },
+    enum: bus_statistical_classification
+  },
+  {
+    prop: 'logicType',
+    label: '逻辑符号',
+    search: {
+      el: 'select'
+    },
+    enum: []
+  },
+  {
+    prop: 'icdLevel',
+    label: '高危指标类型',
+    search: {
+      el: 'select'
+    },
+    enum: bus_high_type
+  },
+  {
+    prop: 'dealTitle',
+    label: '',
+    search: {
+      span: 2
+    }
+  },
+  {
+    prop: 'recommendDeptCode',
+    label: '临床处理科室',
+    search: {
+      el: 'tree-select',
+      'default-expand-all': true
+    },
+    enum: [],
+    fieldNames: { label: 'deptName', value: 'deptId' }
+  },
+  {
+    prop: 'followType',
+    label: '体检科随访',
+    search: {
+      el: 'select'
+    },
+    enum: [
+      { label: '是', value: '1' },
+      { label: '否', value: '2' }
+    ]
+  }
+];
 // 新增弹窗规则校验
 export const addRule = {
   name: [{ required: true, message: '请输入规则描述', trigger: 'blur' }],
-  zdjyId: [{ required: true, message: '请选择诊断建议', trigger: 'change' }],
+  zdjyId: [{ required: false, message: '请选择诊断建议', trigger: 'change' }],
   resultType: [{ required: true, message: '请选择结果类型', trigger: 'change' }],
-  recommendDeptCode: [{ required: true, message: '请输入推荐就诊科室', trigger: 'blur' }],
+  recommendDeptCode: [{ required: false, message: '请选择临床处理科室', trigger: 'blur' }],
   crisisType: [{ required: true, message: '请选择是否危急值', trigger: 'change' }],
   crisisDeal: [{ required: true, message: '请输入危急值措施', trigger: 'blur' }],
   privacyType: [{ required: true, message: '请选择是否隐私', trigger: 'change' }],
   summaryType: [{ required: true, message: '请选择项目名称进入小结', trigger: 'change' }],
   diagnosisType: [{ required: true, message: '请选择项目名称进入诊断', trigger: 'change' }],
-  followType: [{ required: true, message: '请选择是否随访', trigger: 'change' }],
+  followType: [{ required: true, message: '请选择体检科随访', trigger: 'change' }],
   keyWords: [{ required: true, message: '请输入匹配关键词', trigger: 'blur' }],
   logicType: [{ required: true, message: '请选择逻辑符号', trigger: 'change' }],
   importance: [{ required: true, message: '请选择重要程度逻辑符号', trigger: 'change' }],
-  priority: [{ required: true, message: '请输入优先级', trigger: 'blur' }]
+  priority: [{ required: true, message: '请输入优先级', trigger: 'blur' }],
+  icdClassification: [{ required: true, message: '请选择阳性分类', trigger: 'change' }],
+  statisticsClassification: [{ required: true, message: '请选择统计分类', trigger: 'change' }],
+  icdLevel: [{ required: true, message: '请选择高危指标类型', trigger: 'change' }]
 };
 
 // 表格子项里面的表单配置项
@@ -278,9 +370,12 @@ export const subitemField = [
   {
     label: '结果',
     prop: 'referenceValue',
-    search: { el: 'select', props: {
-      'allow-create': true,
-    } },
+    search: {
+      el: 'select',
+      props: {
+        'allow-create': true
+      }
+    },
     enum: []
   },
   {

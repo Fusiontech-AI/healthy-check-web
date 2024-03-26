@@ -209,13 +209,41 @@ export const dynamicRoutes: RouteOption[] = [
     path: '/basicInfo/diagnosticKnowledge',
     component: Layout,
     hidden: true,
-    permissions: ['basicInfo:diagnosticKnowledge:list'],
+    permissions: ['basicInfo:diagnosticKnowledge:basicProjecRules:list'],
     children: [
       {
         path: 'basicProjecRules/ruleDetail',
         component: () => import('@/views/basicInformation/diagnosticKnowledge/basicProjecRules/ruleDetail.vue'),
         name: 'ruleDetail',
         meta: { title: '基础项目维护详情', activeMenu: '/basicInfo/diagnosticKnowledge/basicProjecRules', icon: '' }
+      }
+    ]
+  },
+  {
+    path: '/basicInfo/diagnosticKnowledge',
+    component: Layout,
+    hidden: true,
+    permissions: ['basicInfo:diagnosticKnowledge:criticalRule:list'],
+    children: [
+      {
+        path: 'criticalRule/ruleDetail',
+        component: () => import('@/views/basicInformation/diagnosticKnowledge/criticalRule/ruleDetail.vue'),
+        name: 'ruleDetail',
+        meta: { title: '危急值详情', activeMenu: '/basicInfo/diagnosticKnowledge/criticalRule', icon: '' }
+      }
+    ]
+  },
+  {
+    path: '/basicInfo/diagnosticKnowledge',
+    component: Layout,
+    hidden: true,
+    permissions: ['basicInfo:diagnosticKnowledge:highRiskAbnormalOutcome:list'],
+    children: [
+      {
+        path: 'highRiskAbnormalOutcome/ruleDetail',
+        component: () => import('@/views/basicInformation/diagnosticKnowledge/highRiskAbnormalOutcome/ruleDetail.vue'),
+        name: 'ruleDetail',
+        meta: { title: '高危异常结果规则详情', activeMenu: '/basicInfo/diagnosticKnowledge/highRiskAbnormalOutcome', icon: '' }
       }
     ]
   },
