@@ -214,8 +214,20 @@ export const dynamicRoutes: RouteOption[] = [
       {
         path: 'basicProjecRules/ruleDetail',
         component: () => import('@/views/basicInformation/diagnosticKnowledge/basicProjecRules/ruleDetail.vue'),
-        name: 'ruleDetail',
+        name: 'ruleDetail1',
         meta: { title: '基础项目维护详情', activeMenu: '/basicInfo/diagnosticKnowledge/basicProjecRules', icon: '' }
+      },
+      {
+        path: 'criticalRule/ruleDetail',
+        component: () => import('@/views/basicInformation/diagnosticKnowledge/criticalRule/ruleDetail.vue'),
+        name: 'ruleDetail2',
+        meta: { title: '危急值详情', activeMenu: '/basicInfo/diagnosticKnowledge/criticalRule', icon: '' }
+      },
+      {
+        path: 'highRiskAbnormalOutcome/ruleDetail',
+        component: () => import('@/views/basicInformation/diagnosticKnowledge/highRiskAbnormalOutcome/ruleDetail.vue'),
+        name: 'ruleDetail3',
+        meta: { title: '高危异常结果规则详情', activeMenu: '/basicInfo/diagnosticKnowledge/highRiskAbnormalOutcome', icon: '' }
       }
     ]
   },

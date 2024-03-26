@@ -12,7 +12,7 @@
               <el-radio-button label="职业项目" value="职业项目" />
               <el-radio-button label="健康项目" value="健康项目" />
             </el-radio-group>
-            <el-input v-model="form.name" placeholder="请输入" suffix-icon="Search" style="width:50%;"
+            <el-input v-model="form.name1" placeholder="请输入" suffix-icon="Search" style="width:50%;"
               :disabled="props.disabled" />
           </div>
           <div>
@@ -101,6 +101,7 @@
 </template>
 
 <script setup lang="tsx" name="TransferFilterComplex">
+import { getFirstLetter } from '@/utils/pinyin';
 import { debounce, isEmpty } from 'lodash'
 import type { TabsPaneContext } from 'element-plus'
 import { combinationProjectList, commonDynamicBilling, queryPackageAndProjectPages, queryProjectByPackageId, queryOccupationalPackage, queryOccupationalProject } from '@/api/peis/projectPort'
@@ -279,7 +280,6 @@ const handleSelected = async (row, index, changeType, inputType) => {
           pySimpleCode,
           receivableAmount,
           standardAmount,
-          addFlag,
           checkType
         } = item
         const tcFlag = isEmpty(tcObj.value) ? "0" : '1'
@@ -295,7 +295,7 @@ const handleSelected = async (row, index, changeType, inputType) => {
           tcFlag,
           teamAmount: payType != '0' ? receivableAmount : 0,
           personAmount: payType == '0' ? receivableAmount : 0,
-          addFlag,
+          addFlag: props.title == '个人加项' ? '1' : '2',//加项标识:1个人加项 2团队加项
           originId: null,
           checkType
         })
@@ -317,7 +317,7 @@ const handleSelected = async (row, index, changeType, inputType) => {
         tcFlag: '1',
         teamAmount: payType != '0' ? standardAmount : 0,
         personAmount: payType == '0' ? standardAmount : 0,
-        addFlag,
+        addFlag: props.title == '个人加项' ? '1' : '2',//加项标识:1个人加项 2团队加项
         originId,
         checkType
       })
@@ -386,7 +386,9 @@ watch(() => rightTableData.value, (newV) => {
   }
   emit('itemChange', { rightTableData: newV, formValue: props.formValue })
 })
-watch(() => form.name, (newVal) => {
+watch(() => form.name1, (newVal) => {
+  //转换成大写
+  form.name = getFirstLetter(newVal);
   getRemote()
 })
 

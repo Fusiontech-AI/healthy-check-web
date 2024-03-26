@@ -17,7 +17,13 @@
         </el-select>
       </template>
       <template #parentId>
-        <el-select v-model="formValue.parentId" placeholder="请选择关联上级单位" @change="handleChangeParentId" :disabled="parentIdDisabled">
+        <el-select
+          v-model="formValue.parentId"
+          placeholder="请选择关联上级单位"
+          @change="handleChangeParentId"
+          :disabled="parentIdDisabled"
+          filterable
+        >
           <el-option v-for="item in parentIdOption" :key="item?.id" :label="item?.teamName" :value="item?.id" />
         </el-select>
       </template>
