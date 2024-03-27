@@ -261,9 +261,13 @@ export const addDialogField = [
     prop: 'icdClassification',
     label: '阳性分类',
     search: {
-      el: 'select'
+      el: 'cascader',
     },
-    enum: []
+    enum: [],
+    fieldNames: {
+      label: 'name',
+      value: 'id'
+    }
   },
   {
     prop: 'statisticsClassification',
@@ -334,7 +338,7 @@ export const addRule = {
   logicType: [{ required: true, message: '请选择逻辑符号', trigger: 'change' }],
   importance: [{ required: true, message: '请选择重要程度逻辑符号', trigger: 'change' }],
   priority: [{ required: true, message: '请输入优先级', trigger: 'blur' }],
-  icdClassification: [{ required: true, message: '请选择阳性分类', trigger: 'change' }],
+  icdClassification: [{ required: true, message: '请选择阳性分类', trigger: 'blur' }],
   statisticsClassification: [{ required: true, message: '请选择统计分类', trigger: 'change' }],
   icdLevel: [{ required: true, message: '请选择高危指标类型', trigger: 'change' }]
 };

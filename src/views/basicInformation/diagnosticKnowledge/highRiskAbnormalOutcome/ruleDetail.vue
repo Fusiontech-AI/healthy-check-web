@@ -117,6 +117,11 @@
           <template #dealTitleComponent>
             <div class="mb-3 title">危急值处理</div>
           </template>
+          <template #icdClassificationSlot>
+          <el-cascader ref="cascaderRef" v-model="addSearchParam.icdClassification" :options="positiveTypeOption"
+            :show-all-levels="true" clearable filterable :props="{ value: 'id', label: 'name', emitPath: false }"
+            @visible-change="visibleChange" ></el-cascader>
+        </template>
         </SearchForm>
       </div>
       <template #footer>
@@ -134,6 +139,7 @@ import { getZdjyList } from '@/api/doctorsExamination/inputGeneralResults'
 import { infoFiled, tableColumn, addDialogField, addRule, subitemField, subitemRule } from './rowColumns'
 import { tjksList } from '@/api/basicInfo/basicProjectManagement'
 import { DeptVO } from '@/api/system/dept/types'
+import { getTjYxTypedList, getYxTypeList } from '@/api/basicInfo/diagnosticKnowledge/masculineClassification'
 const { proxy } = getCurrentInstance() as ComponentInternalInstance
 const route = useRoute()
 const router = useRouter()
@@ -159,7 +165,14 @@ const variableTypeDisabled = ref(false) // 参数类型禁用
 const relationTypeList = ref<any>([]) // 条件下拉数据
 const relationTypeListAll = ref<any>([]) // 条件下拉所有数据
 const referenceValueList = ref<any>([]) // 结果下拉数据
+const positiveTypeOption = ref<any>([]) // 阳性分类下拉数据
+const cascaderRef = ref()
 
+const visibleChange = ()=> {
+  const aaa = _.cloneDeep(positiveTypeOption.value)
+  positiveTypeOption.value = _.cloneDeep(aaa)
+  const _cascader = cascaderRef.value
+}
 // 参数类型
 const changeVariableType = async (val: any, params: any, flag = true) => {
   if (flag) params.relationType = '' // 条件置空
@@ -405,8 +418,9 @@ const getBasicInfo = async () => {
       item.enum = rows
     }
   })
-  const { data } = await basicProject(route.query.basicProject)
-  infoSearchParam.value = data
+  const { data: basicProjectData} = await basicProject(route.query.basicProject) // 基础信息
+  infoSearchParam.value = basicProjectData
+
 }
 getBasicInfo()
 
@@ -442,12 +456,30 @@ const getDiagnosisList = async () => {
   } catch (error) {
   }
 }
-
+const processTree = (tree:any) =>{
+  // 遍历树中的每个节点
+  for (let node of tree) {
+    // 如果节点的children属性是空数组，将其设置为null
+    if (!node.children || (Array.isArray(node.children) && node.children.length === 0)) {
+      // 如果是一级菜单 禁止选择
+      if (node.parentId == '1') {
+        node.disabled = true
+      }
+      node.children = null
+    } else if (Array.isArray(node.children)) {
+      // 如果节点的children属性是非空数组，递归处理子节点
+      processTree(node.children)
+    }
+  }
+}
 const getDict = async () => {
   const { data: ruleLogicTypeList } = await getRuleLogicTypeMap() // 规则逻辑符号
   const { data: paramTypeList } = await paramTypeMap() // 参数名称
   const { data: list } = await listDept({ pageSize: -1})
   const deptList = proxy?.handleTree<DeptVO>(list, "deptId")
+  const {rows: icdClassData} = await getYxTypeList({pageSize: 1000, pageNum: 1}) // 阳性分类
+  positiveTypeOption.value = icdClassData
+  processTree(positiveTypeOption.value) // 处理数据
 
   const paramTypeArr = []
   // 参数名称
