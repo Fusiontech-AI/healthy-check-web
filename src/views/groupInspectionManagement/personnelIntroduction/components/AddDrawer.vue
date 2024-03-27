@@ -1,7 +1,7 @@
 <template>
   <div class="text-[14px] h-full flex flex-col justify-between no-card">
-    <el-scrollbar height="calc(100vh - 130px)" class="p-10px">
-      <SearchForm ref="formRef" :columns="unitGroupColumns" :search-param="formValue" :rules="rules">
+    <el-scrollbar height="calc(100vh - 130px)" class="p-10px" >
+      <SearchForm ref="formRef" :columns="unitGroupColumns" :search-param="formValue" :rules="rules" v-loading="loading">
         <template #groupTitleComponent>
           <div class="font-bold card_title"><span></span>单位分组</div>
         </template>
@@ -69,6 +69,8 @@ import { teamGroupList } from '@/api/leadershipCockpit/overviewMedicalExaminers'
 import { registerAdd } from '@/api/deskRegistration/medicalRegistration';
 import { ElMessage, dayjs } from 'element-plus';
 import { getBirthday, getCurrentAgeByBirthDate, getSex } from '@/utils';
+const { proxy } = getCurrentInstance() as ComponentInternalInstance;
+const { bus_hazardous_factors, bus_job_illumination_source} = toRefs<any>(proxy?.useDict('bus_hazardous_factors', 'bus_job_illumination_source'));
 
 const props = defineProps({
   addShowDrawer: {
@@ -124,7 +126,7 @@ const updateCredentialNum = (val:any) => {
     }
   }
 }
-
+// 监听危害因素
 watch(()=> formValue.value.hazardFactor, (newV)=> {
   unitGroupColumns.value.forEach((item:any)=> {
     if(item.type == 'hazardFactorOther') {
@@ -132,13 +134,46 @@ watch(()=> formValue.value.hazardFactor, (newV)=> {
     }
   })
 })
-
+//监听工种名称
+watch(() => formValue.value.jobCode, (newV) => {
+  const arr = ['00-44', '00-33', '99-990', '99-9999']
+  unitGroupColumns.value.forEach((item:any) => {
+    if (item.label == '其他工种名称') {
+      if (!arr.includes(newV)) {
+        formValue.value.otherJobName = ''
+        item.isShowSearch = false
+      } else {
+        item.isShowSearch = true
+      }
+    }
+  })
+})
+watch(()=> formValue.value.illuminationSource, (newV)=> {
+  formValue.value.jobIlluminationType = ''
+  unitGroupColumns.value.forEach((item:any)=> {
+    if (item.label == '职业照射种类') {
+      if(newV) {
+        item.enum = bus_job_illumination_source.value.filter((val: any) => val.busType === newV)
+      }else {
+        item.enum = []
+      }
+    }
+  })
+})
+const loading = ref(false)
 watch(()=> props.activeTeamTaskInfo, async(newV)=> {
-  // 分组列表
-  const {rows} = await teamGroupList({taskId: newV?.id, pagesize: -1, filterProject: 0})
-  teamGroupData.value = rows
-  // 根据体检状态调整字段的显示或隐藏🫥
-  unitGroupColumns.value = unitGroupColumn({teamIdList: props.teamIdList, teamGroupList: rows, physicalType: newV?.physicalType, updateCredentialType})
+  try {
+    loading.value = true
+    // 分组列表
+    const {rows} = await teamGroupList({taskId: newV?.id, pagesize: -1, filterProject: 0})
+    teamGroupData.value = rows
+    // 根据体检状态调整字段的显示或隐藏🫥
+    unitGroupColumns.value = unitGroupColumn({teamIdList: props.teamIdList, teamGroupList: rows, physicalType: newV?.physicalType, updateCredentialType})
+    loading.value = false
+  } catch (error) {
+    unitGroupColumns.value = unitGroupColumn({teamIdList: props.teamIdList, teamGroupList: [], physicalType: newV?.physicalType, updateCredentialType})
+    loading.value = false
+  }
 }, {immediate: true})
 
 // 打开弹窗和关闭弹窗
@@ -166,15 +201,35 @@ const hanldeSubmit = async() => {
   formRef.value.validate(async(valid:any)=> {
     if(valid) {
       try {
-        const {reserveTime, ...p } = formValue.value
-        await registerAdd({
+        const {reserveTime, dutyStatus, illuminationSource, jobIlluminationType, caseCardType, jobCode, seniorityYear, seniorityMonth, contactSeniorityYear, contactSeniorityMonth, otherJobName, hazardFactor, ...p } = formValue.value
+        const params = {
           reserveStartTime: reserveTime?.[0],
           reserveEndTime: reserveTime?.[1],
-          businessCategory: '1', // 团检
+          businessCategory: '2', // 团检
           occupationalType: formValue.value.physicalType == 'ZYJKTJ'||formValue.value.physicalType == 'FSTJ' ?'0':'1', // 是否职业病
-          healthyCheckTime: dayjs(new Date()).format('YYYY-MM-DD HH:mm:ss'), // 体检日期
-          ...p
-        })
+          // healthyCheckTime: dayjs(new Date()).format('YYYY-MM-DD HH:mm:ss'), // 体检日期
+          ...p,
+          tjRegisterZybBo: {
+            dutyStatus,
+            illuminationSource,
+            jobIlluminationType,
+            caseCardType,
+            jobCode,
+            seniorityYear,
+            seniorityMonth,
+            contactSeniorityYear,
+            contactSeniorityMonth,
+            otherJobName
+          },
+          tjRegisterZybHazardBos: hazardFactor.map((item:any)=> {
+            return {
+              hazardFactor: item,
+              hazardFactorName: bus_hazardous_factors.value.find((val:any)=> val.dictValue == item)?.dictLabel,
+              hazardFactorOther: formValue.value[item]
+            }
+          })
+        }
+        await registerAdd(params)
         ElMessage.success('新增成功！')
         emit('closeDialog')
       } catch (error) { }
