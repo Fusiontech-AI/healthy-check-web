@@ -48,8 +48,18 @@
 <script setup lang="ts">
 import _ from 'lodash'
 import { queryTjKsListByBasicName, queryRuleTjSetPages, addRuleTjSet, updateRuleTjSet, deleteRuleTjSet } from '@/api/basicInfo/diagnosticKnowledge/basicProjecRules'
+const { proxy } = getCurrentInstance() as ComponentInternalInstance;
+const { bus_occupational_type } = toRefs<any>(proxy?.useDict('bus_occupational_type'))
 const router = useRouter();
 const columns = ref<any>([
+  {
+    prop: 'occupationalType',
+    label: '适用类别',
+    search: {
+      el: 'select'
+    },
+    enum: bus_occupational_type
+  },
   {
     prop: 'xmRuleType',
     label: '规则类型',
@@ -59,6 +69,7 @@ const columns = ref<any>([
     enum: [
       { label: '功能检查', value: '1' },
     ],
+    isShowSearch: false,
   },
   {
     prop: 'splitSymbol',
@@ -85,6 +96,14 @@ const columns = ref<any>([
   },
 ])
 const filedsColumns = ref<any>([
+  {
+    prop: 'occupationalType',
+    label: '适用类别',
+    search: {
+      el: 'select'
+    },
+    enum: bus_occupational_type
+  },
   {
     prop: 'xmRuleType',
     label: '规则类型',
@@ -122,7 +141,7 @@ const filedsColumns = ref<any>([
   },
 ])
 const rules = reactive({
-  xmRuleType: [{ required: true, message: '请选择规则类型', trigger: 'change' }],
+  occupationalType: [{ required: true, message: '请选择适用类别', trigger: 'change' }],
 })
 const searchFormRef = ref()
 const searchParams = ref<any>({})
