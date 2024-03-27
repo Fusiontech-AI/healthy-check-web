@@ -246,7 +246,7 @@ export const unitGroupColumn = ({ teamIdList, teamGroupList = [], physicalType, 
       prop: 'jobIlluminationType',
       label: '职业照射种类',
       search: { el: 'select' },
-      enum: bus_job_illumination_source,
+      enum: [],
       fieldNames: { label: 'dictLabel', value: 'dictValue' },
       isShowSearch: physicalType == 'FSTJ'
     },
@@ -268,7 +268,7 @@ export const unitGroupColumn = ({ teamIdList, teamGroupList = [], physicalType, 
       search: {
         el: 'select',
         onChange: updateCredentialType
-      },
+      }
     },
     {
       prop: 'credentialNumber',
@@ -321,7 +321,16 @@ export const unitGroupColumn = ({ teamIdList, teamGroupList = [], physicalType, 
     {
       prop: 'healthyReserveTime',
       label: '预约日期',
-      search: { el: 'date-picker', props: { type: 'date', valueFormat: 'YYYY-MM-DD' } }
+      search: {
+        el: 'date-picker',
+        props: {
+          type: 'date',
+          valueFormat: 'YYYY-MM-DD',
+          disabledDate: (time: any) => {
+            return time.getTime() + 24 * 60 * 60 * 1000 < Date.now();
+          }
+        }
+      }
     },
     {
       prop: 'reserveTime',
@@ -359,7 +368,7 @@ export const unitGroupColumn = ({ teamIdList, teamGroupList = [], physicalType, 
       prop: 'otherJobName',
       label: '其他工种名称',
       search: { el: 'input' },
-      isShowSearch: physicalType == 'ZYJKTJ' || physicalType == 'FSTJ'
+      isShowSearch: false
     },
     {
       prop: 'contactSeniority',
