@@ -18,12 +18,14 @@
                     {{ item.combinProjectName }}
                     <span
                       v-if="item.checkStatus == '0'"
-                      class="text-xs font-normal inline-block text-#F75252 border border-orange-500 border-solid px-1px rounded-sm absolute right--4 top--2"
+                      class="text-xs font-normal inline-block text-#F75252 border border-orange-500 border-solid px-1px rounded-sm absolute right--4"
+                      style="top: -8px;"
                       >未检</span
                     >
                     <span
                       v-if="item.checkStatus == '1'"
-                      class="text-xs font-normal inline-block text-#31D09A border border-#31D09A border-solid px-1px rounded-sm absolute right--4 top--2"
+                      class="text-xs font-normal inline-block text-#31D09A border border-#31D09A border-solid px-1px rounded-sm absolute right--4"
+                      style="top: -8px;"
                       >已检</span
                     >
                   </div>
