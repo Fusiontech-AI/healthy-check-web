@@ -99,7 +99,7 @@ const columns = ref<any>([
       if(row.selectFlag == '1'){
         return <el-select v-model={row.checkResult} placeholder="请选择" style={{width: '95%'}}></el-select>
       }
-      return <el-input v-model={row.checkResult} style={{width: '95%'}}> type="textarea" autosize={{ minRows: 1, maxRows: 3 }} resize="none" placeholder="请输入明细结果"></el-input>
+      return <el-input v-model={row.checkResult} style={{width: '95%'}} type="textarea" autosize={{ minRows: 1, maxRows: 3 }} resize="none" placeholder="请输入明细结果"></el-input>
     },
   },
   { label: '单位', prop: 'unit', width: 70 },
