@@ -14,16 +14,16 @@
             <el-tabs v-model="activetabId" type="card" @tab-change="updateTabs">
               <el-tab-pane v-for="item in combinProjectList" :key="item.id" :name="item.id">
                 <template #label>
-                  <div class="pr-4 relative inline">
+                  <div class="h-full flex items-center relative pr-4 ">
                     {{ item.combinProjectName }}
                     <span
                       v-if="item.checkStatus == '0'"
-                      class="text-xs font-normal inline-block text-#F75252 border border-orange-500 border-solid px-1px rounded-sm absolute right--4 top--2"
+                      class="text-xs font-normal inline-block text-#F75252 border border-orange-500 border-solid px-1px rounded-sm absolute right--4 top-2px"
                       >未检</span
                     >
                     <span
                       v-if="item.checkStatus == '1'"
-                      class="text-xs font-normal inline-block text-#31D09A border border-#31D09A border-solid px-1px rounded-sm absolute right--4 top--2"
+                      class="text-xs font-normal inline-block text-#31D09A border border-#31D09A border-solid px-1px rounded-sm absolute right--4 top-2px"
                       >已检</span
                     >
                   </div>
