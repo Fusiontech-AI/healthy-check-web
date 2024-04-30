@@ -74,7 +74,7 @@ const hasOneShowingChild = (parent: RouteOption, children?:RouteOption[]) => {
 
     // Show parent if there are no child router to display
     if (showingChildren.length === 0) {
-        onlyOneChild.value = { ...parent, path: '', noShowingChildren: true }
+        onlyOneChild.value = { ...parent, path: '', noShowingChildren: true, meta: { ...parent.meta, icon: parent.meta.icon ? parent.meta.icon : '#'} }
         if (parent.name === '2222') {
           console.log(onlyOneChild.value)
         }

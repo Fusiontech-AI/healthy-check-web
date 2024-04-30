@@ -11,7 +11,7 @@
           :disable-transitions="true"
           :key="item.value + ''"
           :index="index"
-          :type="(item.elTagType === 'primary' || item.elTagType === 'default')? '' : item.elTagType"
+          :type="(item.elTagType === 'primary' || item.elTagType === 'default')? 'primary' : item.elTagType"
           :class="item.elTagClass"
         >
           {{ item.label + " " }}
