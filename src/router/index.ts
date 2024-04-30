@@ -181,22 +181,14 @@ export const dynamicRoutes: RouteOption[] = [
     path: '/deskRegistration/medicalRegistration-childPage',
     component: Layout,
     hidden: true,
-    permissions: ['deskRegistration:medicalRegistration:list'],
+    permissions: ['peis:register:list'],
     children: [
       {
         path: 'checkRegistration',
         component: () => import('@/views/deskRegistration/medicalRegistration/checkRegistration/index.vue'),
         name: 'CheckRegistration',
         meta: { title: '个检登记', activeMenu: '/deskRegistration/medicalRegistration', icon: '' }
-      }
-    ]
-  },
-  {
-    path: '/deskRegistration/medicalRegistration-childPage',
-    component: Layout,
-    hidden: true,
-    permissions: ['deskRegistration:medicalRegistration:list'],
-    children: [
+      },
       {
         path: 'groupRegistration',
         component: () => import('@/views/deskRegistration/medicalRegistration/groupRegistration/index.vue'),

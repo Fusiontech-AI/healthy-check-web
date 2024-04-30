@@ -14,16 +14,16 @@
             <el-tabs v-model="activetabId" type="card" @tab-change="updateTabs">
               <el-tab-pane v-for="item in combinProjectList" :key="item.id" :name="item.id">
                 <template #label>
-                  <div class="pr-4 relative">
+                  <div class="h-full flex items-center relative pr-4 ">
                     {{ item.combinProjectName }}
                     <span
                       v-if="item.checkStatus == '0'"
-                      class="text-xs font-normal inline-block text-#F75252 border border-orange-500 border-solid px-1px rounded-sm absolute right--4 top--2"
+                      class="text-xs font-normal inline-block text-#F75252 border border-orange-500 border-solid px-1px rounded-sm absolute right--4 top-2px"
                       >未检</span
                     >
                     <span
                       v-if="item.checkStatus == '1'"
-                      class="text-xs font-normal inline-block text-#31D09A border border-#31D09A border-solid px-1px rounded-sm absolute right--4 top--2"
+                      class="text-xs font-normal inline-block text-#31D09A border border-#31D09A border-solid px-1px rounded-sm absolute right--4 top-2px"
                       >已检</span
                     >
                   </div>
@@ -45,7 +45,7 @@
               </template>
             </ProTable>
           </div>
-          <div class="absolute bottom-0 ">
+          <div class="absolute bottom-2">
             <span class="mr-18px">检查医生：{{ activeTabItem?.checkDoctorName || '-' }}</span>
             <span>检查日期：{{ activeTabItem?.checkTime || '-' }}</span>
           </div>
@@ -97,7 +97,7 @@ const columns = ref<any>([
       if(row.selectFlag == '1'){
         return <el-select v-model={row.checkResult} placeholder="请选择" style={{width: '95%'}}></el-select>
       }
-      return <el-input v-model={row.checkResult} style={{width: '95%'}}> type="textarea" autosize={{ minRows: 1, maxRows: 3 }} resize="none" placeholder="请输入明细结果"></el-input>
+      return <el-input v-model={row.checkResult} style={{width: '95%'}} type="textarea" autosize={{ minRows: 1, maxRows: 3 }} resize="none" placeholder="请输入明细结果"></el-input>
     },
   },
   { label: '单位', prop: 'unit', width: 70 },
