@@ -238,7 +238,7 @@ export const dynamicRoutes: RouteOption[] = [
  */
 const router = createRouter({
   history: createWebHistory(import.meta.env.VITE_APP_CONTEXT_PATH),
-  // linkActiveClass: 'router-link-active',
+  linkActiveClass: 'router-link-active',
   routes: constantRoutes,
   // 刷新时，滚动条位置还原
   scrollBehavior(to, from, savedPosition) {

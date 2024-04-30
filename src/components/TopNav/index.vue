@@ -2,15 +2,16 @@
   <el-menu :default-active="activeMenu" mode="horizontal" @select="handleSelect" :ellipsis="false">
     <template v-for="(item, index) in topMenus">
       <el-menu-item :style="{'--theme': theme}" :index="item.path" :key="index" v-if="index < visibleNumber"
-        ><svg-icon
-        v-if="item.meta && item.meta.icon && item.meta.icon !== '#'"
-        :icon-class="item.meta ? item.meta.icon : '' " /> {{ item.meta?.title }}</el-menu-item
+        ><svg-icon v-if="item.meta && item.meta.icon && item.meta.icon !== '#'" :icon-class="item.meta ? item.meta.icon : '' " />
+        {{ item.meta?.title }}</el-menu-item
       >
     </template>
 
     <!-- 顶部菜单超出数量折叠 -->
     <el-sub-menu :style="{'--theme': theme}" index="more" v-if="topMenus.length > visibleNumber">
-      <template #title>更多菜单</template>
+      <template #title>
+        <div class="pr-2">更多菜单</div>
+      </template>
       <template v-for="(item, index) in topMenus">
         <el-menu-item :index="item.path" :key="index" v-if="index >= visibleNumber"
           ><svg-icon :icon-class="item.meta ? item.meta.icon : '' " /> {{ item.meta?.title }}</el-menu-item
@@ -102,8 +103,8 @@ const activeMenu = computed(() => {
 })
 
 const setVisibleNumber = () => {
-  const width = document.body.getBoundingClientRect().width / 3;
-  visibleNumber.value = parseInt(String(width / 85));
+  const width = document.body.getBoundingClientRect().width / 2;
+  visibleNumber.value = parseInt(String(width / 95));
 }
 
 const handleSelect = (key: string) => {
@@ -123,8 +124,11 @@ const handleSelect = (key: string) => {
     }
     appStore.toggleSideBarHide(true);
   } else {
+
     // 显示左侧联动菜单
-    activeRoutes(key);
+    const routes = activeRoutes(key);
+    // router.push({ path: key });
+    router.push({ path: routes[0]?.path });
     appStore.toggleSideBarHide(false);
   }
 }
@@ -161,28 +165,34 @@ onMounted(() => {
 <style lang="scss">
 .topmenu-container.el-menu--horizontal > .el-menu-item {
   float: left;
-  height: 50px !important;
-  line-height: 50px !important;
-  color: #999093 !important;
+  // height: 50px !important;
+  // line-height: 50px !important;
+  color: #89919F !important;
   padding: 0 5px !important;
   margin: 0 10px !important;
-}
-
-.topmenu-container.el-menu--horizontal > .el-menu-item.is-active, .el-menu--horizontal > .el-sub-menu.is-active .el-submenu__title {
-  border-bottom: 2px solid #{'var(--theme)'} !important;
-  color: #303133;
+  // font-size: 16px;
+  &:hover {
+    color: #5091FF !important;
+  }
 }
 
 /* sub-menu item */
 .topmenu-container.el-menu--horizontal > .el-sub-menu .el-sub-menu__title {
   float: left;
-  height: 50px !important;
-  line-height: 50px !important;
-  color: #999093 !important;
+  // height: 50px !important;
+  // line-height: 50px !important;
+  color: #89919F !important;
   padding: 0 5px !important;
   margin: 0 10px !important;
+  // font-size: 16px;
 }
 
+.topmenu-container.el-menu--horizontal > .el-menu--horizontal>.el-menu-item.is-active,
+.topmenu-container.el-menu--horizontal > .el-menu-item.is-active,
+.el-menu--horizontal>.el-sub-menu.is-active .el-sub-menu__title {
+  border-bottom: 2px solid transparent !important;
+  color: #5091FF !important;
+}
 /* 背景色隐藏 */
 .topmenu-container.el-menu--horizontal>.el-menu-item:not(.is-disabled):focus, .topmenu-container.el-menu--horizontal>.el-menu-item:not(.is-disabled):hover, .topmenu-container.el-menu--horizontal>.el-submenu .el-submenu__title:hover {
   background-color: #ffffff !important;

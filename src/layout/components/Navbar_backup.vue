@@ -6,7 +6,7 @@
 
     <div class="right-menu flex align-center">
       <template v-if="appStore.device !== 'mobile'">
-        <!-- <el-select
+        <el-select
           v-model="companyName"
           clearable
           filterable
@@ -18,10 +18,10 @@
         >
           <el-option v-for="item in tenantList" :key="item.tenantId" :label="item.companyName" :value="item.tenantId"> </el-option>
           <template #prefix><svg-icon icon-class="company" class="el-input__icon input-icon" /></template>
-        </el-select> -->
+        </el-select>
 
         <!-- <header-search id="header-search" class="right-menu-item" /> -->
-        <!-- <search-menu ref="searchMenuRef" /> -->
+        <search-menu ref="searchMenuRef" />
         <el-tooltip content="搜索" effect="dark" placement="bottom">
           <div class="right-menu-item hover-effect" @click="openSearchMenu">
             <svg-icon class-name="search-icon" icon-class="search" />
@@ -42,23 +42,24 @@
             </el-popover>
           </div>
         </el-tooltip>
-        <!-- <el-tooltip content="Github" effect="dark" placement="bottom">
-          <ruo-yi-git id="ruoyi-git" class="right-menu-item hover-effect" />
-        </el-tooltip>
 
+        <!-- 项目文档 -->
         <el-tooltip :content="$t('navbar.document')" effect="dark" placement="bottom">
           <ruo-yi-doc id="ruoyi-doc" class="right-menu-item hover-effect" />
         </el-tooltip>
 
-        <el-tooltip :content="$t('navbar.full')" effect="dark" placement="bottom">
+        <!-- 全屏 -->
+        <!-- <el-tooltip :content="$t('navbar.full')" effect="dark" placement="bottom">
           <screenfull id="screenfull" class="right-menu-item hover-effect" />
-        </el-tooltip>
+        </el-tooltip> -->
 
-        <el-tooltip :content="$t('navbar.language')" effect="dark" placement="bottom">
+        <!-- 语言 -->
+        <!-- <el-tooltip :content="$t('navbar.language')" effect="dark" placement="bottom">
           <lang-select id="lang-select" class="right-menu-item hover-effect" />
-        </el-tooltip>
+        </el-tooltip> -->
 
-        <el-tooltip :content="$t('navbar.layoutSize')" effect="dark" placement="bottom">
+        <!-- 布局大小 -->
+        <!-- <el-tooltip :content="$t('navbar.layoutSize')" effect="dark" placement="bottom">
           <size-select id="size-select" class="right-menu-item hover-effect" />
         </el-tooltip> -->
       </template>
@@ -206,14 +207,14 @@ watch(() => noticeStore.state.value.notices, (newVal, oldVal) => {
 }
 
 .navbar {
-  height: 56px;
+  height: 50px;
   overflow: hidden;
   position: relative;
-  // background: #fff;
+  //background: #fff;
   box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
 
   .hamburger-container {
-    line-height: 56px;
+    line-height: 46px;
     height: 100%;
     float: left;
     cursor: pointer;
