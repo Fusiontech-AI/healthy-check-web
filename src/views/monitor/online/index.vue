@@ -1,5 +1,5 @@
 <template>
-  <div class="p-2">
+  <div>
     <div class="mb-[10px]">
       <el-card shadow="hover">
         <el-form :model="queryParams" ref="queryFormRef" :inline="true">

@@ -2,7 +2,7 @@
   <div class="bg-#fff content">
     <Grid ref="gridRef" :cols="11">
       <GridItem :span="2">
-        <div class="border-r ">
+        <div class="border-r">
           <div class="p-10px">
             <el-date-picker
               v-model="registerParams.healthyCheckTime"
@@ -169,7 +169,7 @@ const updateInput = _.debounce(getRegisterList, 200) // 防抖
 
 <style scoped lang="scss">
 .content {
-  height: calc(100vh - 105px);
+  height: calc(100vh - 85px);
 }
 
 .left_list {

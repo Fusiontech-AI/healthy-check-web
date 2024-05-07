@@ -4,7 +4,7 @@
       v-if="!(actionOption.hasOwnProperty('showResetButton') && !actionOption.showResetButton)"
       v-bind="actionOption?.resetOption"
       @click="handleReset"
-      round
+      style="padding: 5px 26px;"
     >
       {{actionOption?.resetOption?.btnText || '重置'}}
     </el-button>
@@ -13,7 +13,7 @@
       :type="actionOption?.submitOption?.type || 'primary'"
       v-bind="actionOption?.submitOption"
       @click="handleSearch"
-      round
+      style="padding: 5px 26px;"
     >
       {{actionOption?.submitOption?.btnText || '查询'}}
     </el-button>

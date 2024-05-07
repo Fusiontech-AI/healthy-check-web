@@ -8,14 +8,14 @@
               体检人员信息
             </div>
             <div>
-              <el-button round type="primary" v-if="ydjHas" @click="handleDJ">新增</el-button>
-              <el-button round @click="refset('清空')"
+              <el-button type="primary" v-if="ydjHas" @click="handleDJ">新增</el-button>
+              <el-button @click="refset('清空')"
                 v-if="!formValue.healthyCheckStatus || formValue.healthyCheckStatus == 0 && !id">清空</el-button>
-              <el-button round @click="preview = false" v-if="id && formValue.healthyCheckStatus != 0 && preview"
+              <el-button @click="preview = false" v-if="id && formValue.healthyCheckStatus != 0 && preview"
                 type="primary">编辑</el-button>
-              <el-button round @click="getDetail(route.query.id)"
+              <el-button @click="getDetail(route.query.id)"
                 v-if="id && !preview && formValue.healthyCheckStatus != 0">取消</el-button>
-              <el-button round @click="handleBC" v-if="id && !preview && formValue.healthyCheckStatus != 0"
+              <el-button @click="handleBC" v-if="id && !preview && formValue.healthyCheckStatus != 0"
                 type="primary">保存</el-button>
             </div>
           </div>
@@ -38,9 +38,9 @@
               </ImageUpload>
               <div class="mt30px z-999 w-50px">
                 <div class="mb30px">
-                  <el-button type="primary" round>拍照</el-button>
+                  <el-button type="primary">拍照</el-button>
                 </div>
-                <el-button type="primary" round @click="formValue.credentialImage = ''">删除</el-button>
+                <el-button type="primary" @click="formValue.credentialImage = ''">删除</el-button>
               </div>
             </div>
           </template>
@@ -119,19 +119,19 @@
               style="width: 240px;">
               <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>
-            <el-button round type="primary" @click="handleBC('暂存')" :disabled="detailInfo.dataSource.length == 0"
+            <el-button type="primary" @click="handleBC('暂存')" :disabled="detailInfo.dataSource.length == 0"
               v-if="formValue.healthyCheckStatus == 0">暂存</el-button>
-            <el-button round type="primary" @click="handleBC('报到')" :disabled="detailInfo.dataSource.length == 0"
+            <el-button type="primary" @click="handleBC('报到')" :disabled="detailInfo.dataSource.length == 0"
               v-if="formValue.healthyCheckStatus == 0">报到</el-button>
-            <el-button round type="primary" @click="handleDJ"
+            <el-button type="primary" @click="handleDJ"
               v-if="id && formValue.healthyCheckStatus != 0">打印条形码</el-button>
-            <el-button round type="primary" @click="handleDJ"
+            <el-button type="primary" @click="handleDJ"
               v-if="id && formValue.healthyCheckStatus != 0">打印导检单</el-button>
-            <el-button round type="primary" @click="handleJXDJ"
+            <el-button type="primary" @click="handleJXDJ"
               v-if="id && formValue.healthyCheckStatus != 0">继续登记</el-button>
-            <el-button round type="primary" @click="handleUpdate"
+            <el-button type="primary" @click="handleUpdate"
               v-if="id && formValue.healthyCheckStatus != 0">保存</el-button>
-            <el-button round @click="router.go(-1)">返回</el-button>
+            <el-button @click="router.go(-1)">返回</el-button>
           </div>
         </div>
       </el-card>
@@ -148,13 +148,13 @@
               <span class="m10px">未缴金额 ：{{ amountWJ }}</span>
             </div>
             <div>
-              <el-button round type="danger" @click="handleSC('')" v-if="!ydjHas">删除</el-button>
-              <el-button round type="primary" @click="handleGjJx" v-if="!ydjHas">
+              <el-button type="danger" @click="handleSC('')" v-if="!ydjHas">删除</el-button>
+              <el-button type="primary" @click="handleGjJx" v-if="!ydjHas">
                 <el-icon class="avatar-uploader-icon">
                   <plus />
                 </el-icon>个人加项
               </el-button>
-              <el-button round type="primary" @click="handleTjJx" v-if="!ydjHas">
+              <el-button type="primary" @click="handleTjJx" v-if="!ydjHas">
                 <el-icon class="avatar-uploader-icon">
                   <plus />
                 </el-icon>团体加项
@@ -166,7 +166,7 @@
           @selectionChange="selectionChange" ref="proTableRef" height="600">
 
           <template #operation="{ row, $index }">
-            <el-button type="danger" round @click="handleSC($index)"
+            <el-button type="danger" @click="handleSC($index)"
               :disabled="row.checkStatus == 1 || row.payStatus == 1">删除</el-button>
           </template>
         </ProTable>
@@ -182,8 +182,8 @@
           :request-auto="true" :queryParams="queryParams">
         </ProTable>
         <div class="flex justify-end mt-4">
-          <el-button round @click="dialogVisible = false">取消</el-button>
-          <el-button round type="primary" @click="handleYDJ">确定</el-button>
+          <el-button @click="dialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="handleYDJ">确定</el-button>
         </div>
       </el-dialog>
     </el-col>

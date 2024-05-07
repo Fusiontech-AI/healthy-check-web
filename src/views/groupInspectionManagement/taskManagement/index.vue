@@ -38,17 +38,16 @@
       <div class="rwtitle">
         <span>任务详情</span>
         <div>
-          <el-button class="button" type="primary" v-if="form.id && preview"
-            @click="preview = false; activeName = 'first'" round plain>编辑任务</el-button>
-          <el-button class="button" type="" v-if="form.id && !preview"
-            @click="preview = true; handleClickItem(form); activeName = 'first'" round plain>取消编辑</el-button>
-          <el-button class="button" type="primary" @click="handleBCRW" round plain
-            v-if="!preview && (activeName == 'first' || activeName == 'second')">保存任务</el-button>
-          <el-button class="button" type="primary" v-if="form.id" @click="handleSCRW" round plain>删除任务</el-button>
-          <el-button class="button" type="primary" @click="handleS1" v-if="activeName != 'first'" round
-            plain>上一步</el-button>
-          <el-button class="button" type="primary" @click="handleX1(false)" v-if="activeName != 'fourth'" round
-            plain>下一步</el-button>
+          <el-button class="button" type="primary" v-if="form.id && preview" @click="preview = false; activeName = 'first'" plain>编辑任务</el-button>
+          <el-button class="button" type="" v-if="form.id && !preview" @click="preview = true; handleClickItem(form); activeName = 'first'" plain
+            >取消编辑</el-button
+          >
+          <el-button class="button" type="primary" @click="handleBCRW" plain v-if="!preview && (activeName == 'first' || activeName == 'second')"
+            >保存任务</el-button
+          >
+          <el-button class="button" type="primary" v-if="form.id" @click="handleSCRW" plain>删除任务</el-button>
+          <el-button class="button" type="primary" @click="handleS1" v-if="activeName != 'first'" plain>上一步</el-button>
+          <el-button class="button" type="primary" @click="handleX1(false)" v-if="activeName != 'fourth'" plain>下一步</el-button>
         </div>
       </div>
       <div><span>基本信息</span></div>
@@ -544,7 +543,7 @@ const getSecondDetail = async () => {
 
 <style scoped lang="scss">
 .left-view {
-  height: calc(100vh - 320px);
+  height: calc(100vh - 280px);
   overflow-y: auto;
 }
 
@@ -556,6 +555,8 @@ const getSecondDetail = async () => {
 .right {
   flex: 1;
   margin-left: 10px;
+  height: calc(100vh - 87px);
+  overflow-y: auto;
 
   .rwtitle {
     display: flex;

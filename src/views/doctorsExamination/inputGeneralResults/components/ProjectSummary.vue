@@ -18,8 +18,8 @@
       >
         <template #tableHeader="{ isSelected, selectedListIds }">
           <div class="ml-1">
-            <el-button round size="small" type="primary" @click="handleAddSummary">新增</el-button>
-            <el-button round size="small" :disabled="!isSelected" @click="handleDel(selectedListIds)">批量删除</el-button>
+            <el-button size="small" type="primary" @click="handleAddSummary">新增</el-button>
+            <el-button size="small" :disabled="!isSelected" @click="handleDel(selectedListIds)">批量删除</el-button>
           </div>
         </template>
       </ProTable>
@@ -37,8 +37,8 @@
         ></ProTable>
       </div>
       <div class="w-full flex justify-end mt-18px">
-        <el-button round @click="projectDialogVisible = false">取消</el-button>
-        <el-button type="primary" round @click="handleSubmit">确定</el-button>
+        <el-button @click="projectDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="handleSubmit">确定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -74,7 +74,6 @@ const handleDel = async(ids:any) => {
   ElMessageBox.confirm(`是否确认将选中的${ids.length}条项目小结删除？`, '确认删除', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
-    roundButton: true,
     type: 'warning',
   }).then(async()=> {
     await delRegProjectSummary(ids)
@@ -91,7 +90,6 @@ const handleSubmit = () => {
     inputErrorMessage: '请输入项目小结',
     inputPattern: /.+/,
     inputType: 'textarea',
-    roundButton: true,
     customClass: 'message_box_class',
     confirmButtonText: '确定',
     cancelButtonText: '取消',

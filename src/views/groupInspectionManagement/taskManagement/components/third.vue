@@ -3,8 +3,8 @@
     <div style="display:flex;align-items:center;justify-content:space-between">
       <div>* 请根据当前任务所选体检类型，下载对应模板后再上传</div>
       <div class="mb10px">
-        <el-button type="primary" @click="importTemplate" round plain :disabled="preview">下载模板</el-button>
-        <el-button type="primary" @click="batchImportDialog = true" round plain :disabled="preview">批量导入</el-button>
+        <el-button type="primary" @click="importTemplate" plain :disabled="preview">下载模板</el-button>
+        <el-button type="primary" @click="batchImportDialog = true" plain :disabled="preview">批量导入</el-button>
       </div>
     </div>
     <ProTable ref="proTableRef" :columns="tableColumns" :toolButton="false" :request-api="queryTaskReviewRegister"
@@ -32,8 +32,8 @@
         </Grid> -->
       </el-scrollbar>
       <div class="flex justify-end mt-4">
-        <el-button round @click="showPersonDialog = false">取消</el-button>
-        <el-button round type="primary" @click="showPersonDialog = false">确定</el-button>
+        <el-button @click="showPersonDialog = false">取消</el-button>
+        <el-button type="primary" @click="showPersonDialog = false">确定</el-button>
       </div>
     </el-dialog>
   </div>

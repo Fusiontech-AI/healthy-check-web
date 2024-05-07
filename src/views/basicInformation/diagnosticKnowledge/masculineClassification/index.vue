@@ -125,7 +125,6 @@ const handleDelete = (row:any) => {
     cancelButtonText: '取消',
     confirmButtonText: '确定',
     type: 'warning',
-    roundButton: true
   }).then(async()=> {
     await delYxType([row.id])
     proTableRef.value.getTableList()

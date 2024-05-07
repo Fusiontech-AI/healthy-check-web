@@ -11,7 +11,7 @@
         <template #credentialNumberSlot>
           <div class="flex">
             <el-input v-model="formValue.credentialNumber" @input="updateCredentialNum" placeholder="请输入证件号" clearable></el-input>
-            <el-button class="ml-1" round type="primary" style="padding: 5px 8px;">读取</el-button>
+            <el-button class="ml-1" type="primary" style="padding: 5px 8px;">读取</el-button>
           </div>
         </template>
         <template #contactSeniorityComponent>
@@ -57,8 +57,8 @@
       </SearchForm>
     </el-scrollbar>
     <div class="flex justify-end mt-4">
-      <el-button round @click="hanldeClose">取消</el-button>
-      <el-button round type="primary" @click="hanldeSubmit">确定</el-button>
+      <el-button @click="hanldeClose">取消</el-button>
+      <el-button type="primary" @click="hanldeSubmit">确定</el-button>
     </div>
   </div>
 </template>

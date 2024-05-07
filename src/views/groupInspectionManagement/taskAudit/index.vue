@@ -24,7 +24,6 @@
               <el-checkbox v-model="allChecked" size="large" @change="handleCheckAllChange">全选</el-checkbox>
               <el-button
                 :type="pendingReview == '0'?'primary':'danger'"
-                round
                 size="small"
                 :disabled="disabledBatchAudit"
                 @click="handleBatchAudit(pendingReview)"
@@ -32,7 +31,7 @@
               >
             </div>
           </div>
-          <el-scrollbar class="left_list" height="calc(100vh - 295px)">
+          <el-scrollbar class="left_list" height="calc(100vh - 275px)">
             <div v-loading="teamTaskLoading">
               <template v-if="teamTaskList && teamTaskList.length !== 0">
                 <el-card
@@ -46,7 +45,7 @@
                   <div class="flex items-center">
                     <el-checkbox v-model="item.checked" size="large" @click.stop />
                     <span class="ml-2 text-[#141C28] font-normal">{{ item?.signDate }}</span>
-                    <span class="ml-auto px-[3px] rounded-[2px] font-bold text-[#fff]" :class="item.physicalType">{{
+                    <span class="ml-auto px-[3px] ed-[2px] font-bold text-[#fff]" :class="item.physicalType">{{
                       bus_physical_type?.find((val: any) => val.dictValue == item.physicalType)?.label?.substring(0,
                         1)
                     }}</span>
@@ -67,11 +66,11 @@
       <el-col :span="19">
         <div class="content" v-loading="rightLoading">
           <div class="flex justify-end pt-10px pr-10px">
-            <el-button round>委托协议预览</el-button>
-            <el-button round :disabled="basicInfoData.reviewResult !== '0'" type="primary" @click="showDrawer = true">任务审核</el-button>
+            <el-button>委托协议预览</el-button>
+            <el-button :disabled="basicInfoData.reviewResult !== '0'" type="primary" @click="showDrawer = true">任务审核</el-button>
           </div>
           <div class="divider"></div>
-          <el-scrollbar height="calc(100vh - 185px)" class="p-10px">
+          <el-scrollbar height="calc(100vh - 165px)" class="p-10px">
             <div>
               <div class="my-2 flex justify-between items-center">
                 <div class="card_title"><span></span>任务基础信息</div>
@@ -165,25 +164,17 @@
     <el-dialog title="分组详情" v-model="showGroupDialog" width="70%">
       <group-details :grounDetailItem="grounDetailItem"></group-details>
       <div class="flex justify-end mt-4">
-        <el-button round @click="showGroupDialog = false; grounDetailItem = {}">取消</el-button>
-        <el-button round type="primary" @click="showGroupDialog = false; grounDetailItem = {}">确定</el-button>
+        <el-button @click="showGroupDialog = false; grounDetailItem = {}">取消</el-button>
+        <el-button type="primary" @click="showGroupDialog = false; grounDetailItem = {}">确定</el-button>
       </div>
     </el-dialog>
     <el-dialog title="人员信息详情" v-model="showPersonDialog" width="45%">
       <el-scrollbar height="550px" class="no-card">
         <SearchForm ref="formRef" :columns="personColumns" :search-param="personInfo" :search-col="2" :preview="true"></SearchForm>
-        <!-- <Grid ref="gridRef" :gap="20" :cols="2">
-          <GridItem :span="1" v-for="item in personColumns " :key="item.label">
-            <div class="flex text-[14px] text-[#141C28] ml-4">
-              <span class="w-[120px] text-[#89919F]">{{ item.label }}：</span>
-              <span class="flex-1">{{ item.value }}</span>
-            </div>
-          </GridItem>
-        </Grid> -->
       </el-scrollbar>
       <div class="flex justify-end mt-4">
-        <el-button round @click="showPersonDialog = false">取消</el-button>
-        <el-button round type="primary" @click="showPersonDialog = false">确定</el-button>
+        <el-button @click="showPersonDialog = false">取消</el-button>
+        <el-button type="primary" @click="showPersonDialog = false">确定</el-button>
       </div>
     </el-dialog>
   </div>

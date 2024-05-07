@@ -220,8 +220,12 @@
     .el-table__header .el-table__cell>.cell {
       // white-space: nowrap;
       white-space: wrap;
+      color: #89919F ;
+      font-weight: normal ;
     }
-
+    .el-table__body .el-table__cell {
+      color: #3F4755;
+    }
     // 解决表格数据为空时样式不居中问题(仅在element-plus中)
     .el-table__empty-block {
       position: absolute;

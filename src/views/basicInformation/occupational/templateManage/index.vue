@@ -11,7 +11,7 @@
         <div class="table-box">
           <ProTable class="search-table" ref="proTable" :columns="columns" :toolButton="false" :data="[{ ksName: '11' }]">
             <template #tableHeader="scope">
-              <el-button round type="primary" style="padding: 5px 30px;" @click="showDrawer = true">新增</el-button>
+              <el-button type="primary" style="padding: 5px 30px;" @click="showDrawer = true">新增</el-button>
             </template>
             <template #operation>
               <el-button type="primary" link @click="showDrawer = true">查看</el-button>

@@ -3,9 +3,9 @@
     <ProTable ref="proTable" :columns="tableColumns" :toolButton="false" :request-api="packageList"
       :init-param="initParam">
       <template #tableHeader="scope">
-        <el-button type="primary" round @click="handleAdd">新增</el-button>
-        <el-button type="danger" round @click="handleDisable">批量禁用</el-button>
-        <el-button round type="danger" @click="handleDel">批量删除</el-button>
+        <el-button type="primary" @click="handleAdd">新增</el-button>
+        <el-button type="danger" @click="handleDisable">批量禁用</el-button>
+        <el-button type="danger" @click="handleDel">批量删除</el-button>
       </template>
       <template #operation="{ row }">
         <el-button type="primary" link @click="handleXq(row)">详情</el-button>
