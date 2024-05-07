@@ -43,7 +43,6 @@
             class="mb-[10px]"
             :disabled="!scope.isSelected"
             type="primary"
-            round
             v-if="activeTab==='1'"
             @click="handleFreeze(scope.selectedListIds)"
           >
@@ -53,7 +52,6 @@
             class="mb-[10px]"
             :disabled="!scope.isSelected"
             type="primary"
-            round
             v-if="activeTab==='0'"
             @click="handleUnfreeze(scope.selectedListIds)"
             >解冻</el-button

@@ -5,7 +5,7 @@
         <template #header>
           <div class="flex justify-between">
             体检人员信息
-            <div><el-button type="primary" round @click="handleXg" :disabled="!formValue.id">保存</el-button></div>
+            <div><el-button type="primary" @click="handleXg" :disabled="!formValue.id">保存</el-button></div>
           </div>
         </template>
         <SearchForm ref="formRef" :columns="formColumns" :search-param="formValue" :search-col="2" :rules="rules"
@@ -31,10 +31,10 @@
       <el-card shadow="hover">
         <div>体检号:
           <el-input v-model="value" clearable :placeholder="`请输入`" style="width: 200px;"></el-input>
-          <el-button type="primary" round class="ml10px" @click="handleCx">查询</el-button>
-          <el-button type="primary" round v-if="!formValue.id" :disabled="!formValue.id">电子存档</el-button>
+          <el-button type="primary" class="ml10px" @click="handleCx">查询</el-button>
+          <el-button type="primary" v-if="!formValue.id" :disabled="!formValue.id">电子存档</el-button>
           <el-dropdown class="mx10px" v-else>
-            <el-button type="primary" round>电子存档</el-button>
+            <el-button type="primary">电子存档</el-button>
             <template #dropdown>
               <el-dropdown-menu>
                 <el-dropdown-item>对接高拍仪，可直接调用拍摄储存</el-dropdown-item>
@@ -42,8 +42,8 @@
               </el-dropdown-menu>
             </template>
           </el-dropdown>
-          <el-button type="danger" round @click="handleCxOrHs(1)" :disabled="!formValue.id">撤销</el-button>
-          <el-button type="primary" round @click="handleCxOrHs(0)" :disabled="!formValue.id">回收</el-button>
+          <el-button type="danger" @click="handleCxOrHs(1)" :disabled="!formValue.id">撤销</el-button>
+          <el-button type="primary" @click="handleCxOrHs(0)" :disabled="!formValue.id">回收</el-button>
         </div>
         <el-radio-group v-model="radio1" size="large" class="my15px" v-if="formValue.id">
           <el-radio-button :label="item.label" v-for="(item, i) of radioList1" @change="handleRadio1Change(i)" />
@@ -65,19 +65,19 @@
           v-if="radio1 != '电子导检单' && formValue.id" ref="proTable">
           <template #tableHeader>
             <div v-if="radio1 == '未检项目'">
-              <el-button type="primary" round @click="handleFq">批量放弃</el-button>
-              <el-button type="primary" round @click="handleYq">批量延期</el-button>
+              <el-button type="primary" @click="handleFq">批量放弃</el-button>
+              <el-button type="primary" @click="handleYq">批量延期</el-button>
             </div>
-            <el-button type="primary" round v-if="radio1 == '延期项目'" @click="handleYq">批量改期</el-button>
-            <el-button type="primary" round v-if="radio1 == '弃检项目' || radio1 == '延期项目'" @click="handleHf">批量恢复</el-button>
+            <el-button type="primary" v-if="radio1 == '延期项目'" @click="handleYq">批量改期</el-button>
+            <el-button type="primary" v-if="radio1 == '弃检项目' || radio1 == '延期项目'" @click="handleHf">批量恢复</el-button>
           </template>
           <template #operation="{ row }">
             <div v-if="radio1 == '未检项目'">
-              <el-button type="primary" round @click="handleYq(row)">延期</el-button>
-              <el-button type="danger" round @click="handleFq(row)">弃检</el-button>
+              <el-button type="primary" @click="handleYq(row)">延期</el-button>
+              <el-button type="danger" @click="handleFq(row)">弃检</el-button>
             </div>
-            <el-button type="primary" round v-if="radio1 == '延期项目'" @click="handleYq(row)">改期</el-button>
-            <el-button type="primary" round v-if="radio1 == '弃检项目' || radio1 == '延期项目'"
+            <el-button type="primary" v-if="radio1 == '延期项目'" @click="handleYq(row)">改期</el-button>
+            <el-button type="primary" v-if="radio1 == '弃检项目' || radio1 == '延期项目'"
               @click="handleHf(row)">恢复</el-button>
           </template>
         </ProTable>

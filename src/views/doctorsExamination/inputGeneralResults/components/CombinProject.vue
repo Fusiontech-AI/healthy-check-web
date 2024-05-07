@@ -34,11 +34,11 @@
           <div class="no-card mt-4px">
             <ProTable ref="projectTableRef" :columns="columns" :data="basicProjectList" :pagination="false" row-key="id" height="calc(100vh - 300px)">
               <template #tableHeader="{isSelected, selectedList,selectedListIds }">
-                <el-button round type="primary" @click="handleSave" :disabled="basicProjectList.length == 0">保存</el-button>
-                <el-button round :disabled="!isSelected" @click="handleClear(selectedList)">批量清除</el-button>
-                <el-button round :disabled="!isSelected" @click="handleAbandon(selectedListIds)">弃检</el-button>
-                <el-button round>使用上次体检结果</el-button>
-                <el-button round @click="handleQuickEntry">快速录入</el-button>
+                <el-button type="primary" @click="handleSave" :disabled="basicProjectList.length == 0">保存</el-button>
+                <el-button :disabled="!isSelected" @click="handleClear(selectedList)">批量清除</el-button>
+                <el-button :disabled="!isSelected" @click="handleAbandon(selectedListIds)">弃检</el-button>
+                <el-button>使用上次体检结果</el-button>
+                <el-button @click="handleQuickEntry">快速录入</el-button>
               </template>
               <template #toolButton>
                 <el-button link class="mt-2">查看图片>></el-button>
@@ -67,8 +67,8 @@
         </el-form>
       </el-scrollbar>
       <div class="w-full flex justify-end mt-18px">
-        <el-button round @click="quickEntryDialog = false">取消</el-button>
-        <el-button type="primary" round>确定</el-button>
+        <el-button @click="quickEntryDialog = false">取消</el-button>
+        <el-button type="primary">确定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -143,7 +143,6 @@ const handleAbandon = (ids: any) => {
     </>,
     customStyle: {maxWidth: '435px'},
     showCancelButton: true,
-    roundButton: true,
   }).then(()=> {
 
   })
@@ -153,7 +152,6 @@ const handleClear = (selectedList:any)=> {
   ElMessageBox.confirm(`是否确认将选中的${selectedList.length}条项目结果清除？`, '确认清除', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
-    roundButton: true,
     type: 'warning',
   }).then(()=> {
     selectedList.forEach((item:any)=> {

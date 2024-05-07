@@ -11,10 +11,8 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="性别：">
-              <el-select :filterable="true" clearable :placeholder="`请选择性别`" style="width: 100%;"
-                v-model="queryParams.params.gender">
-                <el-option v-for="option of sys_user_sex" :key="option.value" :label="option.label"
-                  :value="option.value"></el-option>
+              <el-select :filterable="true" clearable :placeholder="`请选择性别`" style="width: 100%;" v-model="queryParams.params.gender">
+                <el-option v-for="option of sys_user_sex" :key="option.value" :label="option.label" :value="option.value"></el-option>
               </el-select>
             </el-form-item>
           </el-col>
@@ -24,15 +22,15 @@
       <template #tableHeader>
         <div class="flex justify-between">
           <div>
-            <el-button type="primary" round @click="handleBD">报到</el-button>
-            <el-button type="primary" round @click="handleGj">个检登记</el-button>
-            <el-button type="primary" round @click="handleTj">团检登记</el-button>
-            <el-button type="primary" round @click="handleAdd">打印导检单</el-button>
-            <el-button type="primary" round @click="handleAdd">打印条码</el-button>
-            <el-button type="primary" round @click="handleGToT">个转团</el-button>
-            <el-button type="primary" round @click="handleTToG">团转个</el-button>
-            <el-button round>取消登记</el-button>
-            <el-button round>取消报到</el-button>
+            <el-button type="primary" @click="handleBD">报到</el-button>
+            <el-button @click="handleGj">个检登记</el-button>
+            <el-button @click="handleTj">团检登记</el-button>
+            <el-button @click="handleAdd">打印导检单</el-button>
+            <el-button @click="handleAdd">打印条码</el-button>
+            <el-button @click="handleGToT">个转团</el-button>
+            <el-button @click="handleTToG">团转个</el-button>
+            <el-button plain>取消登记</el-button>
+            <el-button plain>取消报到</el-button>
           </div>
           <div class="flex">
             <div class="flex items-center mr-20px">
@@ -64,16 +62,13 @@
       </template>
     </ProTable>
     <el-dialog v-model="dialogVisible" title="个检转团检" width="30%" :append-to-body="true">
-      <SearchForm ref="formRefGToT" :columns="formColumns" :search-param="formValue" :search-col="1" :rules="rules"
-        label-position="right">
+      <SearchForm ref="formRefGToT" :columns="formColumns" :search-param="formValue" :search-col="1" :rules="rules" label-position="right">
       </SearchForm>
 
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="dialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="dialogGToT">
-            确定
-          </el-button>
+          <el-button type="primary" @click="dialogGToT"> 确定 </el-button>
         </span>
       </template>
     </el-dialog>
@@ -117,8 +112,8 @@ const handleTaskChange = async (val: any) => {
 const { sys_user_sex, bus_physical_type, bus_category, bus_healthy_check_status, bus_person_category, bus_personnel_marriage_status } = toRefs<any>(proxy?.useDict('sys_user_sex', 'bus_physical_type', 'bus_category', 'bus_healthy_check_status', 'bus_person_category', 'bus_personnel_marriage_status'))
 
 const tableColumns = reactive([
-  { type: 'selection', },
-  { prop: 'healthyCheckCode', label: '体检号', search: { el: 'input' }, isShow: false },
+  { type: 'selection', fixed: 'left', width: 30},
+  { prop: 'healthyCheckCode', label: '体检号', search: { el: 'input' }, isShow: false,},
   { prop: 'name', label: '姓名', search: { el: 'input', }, isShow: false, slot: 'xm' },
   // { prop: 'gender', label: '性别', search: { el: 'select' }, enum: sys_user_sex, isShow: false },
   { prop: 'healthyCheckTimeArr', label: '体检日期', search: { el: 'date-picker', props: { type: 'daterange', valueFormat: 'YYYY-MM-DD' } }, isShow: false },
@@ -134,7 +129,7 @@ const tableColumns = reactive([
   { prop: 'chargeTimeArr', label: '支付日期', search: { el: 'date-picker', props: { type: 'daterange', valueFormat: 'YYYY-MM-DD' } }, isShow: false },
   { prop: 'createByName', label: '创建人', search: { el: 'input' }, isShow: false },
   { prop: 'guideSheetReceived', label: '回收', search: { el: 'select' }, isShow: false, enum: [{ value: '0', label: '是' }, { value: '1', label: '否' }] },
-  { prop: 'healthyCheckCode', label: '体检号' },
+  { prop: 'healthyCheckCode', label: '体检号',  fixed: 'left'  },
   { prop: 'recordCode', label: '档案号', width: 120 },
   { prop: 'credentialNumber', label: '证件号', width: 180 },
   { prop: 'businessCategory', label: '业务类别', enum: bus_category, width: 100 },

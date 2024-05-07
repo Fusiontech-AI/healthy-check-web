@@ -103,7 +103,7 @@
         </template>
       </el-table-column>
     </el-table>
-    <el-button type="primary" round plain @click="handleAdd" :disabled="preview" class="mt10px">新增一行</el-button>
+    <el-button type="primary" plain @click="handleAdd" :disabled="preview" class="mt10px">新增一行</el-button>
   </div>
 </template>
 

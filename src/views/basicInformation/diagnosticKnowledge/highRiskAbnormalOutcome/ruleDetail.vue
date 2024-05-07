@@ -324,7 +324,6 @@ const handleDelSubitem = (row: any, item: any, index: any) => {
     cancelButtonText: '取消',
     confirmButtonText: '确定',
     type: 'warning',
-    roundButton: true
   }).then(async () => {
     await deleteRuleTjCondition({ id: item.id, ruleId: row.id })
     ElMessage.success('删除成功！')
@@ -398,7 +397,6 @@ const handleDelete = (item: any) => {
     cancelButtonText: '取消',
     confirmButtonText: '确定',
     type: 'warning',
-    roundButton: true
   }).then(async () => {
     await deleteRuleTjInfo({ rulesetId: route.query.id, id: item.id })
     ElMessage.success('删除成功！')

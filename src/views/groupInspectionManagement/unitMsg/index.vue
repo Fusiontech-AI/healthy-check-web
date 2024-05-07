@@ -63,10 +63,10 @@
               </div>
             </div>
             <div class="pr-[10px]" v-if="activeTab==0">
-              <el-button round v-if="activeTab === 0 && selectTreeNodeId" @click="handleDelete"> 删除 </el-button>
-              <el-button round @click="handleCancle" v-if="!editFlag">取消</el-button>
-              <el-button type="primary" round @click="handleSave" v-if="!editFlag"> 保存 </el-button>
-              <el-button type="primary" round @click="handleEdit" v-if="editFlag"> 编辑 </el-button>
+              <el-button v-if="activeTab === 0 && selectTreeNodeId" @click="handleDelete"> 删除 </el-button>
+              <el-button @click="handleCancle" v-if="!editFlag">取消</el-button>
+              <el-button type="primary" @click="handleSave" v-if="!editFlag"> 保存 </el-button>
+              <el-button type="primary" @click="handleEdit" v-if="editFlag"> 编辑 </el-button>
             </div>
           </div>
           <div class="line2"></div>

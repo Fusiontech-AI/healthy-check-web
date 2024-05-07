@@ -107,14 +107,14 @@
       </el-scrollbar>
       <div class="flex justify-end">
         <template v-if="steps < 3">
-          <el-button round @click="handleCancelReupload(1)" v-if="steps == 1 && errorList.length == 0 ">取消</el-button>
-          <el-button round @click="handleCancelReupload(2)" v-else>重新上传</el-button>
+          <el-button @click="handleCancelReupload(1)" v-if="steps == 1 && errorList.length == 0 ">取消</el-button>
+          <el-button @click="handleCancelReupload(2)" v-else>重新上传</el-button>
         </template>
-        <el-button round type="primary" v-if="steps == 1 || steps == 2" :disabled="successList.length == 0" @click="handleNextStep">
+        <el-button type="primary" v-if="steps == 1 || steps == 2" :disabled="successList.length == 0" @click="handleNextStep">
           下一步
         </el-button>
-        <el-button round type="primary" v-if="steps == 3" @click="steps++">完成</el-button>
-        <el-button round type="primary" v-if="steps == 4" @click="handleCancelReupload(1)">关闭</el-button>
+        <el-button type="primary" v-if="steps == 3" @click="steps++">完成</el-button>
+        <el-button type="primary" v-if="steps == 4" @click="handleCancelReupload(1)">关闭</el-button>
       </div>
     </div>
   </div>

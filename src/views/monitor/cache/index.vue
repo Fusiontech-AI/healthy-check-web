@@ -1,5 +1,5 @@
 <template>
-  <div class="p-2">
+  <div >
     <el-row>
       <el-col :span="24" class="card-box">
         <el-card shadow="hover">

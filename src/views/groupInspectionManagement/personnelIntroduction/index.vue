@@ -30,10 +30,10 @@
             />
             <div class="flex items-center">
               <el-input placeholder="请输入任务名称" v-model="searchParam.taskName" @input="updateInput" clearable></el-input>
-              <el-button @click="reset" :icon="RefreshRight" style="padding: 8px;margin-left: 10px;"></el-button>
+              <el-button @click="reset" :icon="RefreshRight" plain style="padding: 8px;min-width: auto;margin-left: 10px;"></el-button>
             </div>
           </div>
-          <el-scrollbar class="list_card" height="calc(100vh - 238px)">
+          <el-scrollbar class="list_card" height="calc(100vh - 218px)">
             <div v-loading="teamTaskLoading">
               <template v-if="teamTaskList && teamTaskList.length !== 0">
                 <el-card
@@ -71,13 +71,13 @@
       <el-col :span="19">
         <div class="content">
           <div class="flex justify-end p-10px">
-            <el-button round type="primary" plain @click="importTemplate">下载模板</el-button>
+            <el-button type="primary" plain @click="importTemplate">下载模板</el-button>
             <!-- :disabled="proTableRef.pageable.total == 0" -->
-            <el-button round type="primary" plain @click="batchExport" :disabled="proTableRef?.pageable.total == 0">批量导出</el-button>
-            <el-button round type="primary" plain @click="batchImportDialog = true">批量导入</el-button>
-            <el-button round type="primary" style="padding: 5px 40px; " @click="handleAdd()">新增</el-button>
+            <el-button type="primary" plain @click="batchExport" :disabled="proTableRef?.pageable.total == 0">批量导出</el-button>
+            <el-button type="primary" plain @click="batchImportDialog = true">批量导入</el-button>
+            <el-button type="primary" style="padding: 5px 34px; " @click="handleAdd()">新增</el-button>
           </div>
-          <el-scrollbar height="calc(100vh - 178px)" class="p-10px">
+          <el-scrollbar height="calc(100vh - 158px)" class="p-10px">
             <div class="no-card">
               <div class="my-2 ">
                 <div class="font-bold card_title"><span></span>基本信息</div>
@@ -98,7 +98,7 @@
                   :request-api="queryTaskRegisterExportById"
                   :init-param="initParam"
                   :request-auto="false"
-                  :height="260"
+                  :height="300"
                 >
                   <template #operation="{row}">
                     <el-button type="primary" link @click="viewPersonDetail(row)">查看</el-button>
@@ -133,8 +133,8 @@
         <SearchForm ref="formRef" :columns="personColumns" :search-param="personInfo" :search-col="2" :preview="true"></SearchForm>
       </el-scrollbar>
       <div class="flex justify-end mt-4">
-        <el-button round @click="showPersonDialog = false">取消</el-button>
-        <el-button round type="primary" @click="showPersonDialog = false">确定</el-button>
+        <el-button @click="showPersonDialog = false">取消</el-button>
+        <el-button type="primary" @click="showPersonDialog = false">确定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -182,7 +182,6 @@ const handleDel = async(row:any) => {
     cancelButtonText: '取消',
     confirmButtonText: '确定',
     type: 'warning',
-    roundButton: true
   }).then(async () => {
     await deleteTaskRegister(row.id)
     ElMessage({

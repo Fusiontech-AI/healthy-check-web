@@ -33,8 +33,8 @@
       </div>
     </div>
     <div class="flex justify-end mt-4">
-      <el-button round @click="hanldeClose">取消</el-button>
-      <el-button round type="primary" @click="hanldeSubmit">确定</el-button>
+      <el-button @click="hanldeClose">取消</el-button>
+      <el-button type="primary" @click="hanldeSubmit">确定</el-button>
     </div>
   </div>
 </template>

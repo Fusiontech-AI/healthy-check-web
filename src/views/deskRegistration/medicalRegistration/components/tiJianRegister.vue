@@ -9,12 +9,12 @@
         <el-form-item label="" prop="replaceCredentialNumber">
           <div class="flex">
             <el-input v-model="form.replaceCredentialNumber" placeholder="请输入" @input="zjhInput" />
-            <el-button round type="primary" class="ml10px">读取</el-button>
+            <el-button type="primary" class="ml10px">读取</el-button>
           </div>
         </el-form-item>
       </template>
     </SearchForm>
-    <el-button round type="primary" class="float-right" @click="handleBc">保存</el-button>
+    <el-button type="primary" class="float-right" @click="handleBc">保存</el-button>
   </div>
 </template>
 

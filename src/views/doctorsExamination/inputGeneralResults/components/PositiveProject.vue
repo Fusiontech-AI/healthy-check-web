@@ -18,9 +18,9 @@
       >
         <template #tableHeader="{ isSelected, selectedListIds }">
           <div class="ml-1">
-            <el-button round size="small" type="primary" @click="handleAddKnowledge">知识库检索</el-button>
-            <el-button round size="small" type="primary" @click="handleAddPositive">新增</el-button>
-            <el-button round size="small" :disabled="!isSelected" @click="handleDel(selectedListIds)">批量删除</el-button>
+            <el-button size="small" type="primary" @click="handleAddKnowledge">知识库检索</el-button>
+            <el-button size="small" type="primary" @click="handleAddPositive">新增</el-button>
+            <el-button size="small" :disabled="!isSelected" @click="handleDel(selectedListIds)">批量删除</el-button>
           </div>
         </template>
       </ProTable>
@@ -28,15 +28,15 @@
     <el-dialog title="新增阳性结果" v-model="positiveDialogVisible" width="30%">
       <SearchForm ref="addFormRef" :columns="columns" :searchCol="1" :search-param="addFormValue" :rules="addRules"></SearchForm>
       <div class="w-full flex justify-end mt-18px">
-        <el-button round @click="positiveDialogVisible = false">取消</el-button>
-        <el-button type="primary" round @click="handleSubmit">确定</el-button>
+        <el-button @click="positiveDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="handleSubmit">确定</el-button>
       </div>
   </el-dialog>
     <el-dialog title="知识库检索" v-model="knowledgeDialogVisible" width="60%">
       <div class="no-card">
         <ProTable :columns="knowledgeColumns" :tool-button="false" :request-api="getZdjyList" :searchCol="2" height="calc(100vh - 320px)">
           <template #operation="{ row }">
-            <el-button type="primary" link round @click="handleKnowledgeAdd(row)">新增</el-button>
+            <el-button type="primary" link @click="handleKnowledgeAdd(row)">新增</el-button>
           </template>
         </ProTable>
       </div>
@@ -78,7 +78,6 @@ const handleDel = async(ids:any) => {
   ElMessageBox.confirm(`是否确认将选中的${ids.length}条阳性结果删除？`, '确认删除', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
-    roundButton: true,
     type: 'warning',
   }).then(async()=> {
     await delRegProjectPositiv(ids)

@@ -28,8 +28,8 @@
       <template #tableHeader="{ selectedList }">
         <div class="flex justify-between">
           <div>
-            <el-button type="primary" round @click="handleMergeArchives(selectedList, 1)">自动合并档案</el-button>
-            <el-button type="primary" round @click="handleMergeArchives(selectedList, 2)">选择合并档案</el-button>
+            <el-button type="primary" @click="handleMergeArchives(selectedList, 1)">自动合并档案</el-button>
+            <el-button type="primary" @click="handleMergeArchives(selectedList, 2)">选择合并档案</el-button>
           </div>
         </div>
       </template>
@@ -40,8 +40,8 @@
         </ProTable>
       </div>
       <div class="w-full flex justify-end mt-18px">
-        <el-button round @click="showMergeDialog = false">取消</el-button>
-        <el-button type="primary" round @click="submitMerge">确定</el-button>
+        <el-button @click="showMergeDialog = false">取消</el-button>
+        <el-button type="primary" @click="submitMerge">确定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -105,7 +105,6 @@ const handleMergeArchives = (selectedList: any, type: number) => {
       cancelButtonText: '取消',
       confirmButtonText: '确定',
       type: 'warning',
-      roundButton: true
     }).then(async () => {
       await mergeArchives({
         isAuto: '0',

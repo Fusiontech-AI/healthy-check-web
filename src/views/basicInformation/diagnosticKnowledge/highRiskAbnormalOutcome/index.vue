@@ -161,7 +161,6 @@ const handleDelete = (row: any) => {
     cancelButtonText: '取消',
     confirmButtonText: '确定',
     type: 'warning',
-    roundButton: true
   }).then(async()=> {
     await deleteRuleTjSet([row.id])
     ElMessage.success('删除成功！')

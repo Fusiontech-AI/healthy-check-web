@@ -29,6 +29,6 @@ watch(activeRegisterInfo, (newV) => {
 
 <style scoped lang="scss">
 .content {
-  height: calc(100vh - 105px);
+  height: calc(100vh - 85px);
 }
 </style>

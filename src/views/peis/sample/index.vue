@@ -23,11 +23,9 @@
             <ProTable ref="proTable" :columns="columns" :request-api="getTableList" :data-callback="dataCallback"
               :init-param="initParam" :height="550" :toolButton="false">
               <template #tableHeader="scope">
-                <el-button type="primary" @click="handleAdd(1)" round>新增</el-button>
-                <el-button type="primary" @click="changeClassify(scope.selectedListIds)" :disabled="!scope.isSelected"
-                  round>批量修改分类</el-button>
-                <el-button type="danger" @click="batchDisable(scope.selectedListIds)" :disabled="!scope.isSelected"
-                  round>批量禁用</el-button>
+                <el-button type="primary" @click="handleAdd(1)">新增</el-button>
+                <el-button type="primary" @click="changeClassify(scope.selectedListIds)" :disabled="!scope.isSelected">批量修改分类</el-button>
+                <el-button type="danger" @click="batchDisable(scope.selectedListIds)" :disabled="!scope.isSelected">批量禁用</el-button>
               </template>
 
               <template #status="{ row }">
@@ -69,8 +67,8 @@
       </div>
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="operationDeter = false" round>取消</el-button>
-          <el-button type="primary" @click="operationSure" round>
+          <el-button @click="operationDeter = false">取消</el-button>
+          <el-button type="primary" @click="operationSure">
             确定
           </el-button>
         </span>
@@ -84,11 +82,11 @@
       <addForm :addInfo="addInfo" ref="formRef" :isPreview="isPreview"></addForm>
       <template #footer>
         <div style="flex: auto" v-if="!isPreview">
-          <el-button @click="addDrawer = false" round>取消</el-button>
-          <el-button type="primary" @click="confirmClick(formRef.addInfoRef)" round>确定</el-button>
+          <el-button @click="addDrawer = false">取消</el-button>
+          <el-button type="primary" @click="confirmClick(formRef.addInfoRef)">确定</el-button>
         </div>
         <div style="flex: auto" v-else>
-          <el-button @click="addDrawer = false" round>关闭</el-button>
+          <el-button @click="addDrawer = false">关闭</el-button>
         </div>
       </template>
     </el-drawer>
@@ -98,8 +96,8 @@
       <configuration ref="configurationRef" :configurationInfo="configurationInfo"></configuration>
       <template #footer>
         <div style="flex: auto">
-          <el-button @click="configurationDrawer = false" round>取消</el-button>
-          <el-button type="primary" @click="saveClick" round>确定</el-button>
+          <el-button @click="configurationDrawer = false">取消</el-button>
+          <el-button type="primary" @click="saveClick">确定</el-button>
         </div>
       </template>
     </el-drawer>
@@ -124,8 +122,8 @@
       </div>
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="batchEditDialog = false" round>取消</el-button>
-          <el-button type="primary" @click="handleBatchEdit(batchEditRef)" round>
+          <el-button @click="batchEditDialog = false">取消</el-button>
+          <el-button type="primary" @click="handleBatchEdit(batchEditRef)">
             确定
           </el-button>
         </span>

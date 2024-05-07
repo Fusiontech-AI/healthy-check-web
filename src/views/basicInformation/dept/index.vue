@@ -4,8 +4,8 @@
       <ProTable ref="proTable" :columns="columns" :request-api="getTableList" :toolButton="false" rowKey="id" :searchCol="4" label-position="right">
         <!-- 表格 header 按钮 -->
         <template #tableHeader="scope">
-          <el-button round type="primary" @click="openDrawer('新增', '')">新增科室</el-button>
-          <el-button round plain :disabled="!scope.isSelected" @click="batchDelete(scope.selectedListIds)"> 批量删除 </el-button>
+          <el-button type="primary" @click="openDrawer('新增', '')">新增科室</el-button>
+          <el-button plain :disabled="!scope.isSelected" @click="batchDelete(scope.selectedListIds)"> 批量删除 </el-button>
         </template>
         <!-- 表格操作 -->
         <template #operation="scope">

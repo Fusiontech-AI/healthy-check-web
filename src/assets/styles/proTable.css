@@ -206,6 +206,13 @@
 .table-box .el-table .el-table__header .el-table__cell > .cell,
 .table-main .el-table .el-table__header .el-table__cell > .cell {
   white-space: wrap;
+  color: #89919F;
+  font-weight: normal;
+}
+
+.table-box .el-table .el-table__body .el-table__cell,
+.table-main .el-table .el-table__body .el-table__cell {
+  color: #3F4755;
 }
 
 .table-box .el-table .el-table__empty-block,

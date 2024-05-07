@@ -26,7 +26,7 @@
         </el-row>
       </template>
       <template #tableHeader="{ selectedListIds, isSelected }">
-        <el-button type="primary" round :disabled="!isSelected" @click="handleReRegister(selectedListIds)">再次登记</el-button>
+        <el-button type="primary" :disabled="!isSelected" @click="handleReRegister(selectedListIds)">再次登记</el-button>
       </template>
     </ProTable>
   </div>
@@ -110,7 +110,6 @@ const handleReRegister = (ids: any) => {
     cancelButtonText: '取消',
     confirmButtonText: '确定',
     type: 'warning',
-    roundButton: true
   }).then(async () => {
     await reRegistration(ids)
     ElMessage({

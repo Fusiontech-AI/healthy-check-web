@@ -3,7 +3,7 @@
     <SearchForm ref="formRef" :columns="formColumns" :search-param="formValue" :search-col="4" :rules="rules"
       :disabled="false" label-position="right">
     </SearchForm>
-    <el-button round type="primary" class="float-right" @click="handleBc">保存</el-button>
+    <el-button type="primary" class="float-right" @click="handleBc">保存</el-button>
   </div>
 </template>
 

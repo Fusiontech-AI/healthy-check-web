@@ -8,7 +8,7 @@
             <el-input v-model="searchTreeValue" class="mt-2" placeholder="请输入关键字" @input="getTreeData"
               clearable></el-input>
           </div>
-          <el-scrollbar class="px-10px pb-10px" height="calc(100vh - 200px)">
+          <el-scrollbar class="px-10px pb-10px" height="calc(100vh - 180px)">
             <el-tree v-loading="treeLoading" class="tree_root" highlight-current :data="treeData"
               :default-expanded-keys="['all']" node-key="code" :props="defaultProps" @node-click="handleNodeClick">
             </el-tree>
@@ -25,13 +25,13 @@
           <pro-table v-if="activeTabValue !== '7'" ref="proTableRef" :columns="columns" :toolButton="false"
             :request-api="getTableList" :data-callback="dataCallback" :isShowSearch="true" rowKey="id" :height="380">
             <template #tableHeader="{ selectedListIds, isSelected }">
-              <el-button round type="primary" @click="onpenDrawer({})">新增</el-button>
-              <el-button round :disabled="!isSelected" @click="handleDel(selectedListIds)">批量删除</el-button>
+              <el-button type="primary" @click="onpenDrawer({})">新增</el-button>
+              <el-button :disabled="!isSelected" @click="handleDel(selectedListIds)">批量删除</el-button>
             </template>
             <template #operation="{ row }">
-              <el-button round type="primary" link @click="onpenDrawer(row, true)">详情</el-button>
-              <el-button round type="primary" link @click="onpenDrawer(row)">编辑</el-button>
-              <el-button round type="primary" link @click="handleDel([row.id])">删除</el-button>
+              <el-button type="primary" link @click="onpenDrawer(row, true)">详情</el-button>
+              <el-button type="primary" link @click="onpenDrawer(row)">编辑</el-button>
+              <el-button type="danger" link @click="handleDel([row.id])">删除</el-button>
             </template>
           </pro-table>
           <div v-else class="pr-30%">
@@ -77,8 +77,8 @@
           </template>
         </SearchForm>
         <div class="flex justify-end mt-4">
-          <el-button round @click="showDrawer = false">取消</el-button>
-          <el-button round type="primary" @click="handleSubmit" :disabled="isDetail">确定</el-button>
+          <el-button @click="showDrawer = false">取消</el-button>
+          <el-button type="primary" @click="handleSubmit" :disabled="isDetail">确定</el-button>
         </div>
       </div>
     </el-drawer>
@@ -140,7 +140,6 @@ const handleDel = (ids: any) => {
     cancelButtonText: '取消',
     confirmButtonText: '确定',
     type: 'warning',
-    roundButton: true
   }).then(async () => {
     await batchDeleteByIds(ids)
     ElMessage({

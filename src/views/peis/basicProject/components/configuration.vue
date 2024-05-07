@@ -6,9 +6,8 @@
     <ProTable ref="proTable" :columns="columns" :requestApi="basicProjectRefList" :height="550" :toolButton="false"
       v-loading="loading">
       <template #tableHeader="scope">
-        <el-button type="primary" @click="handleAdd(1)" round>新增</el-button>
-        <el-button type="danger" @click="batchDelete(scope.selectedListIds, 1)" :disabled="!scope.isSelected"
-          round>批量删除</el-button>
+        <el-button type="primary" @click="handleAdd(1)">新增</el-button>
+        <el-button type="danger" @click="batchDelete(scope.selectedListIds, 1)" :disabled="!scope.isSelected">批量删除</el-button>
       </template>
 
       <template #healthRefer="{ row }">
@@ -84,8 +83,8 @@
       </div>
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="batchEditDialog = false" round>取消</el-button>
-          <el-button type="primary" @click="handleBatchEdit(batchEditRef)" round>
+          <el-button @click="batchEditDialog = false">取消</el-button>
+          <el-button type="primary" @click="handleBatchEdit(batchEditRef)">
             确定
           </el-button>
         </span>

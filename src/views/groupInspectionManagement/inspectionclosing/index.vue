@@ -21,8 +21,8 @@
           </el-col>
           <el-col :span="6">
             <el-form-item>
-              <el-button type="primary" @click="searchForm(ruleFormRef)" round> 查询 </el-button>
-              <el-button @click="resetForm(ruleFormRef)" round>重置</el-button>
+              <el-button type="primary" @click="searchForm(ruleFormRef)"> 查询 </el-button>
+              <el-button @click="resetForm(ruleFormRef)">重置</el-button>
             </el-form-item>
           </el-col>
         </el-row>
@@ -77,13 +77,10 @@
         <template #tableHeader="scope">
           <div class="payment">
             <div class="payment_btn">
-              <el-button type="primary" :disabled="isButtonEnable" @click="Add(ruleFormRef)" round>新增结账</el-button>
-              <el-button type="primary" :disabled="!scope.isSelected" @click="handelInvoice(scope.selectedListIds)"
-                round>开票</el-button>
-              <el-button type="primary" :disabled="!scope.isSelected" @click="ticketInvalid(scope.selectedListIds)"
-                round>发票作废</el-button>
-              <el-button type="primary" :disabled="!scope.isSelected" @click="cancellationAccount(scope.selectedListIds)"
-                round>结账作废</el-button>
+              <el-button type="primary" :disabled="isButtonEnable" @click="Add(ruleFormRef)">新增结账</el-button>
+              <el-button type="primary" :disabled="!scope.isSelected" @click="handelInvoice(scope.selectedListIds)">开票</el-button>
+              <el-button type="primary" :disabled="!scope.isSelected" @click="ticketInvalid(scope.selectedListIds)">发票作废</el-button>
+              <el-button type="primary" :disabled="!scope.isSelected" @click="cancellationAccount(scope.selectedListIds)">结账作废</el-button>
             </div>
             <div class="payment_info">
               <el-row>
@@ -126,8 +123,8 @@ height: 698px;">
       </accountsDetail>
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="dialogVisible = false" round>取消</el-button>
-          <el-button type="primary" @click="dialogVisible = false" round> 确定 </el-button>
+          <el-button @click="dialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="dialogVisible = false"> 确定 </el-button>
         </span>
       </template>
     </el-dialog>
@@ -145,8 +142,8 @@ height: 698px;">
       </template>
       <template #footer>
         <div style="flex: auto">
-          <el-button @click="drawer = false" round>取消</el-button>
-          <el-button type="primary" @click="confirmClick(addRef.addFormRef)" round>确定</el-button>
+          <el-button @click="drawer = false">取消</el-button>
+          <el-button type="primary" @click="confirmClick(addRef.addFormRef)">确定</el-button>
         </div>
       </template>
     </el-drawer>
@@ -166,8 +163,8 @@ height: 698px;">
       </div>
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="operationDeter = false" round>取消</el-button>
-          <el-button type="primary" @click="operationSure" round> 确定 </el-button>
+          <el-button @click="operationDeter = false">取消</el-button>
+          <el-button type="primary" @click="operationSure"> 确定 </el-button>
         </span>
       </template>
     </el-dialog>

@@ -23,10 +23,9 @@
             <ProTable ref="proTable" :columns="columns" :request-api="getTableList" :data-callback="dataCallback"
               :init-param="initParam" :height="550" :toolButton="false">
               <template #tableHeader="scope">
-                <el-button type="primary" @click="handleAdd(1)" round>新增</el-button>
-                <el-button type="primary" round>同步</el-button>
-                <el-button type="danger" @click="batchDelete(scope.selectedListIds)" :disabled="!scope.isSelected"
-                  round>批量删除</el-button>
+                <el-button type="primary" @click="handleAdd(1)">新增</el-button>
+                <el-button type="primary">同步</el-button>
+                <el-button type="danger" @click="batchDelete(scope.selectedListIds)" :disabled="!scope.isSelected">批量删除</el-button>
               </template>
 
               <template #status="{ row }">
@@ -67,8 +66,8 @@
       </div>
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="operationDeter = false" round>取消</el-button>
-          <el-button type="primary" @click="operationSure" round>
+          <el-button @click="operationDeter = false">取消</el-button>
+          <el-button type="primary" @click="operationSure">
             确定
           </el-button>
         </span>
@@ -82,11 +81,11 @@
       <addForm :addInfo="addInfo" ref="formRef" :isPreview="isPreview"></addForm>
       <template #footer>
         <div style="flex: auto" v-if="!isPreview">
-          <el-button @click="addDrawer = false" round>取消</el-button>
-          <el-button type="primary" @click="confirmClick(formRef.addInfoRef)" round>确定</el-button>
+          <el-button @click="addDrawer = false">取消</el-button>
+          <el-button type="primary" @click="confirmClick(formRef.addInfoRef)">确定</el-button>
         </div>
         <div style="flex: auto" v-else>
-          <el-button @click="addDrawer = false" round>关闭</el-button>
+          <el-button @click="addDrawer = false">关闭</el-button>
         </div>
       </template>
     </el-drawer>

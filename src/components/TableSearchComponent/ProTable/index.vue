@@ -2,7 +2,7 @@
 
 <template>
   <!-- 查询表单 -->
-  <SearchForm v-show="isShowSearch" :search="_search" :reset="_reset" :columns="searchColumns"
+  <SearchForm class="mb-4" v-show="isShowSearch" :search="_search" :reset="_reset" :columns="searchColumns"
     :search-param="searchParam" :search-col="searchCol" :showActionGroup="showActionGroup" v-bind="$attrs">
     <template v-for="slot in Object.keys($slots)" #[slot]="scope">
       <slot :name="slot" v-bind="scope" />
@@ -32,7 +32,7 @@
     </div>
     <!-- 表格主体 -->
     <el-table ref="tableRef" v-bind="$attrs" :data="processTableData" :border="border" :row-key="rowKey"
-      @selection-change="selectionChange" v-loading="loading">
+      @selection-change="selectionChange" v-loading="loading" table-layout="auto">
       <!-- 默认插槽 -->
       <slot />
       <template v-for="item in tableColumns" :key="item.prop">
