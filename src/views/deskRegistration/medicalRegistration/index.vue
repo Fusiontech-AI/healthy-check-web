@@ -22,13 +22,13 @@
       <template #tableHeader>
         <div class="flex justify-between">
           <div>
-            <el-button type="primary" @click="handleBD">报到</el-button>
+            <el-button type="primary" @click="handleBD" class="w-84px">报到</el-button>
             <el-button @click="handleGj">个检登记</el-button>
             <el-button @click="handleTj">团检登记</el-button>
             <el-button @click="handleAdd">打印导检单</el-button>
             <el-button @click="handleAdd">打印条码</el-button>
-            <el-button @click="handleGToT">个转团</el-button>
-            <el-button @click="handleTToG">团转个</el-button>
+            <el-button @click="handleGToT" class="w-84px">个转团</el-button>
+            <el-button @click="handleTToG" class="w-84px">团转个</el-button>
             <el-button plain>取消登记</el-button>
             <el-button plain>取消报到</el-button>
           </div>

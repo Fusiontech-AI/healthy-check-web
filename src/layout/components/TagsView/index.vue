@@ -14,7 +14,11 @@
       >
         {{ tag.title }}
         <span v-if="!isAffix(tag)" @click.prevent.stop="closeSelectedTag(tag)">
-          <close class="el-icon-close" style="width: 1em; height: 1em;vertical-align: middle;" />
+          <!-- <el-icon><CircleClose /></el-icon> -->
+          <el-button link>
+            <el-icon class="el-icon-close"><CircleClose /></el-icon>
+          </el-button>
+          <!-- <close class="el-icon-close" style="width: 1em; height: 1em;vertical-align: middle;" /> -->
         </span>
       </router-link>
     </scroll-pane>
@@ -71,8 +75,8 @@ const isActive = (r: TagView): boolean => {
 const activeStyle = (tag: TagView) => {
     if (!isActive(tag)) return {};
     return {
-        "background-color": theme.value,
-        "border-color": theme.value
+        // "background-color": theme.value,
+        // "border-color": theme.value
     };
 }
 const isAffix = (tag: TagView) => {
@@ -238,48 +242,49 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .tags-view-container {
-  height: 34px;
   width: 100%;
-  background-color: var(--el-bg-color);
-  border: 1px solid var(--el-border-color-light);
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.12), 0 0 3px 0 rgba(0, 0, 0, 0.04);
+  padding-top: 10px;
+  background-color: #F3F6FB;
   .tags-view-wrapper {
     .tags-view-item {
       display: inline-block;
       position: relative;
       cursor: pointer;
-      height: 26px;
-      line-height: 23px;
+      //   height: 26px;
+      //   line-height: 23px;
       background-color: var(--el-bg-color);
-      border: 1px solid var(--el-border-color-light);
-      color: #495060;
-      padding: 0 8px;
-      font-size: 12px;
-      margin-left: 5px;
-      margin-top: 4px;
+      border-radius: 4px;
+      //   border: 1px solid var(--el-border-color-light);
+      //   color: #495060;
+      padding: 5px 10px;
+      font-size: 14px;
+      margin-right: 8px;
+      color: #3F4755;
+
       &:hover {
         color: var(--el-color-primary);
-      }
-      &:first-of-type {
-        margin-left: 15px;
+        .el-icon-close {
+            color: #2879FF;
+        }
       }
       &:last-of-type {
         margin-right: 15px;
       }
       &.active {
-        background-color: #42b983;
-        color: #fff;
-        border-color: #42b983;
-        &::before {
-          content: "";
-          background: #fff;
-          display: inline-block;
-          width: 8px;
-          height: 8px;
-          border-radius: 50%;
-          position: relative;
-          margin-right: 5px;
+        color: var(--el-color-primary);
+        .el-icon-close {
+            color: #2879FF;
         }
+        // &::before {
+        //   content: "";
+        //   background: #fff;
+        //   display: inline-block;
+        //   width: 8px;
+        //   height: 8px;
+        //   border-radius: 50%;
+        //   position: relative;
+        //   margin-right: 5px;
+        // }
       }
     }
   }
@@ -311,23 +316,22 @@ onMounted(() => {
 .tags-view-wrapper {
   .tags-view-item {
     .el-icon-close {
+      margin-top: -3px;
       width: 16px;
       height: 16px;
       vertical-align: 2px;
-      border-radius: 50%;
-      text-align: center;
-      transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
-      transform-origin: 100% 50%;
+      //   border-radius: 50%;
+      //   text-align: center;
+        transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+        transform-origin: 100% 50%;
       &:before {
         transform: scale(0.6);
         display: inline-block;
         vertical-align: -3px;
       }
       &:hover {
-        background-color: #b4bccc;
-        color: #fff;
-        width: 12px !important;
-        height: 12px !important;
+        // background-color: #b4bccc;
+        color: #2879FF;
       }
     }
   }

@@ -1,5 +1,5 @@
 <template>
-  <div v-if="columns.length" class="card form-search">
+  <div v-if="columns.length" class="card form-search mb-6px">
     <el-form ref="formRef" :model="searchParam" label-position="left" labelWidth="auto" v-bind="$attrs">
       <Grid ref="gridRef" :collapsed="collapsed" :gap="[20, 0]" :cols="searchCol">
         <GridItem v-for="(item, index) in columnsFunc" :key="item.prop" v-bind="getResponsive(item)" :index="index"

@@ -2,8 +2,8 @@
   <div class="table-box">
     <ProTable ref="proTableRef" :toolButton="false" :columns="tableColumns" :request-api="getTableList" default-expand-all>
       <template #tableHeader>
-        <el-button type="primary" round @click="handleAddOrEdit(1)">新增大类</el-button>
-        <el-button type="primary" round @click="handleAddOrEdit(2)">新增小类</el-button>
+        <el-button type="primary" @click="handleAddOrEdit(1)">新增大类</el-button>
+        <el-button type="primary" @click="handleAddOrEdit(2)">新增小类</el-button>
       </template>
       <template #operation="{row}">
         <el-button link type="primary" @click="handleAddOrEdit(row.parentId == 1 ? 1 : 2, row)">编辑</el-button>
@@ -13,8 +13,8 @@
     <el-dialog :title="dialogTitle" v-model="dialogVisible" width="30%">
       <SearchForm ref="searchFormRef" :columns="filedColumns" :search-col="1" :search-param="searchParams"></SearchForm>
       <el-row type="flex" justify="end">
-        <el-button type="primary" round @click="handleSubmit">确认</el-button>
-        <el-button round @click="dialogVisible = false">取消</el-button>
+        <el-button @click="dialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="handleSubmit">确认</el-button>
       </el-row>
     </el-dialog>
   </div>

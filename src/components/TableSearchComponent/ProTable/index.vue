@@ -2,8 +2,16 @@
 
 <template>
   <!-- 查询表单 -->
-  <SearchForm class="mb-4" v-show="isShowSearch" :search="_search" :reset="_reset" :columns="searchColumns"
-    :search-param="searchParam" :search-col="searchCol" :showActionGroup="showActionGroup" v-bind="$attrs">
+  <SearchForm
+    v-show="isShowSearch"
+    :search="_search"
+    :reset="_reset"
+    :columns="searchColumns"
+    :search-param="searchParam"
+    :search-col="searchCol"
+    :showActionGroup="showActionGroup"
+    v-bind="$attrs"
+  >
     <template v-for="slot in Object.keys($slots)" #[slot]="scope">
       <slot :name="slot" v-bind="scope" />
     </template>
@@ -17,28 +25,42 @@
     <!-- 表格头部 操作按钮 -->
     <div class="table-header">
       <div class="header-button-lf">
-        <slot name="tableHeader" :selected-list="selectedList" :selected-list-ids="selectedListIds"
-          :is-selected="isSelected" />
+        <slot name="tableHeader" :selected-list="selectedList" :selected-list-ids="selectedListIds" :is-selected="isSelected" />
       </div>
       <div v-if="toolButton" class="header-button-ri">
         <slot name="toolButton">
           <el-button v-if="showToolButton('refresh')" :icon="Refresh" circle @click="getTableList" />
-          <el-button v-if="showToolButton('setting') && columns.length" :icon="Operation" circle
-            @click="openColSetting" />
-          <el-button v-if="showToolButton('search') && searchColumns?.length" :icon="Search" circle
-            @click="isShowSearch = !isShowSearch" />
+          <el-button v-if="showToolButton('setting') && columns.length" :icon="Operation" circle @click="openColSetting" />
+          <el-button v-if="showToolButton('search') && searchColumns?.length" :icon="Search" circle @click="isShowSearch = !isShowSearch" />
         </slot>
       </div>
     </div>
+    <div v-if="showSelection" class="flex items-center justify-between mb-14px mt-1 px-28px py-1 text-#3F4755 bg-#F2F7FC rounded">
+      当前选中{{ selectedListIds.length }}条，共有{{ pageable.total }}条
+      <span class="cursor-pointer" @click="clearSelection">清空</span>
+    </div>
     <!-- 表格主体 -->
-    <el-table ref="tableRef" v-bind="$attrs" :data="processTableData" :border="border" :row-key="rowKey"
-      @selection-change="selectionChange" v-loading="loading" table-layout="auto">
+    <el-table
+      ref="tableRef"
+      v-bind="$attrs"
+      :data="processTableData"
+      :border="border"
+      :row-key="rowKey"
+      @selection-change="selectionChange"
+      v-loading="loading"
+      table-layout="auto"
+    >
       <!-- 默认插槽 -->
       <slot />
       <template v-for="item in tableColumns" :key="item.prop">
         <!-- selection || radio || index || expand || sort -->
-        <el-table-column v-if="item.type && columnTypes.includes(item.type)" v-bind="item"
-          :align="item.align ?? 'center'" :reserve-selection="item.type == 'selection'" :selectable="item.selectable">
+        <el-table-column
+          v-if="item.type && columnTypes.includes(item.type)"
+          v-bind="item"
+          :align="item.align ?? 'center'"
+          :reserve-selection="item.type == 'selection'"
+          :selectable="item.selectable"
+        >
           <template #default="scope">
             <!-- expand -->
             <template v-if="item.type == 'expand'">
@@ -80,8 +102,12 @@
     </el-table>
     <!-- 分页组件 -->
     <slot name="pagination">
-      <TablePagination v-if="pagination && pageable.total !== 0" :pageable="pageable"
-        :handle-size-change="handleSizeChange" :handle-current-change="handleCurrentChange" />
+      <TablePagination
+        v-if="pagination && pageable.total !== 0"
+        :pageable="pageable"
+        :handle-size-change="handleSizeChange"
+        :handle-current-change="handleCurrentChange"
+      />
     </slot>
   </div>
   <!-- 列设置 -->
@@ -130,7 +156,7 @@ const props = withDefaults(defineProps<ProTableProps>(), {
   initParam: {},
   queryParams: {},
   border: false,
-  toolButton: true,
+  toolButton: false,
   rowKey: "id",
   searchCol: () => ({ xs: 1, sm: 2, md: 2, lg: 3, xl: 4 }),
   showActionGroup: true,
@@ -145,6 +171,9 @@ const columnTypes: TypeProps[] = ["selection", "radio", "index", "expand", "sort
 // 是否显示搜索模块
 const isShowSearch = ref(props.isShowSearch);
 
+const showSelection = computed(()=> {
+  return isShowSearch.value && props.columns.some(item=> item.search) && props.columns.some(item => item.type == 'selection')
+})
 // 控制 ToolButton 显示
 const showToolButton = (key: "refresh" | "setting" | "search") => {
   return Array.isArray(props.toolButton) ? props.toolButton.includes(key) : props.toolButton;

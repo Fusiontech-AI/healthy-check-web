@@ -20,7 +20,7 @@
         <template #gjc>
           <div class="flex gap-2">
             <el-input v-model="queryParams.taskName" placeholder="输入关键词搜索" suffix-icon="Search" />
-            <el-button class="button" :icon="RefreshRight" @click="handleCz" />
+            <el-button plain class="button" :icon="RefreshRight" @click="handleCz" />
           </div>
         </template>
       </SearchForm>

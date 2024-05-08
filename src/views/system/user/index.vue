@@ -1,9 +1,9 @@
 <template>
-  <div>
-    <el-row :gutter="20">
+  <div class="bg-#fff h-full">
+    <el-row :gutter="8">
       <!-- 部门树 -->
-      <el-col :lg="4" :xs="24" style="">
-        <el-card shadow="hover">
+      <el-col :lg="4" :xs="24">
+        <el-card shadow="hover" class="h-full">
           <el-input v-model="deptName" placeholder="请输入部门名称" prefix-icon="Search" clearable />
           <el-tree
             class="mt-2"
@@ -61,7 +61,7 @@
           </div>
         </transition>
 
-        <el-card shadow="hover">
+        <el-card shadow="hover" >
           <template #header>
             <el-row :gutter="10">
               <el-col :span="1.5">

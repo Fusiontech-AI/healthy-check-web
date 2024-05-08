@@ -91,11 +91,15 @@ defineExpose({
   position: relative;
   overflow: hidden;
   width: 100%;
+  margin: 0 14px;
+  background-color: #F3F6FB;
   :deep(.el-scrollbar__bar) {
     bottom: 0px;
+    height: 4px;
   }
   :deep(.el-scrollbar__wrap) {
-    height: 49px;
+    // height: 49px;
+    padding-bottom: 6px;
   }
 }
 </style>
