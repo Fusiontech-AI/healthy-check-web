@@ -28,8 +28,8 @@
           </el-col>
           <el-col :span="6">
             <el-form-item>
-              <el-button type="primary" @click="searchForm(ruleFormRef)"> 查询 </el-button>
               <el-button @click="resetForm(ruleFormRef)">重置</el-button>
+              <el-button type="primary" @click="searchForm(ruleFormRef)"> 查询 </el-button>
             </el-form-item>
           </el-col>
         </el-row>

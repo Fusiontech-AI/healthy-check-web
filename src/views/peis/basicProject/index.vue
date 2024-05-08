@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <el-card>
+  <div class="bg-#fff h-full overflow-auto">
+    <!-- <el-card> -->
       <el-row>
         <el-col :span="4">
           <div class="sample">
@@ -53,7 +53,7 @@
           </div>
         </el-col>
       </el-row>
-    </el-card>
+    <!-- </el-card> -->
 
     <!-- 确认操作 -->
     <el-dialog v-model="operationDeter" width="30%" class="sealAccountClass">
@@ -358,7 +358,7 @@ const handleDlete = (id) => {
 <style scoped lang="scss">
 .sample {
   padding: 10px;
-  height: 700px;
+  // height: 700px;
   border-right: 1px solid #E8E8E8;
 }
 

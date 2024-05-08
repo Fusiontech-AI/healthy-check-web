@@ -20,16 +20,16 @@
           <template #prefix><svg-icon icon-class="company" class="el-input__icon input-icon" /></template>
         </el-select> -->
 
-        <!-- <header-search id="header-search" class="right-menu-item" /> -->
-        <!-- <search-menu ref="searchMenuRef" /> -->
-        <el-tooltip content="搜索" effect="dark" placement="bottom">
+        <header-search id="header-search" class="right-menu-item" />
+        <search-menu ref="searchMenuRef" />
+        <!-- <el-tooltip content="搜索" effect="dark" placement="bottom">
           <div class="right-menu-item hover-effect" @click="openSearchMenu">
             <svg-icon class-name="search-icon" icon-class="search" />
           </div>
-        </el-tooltip>
+        </el-tooltip> -->
         <!-- 消息 -->
         <el-tooltip :content="$t('navbar.message')" effect="dark" placement="bottom">
-          <div>
+          <div class="mx-18px">
             <el-popover placement="bottom" trigger="click" transition="el-zoom-in-top" :width="300" :persistent="false">
               <template #reference>
                 <el-badge :value="newNotice > 0 ? newNotice : ''" :max="99">
@@ -66,6 +66,7 @@
         <el-dropdown @command="handleCommand" class="right-menu-item hover-effect" trigger="click">
           <div class="avatar-wrapper">
             <img :src="userStore.avatar" class="user-avatar" />
+            <span class="text-#89919F text-14px">{{ userStore.nickname }}</span>
             <el-icon><caret-bottom /></el-icon>
           </div>
           <template #dropdown>
@@ -106,6 +107,7 @@ const noticeStore = storeToRefs(useNoticeStore());
 const newNotice = ref(<number>0);
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
+console.log(userStore, 'userStore');
 
 const userId = ref(userStore.userId);
 const companyName = ref(undefined);
@@ -268,25 +270,30 @@ watch(() => noticeStore.state.value.notices, (newVal, oldVal) => {
     }
 
     .avatar-container {
+      display: flex;
+      align-items: center;
       margin-right: 40px;
 
       .avatar-wrapper {
-        margin-top: 5px;
-        position: relative;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        // margin-top: 5px;
+        // position: relative;
 
         .user-avatar {
           cursor: pointer;
-          width: 40px;
-          height: 40px;
-          border-radius: 10px;
-          margin-top: 10px;
+          width: 30px;
+          height: 30px;
+          border-radius: 15px;
+          // margin-top: 10px;
         }
 
         i {
           cursor: pointer;
           position: absolute;
           right: -20px;
-          top: 25px;
+          top: 20px;
           font-size: 12px;
         }
       }

@@ -21,7 +21,7 @@
             height="calc(100vh - 300px)" :request-auto="false" :init-param="initParam"
             :request-api="queryRuleTjSetPages">
             <template #tableHeader>
-              <el-button type="primary" style="padding: 5px 30px;" round @click="handleAdd"
+              <el-button type="primary" style="padding: 5px 30px;" @click="handleAdd"
                 :disabled="_.isEmpty(treeNodeClickObj) || treeNodeClickObj.children ? true : false">新增</el-button>
             </template>
             <template #operation="{ row }">
@@ -38,8 +38,8 @@
         :rules="rules">
       </SearchForm>
       <div class="flex justify-end mt-4">
-        <el-button round @click="dialogVisible = false">取消</el-button>
-        <el-button round type="primary" @click="handleSubmit">确定</el-button>
+        <el-button @click="dialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="handleSubmit">确定</el-button>
       </div>
     </el-dialog>
   </div>

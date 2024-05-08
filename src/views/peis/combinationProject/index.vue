@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <el-card>
+  <div class="bg-#fff h-full overflow-auto">
+    <!-- <el-card> -->
       <el-row>
         <el-col :span="4">
           <div class="sample">
@@ -21,7 +21,7 @@
         <el-col :span="20">
           <div class="sample">
             <ProTable ref="proTable" :columns="columns" :request-api="getTableList" :data-callback="dataCallback"
-              :init-param="initParam" :height="550" :toolButton="false">
+              :init-param="initParam" :toolButton="false">
               <template #tableHeader="scope">
                 <el-button type="primary" @click="handleAdd(1)">新增</el-button>
                 <el-button type="primary">同步</el-button>
@@ -50,7 +50,7 @@
           </div>
         </el-col>
       </el-row>
-    </el-card>
+    <!-- </el-card> -->
 
     <!-- 确认操作 -->
     <el-dialog v-model="operationDeter" width="30%" class="sealAccountClass">

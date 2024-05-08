@@ -2,7 +2,7 @@
   <div class="h-full bg-white">
     <div class="flex justify-between items-center p-10px pb-0">
       <span class=" text-lg font-500">结果维护</span>
-      <el-button type="primary" v-throttle round @click="router.go(-1)">返回</el-button>
+      <el-button type="primary" v-throttle @click="router.go(-1)">返回</el-button>
     </div>
     <div class="divider"></div>
     <div class="px-10px pb-0 no-card">
@@ -17,7 +17,7 @@
         :expand-row-keys="expandRowKeys">
         <template #tableHeader>
           <div class="flex mb-6px">
-            <el-button type="primary" round class="mr-2" @click="handleAddRule">新增规则</el-button>
+            <el-button type="primary" class="mr-2" @click="handleAddRule">新增规则</el-button>
             <el-input placeholder="请输入规则名称搜索" v-model="initParams.name" style="height: 32px;" prefix-icon="Search"></el-input>
           </div>
         </template>
@@ -125,8 +125,8 @@
         </SearchForm>
       </div>
       <template #footer>
-        <el-button round @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" round @click="handleSubmitRule">确定</el-button>
+        <el-button @click="dialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="handleSubmitRule">确定</el-button>
       </template>
     </el-drawer>
   </div>

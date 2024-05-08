@@ -40,7 +40,7 @@ watch(()=> useSettingsStore().animationEnable, (val) => {
   width: 100%;
   padding: 14px;
   position: relative;
-  overflow: hidden;
+  overflow: auto;
   background: #F3F6FB;
 }
 
@@ -55,7 +55,7 @@ watch(()=> useSettingsStore().animationEnable, (val) => {
   }
 
   .fixed-header+.app-main {
-    padding-top: 100px;
+    padding-top: 104px;
   }
 }
 </style>

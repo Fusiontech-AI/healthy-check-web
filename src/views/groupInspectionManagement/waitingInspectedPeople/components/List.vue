@@ -58,7 +58,7 @@
         :columns="groupColumn"
         :searchCol="1"
         :rules="groupRules"
-        style="background: transparent; padding: 18px 30px;"
+        style="background: transparent;"
       >
         <template #taskName>
           <el-input v-model="formValue.taskName" placeholder="请输入任务名称" :disabled="true" />

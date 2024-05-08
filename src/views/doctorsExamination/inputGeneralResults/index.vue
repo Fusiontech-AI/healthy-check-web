@@ -27,7 +27,7 @@
             <el-collapse-transition>
               <div v-show="showInput" class="flex mt-8px">
                 <el-input placeholder="请输入姓名" v-model="registerParams.name" @input="updateInput"></el-input>
-                <el-button class="ml-1" icon="RefreshRight" style="padding: 8px;" @click="handleRefresh"></el-button>
+                <el-button plain class="ml-1" icon="RefreshRight" style="padding: 8px;" @click="handleRefresh"></el-button>
               </div>
             </el-collapse-transition>
             <div class="divider"></div>
