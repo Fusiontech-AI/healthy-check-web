@@ -24,7 +24,7 @@
           @click="registerParams.healthyCheckStatus = '3'; getRegisterList()">分检完成</span>
       </div>
     </div>
-    <el-scrollbar class="left_list" :height="showInput ? 'calc(100vh - 298px)' : 'calc(100vh - 258px)'"
+    <el-scrollbar class="left_list" :height="showInput ? 'calc(100vh - 328px)' : 'calc(100vh - 288px)'"
       v-loading="registerLoading">
       <template v-if="registerList && registerList.length !== 0">
         <div v-for="item in registerList" :key="item" shadow="hover">

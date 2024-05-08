@@ -58,6 +58,11 @@ watch(()=> useSettingsStore().animationEnable, (val) => {
     padding-top: 104px;
   }
 }
+
+::-webkit-scrollbar {
+  width: 6px;  /* 对于垂直滚动条，设置宽度 */
+  height: 12px; /* 对于水平滚动条，设置高度 */
+}
 </style>
 <style lang="scss">
 // fix css style bug in open el-dialog

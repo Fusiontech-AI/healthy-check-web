@@ -14,7 +14,7 @@
         :pagination="false"
         :header-cell-style="{ 'font-size': '12px' }"
         :cell-style="{ 'font-size': '12px' }"
-        height="calc((100vh - 280px) / 2)"
+        height="calc((100vh - 350px) / 2)"
       >
         <template #tableHeader="{ isSelected, selectedListIds }">
           <div class="ml-1">

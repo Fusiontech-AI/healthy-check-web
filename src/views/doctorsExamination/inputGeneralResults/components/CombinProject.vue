@@ -2,7 +2,7 @@
   <div>
     <Grid ref="gridRef" :cols="3">
       <GridItem :span="2">
-        <div class="p-10px relative" style="height: calc(100vh - 112px); border-left: 1px solid #E8E8E8; border-right: 1px solid #E8E8E8;">
+        <div class="p-10px relative" style="height: calc(100vh - 132px); border-left: 1px solid #E8E8E8; border-right: 1px solid #E8E8E8;">
           <div class="card_title">
             {{registerInfo.name}}
             {{ sys_user_sex?.find((val: any) => val.dictValue == registerInfo.gender)?.label}}
@@ -32,7 +32,7 @@
             </el-tabs>
           </div>
           <div class="no-card mt-4px">
-            <ProTable ref="projectTableRef" :columns="columns" :data="basicProjectList" :pagination="false" row-key="id" height="calc(100vh - 300px)">
+            <ProTable ref="projectTableRef" :columns="columns" :data="basicProjectList" :pagination="false" row-key="id" height="calc(100vh - 330px)">
               <template #tableHeader="{isSelected, selectedList,selectedListIds }">
                 <el-button type="primary" @click="handleSave" :disabled="basicProjectList.length == 0">保存</el-button>
                 <el-button :disabled="!isSelected" @click="handleClear(selectedList)">批量清除</el-button>

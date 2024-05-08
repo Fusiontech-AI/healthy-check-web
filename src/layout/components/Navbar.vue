@@ -33,7 +33,7 @@
             <el-popover placement="bottom" trigger="click" transition="el-zoom-in-top" :width="300" :persistent="false">
               <template #reference>
                 <el-badge :value="newNotice > 0 ? newNotice : ''" :max="99">
-                  <svg-icon icon-class="message" />
+                  <svg-icon icon-class="message"/>
                 </el-badge>
               </template>
               <template #default>
@@ -66,7 +66,7 @@
         <el-dropdown @command="handleCommand" class="right-menu-item hover-effect" trigger="click">
           <div class="avatar-wrapper">
             <img :src="userStore.avatar" class="user-avatar" />
-            <span class="text-#89919F text-14px">{{ userStore.nickname }}</span>
+            <span class="text-#89919F text-14px ml-2">{{ userStore.nickname }}</span>
             <el-icon><caret-bottom /></el-icon>
           </div>
           <template #dropdown>
@@ -292,8 +292,8 @@ watch(() => noticeStore.state.value.notices, (newVal, oldVal) => {
         i {
           cursor: pointer;
           position: absolute;
-          right: -20px;
-          top: 20px;
+          right: -12px;
+          // top: 20px;
           font-size: 12px;
         }
       }

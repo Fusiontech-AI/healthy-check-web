@@ -33,7 +33,7 @@
               <el-button @click="reset" :icon="RefreshRight" plain style="padding: 8px;min-width: auto;margin-left: 10px;"></el-button>
             </div>
           </div>
-          <el-scrollbar class="list_card" height="calc(100vh - 218px)">
+          <el-scrollbar class="list_card" height="calc(100vh - 250px)">
             <div v-loading="teamTaskLoading">
               <template v-if="teamTaskList && teamTaskList.length !== 0">
                 <el-card
@@ -77,7 +77,7 @@
             <el-button type="primary" plain @click="batchImportDialog = true">批量导入</el-button>
             <el-button type="primary" style="padding: 5px 34px; " @click="handleAdd()">新增</el-button>
           </div>
-          <el-scrollbar height="calc(100vh - 158px)" class="p-10px">
+          <el-scrollbar height="calc(100vh - 190px)" class="p-10px">
             <div class="no-card">
               <div class="my-2 ">
                 <div class="font-bold card_title"><span></span>基本信息</div>
