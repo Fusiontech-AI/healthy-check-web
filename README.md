@@ -98,5 +98,5 @@ npm run build:prod
 
 微信联系方式：15927241173
 若群满，则可添加个人微信进群
-https://github.com/Fusiontech-AI/healthy-check-web/blob/fa29f39ee3948ba100fc7dc7f375805f707e6bd7/%E5%9B%BE%E7%89%872.png
+![输入图片说明](https://github.com/Fusiontech-AI/healthy-check-web/blob/fa29f39ee3948ba100fc7dc7f375805f707e6bd7/%E5%9B%BE%E7%89%872.png)) 
 
