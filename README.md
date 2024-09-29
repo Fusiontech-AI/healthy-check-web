@@ -73,3 +73,29 @@ npm run build:prod
 | ![输入图片说明](https://foruda.gitee.com/images/1680078982294090567/b31c343d_1766278.png "屏幕截图") | ![输入图片说明](https://foruda.gitee.com/images/1680079000642440444/77ca82a9_1766278.png "屏幕截图") |
 | ![输入图片说明](https://foruda.gitee.com/images/1680079020995074177/03b7d52e_1766278.png "屏幕截图") | ![输入图片说明](https://foruda.gitee.com/images/1680079039367822173/76811806_1766278.png "屏幕截图") |
 | ![输入图片说明](https://foruda.gitee.com/images/1680079274333484664/4dfdc7c0_1766278.png "屏幕截图") | ![输入图片说明](https://foruda.gitee.com/images/1680079290467458224/d6715fcf_1766278.png "屏幕截图") |
+### 商业合作
+
+- 如果您想使用功能更完善的体检系统，请联系电话：15927241173或者微信15927241173
+
+- 如果您想基于体检系统进行定制开发，我们提供有偿定制服务支持
+
+- 其他合作模式不限，欢迎来撩！
+
+- 联系我们（商务请联系电话：15927241173 或者 微信15927241173）
+### 关于我们
+
+公司名称：湖北福鑫科创信息技术有限公司
+地址：湖北省武汉市东湖新技术开发区关山大道泛悦城T2写字楼14层
+电话：027-87705383（固话）   15927241173（移动电话）
+业务合作：heyuyu@fuiontech.cn
+公司主页：www.fusiontech.cn
+
+
+### 交流咨询群
+
+部署安装遇到问题或者想加入社区交流学习、或者是对社区有其他的想法参与等等，扫描下方二维码联系福小鑫获取帮助 
+https://github.com/Fusiontech-AI/healthy-check-service/blob/ce7d6bae00a09913d599b778e96efac7c1ad7aa6/%E5%9B%BE%E7%89%871.png
+微信联系方式：15927241173
+若群满，则可添加个人微信进群
+https://github.com/Fusiontech-AI/healthy-check-service/blob/ce7d6bae00a09913d599b778e96efac7c1ad7aa6/%E5%9B%BE%E7%89%872.png
+
